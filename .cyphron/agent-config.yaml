@@ -1,0 +1,616 @@
+# Cyphron Agent Configuration
+# ──────────────────────────────────────────────────────────────
+# This file configures the Cyphron cybersecurity AI agent.
+# It defines the model, parameters, skills, and knowledge base.
+# ──────────────────────────────────────────────────────────────
+
+agent:
+  name: "Cyphron"
+  version: "2.0.0"
+  type: "cybersecurity"
+  description: >
+    A sophisticated, locally-hosted AI agent with 65 specialized skills.
+    Cyphron operates in two modes: Defensive (build, defend, educate) and
+    Offensive (authorized pentesting with scope validation). All offensive
+    actions require explicit authorization and scope verification.
+  language_default: "auto"
+  language_technical_terms: "en"
+
+# ─── Model Configuration ───
+model:
+  base_model: "qwen2.5-coder:32b"
+  ollama_model_name: "Cyphron"
+  parameters:
+    temperature: 0.3
+    top_p: 0.9
+    top_k: 40
+    num_ctx: 32768
+    repeat_penalty: 1.1
+    seed: 42
+  modelfile: "ollama/Modelfile"
+
+# ─── Core Identity ───
+identity:
+  system_prompt: "system-prompt.md"
+  core_directive: "BUILD. DEFEND. EDUCATE. AUTHORIZED TESTING ONLY. NEVER HARM."
+
+# ─── Guardrails ───
+guardrails:
+  ethics_boundary: "guardrails/ethics-boundary.md"
+  action_protocol: "guardrails/action-protocol.md"
+  refusal_templates: "guardrails/refusal-templates.md"
+  constraints:
+    - "Never attack systems without explicit authorization"
+    - "Always verify scope before any offensive action"
+    - "Always produce a defensive artifact (code, config, detection, education)"
+    - "Always explain attack mechanisms mechanistically"
+    - "Always provide complete, working code — never placeholders"
+    - "Always refuse gracefully and redirect when unauthorized"
+
+# ─── Skills ───
+skills:
+  # ─── Defensive Skills (01-15) ───
+  - id: "01"
+    name: "Secure Code Review"
+    file: "skills/01-secure-code-review.md"
+    triggers: ["review", "is this secure", "check for vulnerabilities", "audit code"]
+    priority: 1
+    mode: defensive
+
+  - id: "02"
+    name: "Threat Modeling"
+    file: "skills/02-threat-modeling.md"
+    triggers: ["threat model", "what could go wrong", "attack surface"]
+    priority: 2
+    mode: defensive
+
+  - id: "03"
+    name: "Vulnerability Detection"
+    file: "skills/03-vulnerability-detection.md"
+    triggers: ["find vulnerabilities", "scan for flaws", "detect issues"]
+    priority: 1
+    mode: defensive
+
+  - id: "04"
+    name: "Security Tool Builder"
+    file: "skills/04-security-tool-builder.md"
+    triggers: ["build a scanner", "create a tool", "write a fuzzer"]
+    priority: 2
+    mode: defensive
+
+  - id: "05"
+    name: "Cryptography Engineering"
+    file: "skills/05-cryptography-engineering.md"
+    triggers: ["encrypt", "hash", "crypto", "jwt", "tls"]
+    priority: 2
+    mode: defensive
+
+  - id: "06"
+    name: "AuthN/AuthZ Builder"
+    file: "skills/06-authn-authz-builder.md"
+    triggers: ["login", "authentication", "authorization", "session", "rbac"]
+    priority: 1
+    mode: defensive
+
+  - id: "07"
+    name: "Input Validation & Sanitization"
+    file: "skills/07-input-validation-sanitization.md"
+    triggers: ["validate", "sanitize", "input", "xss prevention"]
+    priority: 1
+    mode: defensive
+
+  - id: "08"
+    name: "Secure Architecture Design"
+    file: "skills/08-secure-architecture-design.md"
+    triggers: ["architecture", "design", "zero trust", "microservices"]
+    priority: 3
+    mode: defensive
+
+  - id: "09"
+    name: "Detection Engineering"
+    file: "skills/09-detection-engineering.md"
+    triggers: ["waf rule", "ids signature", "siem query", "detect attack"]
+    priority: 2
+    mode: defensive
+
+  - id: "10"
+    name: "Incident Response Builder"
+    file: "skills/10-incident-response-builder.md"
+    triggers: ["incident", "breach", "respond", "playbook"]
+    priority: 3
+    mode: defensive
+
+  - id: "11"
+    name: "Defensive Security Testing"
+    file: "skills/11-defensive-security-testing.md"
+    triggers: ["security test", "sast", "dast", "test suite"]
+    priority: 2
+    mode: defensive
+
+  - id: "12"
+    name: "OWASP Top 10 Hardening"
+    file: "skills/12-owasp-top10-hardening.md"
+    triggers: ["owasp", "a01", "broken access control", "injection"]
+    priority: 1
+    mode: defensive
+
+  - id: "13"
+    name: "Forensics & Analysis"
+    file: "skills/13-forensics-analysis.md"
+    triggers: ["analyze log", "timeline", "investigate", "forensic"]
+    priority: 3
+    mode: defensive
+
+  - id: "14"
+    name: "Security Hardening Config"
+    file: "skills/14-security-hardening-config.md"
+    triggers: ["harden", "nginx config", "docker security", "server config"]
+    priority: 2
+    mode: defensive
+
+  - id: "15"
+    name: "Security Education & Coaching"
+    file: "skills/15-security-education-coaching.md"
+    triggers: ["explain", "teach", "how does x work", "ctf", "learn"]
+    priority: 1
+    mode: defensive
+
+  # ─── Platform Security Skills (16-25) ───
+  - id: "16"
+    name: "API Security Testing"
+    file: "skills/16-api-security-testing.md"
+    triggers: ["api security", "rest security", "graphql security", "api test"]
+    priority: 2
+    mode: defensive
+
+  - id: "17"
+    name: "Cloud Security Engineering"
+    file: "skills/17-cloud-security-engineering.md"
+    triggers: ["aws security", "azure security", "gcp security", "cloud config"]
+    priority: 2
+    mode: defensive
+
+  - id: "18"
+    name: "Container & Kubernetes Security"
+    file: "skills/18-container-k8s-security.md"
+    triggers: ["docker security", "kubernetes security", "container security", "k8s"]
+    priority: 2
+    mode: defensive
+
+  - id: "19"
+    name: "Supply Chain Security"
+    file: "skills/19-supply-chain-security.md"
+    triggers: ["supply chain", "sbom", "dependency security", "slsa"]
+    priority: 3
+    mode: defensive
+
+  - id: "20"
+    name: "Secrets Management"
+    file: "skills/20-secrets-management.md"
+    triggers: ["secrets", "api keys", "vault", "secret management", "key management"]
+    priority: 1
+    mode: defensive
+
+  - id: "21"
+    name: "Network Security Engineering"
+    file: "skills/21-network-security-engineering.md"
+    triggers: ["network security", "firewall", "ids", "ips", "vpn", "dns security"]
+    priority: 2
+    mode: defensive
+
+  - id: "22"
+    name: "Email Security Engineering"
+    file: "skills/22-email-security-engineering.md"
+    triggers: ["email security", "spf", "dkim", "dmarc", "phishing defense"]
+    priority: 2
+    mode: defensive
+
+  - id: "23"
+    name: "Mobile App Security"
+    file: "skills/23-mobile-app-security.md"
+    triggers: ["mobile security", "android security", "ios security", "masvs"]
+    priority: 2
+    mode: defensive
+
+  - id: "24"
+    name: "IoT & Embedded Security"
+    file: "skills/24-iot-embedded-security.md"
+    triggers: ["iot security", "embedded security", "firmware security", "iot top 10"]
+    priority: 3
+    mode: defensive
+
+  - id: "25"
+    name: "Blockchain & Web3 Security"
+    file: "skills/25-blockchain-web3-security.md"
+    triggers: ["blockchain security", "smart contract", "solidity", "web3", "defi"]
+    priority: 3
+    mode: defensive
+
+  # ─── Architecture & Data Skills (26-35) ───
+  - id: "26"
+    name: "Microservices Security"
+    file: "skills/26-microservices-security.md"
+    triggers: ["microservices security", "service mesh", "api gateway security"]
+    priority: 2
+    mode: defensive
+
+  - id: "27"
+    name: "Database Security Engineering"
+    file: "skills/27-database-security-engineering.md"
+    triggers: ["database security", "postgresql security", "mysql security", "mongodb security"]
+    priority: 2
+    mode: defensive
+
+  - id: "28"
+    name: "Data Loss Prevention"
+    file: "skills/28-data-loss-prevention.md"
+    triggers: ["dlp", "data loss", "data exfiltration", "data classification"]
+    priority: 3
+    mode: defensive
+
+  - id: "29"
+    name: "Privacy Engineering"
+    file: "skills/29-privacy-engineering.md"
+    triggers: ["gdpr", "ccpa", "privacy", "data protection", "consent"]
+    priority: 2
+    mode: defensive
+
+  - id: "30"
+    name: "Secure SDLC"
+    file: "skills/30-secure-sdlc.md"
+    triggers: ["secure sdlc", "devsecops", "security pipeline", "security gates"]
+    priority: 2
+    mode: defensive
+
+  # ─── Governance & Risk Skills (31-35) ───
+  - id: "31"
+    name: "Security Policy Development"
+    file: "skills/31-security-policy-development.md"
+    triggers: ["security policy", "security standard", "acceptable use", "data classification"]
+    priority: 3
+    mode: defensive
+
+  - id: "32"
+    name: "Risk Assessment & Management"
+    file: "skills/32-risk-assessment-management.md"
+    triggers: ["risk assessment", "risk management", "risk register", "fair"]
+    priority: 3
+    mode: defensive
+
+  - id: "33"
+    name: "Compliance & Audit Management"
+    file: "skills/33-compliance-audit-management.md"
+    triggers: ["compliance", "audit", "iso 27001", "soc 2", "pci-dss", "hipaa"]
+    priority: 3
+    mode: defensive
+
+  - id: "34"
+    name: "Vulnerability Management"
+    file: "skills/34-vulnerability-management.md"
+    triggers: ["vulnerability management", "vuln scan", "patch management", "cve"]
+    priority: 2
+    mode: defensive
+
+  - id: "35"
+    name: "Disaster Recovery & BCP"
+    file: "skills/35-disaster-recovery-bcp.md"
+    triggers: ["disaster recovery", "bcp", "backup", "failover", "rto", "rpo"]
+    priority: 3
+    mode: defensive
+
+  # ─── Operations & Intelligence Skills (36-45) ───
+  - id: "36"
+    name: "Endpoint Security & EDR"
+    file: "skills/36-endpoint-security-edr.md"
+    triggers: ["endpoint security", "edr", "antivirus", "host security", "sysmon"]
+    priority: 2
+    mode: defensive
+
+  - id: "37"
+    name: "Identity & Access Management"
+    file: "skills/37-identity-access-management.md"
+    triggers: ["iam", "sso", "federation", "pam", "identity", "access management"]
+    priority: 1
+    mode: defensive
+
+  - id: "38"
+    name: "Security Metrics & KPIs"
+    file: "skills/38-security-metrics-kpis.md"
+    triggers: ["security metrics", "security kpi", "security dashboard", "security reporting"]
+    priority: 3
+    mode: defensive
+
+  - id: "39"
+    name: "Malware Analysis & Defense"
+    file: "skills/39-malware-analysis-defense.md"
+    triggers: ["malware analysis", "yara", "malware detection", "ioc"]
+    priority: 3
+    mode: defensive
+
+  - id: "40"
+    name: "Reverse Engineering for Defense"
+    file: "skills/40-reverse-engineering-defense.md"
+    triggers: ["reverse engineering", "binary analysis", "patch diffing", "checksec"]
+    priority: 3
+    mode: defensive
+
+  - id: "41"
+    name: "Memory Safety & Buffer Overflow Defense"
+    file: "skills/41-memory-safety-defense.md"
+    triggers: ["buffer overflow", "memory safety", "use after free", "asan", "fuzzing"]
+    priority: 3
+    mode: defensive
+
+  - id: "42"
+    name: "Secure CI/CD Pipeline"
+    file: "skills/42-secure-cicd-pipeline.md"
+    triggers: ["ci/cd security", "devsecops", "pipeline security", "github actions security"]
+    priority: 2
+    mode: defensive
+
+  - id: "43"
+    name: "Security Documentation & Runbooks"
+    file: "skills/43-security-documentation-runbooks.md"
+    triggers: ["security documentation", "runbook", "sop", "knowledge base"]
+    priority: 3
+    mode: defensive
+
+  - id: "44"
+    name: "Threat Intelligence Integration"
+    file: "skills/44-threat-intelligence-integration.md"
+    triggers: ["threat intelligence", "ioc", "mitre attack", "threat feed"]
+    priority: 3
+    mode: defensive
+
+  - id: "45"
+    name: "Security Monitoring & SIEM"
+    file: "skills/45-security-monitoring-siem.md"
+    triggers: ["siem", "security monitoring", "log analysis", "splunk", "elk"]
+    priority: 2
+    mode: defensive
+
+  # ─── Human & Physical Security Skills (46-48) ───
+  - id: "46"
+    name: "Phishing Defense & Awareness"
+    file: "skills/46-phishing-defense-awareness.md"
+    triggers: ["phishing", "bec", "spear phishing", "email fraud"]
+    priority: 1
+    mode: defensive
+
+  - id: "47"
+    name: "Social Engineering Defense"
+    file: "skills/47-social-engineering-defense.md"
+    triggers: ["social engineering", "pretexting", "vishing", "smishing", "tailgating"]
+    priority: 2
+    mode: defensive
+
+  - id: "48"
+    name: "Physical Security Engineering"
+    file: "skills/48-physical-security-engineering.md"
+    triggers: ["physical security", "badge", "cctv", "data center security", "access control"]
+    priority: 3
+    mode: defensive
+
+  # ─── Advanced Security Skills (49-55) ───
+  - id: "49"
+    name: "Zero Trust Architecture"
+    file: "skills/49-zero-trust-architecture.md"
+    triggers: ["zero trust", "nist 800-207", "micro-segmentation", "policy engine"]
+    priority: 2
+    mode: defensive
+
+  - id: "50"
+    name: "WAF & DDoS Protection"
+    file: "skills/50-waf-ddos-protection.md"
+    triggers: ["waf", "ddos", "rate limiting", "modsecurity", "cloudflare"]
+    priority: 2
+    mode: defensive
+
+  - id: "51"
+    name: "Secure Configuration Management"
+    file: "skills/51-secure-configuration-management.md"
+    triggers: ["configuration management", "drift detection", "cis benchmark", "iac security"]
+    priority: 2
+    mode: defensive
+
+  - id: "52"
+    name: "Red Team Defense"
+    file: "skills/52-red-team-defense.md"
+    triggers: ["red team", "purple team", "adversary simulation", "attack detection"]
+    priority: 3
+    mode: defensive
+
+  - id: "53"
+    name: "Bug Bounty Program"
+    file: "skills/53-bug-bounty-program.md"
+    triggers: ["bug bounty", "vulnerability disclosure", "hackerone", "bugcrowd"]
+    priority: 3
+    mode: defensive
+
+  - id: "54"
+    name: "Secure API Gateway"
+    file: "skills/54-secure-api-gateway.md"
+    triggers: ["api gateway", "kong", "aws api gateway", "api management"]
+    priority: 2
+    mode: defensive
+
+  - id: "55"
+    name: "Data Encryption Strategy"
+    file: "skills/55-data-encryption-strategy.md"
+    triggers: ["encryption strategy", "key management", "kms", "hsm", "envelope encryption"]
+    priority: 2
+    mode: defensive
+
+  # ─── Enterprise & Emerging Skills (56-65) ───
+  - id: "56"
+    name: "Secure Remote Access"
+    file: "skills/56-secure-remote-access.md"
+    triggers: ["remote access", "vpn", "ztna", "bastion", "wireguard"]
+    priority: 2
+    mode: defensive
+
+  - id: "57"
+    name: "Log Management & Compliance"
+    file: "skills/57-log-management-compliance.md"
+    triggers: ["log management", "log retention", "log integrity", "compliance logging"]
+    priority: 2
+    mode: defensive
+
+  - id: "58"
+    name: "Security Champions Program"
+    file: "skills/58-security-champions-program.md"
+    triggers: ["security champions", "security advocacy", "security culture", "dev security"]
+    priority: 3
+    mode: defensive
+
+  - id: "59"
+    name: "Third-Party Risk Management"
+    file: "skills/59-third-party-risk-management.md"
+    triggers: ["third party risk", "vendor security", "vendor assessment", "tprm"]
+    priority: 3
+    mode: defensive
+
+  - id: "60"
+    name: "Secure Data Pipeline"
+    file: "skills/60-secure-data-pipeline.md"
+    triggers: ["data pipeline", "etl security", "data lake security", "streaming security"]
+    priority: 2
+    mode: defensive
+
+  - id: "61"
+    name: "Cloud-Native Security"
+    file: "skills/61-cloud-native-security.md"
+    triggers: ["cloud native", "serverless security", "lambda security", "faas security"]
+    priority: 2
+    mode: defensive
+
+  - id: "62"
+    name: "Security Automation & SOAR"
+    file: "skills/62-security-automation-soar.md"
+    triggers: ["soar", "security automation", "playbook", "orchestration"]
+    priority: 2
+    mode: defensive
+
+  - id: "63"
+    name: "Secure Messaging Queue"
+    file: "skills/63-secure-messaging-queue.md"
+    triggers: ["kafka security", "rabbitmq security", "sqs security", "message queue"]
+    priority: 2
+    mode: defensive
+
+  - id: "64"
+    name: "AI/ML Security"
+    file: "skills/64-ai-ml-security.md"
+    triggers: ["ai security", "ml security", "adversarial", "prompt injection", "llm security"]
+    priority: 3
+    mode: defensive
+
+  - id: "65"
+    name: "Security Awareness & Gamification"
+    file: "skills/65-security-awareness-gamification.md"
+    triggers: ["security awareness", "gamification", "security training", "security culture"]
+    priority: 3
+    mode: defensive
+
+  # ─── Application-Layer Specialized Testing (66-73, harvested 2026-09-03) ───
+  - id: "66"
+    name: "Authorization Coverage Testing"
+    file: "skills/66-authorization-coverage-testing.md"
+    triggers: ["route authorization", "route matrix", "tenant isolation", "cross tenant", "authorization coverage", "endpoint guard", "unprotected endpoint"]
+    priority: 1
+    mode: defensive
+
+  - id: "67"
+    name: "Webhook & Callback Trust Testing"
+    file: "skills/67-webhook-callback-trust-testing.md"
+    triggers: ["webhook", "callback", "idempotency", "replay", "duplicate delivery", "vendor whitelist", "webhook signature"]
+    priority: 1
+    mode: defensive
+
+  - id: "68"
+    name: "SSRF & URL Ingestion Validation"
+    file: "skills/68-ssrf-url-ingestion-validation.md"
+    triggers: ["ssrf", "url validation", "metadata endpoint", "internal url", "server side request", "dns rebinding fetch"]
+    priority: 2
+    mode: defensive
+
+  - id: "69"
+    name: "Proxy & Origin Trust Verification"
+    file: "skills/69-proxy-origin-trust-verification.md"
+    triggers: ["trusted proxy", "x-forwarded-for", "ip spoof", "client ip", "dns rebinding", "origin bypass", "nginx header"]
+    priority: 2
+    mode: defensive
+
+  - id: "70"
+    name: "Payment & Business-Logic Abuse Testing"
+    file: "skills/70-payment-business-logic-abuse-testing.md"
+    triggers: ["payment abuse", "order abuse", "double spend", "entitlement", "business logic", "price manipulation", "payment callback"]
+    priority: 1
+    mode: defensive
+
+  - id: "71"
+    name: "File Upload & Media Abuse Testing"
+    file: "skills/71-file-upload-media-abuse-testing.md"
+    triggers: ["file upload", "media abuse", "exif", "heic", "unrestricted upload", "mime type", "pixel bomb"]
+    priority: 2
+    mode: defensive
+
+  - id: "72"
+    name: "CSP Engineering & Migration"
+    file: "skills/72-csp-engineering-migration.md"
+    triggers: ["csp", "content security policy", "unsafe-inline", "nonce", "csp migration"]
+    priority: 2
+    mode: defensive
+
+  - id: "73"
+    name: "Attack Path Chain Modeling"
+    file: "skills/73-attack-path-chain-modeling.md"
+    triggers: ["attack chain", "attack path", "chaining", "combined scenario", "worst case", "ap1"]
+    priority: 3
+    mode: defensive
+
+  # ─── Defender Forensics (74+, dari kasus nyata 2026-09) ───
+  - id: "74"
+    name: "Malware Static Triage & Deobfuscation"
+    file: "skills/74-malware-static-triage-deobfuscation.md"
+    triggers: ["apk", "deobfuscate", "deobfuscate", "malware analysis", "suspicious file", "fake invitation", "static triage"]
+    priority: 1
+    mode: defensive
+
+# ─── Knowledge Base ───
+knowledge:
+  attack_encyclopedia: "knowledge/attack-encyclopedia.md"
+  secure_patterns: "knowledge/secure-patterns.md"
+  remediation_playbook: "knowledge/remediation-playbook.md"
+  tool_templates: "knowledge/tool-templates.md"
+
+# ─── Response Format ───
+response:
+  structure:
+    - "Assessment — what the user is asking"
+    - "Analysis — what was found and why (mechanistic)"
+    - "Build/Fix/Defend — complete working code"
+    - "Verification — test case or method"
+    - "Deeper Defense — additional hardening"
+  style:
+    tone: "direct, technical, mechanistic"
+    code_completeness: "full — no placeholders, no TODOs"
+    explanation_depth: "mechanistic — explain WHY, not just WHAT"
+    defense_framing: "always — even when explaining attacks, frame as defense"
+
+# ─── Ollama Integration ───
+ollama:
+  api_url: "http://localhost:11434"
+  setup_guide: "ollama/setup-guide.md"
+  model_recommendations: "ollama/model-recommendations.md"
+  commands:
+    install: "winget install Ollama.Ollama"
+    pull_model: "ollama pull qwen2.5-coder:32b"
+    create_agent: "ollama create Cyphron -f Modelfile"
+    run_interactive: "ollama run Cyphron"
+    run_single: 'ollama run Cyphron "your prompt here"'
+    api_generate: 'curl http://localhost:11434/api/generate -d ''{"model":"Cyphron","prompt":"...","stream":false}'''
+
+# ─── Extension Points ───
+extensions:
+  custom_skills_dir: "ferments/"

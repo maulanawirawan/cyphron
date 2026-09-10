@@ -1,0 +1,25 @@
+{
+  "id": "AUTH-LAB-001",
+  "version": "1.0",
+  "issued_at": "2026-09-01T00:00:00Z",
+  "expires_at": "2030-01-01T00:00:00Z",
+  "target": {
+    "name": "Local lab (self-owned)",
+    "description": "Localhost lab: Juice Shop / fixture apps on 127.0.0.1"
+  },
+  "scope": {
+    "type": "cidr+domain",
+    "targets": ["localhost", "127.0.0.1"],
+    "excluded": ["internal.example.com"],
+    "cidr": ["127.0.0.0/8", "::1/128"],
+    "ports": [80, 443, 3000, 5000, 8000, 8080]
+  },
+  "authorized_by": {
+    "name": "Lab Owner (self)",
+    "title": "Owner",
+    "email": "owner@localhost"
+  },
+  "authorization_type": "full",
+  "restrictions": ["no_dos", "no_data_exfiltration", "no_persistence"],
+  "signature": "SELF-LAB-NON-PRODUCTION"
+}

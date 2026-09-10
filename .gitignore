@@ -1,0 +1,16 @@
+# cache / dependensi
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.venv/
+venv/
+
+# artefak scan & laporan klien — tetap lokal, tidak masuk repo
+out_*/
+pdfcheck/
+**/landing/reports/
+
+# sisa non-code
+package-lock.json
+progress_terakhir_cybersecurity.txt

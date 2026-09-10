@@ -1,0 +1,19 @@
+# [HIGH-12] Email Thread Hijack
+
+> Tingkat: **HIGH** (estimasi CVSS v3.1: 7.0 - 8.9) | Engine: **thread_hij** (ROADMAP)
+
+## TEKNIK
+Thread hijack pada template email.
+
+## FP-GUARD (syarat temuan TRUE)
+hit = In-Reply-to dipalsukan. Temuan tanpa memenuhi guard ini TIDAK BOLEH dilaporkan.
+
+## VERIFIKASI
+Jalankan engine terkait; temuan dikonfirmasi hanya jika bukti memenuhi FP-guard,
+dengan request/response tercatat dan early-stop-on-hit aktif.
+
+## SCRIPT/ENGINE
+`cyphron` engine: thread_hij — slot terdesain; implementasi lewat pipeline yang sama (unit test + FP-guard) sebelum boleh TRUE.
+
+## CVSS
+Band: 7.0 - 8.9 (high).

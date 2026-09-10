@@ -1,0 +1,24 @@
+{
+  "id": "AUTH-AIRON-001",
+  "version": "1.0",
+  "issued_at": "2026-09-03T00:00:00Z",
+  "expires_at": "2026-09-10T23:59:59Z",
+  "target": {
+    "name": "Airon production site (owner self-authorized)",
+    "description": "Comprehensive client acceptance test of Cyphron Core on the owner's deployed site"
+  },
+  "scope": {
+    "type": "domain",
+    "targets": ["airon.astheron.my.id"],
+    "excluded": [],
+    "cidr": [],
+    "ports": [443]
+  },
+  "authorized_by": {
+    "name": "Airon owner (self-authorized, client acceptance test)",
+    "title": "Owner"
+  },
+  "authorization_type": "limited",
+  "restrictions": ["no_dos", "no_data_exfiltration", "no_persistence", "no_aggressive"],
+  "signature": "SELF-AUTHORIZED-OWNER-2026-09-03-AIRON"
+}

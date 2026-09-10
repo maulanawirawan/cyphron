@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cyphron — Pentester AI yang benar-benar memperbaiki</title>
+<meta name="description" content="16 engine milik sendiri. 100+ skill dengan FP-guard wajib. Temuan terjamin TRUE. Tanpa kredit, tanpa token.">
+<style>
+  :root{--bg:#0a0a0b;--panel:#121215;--panel2:#17171b;--amber:#f5a524;--amber-dim:#c78515;
+        --text:#e8e8ea;--muted:#9b9ba3;--line:#26262c;--red:#ef4444;--green:#22c55e;--maxw:1080px}
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,sans-serif;line-height:1.6}
+  code,.mono{font-family:'JetBrains Mono',ui-monospace,Consolas,monospace}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px;position:relative;z-index:2}
+  a{color:var(--amber);text-decoration:none}
+  nav{position:sticky;top:0;background:rgba(10,10,11,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);z-index:50}
+  .nav{display:flex;align-items:center;justify-content:space-between;height:64px}
+  .logo{font-weight:800;font-size:20px;letter-spacing:.5px}
+  .logo span{color:var(--amber)}
+  .nav .cta{display:flex;gap:12px;align-items:center}
+  .btn{display:inline-block;padding:11px 22px;border-radius:8px;font-weight:600;font-size:15px;transition:.15s}
+  .btn-solid{background:var(--amber);color:#111}
+  .btn-solid:hover{background:#ffbd45}
+  .btn-outline{border:1px solid var(--amber);color:var(--amber)}
+  .btn-outline:hover{background:rgba(245,165,36,.1)}
+  .grid-bg{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+  .grid-bg::before{content:"";position:absolute;inset:0;
+    background-image:linear-gradient(rgba(245,165,36,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(245,165,36,.05) 1px,transparent 1px);
+    background-size:44px 44px;mask-image:radial-gradient(ellipse 70% 60% at 50% 35%,#000 30%,transparent 75%)}
+  header{position:relative;padding:96px 0 72px;text-align:center;overflow:hidden}
+  .badge{display:inline-block;border:1px solid var(--amber);color:var(--amber);font-size:12.5px;
+    padding:5px 14px;border-radius:999px;margin-bottom:24px;letter-spacing:.4px}
+  h1{font-size:clamp(34px,6vw,58px);line-height:1.12;font-weight:800;letter-spacing:-1px}
+  h1 em{font-style:normal;color:var(--amber)}
+  .sub{max-width:720px;margin:22px auto 0;color:var(--muted);font-size:17.5px}
+  .cta{display:flex;gap:14px;justify-content:center;margin-top:34px;flex-wrap:wrap}
+  .stats{display:flex;gap:0;justify-content:center;margin-top:56px;border:1px solid var(--line);border-radius:12px;overflow:hidden;max-width:760px;margin-left:auto;margin-right:auto}
+  .stat{flex:1;padding:20px 12px;background:var(--panel)}
+  .stat+.stat{border-left:1px solid var(--line)}
+  .stat b{display:block;font-size:30px;color:var(--amber);font-weight:800}
+  .stat span{font-size:12.5px;color:var(--muted);letter-spacing:.5px}
+  section{padding:72px 0}
+  .kicker{color:var(--amber);font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase}
+  h2{font-size:clamp(26px,4vw,36px);margin:10px 0 14px;letter-spacing:-.5px}
+  .lead{color:var(--muted);max-width:680px}
+  .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin-top:44px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:28px}
+  .card:hover{border-color:rgba(245,165,36,.4)}
+  .card .n{font-family:'JetBrains Mono',monospace;color:var(--amber);font-size:13px;letter-spacing:1px}
+  .card h3{margin:10px 0 8px;font-size:19px}
+  .card p{color:var(--muted);font-size:14.5px}
+  .truth{background:var(--panel2);border:1px solid var(--line);border-left:3px solid var(--green);
+    border-radius:12px;padding:26px;margin-top:20px}
+  .truth h3{color:var(--green);font-size:16px;margin-bottom:8px}
+  .truth p{color:var(--muted);font-size:14.5px}
+  .term{background:#0d0d10;border:1px solid var(--line);border-radius:10px;padding:18px;margin-top:16px;
+    font-family:'JetBrains Mono',monospace;font-size:12.5px;color:#c8c8d0;overflow-x:auto;white-space:pre}
+  .term .g{color:var(--green)}.term .a{color:var(--amber)}.term .r{color:var(--red)}.term .c{color:#6b6b75}
+  .tiers{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px;margin-top:44px}
+  .tier{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:26px;position:relative}
+  .tier.hot{border-color:var(--amber);transform:scale(1.02)}
+  .tier .tag{position:absolute;top:-11px;left:22px;background:var(--amber);color:#111;font-size:11px;
+    font-weight:700;padding:3px 10px;border-radius:999px}
+  .tier h3{font-size:17px}
+  .tier .price{font-size:32px;font-weight:800;margin:10px 0}
+  .tier .price small{font-size:13px;color:var(--muted);font-weight:400}
+  .tier ul{list-style:none;margin:14px 0 20px}
+  .tier li{font-size:13.5px;color:var(--muted);padding:5px 0;border-bottom:1px dashed var(--line)}
+  .tier li::before{content:"✓ ";color:var(--amber)}
+  .tier li.no::before{content:"✕ ";color:var(--red)}
+  .compare{margin-top:36px;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .compare table{width:100%;border-collapse:collapse;font-size:14px}
+  .compare th,.compare td{padding:12px 16px;text-align:left;border-bottom:1px solid var(--line)}
+  .compare th{background:var(--panel2);color:var(--muted);font-weight:600}
+  .compare td:last-child{color:var(--amber)}
+  footer{border-top:1px solid var(--line);padding:48px 0;text-align:center;color:var(--muted);font-size:14px}
+  footer .mono{color:var(--amber)}
+  @media(max-width:640px){.stats{flex-direction:column}.stat+.stat{border-left:none;border-top:1px solid var(--line)}}
+</style>
+</head>
+<body>
+
+<nav><div class="wrap nav">
+  <div class="logo">CYPHRON<span>.</span></div>
+  <div class="cta">
+    <a class="btn btn-outline" href="#laporan">Contoh Laporan</a>
+    <a class="btn btn-outline" href="#pricing">Pricing</a>
+    <a class="btn btn-solid" href="#waitlist">Mulai Scan Gratis</a>
+  </div>
+</div></nav>
+
+<header><div class="grid-bg"></div><div class="wrap">
+  <div class="badge">16 ENGINE MILIK SENDIRI · 100+ SKILL · 0 FALSE POSITIVE DILAPOR</div>
+  <h1>Satu mesin (engine). Seratus imajinasi (skill). Semuanya <em>milikmu</em>.</h1>
+  <p class="sub">Semua engine ditulis dari nol dan berjalan di mesinmu. Setiap temuan wajib lolos
+     FP-guard sebelum dilaporkan. Pindai, dapatkan bukti, terapkan perbaikan, lalu uji ulang. Semua lokal, semua terkendali.</p>
+  <div class="cta">
+    <a class="btn btn-solid" href="#waitlist">Mulai Scan Gratis</a>
+    <a class="btn btn-outline" href="#cara">Lihat Cara Kerjanya</a>
+  </div>
+  <div class="stats">
+    <div class="stat"><b>16</b><span>ENGINE SENDIRI</span></div>
+    <div class="stat"><b>100</b><span>SKILL TIER PACK</span></div>
+    <div class="stat"><b>±$0</b><span>BIAYA / SCAN</span></div>
+    <div class="stat"><b>TRUE</b><span>JAMINAN TEMUAN</span></div>
+  </div>
+</div></header>
+
+<section id="cara"><div class="wrap">
+  <div class="kicker">Cara Kerja</div>
+  <h2>Temukan. Nambal. Buktikan.</h2>
+  <p class="lead">Kompetitor berhenti di laporan. Cyphron menutup lingkarannya —
+     dan membuktikan setiap perbaikan dengan scan ulang.</p>
+  <div class="steps">
+    <div class="card"><div class="n">01 — TEMUKAN</div><h3>16 engine buatan sendiri</h3>
+      <p>SAST, DAST, traversal, SSTI, SQLi, cmdi, CORS, JWT/sesi, email-spoofing, SCA via
+         OSV.dev, template scanner, kapasitas. Dari black-box sampai white-box.</p></div>
+    <div class="card"><div class="n">02 — NAMBAL</div><h3>Fix pack per temuan</h3>
+      <p>Setiap temuan lahir bersama rencana perbaikan: langkah bernomor, snippet siap
+         tempel, dan perintah verifikasi. Tanpa menebak-nebak.</p></div>
+    <div class="card"><div class="n">03 — BUKTIKAN</div><h3>Verifikasi delta</h3>
+      <p>Scan ulang membandingkan fingerprint temuan: <b>fixed / open / new</b>.
+         Perbaikan yang tidak menutup temuan tidak dianggap selesai.</p></div>
+  </div>
+  <div class="truth">
+    <h3>JAMINAN KEABENARAN — tool yang tidak overclaim</h3>
+    <p>6 temuan "critical" hipotesis pernah dilaporkan engine kami — lalu diteliti, terbukti
+       false positive, dan DITARIK secara otomatis oleh dual-payload verification. Setiap skill
+       punya FP-guard wajib: temuan tanpa bukti definitif dilaporkan sebagai unconfirmed,
+       bukan critical bohongan.</p>
+    <div class="term"><span class="c"># contoh output nyata</span>
+<span class="g">[cyphron] step  9 auth_probe   ok</span>
+<span class="r">[cyphron] delta: fixed=0 still_open=3 new=1</span>
+<span class="a">[cyphron] SSTI candidate rejected by dual-payload discriminator</span>
+<span class="c">[cyphron] audit chain: verified (21 entries)</span></div>
+  </div>
+</div></section>
+
+<section id="laporan"><div class="wrap">
+  <div class="kicker">Contoh Laporan Nyata</div>
+  <h2>Bukan slide — ini output asli</h2>
+  <p class="lead">Laporan di bawah dihasilkan otomatis dari scan produksi
+  astheron.my.id (company profile): 5 temuan terkonfirmasi, 33 area diuji bersih,
+  verdict definitif ADA / TIDAK DITEMUKAN untuk setiap baris - tanpa perkataan
+  "mungkin". Satu scan, tiga format.</p>
+  <div class="grid" style="margin-top:24px">
+    <div class="card">
+      <div class="mono" style="color:var(--amber)">report.pdf</div>
+      <h3>PDF - Laporan Utama</h3>
+      <p>Verdict per area, detail temuan dengan bukti request-response,
+      PoC reproduktif, rencana perbaikan berprioritas, jejak audit hash-chain.</p>
+      <a class="btn btn-solid" href="reports/contoh-laporan.pdf" download>Download PDF</a>
+    </div>
+    <div class="card">
+      <div class="mono" style="color:var(--amber)">report.docx</div>
+      <h3>Word - Untuk Editor</h3>
+      <p>Isi identik, format OOXML standar untuk tim yang menambahkan
+      konteks internal sebelum dikirim ke klien.</p>
+      <a class="btn btn-outline" href="reports/contoh-laporan.docx" download>Download Word</a>
+    </div>
+    <div class="card">
+      <div class="mono" style="color:var(--amber)">report.md</div>
+      <h3>Markdown - Untuk Pipeline</h3>
+      <p>Berbasis teks, siap dimasukkan ke issue tracker, CI, atau
+      sistem dokumentasi versi-terkontrol.</p>
+      <a class="btn btn-outline" href="reports/contoh-laporan.md" download>Download MD</a>
+    </div>
+  </div>
+</div></section>
+
+<section id="pricing"><div class="wrap">
+  <div class="kicker">Pricing</div>
+  <h2>Tingkatan berdasarkan kemampuan — bukan sisa jatah.</h2>
+  <p class="lead">Tanpa sistem kredit. Tanpa "kredit habis = berhenti". Tier membuka kemampuan.</p>
+  <div class="tiers">
+    <div class="tier"><h3>Pentest Basic</h3><div class="price">Gratis<small> / uji</small></div>
+      <ul><li>Scan black-box 16 engine</li><li>Laporan PDF + bukti + PoC</li>
+      <li class="no">Fix packs</li><li class="no">Verifikasi delta</li><li>1 target, retensi 7 hari</li></ul>
+      <a class="btn btn-outline" href="#waitlist">Mulai</a></div>
+    <div class="tier hot"><div class="tag">PALING POPULER</div><h3>Pentest + Penambalan</h3>
+      <div class="price">Hubungi<small></small></div>
+      <ul><li>Semua di Basic</li><li>Fix packs per temuan</li><li>Verifikasi delta (bukti nambal)</li>
+      <li>Grey-box 1 akun uji</li><li>Rescan terjadwal + riwayat</li></ul>
+      <a class="btn btn-solid" href="#waitlist">Pilih Tier 2</a></div>
+    <div class="tier"><h3>Capacity & Continuous</h3><div class="price">Custom</div>
+      <ul><li>Semua di Tier 2</li><li>Perf engine manual + kapasitas</li>
+      <li>White-box SAST + SCA repositori</li><li>3 target + monitoring</li></ul>
+      <a class="btn btn-outline" href="#waitlist">Diskusi</a></div>
+    <div class="tier"><h3>Full God Mode</h3><div class="price">Custom</div>
+      <ul><li>Semua di Tier 3</li><li>Grey-box multi-peran (IDOR/tenant)</li>
+      <li>Attack-chain analysis</li><li>On-prem runner + CI/CD</li></ul>
+      <a class="btn btn-outline" href="#waitlist">Diskusi</a></div>
+  </div>
+  <div class="compare"><table>
+    <tr><th>Kenapa Cyphron</th><th>Artinya buat kamu</th></tr>
+    <tr><td>16 engine milik sendiri</td><td>Tidak bergantung tool luar</td></tr>
+    <tr><td>Tanpa kredit & tanpa token</td><td>Scan sepuasnya, biaya tetap</td></tr>
+    <tr><td>FP-guard wajib per skill</td><td>Temuan dijamin TRUE</td></tr>
+    <tr><td>Data tidak keluar dari mesin</td><td>Privasi penuh, jalan offline</td></tr>
+    <tr><td>Fix packs + verify delta</td><td>Perbaikan terbukti, bukan janji</td></tr>
+  </table></div>
+</div></section>
+
+<section id="waitlist"><div class="wrap" style="text-align:center">
+  <div class="kicker">Waitlist</div>
+  <h2>Cyphron. Keamanan yang kamu kendalikan.</h2>
+  <p class="lead" style="margin:10px auto 26px">Daftar lebih awal untuk akses Tier 2 gratis 30 hari
+     saat peluncuran.</p>
+  <form onsubmit="alert('Terima kasih! Waitlist Cyphron menyimpan email kamu secara lokal.');return false"
+        style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+    <input type="email" required placeholder="email@perusahaan.co.id"
+      style="padding:12px 16px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--text);min-width:280px">
+    <button class="btn btn-solid" type="submit">Gabung Waitlist</button>
+  </form>
+</div></section>
+
+<footer><div class="wrap">
+  <div class="mono">CYPHRON — find. nambal. prove.</div>
+  <p style="margin-top:8px">Hanya uji target yang kamu miliki / berotorisasi. Gate otorisasi ditegakkan kode.</p>
+</div></footer>
+
+</body>
+</html>

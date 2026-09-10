@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cyphron Console — Login</title>
+<style>
+:root{--bg:#0a0a0b;--p:#121215;--l:#26262c;--a:#f5a524;--t:#e8e8ea;--m:#9b9ba3}
+*{margin:0;box-sizing:border-box}body{background:var(--bg);color:var(--t);font-family:Inter,system-ui,sans-serif}
+.box{max-width:380px;margin:12vh auto;background:var(--p);border:1px solid var(--l);border-radius:14px;padding:32px}
+h1{font-size:22px}.logo b{color:var(--a)}
+input,select{width:100%;padding:11px;margin:6px 0;border-radius:8px;border:1px solid var(--l);background:#0d0d10;color:var(--t)}
+button{width:100%;padding:12px;background:var(--a);border:0;border-radius:8px;font-weight:700;color:#111;cursor:pointer;margin-top:10px}
+label{font-size:12px;color:var(--m)}
+#app{display:none;max-width:1000px;margin:0 auto;padding:24px}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
+.tier{background:var(--a);color:#111;padding:4px 12px;border-radius:999px;font-weight:700;font-size:13px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.card{background:var(--p);border:1px solid var(--l);border-radius:12px;padding:20px;min-height:130px}
+.card h3{margin-bottom:6px;font-size:16px}.card p{color:var(--m);font-size:13px;margin-bottom:12px}
+.lock{opacity:.45}.lock .btn2{background:#333;color:#888;cursor:not-allowed}
+.btn2{display:inline-block;padding:8px 16px;background:var(--a);color:#111;border-radius:6px;font-weight:600;font-size:13px;text-decoration:none}
+.lockmsg{color:var(--a);font-size:12px;margin-top:8px}
+code{background:#0d0d10;padding:2px 6px;border-radius:4px;font-size:12px}
+</style></head>
+<body>
+<div class="box" id="login">
+  <div class="logo"><h1>CYPHRON<b>.</b> Console</h1></div>
+  <p style="color:var(--m);font-size:13px;margin:6px 0 16px">Masuk ke konsol pentest lokal. Tier menentukan engine yang terbuka (gate ada di engine, bukan di halaman ini).</p>
+  <label>Email akun uji</label><input id="u" value="pentest@pentester.com">
+  <label>Password</label><input id="p" type="password" value="pentester123">
+  <label>Tier lisensi (simulasi license.json)</label>
+  <select id="t"><option value="basic">Basic — scan + PDF</option><option value="pro">Pro — + Penambalan</option><option value="business">Business — + Kapasitas & White-box</option><option value="god">God — Semua</option></select>
+  <button onclick="enter()">MASUK</button>
+</div>
+<div id="app">
+  <div class="top"><div class="logo"><b style="color:var(--a)">CYPHRON</b> Console</div>
+  <div><span class="tier" id="tierlbl"></span> <span style="color:var(--m);font-size:13px" id="who"></span></div></div>
+  <div class="grid" id="cards"></div>
+  <p style="color:var(--m);font-size:12px;margin-top:18px">Jalankan lewat CLI: <code>python -m cyphron scan --target &lt;host&gt; --auth &lt;doc&gt; --license &lt;license.json&gt;</code> — gate tier tetap ditegakkan engine meski halaman ini dibuka paksa.</p>
+</div>
+<script>
+const F=[
+{n:"Target & Scan",d:"Black/grey/white-box scan 19 engine",min:"basic",cmd:"scan"},
+{n:"Laporan PDF/DOCX/MD",d:"Temuan + bukti + PoC + CVSS band",min:"basic",cmd:"laporan otomatis"},
+{n:"Fix Packs (Penambalan)",d:"Rencana perbaikan per temuan",min:"pro",cmd:"fix"},
+{n:"Verify Delta",d:"Bukti fixed/open/new setelah nambal",min:"pro",cmd:"verify"},
+{n:"Grey-box Login",d:"Login akun uji + sesi terautentikasi",min:"pro",cmd:"--account"},
+{n:"Perf Engine (k6-class)",d:"Load test bertahap + kapasitas",min:"business",cmd:"perf"},
+{n:"White-box SAST + SCA",d:"code_audit + OSV.dev pada repo",min:"business",cmd:"code_audit"},
+{n:"Session & Chain Analysis",d:"JWT/JWE tamper, multi-peran, attack chain",min:"god",cmd:"session_probe"},
+];
+const R={basic:1,pro:2,business:3,god:4};
+function enter(){
+  localStorage.cyTier=document.getElementById("t").value;
+  const tier=localStorage.cyTier;
+  document.getElementById("login").style.display="none";
+  document.getElementById("app").style.display="block";
+  document.getElementById("tierlbl").innerText=tier.toUpperCase();
+  document.getElementById("who").innerText=document.getElementById("u").value;
+  const r=R[tier];
+  document.getElementById("cards").innerHTML=F.map(f=>{
+    const ok=R[f.min]<=r;
+    return `<div class="card ${ok?"":"lock"}"><h3>${ok?"":"🔒 "}${f.n}</h3><p>${f.d}</p>
+    ${ok?`<span class="btn2">${f.cmd}</span>`:`<div class="lockmsg">Butuh tier ${f.min.toUpperCase()} — upgrade untuk membuka (engine akan REFUSED)</div>`}</div>`;
+  }).join("");
+}
+</script>
+</body></html>

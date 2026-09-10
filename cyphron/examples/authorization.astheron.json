@@ -1,0 +1,22 @@
+{
+  "id": "AUTH-ASTHERON-001",
+  "issued_at": "2026-09-06T00:00:00Z",
+  "expires_at": "2026-12-31T23:59:59Z",
+  "target": {
+    "name": "Astheron company profile site (apex domain, company-owned)"
+  },
+  "scope": {
+    "targets": ["astheron.my.id", "www.astheron.my.id"],
+    "excluded": ["airon.astheron.my.id", "hoplite.astheron.my.id", "cms.astheron.my.id",
+                 "s3.astheron.my.id", "betblock.astheron.my.id", "caheny.astheron.my.id",
+                 "inti.astheron.my.id", "proteron.astheron.my.id"],
+    "cidr": [],
+    "ports": [443, 80]
+  },
+  "authorized_by": {
+    "name": "Owner (company self-authorized blackbox assessment)",
+    "role": "co-owner"
+  },
+  "restrictions": ["no_dos", "no_data_exfiltration", "no_persistence", "no_aggressive"],
+  "signature": "owner-self-authorized-2026-09-06"
+}
