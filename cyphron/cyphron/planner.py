@@ -504,6 +504,12 @@ class DeterministicPlanner:
         self._once(Step("sri_audit", {"url": target},
                         "third-party scripts without Subresource Integrity on /",
                         "active-testing", 1))
+        self._once(Step("debug_page", {"url": target},
+                        "verbose error/debug-mode exposure on malformed requests "
+                        "(Ignition/Whoops/traceback)", "active-testing", 2))
+        self._once(Step("wp_probe", {"url": target},
+                        "WordPress hardening: REST user enumeration (2 path), "
+                        "debug.log, xmlrpc posture", "active-testing", 4))
         if world.has_tech("next") or any("/_next/" in urlsplit_path(e.url)
                                          for e in world.endpoints.values()):
             self._once(Step("middleware_bypass", {"url": target},
@@ -624,6 +630,10 @@ class DeterministicPlanner:
             self._once(Step("sourcemap2", {"url": target},
                             "sourcemap deep: full source recovery + embedded secrets",
                             "active-testing", 1, "H-jsassets"))
+            self._once(Step("js_cred_sweep", {"url": target},
+                            "hardcoded credential sweep on frontend JS assets "
+                            "(Basic auth decode-gated, FP-filtered)",
+                            "active-testing", 10, "H-jsassets"))
         self._once(Step("mq_mgmt", {"url": target},
                         "MQ management console exposure (RabbitMQ/ActiveMQ)",
                         "active-testing", 1, "H-infra"))

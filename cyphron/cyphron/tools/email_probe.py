@@ -117,19 +117,51 @@ def _parse_txt_answers(packet: bytes) -> list[str]:
         return []
 
 
+def _doh_txt(name: str, timeout: float = 6.0) -> list[str]:
+    """Cross-check terakhir via DNS-over-HTTPS (dns.google, TCP/TLS, stdlib).
+
+    Jaringan yang membuang DNS plaintext (UDP maupun TCP ke :53) pernah membuat
+    engine melaporkan 'SPF/DMARC missing' palsu — padahal record-nya ada
+    (kasus nyata: binus.ac.id, 2026-09, tertolong cross-check DoH). DoH hanya
+    dipanggil bila jalur UDP+TCP sama-sama kosong, jadi biaya normal nol."""
+    import json as _json
+    import urllib.parse
+    import urllib.request
+
+    if not name or any(c not in "abcdefghijklmnopqrstuvwxyz0123456789.-_"
+                       for c in name.lower()):
+        return []
+    url = ("https://dns.google/resolve?name="
+           + urllib.parse.quote(name, safe="._-") + "&type=TXT")
+    try:
+        req = urllib.request.Request(url, headers={
+            "Accept": "application/json", "User-Agent": "cyphron-doh/1.0"})
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            data = _json.loads(resp.read().decode("utf-8", "replace"))
+    except Exception:
+        return []
+    out: list[str] = []
+    for ans in data.get("Answer") or []:
+        if ans.get("type") == 16:
+            out.append(str(ans.get("data", "")).strip('"'))
+    return out
+
+
 def dns_txt(name: str, timeout: float = 5.0) -> list[str]:
     query = _build_query(name)
     for resolver in RESOLVERS:
-        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         packet = None
+        sock = None
         try:
+            sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             sock.settimeout(timeout)
             sock.sendto(query, (resolver, 53))
             packet, _addr = sock.recvfrom(4096)
         except OSError:
             packet = None
         finally:
-            sock.close()
+            if sock is not None:
+                sock.close()
         if packet is not None and len(packet) >= 12:
             records = _parse_txt_answers(packet)
             flags = struct.unpack("!H", packet[2:4])[0]
@@ -139,7 +171,9 @@ def dns_txt(name: str, timeout: float = 5.0) -> list[str]:
         tcp_packet = _dns_query_tcp(query, resolver, timeout)
         if tcp_packet is not None:
             return _parse_txt_answers(tcp_packet)
-    return []
+    # Fallback terakhir: UDP+TCP sama-sama kosong BUKAN bukti record absen
+    # (jaringan pembuang DNS pernah membuat 'missing' palsu). DoH menutupnya.
+    return _doh_txt(name, timeout)
 
 
 class EmailProbeTool(Tool):

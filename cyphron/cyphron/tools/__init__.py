@@ -9,14 +9,17 @@ from .code_audit import CodeAuditTool
 from .crawler import CrawlerTool
 from .deep_probe import DeepProbeTool
 from .dir_probe import DirProbeTool
+from .debug_page import DebugPageTool
 from .email_probe import EmailProbeTool
 from .fuzz_engine import FuzzEngineTool
+from .js_cred_sweep import JsCredSweepTool
 from .http_probe import HttpProbeTool
 from .load_probe import LoadProbeTool
 from .liveness_probe import LivenessProbeTool
 from .method_audit import MethodAuditTool
 from .redirect_probe import RedirectProbeTool
 from .sca_probe import ScaProbeTool
+from .wp_probe import WpProbeTool
 from .roadmap_batch2 import HeaderPolicyTool, WsProbeTool
 from .roadmap_batch3 import (
     CacheDecTool,
@@ -140,6 +143,9 @@ def build_default_registry(ctx: ToolContext) -> ToolRegistry:
         CodeAuditTool(),
         ScaProbeTool(),
         SecretScanTool(),
+        JsCredSweepTool(),
+        WpProbeTool(),
+        DebugPageTool(),
     ):
         reg.register(tool)
     return reg
