@@ -20,6 +20,8 @@ from .method_audit import MethodAuditTool
 from .redirect_probe import RedirectProbeTool
 from .sca_probe import ScaProbeTool
 from .wp_probe import WpProbeTool
+from .wp_data_exposure import WpDataExposureTool
+from .lockout_probe import LockoutProbeTool
 from .xmlrpc_probe import XmlRpcProbeTool
 from .roadmap_batch2 import HeaderPolicyTool, WsProbeTool
 from .roadmap_batch3 import (
@@ -146,6 +148,8 @@ def build_default_registry(ctx: ToolContext) -> ToolRegistry:
         SecretScanTool(),
         JsCredSweepTool(),
         WpProbeTool(),
+        WpDataExposureTool(),
+        LockoutProbeTool(),
         DebugPageTool(),
         XmlRpcProbeTool(),
     ):

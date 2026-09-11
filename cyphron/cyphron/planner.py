@@ -69,12 +69,12 @@ _HYP_IMPACT = {
     "H-graphql": 4, "H-jwt": 4, "H-params": 3, "H-idor": 4,
     "H-pagination": 3, "H-sortinject": 3, "H-jsassets": 2,
     "H-graphql-discovery": 1, "H-exposure": 2, "H-infra": 3,
-    "H-stale": 1, "H-next": 3,
+    "H-stale": 1, "H-next": 3, "H-wpdata": 3, "H-login": 3,
 }
 # Initial confidence for PENDING hypotheses, by evidence strength
 # (discovery-only 0.3; param-backed surfaces such as H-react-params 0.5).
 _PENDING_CONF = {"H-graphql-discovery": 0.3, "H-exposure": 0.3, "H-infra": 0.3,
-                 "H-stale": 0.4, "H-next": 0.5}
+                 "H-stale": 0.4, "H-next": 0.5, "H-wpdata": 0.4, "H-login": 0.4}
 # EV weight fallback for untagged steps, by phase.
 _PHASE_WEIGHT = {"recon": (2, 1.0), "discovery": (3, 0.95),
                  "passive-audit": (2, 0.9), "active-testing": (3, 0.85)}
@@ -272,6 +272,25 @@ class DeterministicPlanner:
                   "decision": "jadwalkan method_audit/smuggle/api_ver/ct_conf/verb_over",
                   "status": "PENDING"})
         live = bool(world.endpoints)
+        wp = world.has_tech("wordpress") or any(
+            "wp-json" in urlsplit_path(e.url) or "/wp-content/" in urlsplit_path(e.url)
+            for e in world.endpoints.values())
+        H.append({"id": "H-wpdata",
+                  "claim": "WP comments/media membocorkan PII tanpa auth",
+                  "evidence": ("indikasi WordPress teramati" if wp
+                               else "tidak ada indikasi WordPress"),
+                  "decision": "jadwalkan wp_dataexp" if wp else "lewati wp_dataexp",
+                  "status": "CONFIRMED" if wp else "REJECTED"})
+        login_ep = any(getattr(e, "form_fields", None)
+                       or any(k in urlsplit_path(e.url).lower()
+                              for k in ("login", "signin", "sign-in", "logon", "auth"))
+                       for e in world.endpoints.values())
+        H.append({"id": "H-login",
+                  "claim": "Login tanpa lockout membuka password spraying",
+                  "evidence": ("endpoint login/form teramati" if login_ep
+                               else "belum ada endpoint login teramati"),
+                  "decision": "jadwalkan lockout" if login_ep else "lewati lockout",
+                  "status": "CONFIRMED" if login_ep else "REJECTED"})
         H.append({"id": "H-stale",
                   "claim": "Host yang merespons belum tentu menjalankan aplikasi "
                            "(server hidup = aplikasi hidup TIDAK otomatis)",
@@ -514,6 +533,14 @@ class DeterministicPlanner:
                         "XML-RPC audit: method exposure, multicall amplification "
                         "(protocol-level), pingback SSRF (oob-confirmed only)",
                         "active-testing", 4))
+        if world.has_tech("wordpress") or any(
+                "wp-json" in urlsplit_path(e.url)
+                or "/wp-content/" in urlsplit_path(e.url)
+                for e in world.endpoints.values()):
+            self._once(Step("wp_dataexp", {"url": target},
+                            "WP comments/media PII exposure sweep (email/phone, "
+                            "masked, cease-on-data) bila WordPress terdeteksi",
+                            "active-testing", 3, "H-wpdata"))
         if world.has_tech("next") or any("/_next/" in urlsplit_path(e.url)
                                          for e in world.endpoints.values()):
             self._once(Step("middleware_bypass", {"url": target},
@@ -648,6 +675,15 @@ class DeterministicPlanner:
         self._once(Step("clickj", {"url": target},
                         "clickjacking: sensitive action pages without framing protection",
                         "active-testing"))
+        if any(getattr(e, "form_fields", None)
+               or any(k in urlsplit_path(e.url).lower()
+                      for k in ("login", "signin", "sign-in", "logon", "auth"))
+               for e in world.endpoints.values()):
+            self._once(Step("lockout", {"url": target},
+                            "bounded login lockout/rate-limit check (max 6 "
+                            "failed attempts, statis-vs-dinamis marker guard, "
+                            "no valid credentials)",
+                            "active-testing", 6, "H-login"))
         self._once(Step("exploitability", {"url": target},
                         "exploitability verifier: does missing CSP leave a real primitive?",
                         "active-testing"))

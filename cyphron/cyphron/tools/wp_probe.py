@@ -53,25 +53,46 @@ class WpProbeTool(Tool):
         data: dict = {"host": host}
         users_path = "/wp-json/wp/v2/users"
 
-        def _fetch(path: str, max_body: int = 120_000):
+        def _fetch(path: str, max_body: int = 120_000, follow: bool = True):
             ctx.throttle()
             st, hd, body, _ms = http_engine.http_get(urljoin(base + "/", path.lstrip("/")),
                                                      timeout=ctx.timeout_s,
-                                                     max_body=max_body)
+                                                     max_body=max_body,
+                                                     follow_redirects=follow)
             ctx.world.request_count += 1
             if isinstance(st, int) and st < 500:
                 ctx.world.observe_response(urljoin(base + "/", path.lstrip("/")),
                                            st, hd, body, self.name)
-            return st, body or ""
+            return st, body or "", hd or {}
+
+        def _fetch_same_host(path: str, max_body: int = 120_000):
+            """Fetch yang menolak mengatribusikan respons dari host lain.
+            FP lapangan 2026-09: host redirect 302 ke WP lain — temuan
+            user-enum "milik" host tujuan redirect, bukan target."""
+            st, body, hd = _fetch(path, max_body, follow=False)
+            if isinstance(st, int) and st in (301, 302, 303, 307, 308):
+                loc = ""
+                for k, v in (hd or {}).items():
+                    if k.lower() == "location":
+                        loc = v or ""
+                        break
+                target_host = urlsplit(urljoin(base + "/", loc)).hostname
+                if target_host and target_host != host:
+                    ctx.world.note(f"wp_probe: {host}{path} redirect ke host lain "
+                                   f"({target_host}) — tidak diatribusikan ke target")
+                    data["redirected_to_other_host"] = target_host
+                    return None, ""
+                return _fetch(urljoin(base + "/", loc), max_body, follow=True)[:2]
+            return st, body
 
         # 1. primary path
-        st, body = _fetch(users_path)
+        st, body = _fetch_same_host(users_path)
         enumerated = bool(isinstance(st, int) and st == 200
                           and _USERS_JSON.match(body) and _SLUG.search(body))
         # 2. bypass path bila primary tidak jelas
         via_bypass = False
         if not enumerated and (st is None or st in (400, 404) or not _SLUG.search(body)):
-            st2, body2 = _fetch("/?rest_route=/wp/v2/users")
+            st2, body2 = _fetch_same_host("/?rest_route=/wp/v2/users")
             if isinstance(st2, int) and st2 == 200 and _USERS_JSON.match(body2) \
                     and _SLUG.search(body2):
                 enumerated, via_bypass, st, body = True, True, st2, body2
@@ -111,7 +132,7 @@ class WpProbeTool(Tool):
             data["wp_users"] = "not-applicable / not-wordpress"
 
         # 3. debug.log exposure
-        st3, body3 = _fetch("/wp-content/debug.log", 60_000)
+        st3, body3, _hd3 = _fetch("/wp-content/debug.log", 60_000)
         if isinstance(st3, int) and st3 == 200 and _PHP_LOG.search(body3):
             findings.append(Finding(
                 tool=self.name,
@@ -130,7 +151,7 @@ class WpProbeTool(Tool):
             data["debug_log"] = f"not-exposed (HTTP {st3})"
 
         # 4. xmlrpc posture (info saja - bukan temuan)
-        st4, body4 = _fetch("/xmlrpc.php", 20_000)
+        st4, body4, _hd4 = _fetch("/xmlrpc.php", 20_000)
         data["xmlrpc"] = (f"open (HTTP {st4})"
                           if isinstance(st4, int) and st4 == 200 and _XMLRPC.search(body4)
                           else f"blocked/absent (HTTP {st4})")
