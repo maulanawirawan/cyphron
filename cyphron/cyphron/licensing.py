@@ -45,6 +45,7 @@ ENGINE_TIERS = {
     "sourcemap2": "pro", "mq_mgmt": "pro", "dom_xss": "pro", "clickj": "pro",
     "liveness_probe": "pro", "middleware_bypass": "pro", "next_image_proxy": "pro",
     "js_cred_sweep": "pro", "wp_probe": "pro", "debug_page": "basic",
+    "xmlrpc_probe": "pro",
     "authz_bypass": "pro", "llm_probe": "pro", "exploitability": "business",
     # Tier 3 (business): kapasitas + white-box + SCA
     "load_probe": "business", "perf_engine": "business",

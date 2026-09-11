@@ -122,7 +122,7 @@ def _doh_txt(name: str, timeout: float = 6.0) -> list[str]:
 
     Jaringan yang membuang DNS plaintext (UDP maupun TCP ke :53) pernah membuat
     engine melaporkan 'SPF/DMARC missing' palsu — padahal record-nya ada
-    (kasus nyata: binus.ac.id, 2026-09, tertolong cross-check DoH). DoH hanya
+    (kasus nyata 2026-09, tertolong cross-check DoH). DoH hanya
     dipanggil bila jalur UDP+TCP sama-sama kosong, jadi biaya normal nol."""
     import json as _json
     import urllib.parse

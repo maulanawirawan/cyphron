@@ -1,6 +1,6 @@
 """debug_page — verbose error / debug-mode exposure check (CWE-209, CWE-489).
 
-Teknik dari lapangan (BINUS BB, 2026-09): produksi dengan APP_DEBUG=true /
+Teknik dari lapangan (2026-09): produksi dengan APP_DEBUG=true /
 error_reporting penuh membalas request rusak dengan halaman debug framework
 (Laravel Ignition, Whoops, Django traceback) yang membocorkan path internal,
 versi framework, dan source code.

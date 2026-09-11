@@ -20,6 +20,7 @@ from .method_audit import MethodAuditTool
 from .redirect_probe import RedirectProbeTool
 from .sca_probe import ScaProbeTool
 from .wp_probe import WpProbeTool
+from .xmlrpc_probe import XmlRpcProbeTool
 from .roadmap_batch2 import HeaderPolicyTool, WsProbeTool
 from .roadmap_batch3 import (
     CacheDecTool,
@@ -146,6 +147,7 @@ def build_default_registry(ctx: ToolContext) -> ToolRegistry:
         JsCredSweepTool(),
         WpProbeTool(),
         DebugPageTool(),
+        XmlRpcProbeTool(),
     ):
         reg.register(tool)
     return reg

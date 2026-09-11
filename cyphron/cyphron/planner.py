@@ -510,6 +510,10 @@ class DeterministicPlanner:
         self._once(Step("wp_probe", {"url": target},
                         "WordPress hardening: REST user enumeration (2 path), "
                         "debug.log, xmlrpc posture", "active-testing", 4))
+        self._once(Step("xmlrpc_probe", {"url": target},
+                        "XML-RPC audit: method exposure, multicall amplification "
+                        "(protocol-level), pingback SSRF (oob-confirmed only)",
+                        "active-testing", 4))
         if world.has_tech("next") or any("/_next/" in urlsplit_path(e.url)
                                          for e in world.endpoints.values()):
             self._once(Step("middleware_bypass", {"url": target},

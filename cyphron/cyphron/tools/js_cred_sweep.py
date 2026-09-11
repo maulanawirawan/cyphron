@@ -1,6 +1,6 @@
 """js_cred_sweep — hardcoded credential sweep pada aset JS frontend.
 
-Teknik dari lapangan (BINUS BB, 2026-09): bundle JavaScript publik sering
+Teknik dari lapangan (2026-09): bundle JavaScript publik sering
 membawa kredensial statis (Basic auth, API key, password literal) yang
 membuka akses API tanpa akun. Engine ini:
   1. ambil halaman utama + kumpulkan <script src> same-host (cap 8),

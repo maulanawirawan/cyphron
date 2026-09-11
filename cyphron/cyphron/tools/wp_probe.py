@@ -1,6 +1,6 @@
 """wp_probe — WordPress hardening check: REST user enumeration & friends.
 
-Teknik dari lapangan (BINUS BB, 2026-09): /wp-json/wp/v2/users yang merespons
+Teknik dari lapangan (2026-09): /wp-json/wp/v2/users yang merespons
 200 dengan array user (slug = username login) memungkinkan panenan username
 untuk credential attack + phishing tertarget.
 
