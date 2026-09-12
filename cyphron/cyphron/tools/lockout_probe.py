@@ -92,6 +92,16 @@ def _dynamic_markers(body: str, baseline_markers: set[str]) -> list[str]:
                    if m in low and not any(m in b for b in baseline_markers)})
 
 
+
+def _http_retry(fn, *a, **kw):
+    """Satu retry untuk error transien (socket reset/timeout) — probe jangan
+    mati karena noise jaringan; ini bukan re-send logis (attempt tetap 1)."""
+    try:
+        return fn(*a, **kw)
+    except Exception:
+        time.sleep(0.3)
+        return fn(*a, **kw)
+
 class LockoutProbeTool(Tool):
     name = "lockout"
     description = ("Bounded login lockout/rate-limit check: N failed attempts "
@@ -111,7 +121,8 @@ class LockoutProbeTool(Tool):
         # 1. GET login page = sekaligus BASELINE marker statis
         try:
             ctx.throttle()
-            st0, hd0, body0, _ms = http_engine.http_get(base, timeout=ctx.timeout_s)
+            st0, hd0, body0, _ms = _http_retry(
+                http_engine.http_get, base, timeout=ctx.timeout_s)
         except Exception as exc:
             return ToolResult(tool=self.name, ok=True,
                               data={"error": type(exc).__name__},
@@ -146,8 +157,9 @@ class LockoutProbeTool(Tool):
             body_data = "&".join(f"{k}={v}" for k, v in data_pairs)
             try:
                 ctx.throttle()
-                st, hd, body, ms = http_engine.http_get(
-                    action_url, method="POST", data=body_data.encode("utf-8"),
+                st, hd, body, ms = _http_retry(
+                    http_engine.http_get, action_url, method="POST",
+                    data=body_data.encode("utf-8"),
                     headers={"Content-Type": "application/x-www-form-urlencoded"},
                     timeout=ctx.timeout_s)
             except Exception as exc:

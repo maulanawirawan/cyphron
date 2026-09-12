@@ -27,6 +27,8 @@ from .skills.registry import SkillRegistry
 from .tools import build_default_registry
 from .tools.base import ToolContext
 from .verifier import finalize
+from . import chaining as _chaining
+from . import quorum as _quorum
 from .world.model import WorldModel
 
 
@@ -61,6 +63,8 @@ class ScanSummary:
     audit_note: str = ""
     elapsed_s: float = 0.0
     scope: dict | None = None  # scope AKTUAL dari dokumen otorisasi (untuk laporan)
+    attack_chains: list[dict] = field(default_factory=list)  # Attack Chain Composer
+    quorum_summary: dict = field(default_factory=dict)       # Independent Validator Quorum
 
     def counts_by_severity(self) -> dict[str, int]:
         out = {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0}
@@ -206,6 +210,16 @@ def run_scan(opts: ScanOptions, verbose: bool = True) -> ScanRun:
     confirmed, unconfirmed = finalize(candidates)
     confirmed = dedupe(confirmed)
     unconfirmed = dedupe(unconfirmed)
+
+    # Intelligence Fabric: quorum verdicts (provenance ke evidence ledger)
+    # + attack chain composition (impact gabungan, bukan per-temuan).
+    verdicts = _quorum.adjudicate(confirmed + unconfirmed)
+    verdict_by_id = {v.finding_id: v for v in verdicts}
+    for f in confirmed + unconfirmed:
+        v = verdict_by_id.get(f.id)
+        if v is not None:
+            f.attach_evidence("quorum", v.to_dict())
+    chains = _chaining.compose(confirmed)
     # skills that governed the run (retrieved from world state)
     skills_used = [s.summary() for s, _score in
                    registry_skills.retrieve(f"pentest {world.target} web vulnerabilities owasp", top_k=5)]
@@ -224,6 +238,8 @@ def run_scan(opts: ScanOptions, verbose: bool = True) -> ScanRun:
         skills_used=skills_used, audit_verified=ok, audit_note=note,
         elapsed_s=round(time.monotonic() - started, 2),
         scope=scope_summary,
+        attack_chains=[c.to_dict() for c in chains],
+        quorum_summary=_quorum.summarize(verdicts),
     )
     audit.append({"kind": "scan-end", "confirmed": len(confirmed),
                   "unconfirmed": len(unconfirmed), "steps": steps_executed})

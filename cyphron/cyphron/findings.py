@@ -36,6 +36,7 @@ class Finding:
     finding_class: str = "weakness"  # exploitable | weakness | posture | surface | info
     created_at: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     id: str = ""
+    evidence_chain: list = field(default_factory=list)  # Evidence Ledger provenance
 
     def __post_init__(self):
         if self.severity not in VALID_SEVERITIES:
@@ -49,6 +50,20 @@ class Finding:
             self.param or "",
         ])
         return hashlib.sha256(basis.encode()).hexdigest()[:16]
+
+    def attach_evidence(self, kind: str, detail: dict) -> None:
+        """Evidence Ledger: provenance berantai (validator, repro, artifact).
+
+        Setiap entri diberi timestamp + hash sehingga auditor dapat menjawab
+        "kenapa Cyphron yakin temuan ini benar" tanpa memercayai klaim."""
+        entry = {
+            "kind": kind,
+            "at": datetime.now(timezone.utc).isoformat(),
+            "sha256": hashlib.sha256(
+                json.dumps(detail, sort_keys=True, default=str).encode()).hexdigest()[:16],
+        }
+        entry.update(detail)
+        self.evidence_chain.append(entry)
 
     def to_dict(self) -> dict:
         return asdict(self)

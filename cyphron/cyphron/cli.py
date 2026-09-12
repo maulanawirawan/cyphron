@@ -66,6 +66,12 @@ def main(argv: list[str] | None = None) -> int:
     p_verify.add_argument("--baseline", required=True, help="folder hasil scan lama (berisi findings.json)")
     p_verify.add_argument("--out", default="cyphron_verify")
 
+    p_drift = sub.add_parser("drift", help="bandingkan dua snapshot permukaan (added/removed/changed + relevansi keamanan)")
+    p_drift.add_argument("--old", required=True, help="JSON snapshot lama (list of {url, status?})")
+    p_drift.add_argument("--new", required=True, help="JSON snapshot baru (bentuk sama)")
+    p_drift.add_argument("--out", default=None, help="simpan hasil drift ke file JSON")
+    p_drift.add_argument("--limit", type=int, default=10, help="panjang antrian re-scan tertarget")
+
     p_fix = sub.add_parser("fix", help="buat fix packs (rencana penambalan) dari temuan")
     p_fix.add_argument("--from", dest="from_dir", required=True, help="folder hasil scan (berisi findings.json)")
     p_fix.add_argument("--out", default=None, help="folder tujuan (default: sama dengan --from)")
@@ -155,6 +161,29 @@ def main(argv: list[str] | None = None) -> int:
             print(f"[cyphron] delta: fixed={len(fixed)} still_open={len(still)} new={len(new)}")
             print(f"[cyphron] laporan: {out_dir / 'delta.md'}")
             return 2 if (still or new) else 0
+
+        if args.command == "drift":
+            import json as _json
+            from . import drift as _drift
+            old_rows = _json.load(open(args.old, encoding="utf-8"))
+            new_rows = _json.load(open(args.new, encoding="utf-8"))
+            report = _drift.diff_surface(old_rows, new_rows)
+            print(f"added={report['counts']['added']} removed={report['counts']['removed']} "
+                  f"changed={report['counts']['changed']} "
+                  f"high_priority={len(report['high_priority'])}")
+            for r in report["added"]:
+                print(f"  + [{r['relevance']:>6}] {r['url']}  tags={r['tags']}")
+            for r in report["changed"]:
+                print(f"  ~ [{r['relevance']:>6}] {r['url']}  {r['old_status']}->{r['new_status']}  {r['note']}")
+            queue = _drift.prioritize(report, limit=args.limit)
+            if queue:
+                print("targeted re-scan queue:")
+                for r in queue:
+                    print(f"  -> {r.get('url')}")
+            if args.out:
+                _json.dump(report, open(args.out, "w", encoding="utf-8"), indent=1)
+                print(f"drift report -> {args.out}")
+            return 0
 
         if args.command == "fix":
             from .remediate import build_fix_bundles, load_findings

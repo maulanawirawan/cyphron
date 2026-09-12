@@ -126,8 +126,11 @@ class TestLockoutProbe(unittest.TestCase):
             ("GET", "/login"): (200, LOGIN_PAGE, {}),
             ("POST", "/login"): (200, "Too many login attempts. Please try again in 60 seconds.", {}),
         })
-        tr = LockoutProbeTool().run({"url": base + "/login", "max_attempts": 4}, _ctx())
-        self.assertEqual(tr.findings, [], "throttle dinamis = kondisi baik, bukan temuan")
+        from cyphron.tools.base import ToolContext as _TC
+        ctx = _TC(gate=AuthorizationGate(None), audit=AuditLog(), world=WorldModel(),
+                  rate_limit_s=0.0, timeout_s=10.0, max_requests=50)
+        tr = LockoutProbeTool().run({"url": base + "/login", "max_attempts": 4}, ctx)
+        self.assertEqual(tr.findings, [], f"engine data: {tr.data}")
         self.assertEqual(tr.data.get("lockout", {}).get("present"), True,
                          f"engine data: {tr.data}")
 
