@@ -39,6 +39,10 @@ from .api_surface_probe import ApiSurfaceProbeTool
 from .apk_surface_probe import ApkSurfaceProbeTool
 from .error_oracle import ErrorOracleTool
 from .github_osint import GithubOsintTool
+from .sqli_extract import SqliExtractTool
+from .ssti_rce import SstiRceTool
+from .lfi_read import LfiReadTool
+from .auth_bypass_matrix import AuthBypassMatrixTool
 from .header_ws_engines import HeaderPolicyTool, WsProbeTool
 from .recon_oauth_engines import (
     CacheDecTool,
@@ -184,6 +188,10 @@ def build_default_registry(ctx: ToolContext) -> ToolRegistry:
         ApkSurfaceProbeTool(),
         ErrorOracleTool(),
         GithubOsintTool(),
+        SqliExtractTool(),
+        SstiRceTool(),
+        LfiReadTool(),
+        AuthBypassMatrixTool(),
     ):
         reg.register(tool)
     return reg

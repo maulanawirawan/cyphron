@@ -18,6 +18,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from cyphron.guardrails.authorization import AuditLog, AuthorizationGate
+from cyphron.tools import http_engine
 from cyphron.tools.base import ToolContext
 from cyphron.tools.cors_probe import CorsProbeTool
 from cyphron.tools.register_probe import RegisterProbeTool
@@ -549,6 +550,87 @@ class TestGithubOsint(unittest.TestCase):
         self.assertEqual(tr.data["verified_leads"], 1)
         self.assertEqual(len(tr.findings), 1)
         self.assertIn("user/repo", tr.findings[0].title)
+
+
+class TestExploitPack(unittest.TestCase):
+    """Engine eksploitasi = mesin bukti dampak: differential + cease-on-data."""
+
+    def test_sqli_extract_confirmed(self):
+        from cyphron.tools.sqli_extract import SqliExtractTool
+        # server: baseline "item 1"; payload UNION -> respons versi DB
+        srv, base = _server({("GET", "/item"): (200, "item 1", {})})
+        self.addCleanup(srv.shutdown)
+
+        class PatchedTool(SqliExtractTool):
+            def run(self, args, ctx):
+                orig = http_engine.http_get
+
+                def fake_get(url, **kw):
+                    if "UNION" in url and "%40%40version" in url:
+                        # bukti versi MARIADB sesuai evidence payload mysql
+                        return 200, {}, "10.4.32-MariaDB-ub2404-log (mysql)", 1
+                    return orig(url, **kw)
+
+                http_engine.http_get = fake_get
+                try:
+                    return super().run(args, ctx)
+                finally:
+                    http_engine.http_get = orig
+        tr = PatchedTool().run({
+            "url": base + "/item?{payload}", "param": "id",
+            "baseline_value": "1"}, _ctx())
+        self.assertTrue(tr.ok)
+        self.assertEqual(len(tr.findings), 1)
+        self.assertEqual(tr.findings[0].severity, "critical")
+        self.assertIn("cease-on-data", tr.findings[0].description)
+
+    def test_ssti_no_evidence_on_static_server(self):
+        from cyphron.tools.ssti_rce import SstiRceTool
+        srv, base = _server({("GET", "/page"): (200, "tpl", {})})
+        self.addCleanup(srv.shutdown)
+        tr = SstiRceTool().run({"url": base + "/page?{payload}"}, _ctx())
+        self.assertTrue(tr.ok)
+        self.assertEqual(tr.findings, [])
+
+    def test_lfi_cease_on_data(self):
+        from cyphron.tools.lfi_read import LfiReadTool
+        srv, base = _server({("GET", "/read"): (200, "cyphron.txt tidak ada", {})})
+        self.addCleanup(srv.shutdown)
+
+        class PatchedLfi(LfiReadTool):
+            def run(self, args, ctx):
+                orig = http_engine.http_get
+
+                def fake_get(url, **kw):
+                    # server rentan: isi /etc/passwd hanya bila traversal passwd
+                    if "passwd" in url:
+                        return 200, {}, "root:x:0:0:root:/root:/bin/bash", 1
+                    return orig(url, **kw)
+
+                http_engine.http_get = fake_get
+                try:
+                    return super().run(args, ctx)
+                finally:
+                    http_engine.http_get = orig
+        tr = PatchedLfi().run({"url": base + "/read?f={payload}"}, _ctx())
+        self.assertTrue(tr.ok)
+        self.assertEqual(len(tr.findings), 1)
+        self.assertIn("root:x:0:0", tr.findings[0].response)
+
+    def test_auth_bypass_none_on_always_403(self):
+        from cyphron.tools.auth_bypass_matrix import AuthBypassMatrixTool
+        srv, base = _server({("GET", "/admin"): (403, "denied" + "x" * 100, {})})
+        self.addCleanup(srv.shutdown)
+        tr = AuthBypassMatrixTool().run({"url": base + "/admin"}, _ctx())
+        self.assertTrue(tr.ok)
+        self.assertEqual(tr.findings, [])
+
+    def test_auth_bypass_skips_open_path(self):
+        from cyphron.tools.auth_bypass_matrix import AuthBypassMatrixTool
+        srv, base = _server({("GET", "/admin"): (200, "ADMIN CONTENT", {})})
+        self.addCleanup(srv.shutdown)
+        tr = AuthBypassMatrixTool().run({"url": base + "/admin"}, _ctx())
+        self.assertIn("sudah terbuka", tr.data.get("skipped", ""))
 
 
 if __name__ == "__main__":
