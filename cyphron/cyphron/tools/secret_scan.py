@@ -12,7 +12,12 @@ from ..findings import Finding
 
 PATTERNS = [
     ("AWS access key", re.compile(r"\b(AKIA[0-9A-Z]{16})\b"), "critical", "CWE-798"),
-    ("private key block", re.compile(r"-----BEGIN (?:RSA |EC |OPENSSH |PGP )?PRIVATE KEY-----"), "critical", "CWE-321"),
+    ("private key block", re.compile(
+        r"-----BEGIN (?:RSA |EC |OPENSSH |PGP )?PRIVATE KEY-----"
+        # FP-guard (DEX string-pool lesson, 2026-09-13): marker PEM yang
+        # bersebelahan tanpa isi adalah template formatter, bukan kunci —
+        # wajibkan body >=60 char di antara BEGIN/END.
+        r"[\s\S]{60,}?-----END (?:RSA |EC |OPENSSH |PGP )?PRIVATE KEY-----"), "critical", "CWE-321"),
     ("GitHub token", re.compile(r"\b(gh[pousr]_[A-Za-z0-9]{30,})\b"), "critical", "CWE-798"),
     ("Slack token", re.compile(r"\b(xox[baprs]-[A-Za-z0-9-]{10,})\b"), "high", "CWE-798"),
     ("Google API key", re.compile(r"\b(AIza[0-9A-Za-z_-]{30,})\b"), "high", "CWE-798"),
@@ -58,6 +63,8 @@ class SecretScanTool(Tool):
             scanned += 1
             for line_no, line in enumerate(text.splitlines(), start=1):
                 for label, pattern, severity, cwe in PATTERNS:
+                    if "private key" in label:
+                        continue  # handled by the multi-line pass below
                     m = pattern.search(line)
                     if m:
                         matched = m.group(0)
@@ -81,6 +88,36 @@ class SecretScanTool(Tool):
                             source_skill=self.source_skill, status="confirmed",
                             evidence_kind="code-line",
                         ))
+            # multi-line pass: private key blocks span several lines, so the
+            # per-line loop above can never see them. Body-length FP-guard in
+            # the pattern keeps empty PEM templates (DEX string-pool) out.
+            for label, pattern, severity, cwe in PATTERNS:
+                if "private key" not in label:
+                    continue
+                for m in pattern.finditer(text):
+                    matched = m.group(0)
+                    line_start = text.count("\n", 0, m.start()) + 1
+                    line_end = text.count("\n", 0, m.end()) + 1
+                    findings.append(Finding(
+                        tool=self.name,
+                        title=f"Hardcoded {label} in {file.name}",
+                        severity=severity, cwe=cwe,
+                        description=(
+                            f"{label} found at {file}:{line_start}-{line_end}. Hardcoded credentials in source "
+                            f"leak through repositories, builds, and artifacts."
+                        ),
+                        recommendation=(
+                            "Revoke and rotate the credential immediately, move it to a secret "
+                            "manager/env injection, and add history-cleaning + CI scanning. "
+                            "See .kimchi/skills/20-secrets-management.md."
+                        ),
+                        file_path=str(file), line_start=line_start, line_end=line_end,
+                        request=None,
+                        response=f"matched {_mask(matched)} | block of {len(matched)} chars",
+                        confidence=0.95,
+                        source_skill=self.source_skill, status="confirmed",
+                        evidence_kind="code-line",
+                    ))
         ctx.world.note(f"secret_scan: {scanned} files scanned, {len(findings)} matches")
         return ToolResult(tool=self.name, ok=True, data={"files_scanned": scanned},
                           findings=findings)

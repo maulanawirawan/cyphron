@@ -1,4 +1,4 @@
-"""roadmap_bounty — engine Bug Bounty dari HARVEST 6 sumber (2026-09-06):
+"""bounty_engines — engine Bug Bounty dari HARVEST 6 sumber (2026-09-06):
 1. param_miner   (low-01): param tersembunyi via diff respons (arjun-style)
 2. authz_bypass  (high-01): matriks bypass 401/403 (path tricks + X-Original-URL)
 3. takeover      (high-02): CNAME dangling + fingerprint provider subdomain
@@ -152,7 +152,7 @@ class AuthzBypassTool(Tool):
 
     def run(self, args: dict, ctx: ToolContext) -> ToolResult:
         from .method_audit import _norm_dynamic
-        from .roadmap_batch7 import _LOGIN_PAGE_RE
+        from .authz_engines import _LOGIN_PAGE_RE
         base = str(args["url"]).rstrip("/")
         cap = int(args.get("max_requests", 30))
 
@@ -275,7 +275,7 @@ class TakeoverTool(Tool):
         # subdomain kandidat: dari CT log (certspotter fallback) + world hosts
         subs: set[str] = set()
         try:
-            from .roadmap_batch3 import CtLogTool
+            from .recon_oauth_engines import CtLogTool
             sub_ctx = ToolContext(gate=ctx.gate, audit=ctx.audit, world=ctx.world,
                                   timeout_s=ctx.timeout_s, rate_limit_s=ctx.rate_limit_s,
                                   max_requests=ctx.max_requests, license_path=ctx.license_path)
@@ -348,14 +348,33 @@ class TakeoverTool(Tool):
                 if sig:
                     break
             if sig:
+                # FP-guard (KISAH BINUS #3, 2026-09): Azure modern memensiunkan
+                # halaman "404 web site not found" (CDN retirement) dan klaim
+                # custom domain terhalang record asuid. Cek asuid.<sub> TXT:
+                # masih terpasang = HYGIENE, bukan temuan; tidak ada = turun ke
+                # medium + wajib verifikasi manual klaim.
+                azure_note = None
+                if sig[0] == "Azure":
+                    from .email_probe import _doh_txt
+                    asuid = _doh_txt(f"asuid.{sub}")
+                    if asuid:
+                        ctx.world.note(f"takeover: {sub} Azure HYGIENE "
+                                       f"(asuid TXT terpasang) - bukan temuan")
+                        continue
+                    azure_note = ("Azure tanpa asuid TXT terdeteksi - klaim "
+                                  "MODERN belum terbukti; verifikasi manual "
+                                  "(buat app + asuid di DNS sendiri) wajib "
+                                  "sebelum dilaporkan sebagai takeover.")
                 findings.append(Finding(
                     tool=self.name,
                     title=f"Subdomain takeover: {sub} -> {sig[0]} (CNAME {cname})",
-                    severity=sig[1], cwe="CWE-350",
+                    severity="medium" if (sig[0] == "Azure" and azure_note) else sig[1],
+                    cwe="CWE-350",
                     description=(f"{sub} adalah CNAME ke {cname} yang sudah TIDAK "
                                  f"ter-resolve (dangling), dan respons HTTP memuat "
                                  f"signature {sig[0]} ('{sig[2]}'). Mengklaim resource "
-                                 f"{sig[0]} tersebut akan mengambil alih subdomain."),
+                                 f"{sig[0]} tersebut akan mengambil alih subdomain."
+                                 + (f" {azure_note}" if azure_note else "")),
                     recommendation=f"Hapus record DNS {sub} -> {cname}, atau klaim "
                                    f"kembali resource di {sig[0]}.",
                     target_url=f"{sub}", request=f"DNS CNAME {sub} + HTTP GET",

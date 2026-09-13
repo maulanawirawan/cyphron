@@ -23,8 +23,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from cyphron.guardrails.authorization import AuditLog, AuthorizationGate
 from cyphron.tools import build_default_registry
 from cyphron.tools.base import ToolContext
-from cyphron.tools.roadmap_batch2 import WsProbeTool
-from cyphron.tools.roadmap_batch5 import (
+from cyphron.tools.header_ws_engines import WsProbeTool
+from cyphron.tools.crypto_web_engines import (
     CssInjectionTool, DomClobberTool, JwtCrackTool, JwtHeaderTool,
     ProtoClientTool, ProtoServerTool,
 )

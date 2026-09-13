@@ -76,6 +76,65 @@ PATHS = [
 ]
 
 
+# PATHS_EXTENDED — porting galak.py + svc_health probe (BINUS 2026-09-12,
+# verdict LAYAK). Dedup terhadap PATHS dilakukan saat iterasi.
+PATHS_EXTENDED = [
+    (".env.backup", "high", ".env backup exposed"),
+    (".env.old", "high", ".env old copy exposed"),
+    ("db.sql", "high", "database dump exposed"),
+    ("database.sql", "high", "database dump exposed"),
+    ("dump.sql", "high", "database dump exposed"),
+    ("backup.tar.gz", "high", "full backup archive exposed"),
+    ("site.zip", "high", "site source archive exposed"),
+    ("app.zip", "high", "application archive exposed"),
+    ("source.zip", "high", "source archive exposed"),
+    ("config.php.bak", "high", "config backup exposed"),
+    ("settings.py", "high", "Django settings exposed — may contain secrets"),
+    (".htpasswd", "high", "htpasswd exposed — password hashes"),
+    ("elmah.axd", "high", "ELMAH error log exposed (ASP.NET) — may leak data"),
+    ("trace.axd", "high", "ASP.NET trace.axd exposed — request details"),
+    ("/elmah", "high", "ELMAH log route exposed"),
+    ("error.log", "high", "error log exposed"),
+    ("errors.log", "high", "error log exposed"),
+    ("access.log", "medium", "access log exposed"),
+    ("phpinfo.php", "medium", "phpinfo exposed — full environment disclosure"),
+    ("info.php", "medium", "phpinfo-style page exposed"),
+    ("adminer.php", "medium", "Adminer DB manager exposed"),
+    ("adminer", "medium", "Adminer route reachable"),
+    ("phpmyadmin/", "medium", "phpMyAdmin reachable"),
+    ("server-status", "medium", "Apache server-status exposed"),
+    ("install.php", "medium", "installer page reachable — possible reinstall"),
+    ("setup", "medium", "setup route reachable"),
+    ("global.asax", "medium", "global.asax exposed"),
+    ("Web.config.bak", "high", "web.config backup exposed"),
+    ("metrics", "medium", "metrics endpoint reachable"),
+    ("_profiler", "high", "Symfony profiler reachable — debug data"),
+    ("console", "high", "console route reachable"),
+    ("debug/vars", "high", "debug vars endpoint (expvar) reachable"),
+    ("swagger", "medium", "Swagger UI reachable — API surface disclosure"),
+    ("swagger/index.html", "medium", "Swagger UI reachable"),
+    ("swagger/v1/swagger.json", "medium", "OpenAPI spec exposed"),
+    ("api-docs", "info", "API docs route present"),
+    ("docs", "info", "docs route present"),
+    ("graphql", "medium", "GraphQL endpoint reachable — check introspection/authz"),
+    ("graphiql", "medium", "GraphiQL IDE reachable"),
+    ("health", "info", "health endpoint present"),
+    ("healthz", "info", "healthz endpoint present"),
+    ("status", "info", "status endpoint present"),
+    ("version", "info", "version endpoint present"),
+    ("api/health", "info", "API health endpoint present"),
+    ("api/status", "info", "API status endpoint present"),
+    ("api/version", "info", "API version endpoint present"),
+    ("api/docs", "info", "API docs route present"),
+    ("old/", "info", "old/ directory present — check listing"),
+    ("backup/", "info", "backup/ directory present — check listing"),
+    ("uploads/", "info", "uploads/ directory present — check listing"),
+    ("storage/", "info", "storage/ directory present — check listing"),
+    ("logs/", "info", "logs/ directory present — check listing"),
+    ("crossdomain.xml", "low", "crossdomain.xml present — legacy Flash policy"),
+]
+
+
 class DirProbeTool(Tool):
     name = "dir_probe"
     description = "Probe common sensitive paths on the target host."
@@ -92,7 +151,8 @@ class DirProbeTool(Tool):
         misses = {miss_status, 404}
         miss_len = len(miss_body)
         hits = 0
-        for path, severity, message in PATHS:
+        seen_paths = {q[0] for q in PATHS}
+        for path, severity, message in PATHS + [q for q in PATHS_EXTENDED if q[0] not in seen_paths]:
             url = f"{base}/{path}"
             status, _h, body, _ms = http_engine.http_get(url, timeout=ctx.timeout_s)
             ctx.world.observe_response(url, status, _h, body, self.name)

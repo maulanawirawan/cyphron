@@ -189,6 +189,26 @@ class TestEndToEnd(unittest.TestCase):
             self.assertEqual(aws.file_path, str(repo / "config.py"))
             self.assertIn("***[redacted]", aws.response, "secret value must be redacted in evidence")
 
+    def test_secret_scanner_pem_template_fp_guard(self):
+        """PEM markers bersebelahan tanpa isi (template string-pool DEX)
+        tidak boleh dianggap private key — FP lesson 2026-09-13."""
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td) / "repo"
+            repo.mkdir()
+            body = "QUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVphYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ejAK" * 3
+            (repo / "template.txt").write_text(
+                "-----BEGIN PRIVATE KEY----- -----END PRIVATE KEY-----\n", encoding="utf-8")
+            (repo / "real.pem").write_text(
+                "-----BEGIN PRIVATE KEY-----\n" + body + "\n-----END PRIVATE KEY-----\n",
+                encoding="utf-8")
+            ctx = ToolContext(gate=AuthorizationGate(None), audit=AuditLog(),
+                              world=WorldModel(), rate_limit_s=0.0)
+            tool = SecretScanTool()
+            result = tool.run({"path": str(repo)}, ctx)
+            hits = [f for f in result.findings if "private key block" in f.title]
+            self.assertEqual(len(hits), 1, "only the real key block may match, not the template")
+            self.assertTrue(hits[0].file_path.endswith("real.pem"))
+
 
 if __name__ == "__main__":
     unittest.main()

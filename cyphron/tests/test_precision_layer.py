@@ -23,9 +23,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from cyphron.tools import http_engine
 from cyphron.guardrails.authorization import AuditLog, AuthorizationDocument, AuthorizationGate
 from cyphron.tools.base import ToolContext
-from cyphron.tools.roadmap_batch3 import CtLogTool
-from cyphron.tools.roadmap_batch4 import SmtpProbeTool
-from cyphron.tools.roadmap_bounty import TakeoverTool
+from cyphron.tools.recon_oauth_engines import CtLogTool
+from cyphron.tools.api_email_engines import SmtpProbeTool
+from cyphron.tools.bounty_engines import TakeoverTool
 from cyphron.tools.liveness_probe import LivenessProbeTool
 from cyphron.world.model import WorldModel
 
@@ -70,7 +70,7 @@ class TestScopeEnforcement(unittest.TestCase):
                               return_value=({"app.example.test",
                                              "sibling.example.test",
                                              "secret.example.test"}, "test")),
-            mock.patch("cyphron.tools.roadmap_bounty.dns_cname",
+            mock.patch("cyphron.tools.bounty_engines.dns_cname",
                        return_value="dangling.other.test"),
             mock.patch("socket.getaddrinfo", side_effect=_fake_getaddrinfo),
             mock.patch("cyphron.tools.http_engine.http_get",
@@ -136,7 +136,7 @@ class TestScopeEnforcement(unittest.TestCase):
 
     def test_d_smtp_mx_out_of_scope_zero_connection(self):
         self._smtp_p = [
-            mock.patch("cyphron.tools.roadmap_batch4.dns_mx",
+            mock.patch("cyphron.tools.api_email_engines.dns_mx",
                        return_value=[(10, "mail.other.com")]),
             self._patch_conn,
         ]
@@ -154,7 +154,7 @@ class TestScopeEnforcement(unittest.TestCase):
 
     def test_e_smtp_mx_in_scope_connects(self):
         self._smtp_p = [
-            mock.patch("cyphron.tools.roadmap_batch4.dns_mx",
+            mock.patch("cyphron.tools.api_email_engines.dns_mx",
                        return_value=[(10, "mail.other.com")]),
             self._patch_conn,
         ]

@@ -24,7 +24,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from cyphron.guardrails.authorization import AuditLog, AuthorizationGate
 from cyphron.tools import build_default_registry
 from cyphron.tools.base import ToolContext
-from cyphron.tools.roadmap_batch3 import (
+from cyphron.tools.recon_oauth_engines import (
     CacheDecTool, CtLogTool, IdSeqTool, JsonInjTool, OAuthTool, PuzzleTool,
     SmuggleTool, WaybackTool,
 )

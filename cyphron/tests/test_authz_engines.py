@@ -1,4 +1,4 @@
-"""Unit tests roadmap_batch7: multi-akun god mode — bola (high-02/28),
+"""Unit tests authz_engines: multi-akun god mode — bola (high-02/28),
 priv_matrix (high-03), ws unauth-message (high-06), helper auth_login.
 
 - VULN fixture : alice/bob/admin, objek user-scoped bocor lintas akun
@@ -23,8 +23,8 @@ from cyphron.guardrails.authorization import AuditLog, AuthorizationGate
 from cyphron.tools import build_default_registry
 from cyphron.tools.auth_login import login
 from cyphron.tools.base import ToolContext
-from cyphron.tools.roadmap_batch2 import WsProbeTool
-from cyphron.tools.roadmap_batch7 import BolaTool, PrivMatrixTool
+from cyphron.tools.header_ws_engines import WsProbeTool
+from cyphron.tools.authz_engines import BolaTool, PrivMatrixTool
 from cyphron.world.model import WorldModel
 
 ORDER_ALICE = "Order #1 of alice: 2x keyboard, total $150, ship to Jl. Melati 12"

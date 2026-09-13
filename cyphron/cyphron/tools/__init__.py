@@ -33,8 +33,14 @@ from .admin_panel import AdminPanelTool
 from .laravel_panel import LaravelPanelTool
 from .actuator import ActuatorTool
 from .xmlrpc_probe import XmlRpcProbeTool
-from .roadmap_batch2 import HeaderPolicyTool, WsProbeTool
-from .roadmap_batch3 import (
+from .subdomain_brute import SubdomainBruteTool
+from .passive_dns import PassiveDnsTool
+from .api_surface_probe import ApiSurfaceProbeTool
+from .apk_surface_probe import ApkSurfaceProbeTool
+from .error_oracle import ErrorOracleTool
+from .github_osint import GithubOsintTool
+from .header_ws_engines import HeaderPolicyTool, WsProbeTool
+from .recon_oauth_engines import (
     CacheDecTool,
     CtLogTool,
     IdSeqTool,
@@ -44,7 +50,7 @@ from .roadmap_batch3 import (
     SmuggleTool,
     WaybackTool,
 )
-from .roadmap_batch4 import (
+from .api_email_engines import (
     ApiVerTool,
     CtaConfTool,
     DkimProbeTool,
@@ -56,7 +62,7 @@ from .roadmap_batch4 import (
     SortFilterTool,
     VerbOverrideTool,
 )
-from .roadmap_batch5 import (
+from .crypto_web_engines import (
     CssInjectionTool,
     DomClobberTool,
     JwtCrackTool,
@@ -64,14 +70,14 @@ from .roadmap_batch5 import (
     ProtoClientTool,
     ProtoServerTool,
 )
-from .roadmap_batch6 import (
+from .infra_xss_engines import (
     ClickjackTool,
     DomXssTool,
     MqMgmtTool,
     Sourcemap2Tool,
 )
-from .roadmap_batch7 import BolaTool, PrivMatrixTool
-from .roadmap_bounty import AuthzBypassTool, LlmProbeTool, ParamMinerTool, TakeoverTool
+from .authz_engines import BolaTool, PrivMatrixTool
+from .bounty_engines import AuthzBypassTool, LlmProbeTool, ParamMinerTool, TakeoverTool
 from .nextjs_probe import MiddlewareBypassTool, NextImageProxyTool
 from .client_audit import CookieAuditTool, SriAuditTool
 from .exploitability import ExploitabilityProbeTool
@@ -172,6 +178,12 @@ def build_default_registry(ctx: ToolContext) -> ToolRegistry:
         ActuatorTool(),
         DebugPageTool(),
         XmlRpcProbeTool(),
+        SubdomainBruteTool(),
+        PassiveDnsTool(),
+        ApiSurfaceProbeTool(),
+        ApkSurfaceProbeTool(),
+        ErrorOracleTool(),
+        GithubOsintTool(),
     ):
         reg.register(tool)
     return reg

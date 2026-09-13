@@ -17,7 +17,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from cyphron.guardrails.authorization import AuditLog, AuthorizationGate
 from cyphron.tools import build_default_registry
 from cyphron.tools.base import ToolContext
-from cyphron.tools.roadmap_batch6 import ClickjackTool, DomXssTool, MqMgmtTool, Sourcemap2Tool
+from cyphron.tools.infra_xss_engines import ClickjackTool, DomXssTool, MqMgmtTool, Sourcemap2Tool
 from cyphron.world.model import WorldModel
 
 JS_SOURCE = "function handler(){ document.getElementById('x').innerHTML = location.hash.slice(1); }"
