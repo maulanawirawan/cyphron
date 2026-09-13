@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -84,6 +85,9 @@ def main(argv: list[str] | None = None) -> int:
                       help="sumber yang disinkron (default: all)")
     p_kb.add_argument("--kb-dir", help="folder data KB (default: cyphron/kb/data)")
     p_kb.add_argument("--years", help="rentang tahun feed NVD (default 2018-2026), mis. 2020-2026")
+    p_kb.add_argument("--nvd-mode", choices=["auto", "feed", "api"], default="auto",
+                      help="auto = feed 1.1 dulu, fallback API 2.0 (default)")
+    p_kb.add_argument("--nvd-api-key", help="NVD API key (naikkan kuota 5->50 req/30 dtk; atau env NVD_API_KEY)")
     p_kb.add_argument("--timeout", type=float, default=180.0,
                       help="timeout per unduhan dalam detik")
 
@@ -282,9 +286,11 @@ def main(argv: list[str] | None = None) -> int:
                     print("[cyphron] kb: --years harus bentuk MULAI-AKHIR, mis. 2020-2026")
                     return 1
             try:
+                api_key = args.nvd_api_key or os.environ.get("NVD_API_KEY")
                 manifest = sync(source=args.source,
                                 kb_dir=Path(args.kb_dir) if args.kb_dir else None,
-                                years=years, timeout=args.timeout)
+                                years=years, timeout=args.timeout,
+                                nvd_mode=args.nvd_mode, api_key=api_key)
             except KbSyncError as exc:
                 print(f"[cyphron] kb GAGAL: {exc}")
                 return 1

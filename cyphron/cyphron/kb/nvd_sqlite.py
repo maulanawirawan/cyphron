@@ -151,7 +151,8 @@ def build_sqlite(kb_dir: Path | str | None = None,
                  db_path: Path | str | None = None) -> dict:
     """Bangun/ perbarui cpe.sqlite dari feed di kb/data/nvd/ (atomik)."""
     d = resolve_kb_dir(kb_dir)
-    feeds = sorted((d / "nvd").glob("nvdcve-1.1-*.json.gz"))
+    # feed 1.1 (nvdcve-1.1-*) maupun hasil API 2.0 (nvd-api-*) berformat sama
+    feeds = sorted((d / "nvd").glob("*.json.gz"))
     if not feeds:
         return {"error": "tidak ada feed NVD di kb/data/nvd/ — jalankan kb sync"}
     db = Path(db_path) if db_path else d / "cpe.sqlite"

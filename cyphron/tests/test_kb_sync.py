@@ -124,7 +124,12 @@ class TestKbSync(unittest.TestCase):
             mapping,
             fail={kb_sync.NVD_FEED_URL.format(year=y)
                   for y in range(2018, 2027)})
-        manifest = kb_sync.sync("all", kb_dir=self.kb_dir, fetch=fake)
+
+        def api_mati(url, timeout=180.0):
+            raise ConnectionError("api tidak tersedia (fixture)")
+
+        manifest = kb_sync.sync("all", kb_dir=self.kb_dir, fetch=fake,
+                                api_fetch=api_mati)
         self.assertIn("edb", manifest["sources"])
         self.assertIn("nuclei", manifest["sources"])
         self.assertNotIn("nvd", manifest["sources"])
@@ -134,6 +139,71 @@ class TestKbSync(unittest.TestCase):
     def test_unknown_source_raises(self):
         with self.assertRaises(kb_sync.KbSyncError):
             kb_sync.sync("pastebin", kb_dir=self.kb_dir, fetch=FakeFetcher({}))
+
+    def test_nvd_auto_falls_back_to_api(self):
+        # feed 1.1 mati (403 di dunia nyata) -> auto jatuh ke API 2.0
+
+        def feed_403(url, timeout=180.0):
+            raise ConnectionError("HTTP 403 (feed tidak lagi dilayani)")
+
+        def fake_api_fetch(url, timeout=180.0):
+            assert "services.nvd.nist.gov" in url
+            body = {"resultsPerPage": 2000, "totalResults": 1,
+                    "vulnerabilities": [{
+                        "cve": {
+                            "id": "CVE-2026-9999",
+                            "descriptions": [{"lang": "en", "value": "uji"}],
+                            "metrics": {"cvssMetricV31": [{
+                                "cvssData": {"baseScore": 9.8,
+                                             "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H"}}]},
+                            "configurations": [{"nodes": [{"cpeMatch": [
+                                {"criteria": "cpe:2.3:a:php:php:*:*:*:*:*:*:*:*",
+                                 "versionStartIncluding": "8.1.0",
+                                 "versionEndExcluding": "8.2.0"}]}]}],
+                        }}]}
+            return json.dumps(body).encode()
+
+        kb_sync.sync("nvd", kb_dir=self.kb_dir, years=range(2026, 2027),
+                     fetch=feed_403, api_fetch=fake_api_fetch,
+                     nvd_throttle=0.0)
+        out = self.kb_dir / "nvd" / "nvd-api-2026.json.gz"
+        self.assertTrue(out.exists(), "fallback API harus menulis file")
+        data = json.loads(gzip.decompress(out.read_bytes()))
+        self.assertEqual(data["CVE_Items"][0]["cve"]["CVE_data_meta"]["ID"],
+                         "CVE-2026-9999")
+        # hasil API terbaca oleh builder sqlite
+        from cyphron.kb import nvd_sqlite
+        built = nvd_sqlite.build_sqlite(self.kb_dir)
+        self.assertGreaterEqual(built["cves"], 1)
+
+    def test_api_to_feed_item_conversion(self):
+        from cyphron.kb.nvd_api import api_to_feed_item
+        item = api_to_feed_item({
+            "cve": {
+                "id": "CVE-2026-4444",
+                "descriptions": [{"lang": "es", "value": "x"},
+                                 {"lang": "en", "value": "php bug"}],
+                "weaknesses": [{"description": [{"value": "NVD-CWE-Other"},
+                                                {"value": "CWE-22"}]}],
+                "metrics": {"cvssMetricV31": [{"cvssData": {
+                    "baseScore": 8.2, "vectorString": "CVSS:3.1/AV:N"}}]},
+                "configurations": [{"nodes": [{"cpeMatch": [
+                    {"criteria": "cpe:2.3:a:php:php:*:*:*:*:*:*:*:*",
+                     "versionEndExcluding": "8.2.0"}]}]}],
+                "published": "2026-03-01T00:00:00.000",
+                "lastModified": "2026-03-02T00:00:00.000"}})
+        self.assertEqual(item["cve"]["CVE_data_meta"]["ID"], "CVE-2026-4444")
+        self.assertEqual(item["cve"]["description"]["description_data"][0]["value"],
+                         "php bug")
+        self.assertEqual(
+            item["cve"]["problemtype"]["problemtype_data"][0]["description"][0]["value"],
+            "CWE-22")  # ambil CWE asli, bukan noinfo
+        self.assertEqual(item["impact"]["baseMetricV3"]["cvssV3"]["baseScore"], 8.2)
+        self.assertEqual(item["config"]["nodes"][0]["cpe_match"][0]["cpe23Uri"],
+                         "cpe:2.3:a:php:php:*:*:*:*:*:*:*:*")
+        self.assertEqual(item["config"]["nodes"][0]["cpe_match"][0]["versionEndExcluding"],
+                         "8.2.0")
+        self.assertIsNone(api_to_feed_item({"cve": {}}))
 
     def test_cli_kb_subcommand_reports(self):
         from cyphron.cli import main

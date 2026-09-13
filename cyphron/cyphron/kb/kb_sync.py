@@ -31,9 +31,20 @@ NUCLEI_TARBALL_URL = ("https://codeload.github.com/projectdiscovery/"
                       "nuclei-templates/tar.gz/refs/heads/main")
 NVD_FEED_URL = ("https://nvd.nist.gov/feeds/json/cve/1.1/"
                 "nvdcve-1.1-{year}.json.gz")
-EDB_CSV_URL = ("https://raw.githubusercontent.com/offensive-security/"
-               "exploitdb/main/files_exploits.csv")
+# repo exploitdb pindah ke GitLab resmi OffSec; GitHub raw disimpan sebagai fallback
+EDB_CSV_URLS = (
+    "https://gitlab.com/exploit-database/exploitdb/-/raw/main/"
+    "files_exploits.csv",
+    "https://raw.githubusercontent.com/exploitdb/exploitdb/main/"
+    "files_exploits.csv",
+    "https://raw.githubusercontent.com/offensive-security/exploitdb/main/"
+    "files_exploits.csv",
+)
+EDB_CSV_URL = EDB_CSV_URLS[0]
 DEFAULT_YEARS = range(2018, 2027)
+# NVD/git-host memblokir UA default python-urllib (HTTP 403) — identitas jelas
+_USER_AGENT = ("cyphron-kb/1.0 (offline-first security knowledge base; "
+               "https://github.com/maulanawirawan/cyphron)")
 
 
 class KbSyncError(RuntimeError):
@@ -41,7 +52,8 @@ class KbSyncError(RuntimeError):
 
 
 def _fetch(url: str, timeout: float = 180.0) -> bytes:
-    with urllib.request.urlopen(url, timeout=timeout) as resp:
+    req = urllib.request.Request(url, headers={"User-Agent": _USER_AGENT})
+    with urllib.request.urlopen(req, timeout=timeout) as resp:
         return resp.read()
 
 
@@ -83,23 +95,47 @@ def sync_nuclei(kb_dir: Path, fetch=_fetch, timeout: float = 180.0) -> dict:
 
 
 def sync_nvd(kb_dir: Path, fetch=_fetch, timeout: float = 180.0,
-             years=None) -> dict:
-    years = list(years if years is not None else DEFAULT_YEARS)
-    out_dir = kb_dir / "nvd"
-    out_dir.mkdir(parents=True, exist_ok=True)
-    total_cve = 0
-    fetched_years = []
-    for year in years:
-        blob = fetch(NVD_FEED_URL.format(year=year), timeout)
-        raw = gzip.decompress(blob)  # verifikasi integritas gzip
-        data = json.loads(raw.decode("utf-8", errors="replace"))
-        total_cve += len(data.get("CVE_Items", []))
-        (out_dir / f"nvdcve-1.1-{year}.json.gz").write_bytes(blob)
-        fetched_years.append(year)
-    result = {"origin": NVD_FEED_URL.format(year=f"{years[0]}..{years[-1]}"),
-              "years": fetched_years, "cves": total_cve,
-              "summary": f"{len(fetched_years)} feed ({years[0]}-{years[-1]}), "
-                         f"{total_cve} CVE"}
+             years=None, nvd_mode: str = "auto", api_key: str | None = None,
+             throttle_s: float | None = None, api_fetch=None) -> dict:
+    """Sinkron NVD. mode: feed (URL 1.1) / api (API 2.0) / auto (feed dulu,
+    fallback API bila feed tak lagi dilayani — kondisi nyata Sep 2026).
+    api_fetch: unduhan khusus jalur API (None = nyata; test menyuntikkan)."""
+    years_list = list(years if years is not None else DEFAULT_YEARS)
+
+    def _try_feed() -> dict:
+        out_dir = kb_dir / "nvd"
+        out_dir.mkdir(parents=True, exist_ok=True)
+        total_cve = 0
+        fetched_years = []
+        for year in years_list:
+            blob = fetch(NVD_FEED_URL.format(year=year), timeout)
+            raw = gzip.decompress(blob)  # verifikasi integritas gzip
+            data = json.loads(raw.decode("utf-8", errors="replace"))
+            total_cve += len(data.get("CVE_Items", []))
+            (out_dir / f"nvdcve-1.1-{year}.json.gz").write_bytes(blob)
+            fetched_years.append(year)
+        return {"origin": NVD_FEED_URL.format(year=f"{years_list[0]}..{years_list[-1]}"),
+                "years": fetched_years, "cves": total_cve,
+                "summary": f"{len(fetched_years)} feed "
+                           f"({years_list[0]}-{years_list[-1]}), {total_cve} CVE"}
+
+    def _try_api() -> dict:
+        from . import nvd_api
+        kwargs = {}
+        if throttle_s is not None:
+            kwargs["throttle_s"] = throttle_s
+        return nvd_api.sync_nvd_api(kb_dir, years_list, fetch=api_fetch,
+                                    api_key=api_key, **kwargs)
+
+    if nvd_mode == "feed":
+        result = _try_feed()
+    elif nvd_mode == "api":
+        result = _try_api()
+    else:  # auto
+        try:
+            result = _try_feed()
+        except Exception:
+            result = _try_api()
     # bangun indeks CPE<->CVE untuk cve_matcher (gagal build = feed tetap ada)
     from . import nvd_sqlite
     built = nvd_sqlite.build_sqlite(kb_dir)
@@ -112,18 +148,30 @@ def sync_nvd(kb_dir: Path, fetch=_fetch, timeout: float = 180.0,
 
 
 def sync_edb(kb_dir: Path, fetch=_fetch, timeout: float = 180.0) -> dict:
-    blob = fetch(EDB_CSV_URL, timeout)
-    text = blob.decode("utf-8", errors="replace")
-    rows = max(0, sum(1 for line in text.splitlines() if line.strip()) - 1)
-    out = kb_dir / "edb" / "files_exploits.csv"
-    out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_bytes(blob)
-    return {"origin": EDB_CSV_URL, "sha256": sha256_bytes(blob),
-            "rows": rows, "summary": f"{rows} entri exploit publik"}
+    last_exc: Exception | None = None
+    for url in EDB_CSV_URLS:
+        try:
+            blob = fetch(url, timeout)
+        except Exception as exc:  # coba mirror berikutnya
+            last_exc = exc
+            continue
+        text = blob.decode("utf-8", errors="replace")
+        if not text.lstrip().lower().startswith("id,"):
+            last_exc = KbSyncError(f"isi tak terduga dari {url}")
+            continue
+        rows = max(0, sum(1 for line in text.splitlines() if line.strip()) - 1)
+        out = kb_dir / "edb" / "files_exploits.csv"
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_bytes(blob)
+        return {"origin": url, "sha256": sha256_bytes(blob), "rows": rows,
+                "summary": f"{rows} entri exploit publik"}
+    raise last_exc or KbSyncError("semua mirror exploitdb gagal")
 
 
 def sync(source: str = "all", kb_dir: Path | str | None = None,
-         years=None, fetch=_fetch, timeout: float = 180.0) -> dict:
+         years=None, fetch=_fetch, timeout: float = 180.0,
+         nvd_mode: str = "auto", api_key: str | None = None,
+         nvd_throttle: float | None = None, api_fetch=None) -> dict:
     """Sinkron KB; gagal per-sumber dicatat, tidak melempar exception."""
     if source == "all":
         wanted = list(SOURCES)
@@ -136,7 +184,10 @@ def sync(source: str = "all", kb_dir: Path | str | None = None,
     updates: dict = {}
     errors: list[str] = []
     jobs = {"nuclei": lambda: sync_nuclei(d, fetch, timeout),
-            "nvd": lambda: sync_nvd(d, fetch, timeout, years),
+            "nvd": lambda: sync_nvd(d, fetch, timeout, years,
+                                    nvd_mode=nvd_mode, api_key=api_key,
+                                    throttle_s=nvd_throttle,
+                                    api_fetch=api_fetch),
             "edb": lambda: sync_edb(d, fetch, timeout)}
     for name in wanted:
         try:

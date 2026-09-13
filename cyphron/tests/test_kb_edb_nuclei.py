@@ -75,8 +75,9 @@ class TestEdbIndex(unittest.TestCase):
 class TestEdbReferenceTool(unittest.TestCase):
     def test_missing_kb_is_note(self):
         ctx = _ctx()
-        from cyphron.tools.edb_reference import EdbReferenceTool
-        tr = EdbReferenceTool().run({}, ctx)
+        with tempfile.TemporaryDirectory() as empty:
+            from cyphron.tools.edb_reference import EdbReferenceTool
+            tr = EdbReferenceTool().run({"kb_dir": empty}, ctx)
         self.assertTrue(tr.ok)
         self.assertEqual(tr.data["skipped"], "kb-belum-tersedia")
 
@@ -135,8 +136,9 @@ class TestNucleiBridgeTool(unittest.TestCase):
 
     def test_missing_kb_is_note(self):
         ctx = _ctx()
-        from cyphron.tools.nuclei_bridge import NucleiBridgeTool
-        tr = NucleiBridgeTool().run({}, ctx)
+        with tempfile.TemporaryDirectory() as empty:
+            from cyphron.tools.nuclei_bridge import NucleiBridgeTool
+            tr = NucleiBridgeTool().run({"kb_dir": empty}, ctx)
         self.assertTrue(tr.ok)
         self.assertEqual(tr.data["skipped"], "kb-belum-tersedia")
 
