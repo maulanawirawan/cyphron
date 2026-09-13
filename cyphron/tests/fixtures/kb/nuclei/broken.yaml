@@ -1,0 +1,6 @@
+id: broken-fixture
+info:
+  name: Broken Fixture
+    oops-indent: true
+  severity: low
+  tags: exposure

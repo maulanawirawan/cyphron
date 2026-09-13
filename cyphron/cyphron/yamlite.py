@@ -13,6 +13,10 @@ class YamliteError(ValueError):
     pass
 
 
+# indikator block scalar (| > dengan chomping) — dipakai mapping DAN list
+_BLOCK_SCALARS = (">", "|", ">-", "|-", ">+", "|+")
+
+
 def _parse_scalar(raw: str):
     s = raw.strip()
     if s == "":
@@ -113,7 +117,7 @@ def _parse_mapping(lines, i, indent):
         key, val = _split_key_value(content)
         if key is None:
             raise YamliteError(f"cannot parse mapping line {i}: {content!r}")
-        if val in (">", "|", ">-", "|-"):
+        if val in _BLOCK_SCALARS:
             block, i = _parse_block_scalar(lines, i + 1, cur_indent)
             out[key] = block
             continue
@@ -137,6 +141,11 @@ def _parse_list(lines, i, indent):
         if cur_indent != indent or not content.startswith("-"):
             break
         item_content = content[1:].strip()
+        if item_content in _BLOCK_SCALARS:
+            # item list yang berupa block scalar: - |  /  - >-
+            block, i = _parse_block_scalar(lines, i + 1, cur_indent)
+            out.append(block)
+            continue
         if item_content == "":
             if i + 1 < len(lines) and lines[i + 1][0] > cur_indent:
                 val, i = _parse_block(lines, i + 1, lines[i + 1][0])
@@ -154,7 +163,7 @@ def _parse_list(lines, i, indent):
         if val != "":
             item[key] = _parse_scalar(val)
             i += 1
-        elif val in (">", "|"):
+        elif val in _BLOCK_SCALARS:
             block, i = _parse_block_scalar(lines, i + 1, cur_indent)
             item[key] = block
         else:
@@ -167,7 +176,7 @@ def _parse_list(lines, i, indent):
             k2, v2 = _split_key_value(lines[i][1])
             if k2 is None:
                 raise YamliteError(f"bad list-item continuation at line {i}: {lines[i][1]!r}")
-            if v2 in (">", "|"):
+            if v2 in _BLOCK_SCALARS:
                 block, i = _parse_block_scalar(lines, i + 1, lines[i][0])
                 item[k2] = block
             elif v2 != "":

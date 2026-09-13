@@ -1,0 +1,17 @@
+id: cve-dos-fixture
+
+info:
+  name: CVE template with DoS tag
+  author: cyphron-fixture
+  severity: low
+  description: Fixture — whitelist lolos tapi tag dos = buang.
+  tags: cve,dos
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}/heavy"
+    matchers:
+      - type: word
+        words:
+          - "ok"

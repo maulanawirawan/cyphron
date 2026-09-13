@@ -11,6 +11,9 @@ out_*/
 pdfcheck/
 **/landing/reports/
 
+# knowledge base hasil unduhan (berat, bukan kode) — kode & cpe_map tetap masuk
+cyphron/kb/data/
+
 # sisa non-code
 package-lock.json
 progress_terakhir_cybersecurity.txt

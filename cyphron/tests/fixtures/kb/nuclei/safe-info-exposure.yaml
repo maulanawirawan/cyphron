@@ -1,0 +1,25 @@
+id: git-config-exposure
+
+info:
+  name: Git Configuration File Exposure
+  author: cyphron-fixture
+  severity: low
+  description: |
+    Berkas .git/config terakses publik — fixture offline.
+  classification:
+    cwe-id: CWE-538
+  tags: exposure,config,git
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}/.git/config"
+    matchers:
+      - type: word
+        part: body
+        words:
+          - "[core]"
+        condition: and
+      - type: status
+        status:
+          - 200

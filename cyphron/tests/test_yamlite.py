@@ -49,6 +49,22 @@ class TestYamlite(unittest.TestCase):
         data = yamlite.parse(SAMPLE)
         self.assertEqual(data["commands"]["api"], 'curl -d \'{"model":"Cyphron"}\'')
 
+    def test_block_scalar_in_list_item(self):
+        # pola template nuclei: raw: - |  (block scalar sebagai item list)
+        data = yamlite.parse(
+            "a:\n"
+            "  raw:\n"
+            "    - |\n"
+            "      GET /x HTTP/1.1\n"
+            "      Host: {{Hostname}}\n"
+        )
+        self.assertEqual(data["a"]["raw"][0],
+                         "GET /x HTTP/1.1\nHost: {{Hostname}}")
+
+    def test_block_scalar_chomping_variants(self):
+        data = yamlite.parse("d: |-\n  baris satu\n  baris dua\n")
+        self.assertEqual(data["d"], "baris satu\nbaris dua")
+
 
 if __name__ == "__main__":
     unittest.main()

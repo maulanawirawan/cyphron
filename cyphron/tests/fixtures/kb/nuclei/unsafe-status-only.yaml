@@ -1,0 +1,17 @@
+id: status-only-fixture
+
+info:
+  name: Status-only matcher template
+  author: cyphron-fixture
+  severity: info
+  description: Fixture — matcher status tanpa cek isi = tidak aman (anti catch-all 200).
+  tags: exposure
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}/admin"
+    matchers:
+      - type: status
+        status:
+          - 200

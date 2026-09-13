@@ -79,6 +79,14 @@ def main(argv: list[str] | None = None) -> int:
     p_suggest = sub.add_parser("suggest", help="menu rekomendasi langkah berikutnya — pilih nomor")
     p_suggest.add_argument("--from", dest="from_dir", required=True, help="folder hasil scan")
 
+    p_kb = sub.add_parser("kb", help="sinkron knowledge base lokal (nuclei/nvd/edb) — senjata katalog")
+    p_kb.add_argument("--source", choices=["all", "nuclei", "nvd", "edb"], default="all",
+                      help="sumber yang disinkron (default: all)")
+    p_kb.add_argument("--kb-dir", help="folder data KB (default: cyphron/kb/data)")
+    p_kb.add_argument("--years", help="rentang tahun feed NVD (default 2018-2026), mis. 2020-2026")
+    p_kb.add_argument("--timeout", type=float, default=180.0,
+                      help="timeout per unduhan dalam detik")
+
     p_tiers = sub.add_parser("tiers", help="tier pack: 100 skills dalam 4 tingkat severity")
     p_tiers.add_argument("--build", action="store_true", help="generate file skill ke .kimchi/skills-tiers/")
     p_tiers.add_argument("--build-bounty", action="store_true", help="generate Bug Bounty pack (harvest 2026-09-06)")
@@ -251,6 +259,33 @@ def main(argv: list[str] | None = None) -> int:
                 print("Sediakan akun uji disposable, lalu jalankan ulang scan dengan kredensial "
                       "grey-box (fitur authenticated sedang dijalankan).")
                 return 0
+            return 0
+
+        if args.command == "kb":
+            from .kb.kb_sync import sync, KbSyncError
+            years = None
+            if args.years:
+                try:
+                    a, b = args.years.split("-", 1)
+                    years = range(int(a), int(b) + 1)
+                except ValueError:
+                    print("[cyphron] kb: --years harus bentuk MULAI-AKHIR, mis. 2020-2026")
+                    return 1
+            try:
+                manifest = sync(source=args.source,
+                                kb_dir=Path(args.kb_dir) if args.kb_dir else None,
+                                years=years, timeout=args.timeout)
+            except KbSyncError as exc:
+                print(f"[cyphron] kb GAGAL: {exc}")
+                return 1
+            for src, info in manifest["sources"].items():
+                print(f"[cyphron] kb[{src}] {info.get('summary', '')}")
+            for err in manifest.get("errors", []):
+                print(f"[cyphron] kb peringatan: {err}")
+            print(f"[cyphron] manifest: {manifest.get('manifest_path')}")
+            if not manifest["sources"]:
+                print("[cyphron] kb: tidak ada sumber yang berhasil — KB lama tetap dipakai")
+                return 1
             return 0
 
         if args.command == "check":

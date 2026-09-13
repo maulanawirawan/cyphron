@@ -1,0 +1,18 @@
+id: body-post-fixture
+
+info:
+  name: POST with body template
+  author: cyphron-fixture
+  severity: medium
+  description: Fixture — request dengan body/POST = bukan subset aman.
+  tags: cve
+
+http:
+  - method: POST
+    path:
+      - "{{BaseURL}}/login"
+    body: "user={{username}}&pass={{password}}"
+    matchers:
+      - type: word
+        words:
+          - "welcome"

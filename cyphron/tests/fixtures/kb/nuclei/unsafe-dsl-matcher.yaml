@@ -1,0 +1,17 @@
+id: dsl-matcher-fixture
+
+info:
+  name: DSL matcher template
+  author: cyphron-fixture
+  severity: info
+  description: Fixture — matcher DSL tidak dieksekusi bridge.
+  tags: cve
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}/x"
+    matchers:
+      - type: dsl
+        dsl:
+          - 'status_code == 200 && contains(body, "ok")'
