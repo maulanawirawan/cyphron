@@ -78,6 +78,8 @@ from .server_banner_soft import ServerBannerSoftTool
 from .favicon_hash import FaviconHashTool
 from .fingerprint_to_cpe import FingerprintToCpeTool
 from .cve_matcher import CveMatcherTool
+from .edb_reference import EdbReferenceTool
+from .nuclei_bridge import NucleiBridgeTool
 from .header_ws_engines import HeaderPolicyTool, WsProbeTool
 from .recon_oauth_engines import (
     CacheDecTool,
@@ -263,6 +265,8 @@ def build_default_registry(ctx: ToolContext) -> ToolRegistry:
         FaviconHashTool(),
         FingerprintToCpeTool(),
         CveMatcherTool(),
+        EdbReferenceTool(),
+        NucleiBridgeTool(),
     ):
         reg.register(tool)
     return reg

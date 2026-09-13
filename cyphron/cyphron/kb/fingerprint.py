@@ -10,7 +10,7 @@ flag versioned=False (cve_matcher TIDAK mengklaim CVE dari ini, hanya note).
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 from .. import yamlite
@@ -28,6 +28,7 @@ class CpeMatch:
     mapping_id: str
     source: str  # string mentah yang menumbuhkan CPE ini
     note_only: bool = False
+    names: list[str] = field(default_factory=list)  # nama produk utk EDB/dokumen
 
 
 def load_cpe_map(path: Path | None = None) -> list[dict]:
@@ -35,6 +36,16 @@ def load_cpe_map(path: Path | None = None) -> list[dict]:
     data = yamlite.parse(text)
     mappings = data.get("mappings") or []
     return [m for m in mappings if isinstance(m, dict)]
+
+
+def _names_of(m: dict) -> list[str]:
+    raw = m.get("names") or []
+    if isinstance(raw, str):
+        raw = [x.strip() for x in raw.split(",") if x.strip()]
+    names = [str(x).strip() for x in raw if str(x).strip()]
+    if not names and m.get("product"):
+        names.append(str(m["product"]).replace("_", " "))
+    return names
 
 
 def cpe23_str(part: str, vendor: str, product: str, version: str) -> str:
@@ -78,6 +89,7 @@ def to_cpe(texts, mappings: list[dict] | None = None) -> list[CpeMatch]:
                 vendor=vendor, product=product, version=version,
                 versioned=(version != "*"), mapping_id=str(m.get("id") or ""),
                 source=text[:160], note_only=note_only,
+                names=_names_of(m),
             )
             key = (cm.vendor, cm.product, cm.version)
             if key not in found:

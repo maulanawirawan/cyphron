@@ -27,7 +27,7 @@ BLACKLIST_TAGS = {
     "password", "stealth", "destruction", "credential-stuffing", "nologin",
     "lua",
 }
-SAFE_MATCHER_TYPES = {"word", "status", "description"}
+SAFE_MATCHER_TYPES = {"word", "status"}  # regex/dsl/binary/size = skip
 ALLOWED_SEVERITIES = ("info", "low", "medium", "high", "critical")
 # kunci workload non-HTTP yang tidak boleh dieksekusi bridge
 _NON_HTTP_KEYS = {"code", "javascript", "network", "dns", "file", "headless",
@@ -174,9 +174,12 @@ def is_safe(t: NucleiTemplate,
             return f"matchers-condition aneh: {req.matchers_condition}"
         if not req.matchers:
             return "tanpa matcher (wajib cek isi respons)"
-        if all(str(m.get("type") or "").lower() == "status"
-               for m in req.matchers):
+        types = [str(m.get("type") or "").lower() for m in req.matchers]
+        if all(t == "status" for t in types):
             return "matcher status-only (wajib cek isi respons)"
+        if "status" in types and req.matchers_condition != "and":
+            return ("matcher status dengan matchers-condition 'or' bisa "
+                    "match status-only — wajib 'and'")
     return None
 
 

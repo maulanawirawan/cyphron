@@ -43,6 +43,7 @@ http:
   - method: GET
     path:
       - "{{BaseURL}}/.env"
+    matchers-condition: and
     matchers:
       - type: word
         words:
@@ -136,6 +137,14 @@ class TestSafetyGate(unittest.TestCase):
         self.assertIn("tanpa matcher", is_safe(
             self._tpl(requests=[nuclei_loader.NucleiRequest(
                 path="{{BaseURL}}/admin", matchers=[])])))
+
+    def test_status_with_or_condition_rejected(self):
+        # status + word TAPI matchers-condition 'or' = jalur status-only
+        self.assertIn("'or'", is_safe(
+            self._tpl(requests=[nuclei_loader.NucleiRequest(
+                path="{{BaseURL}}/admin", matchers_condition="or",
+                matchers=[{"type": "status", "status": [200]},
+                          {"type": "word", "words": ["x"]}])])))
 
 
 class TestIterFixtures(unittest.TestCase):
