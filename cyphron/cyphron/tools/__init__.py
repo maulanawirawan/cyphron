@@ -76,6 +76,8 @@ from .hsts_short_maxage import HstsShortMaxageTool
 from .robots_sensitive_entry import RobotsSensitiveEntryTool
 from .server_banner_soft import ServerBannerSoftTool
 from .favicon_hash import FaviconHashTool
+from .fingerprint_to_cpe import FingerprintToCpeTool
+from .cve_matcher import CveMatcherTool
 from .header_ws_engines import HeaderPolicyTool, WsProbeTool
 from .recon_oauth_engines import (
     CacheDecTool,
@@ -259,6 +261,8 @@ def build_default_registry(ctx: ToolContext) -> ToolRegistry:
         RobotsSensitiveEntryTool(),
         ServerBannerSoftTool(),
         FaviconHashTool(),
+        FingerprintToCpeTool(),
+        CveMatcherTool(),
     ):
         reg.register(tool)
     return reg

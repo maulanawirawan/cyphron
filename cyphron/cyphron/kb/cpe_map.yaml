@@ -1,0 +1,65 @@
+# PETA fingerprint -> CPE 2.3 — dikelola sendiri, disandingkan dengan kamus
+# CPE NVD (vendor/product HARUS persis seperti di feed NVD; cve_matcher
+# mencocokkan exact). Ini file KODE (ikut repo), bukan hasil unduhan.
+#
+# Aturan zero-FP:
+# - pattern regex dengan kelompok versi OPSIONAL: versi terbaca -> CPE
+#   berversi (layak klaim lewat cve_matcher); versi tidak ada -> CPE
+#   version="*" yang TIDAK PERNAH jadi klaim CVE (cuma note).
+# - pattern diuji pada SEMUA string teknologi (header Server/X-Powered-By,
+#   meta generator, catatan census).
+#
+# fields: id, pattern (regex, kelompok 1 = versi bila ada), vendor, product,
+#         part (default a), note_only (true = tak ada CPE NVD, hanya catat)
+mappings:
+  - id: nginx
+    pattern: '(?i)\bnginx(?:[/ ](0\.\d+|1\.\d+(?:\.\d+)?))?'
+    vendor: f5
+    product: nginx
+    part: a
+
+  - id: php
+    pattern: '(?i)\bPHP(?:[/ ](\d+\.\d+(?:\.\d+)?))?'
+    vendor: php
+    product: php
+    part: a
+
+  - id: wordpress
+    pattern: '(?i)\bWordPress(?:\s+v?(\d+(?:\.\d+)*))?'
+    vendor: wordpress
+    product: wordpress
+    part: a
+
+  - id: ojs
+    pattern: '(?i)(?:Open Journal Systems|OJS)(?:\s+v?(\d+\.\d+\.\d+(?:\.\d+)?))?'
+    vendor: public_knowledge_project
+    product: open_journal_systems
+    part: a
+
+  - id: laravel
+    pattern: '(?i)\bLaravel(?:\s*(?:Framework)?\s*v?(\d+\.\d+(?:\.\d+)?))?'
+    vendor: laravel
+    product: laravel
+    part: a
+
+  - id: django
+    pattern: '(?i)\bDjango(?:[/ ](\d+\.\d+(?:\.\d+)?))?'
+    vendor: djangoproject
+    product: django
+    part: a
+
+  - id: apache
+    pattern: '(?i)\bApache(?:[/ ](\d+\.\d+(?:\.\d+)?))?'
+    vendor: apache
+    product: http_server
+    part: a
+
+  - id: leconfe
+    pattern: '(?i)\bLeconfe(?:\s*v?(\d+\.\d+(?:\.\d+)?))?'
+    vendor: leconfe
+    product: leconfe
+    part: a
+
+  - id: neo_feeder
+    pattern: '(?i)\bNEO\s*Feeder\b'
+    note_only: true

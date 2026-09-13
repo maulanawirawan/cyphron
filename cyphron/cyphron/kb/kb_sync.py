@@ -96,10 +96,19 @@ def sync_nvd(kb_dir: Path, fetch=_fetch, timeout: float = 180.0,
         total_cve += len(data.get("CVE_Items", []))
         (out_dir / f"nvdcve-1.1-{year}.json.gz").write_bytes(blob)
         fetched_years.append(year)
-    return {"origin": NVD_FEED_URL.format(year=f"{years[0]}..{years[-1]}"),
-            "years": fetched_years, "cves": total_cve,
-            "summary": f"{len(fetched_years)} feed ({years[0]}-{years[-1]}), "
-                       f"{total_cve} CVE"}
+    result = {"origin": NVD_FEED_URL.format(year=f"{years[0]}..{years[-1]}"),
+              "years": fetched_years, "cves": total_cve,
+              "summary": f"{len(fetched_years)} feed ({years[0]}-{years[-1]}), "
+                         f"{total_cve} CVE"}
+    # bangun indeks CPE<->CVE untuk cve_matcher (gagal build = feed tetap ada)
+    from . import nvd_sqlite
+    built = nvd_sqlite.build_sqlite(kb_dir)
+    if "error" not in built:
+        result["sqlite"] = {"cves": built["cves"],
+                            "cpe_rows": built["cpe_rows"],
+                            "db": built["db"]}
+        result["summary"] += f"; cpe.sqlite {built['cpe_rows']} CPE"
+    return result
 
 
 def sync_edb(kb_dir: Path, fetch=_fetch, timeout: float = 180.0) -> dict:
