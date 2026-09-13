@@ -58,6 +58,15 @@ from .mass_assign import MassAssignTool
 from .cloud_bucket_probe import CloudBucketProbeTool
 from .oauth_state_bypass import OAuthStateBypassTool
 from .idor_mass_endpoint import IdorMassEndpointTool
+from .csp_analyzer import CspAnalyzerTool
+from .cookie_scope import CookieScopeTool
+from .cors_wildcard_subdomain import CorsSubdomainReflectionTool
+from .tls_mismatch_leak import CtSanLeakTool
+from .api_version_diff import ApiVersionDiffTool
+from .header_reflection import HeaderReflectionTool
+from .email_pattern import EmailPatternTool
+from .rate_limit_graceful import RateLimitGracefulTool
+from .archive_diff import ArchiveDiffTool
 from .header_ws_engines import HeaderPolicyTool, WsProbeTool
 from .recon_oauth_engines import (
     CacheDecTool,
@@ -223,6 +232,15 @@ def build_default_registry(ctx: ToolContext) -> ToolRegistry:
         CloudBucketProbeTool(),
         OAuthStateBypassTool(),
         IdorMassEndpointTool(),
+        CspAnalyzerTool(),
+        CookieScopeTool(),
+        CorsSubdomainReflectionTool(),
+        CtSanLeakTool(),
+        ApiVersionDiffTool(),
+        HeaderReflectionTool(),
+        EmailPatternTool(),
+        RateLimitGracefulTool(),
+        ArchiveDiffTool(),
     ):
         reg.register(tool)
     return reg
