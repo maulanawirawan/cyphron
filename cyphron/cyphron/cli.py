@@ -87,6 +87,16 @@ def main(argv: list[str] | None = None) -> int:
     p_kb.add_argument("--timeout", type=float, default=180.0,
                       help="timeout per unduhan dalam detik")
 
+    p_god = sub.add_parser("god-report",
+                           help="laporan tier: temuan live + CVE exposure + referensi exploit publik (pasif)")
+    p_god.add_argument("--from", dest="from_dir", required=True,
+                       help="folder hasil scan (berisi findings.json)")
+    p_god.add_argument("--kb-dir", help="folder data KB (default: cyphron/kb/data)")
+    p_god.add_argument("--out", help="file markdown tujuan (default: <from>/GOD-REPORT.md)")
+    p_god.add_argument("--top", type=int, default=15, help="jumlah CVE top di tabel")
+    p_god.add_argument("--tech", action="append", default=[],
+                       help="tambahan fingerprint manual (bisa diulang)")
+
     p_tiers = sub.add_parser("tiers", help="tier pack: 100 skills dalam 4 tingkat severity")
     p_tiers.add_argument("--build", action="store_true", help="generate file skill ke .kimchi/skills-tiers/")
     p_tiers.add_argument("--build-bounty", action="store_true", help="generate Bug Bounty pack (harvest 2026-09-06)")
@@ -286,6 +296,28 @@ def main(argv: list[str] | None = None) -> int:
             if not manifest["sources"]:
                 print("[cyphron] kb: tidak ada sumber yang berhasil — KB lama tetap dipakai")
                 return 1
+            return 0
+
+        if args.command == "god-report":
+            from .god_report import (
+                build, collect_technologies, load_scan_data, write_report)
+            src = Path(args.from_dir)
+            try:
+                data = load_scan_data(src / "findings.json")
+            except (OSError, ValueError) as exc:
+                print(f"[cyphron] god-report: findings.json tidak terbaca: {exc}")
+                return 1
+            texts = collect_technologies(data, args.tech)
+            md, stats = build(data.get("target", "?"),
+                              data.get("confirmed", []), texts,
+                              kb_dir=Path(args.kb_dir) if args.kb_dir else None,
+                              top=args.top)
+            out = Path(args.out) if args.out else src / "GOD-REPORT.md"
+            write_report(md, out)
+            print(f"[cyphron] god-report: {stats['versioned']}/{stats['products']} "
+                  f"produk berversi, {stats['cve_rows']} CVE lead, "
+                  f"{stats['edb_products']} produk ber-exploit publik")
+            print(f"[cyphron] laporan: {out}")
             return 0
 
         if args.command == "check":

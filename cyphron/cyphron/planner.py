@@ -482,6 +482,13 @@ class DeterministicPlanner:
                                 "passive-audit"))
         else:
             self._plan_web(world, target)
+        # GOD-TIER: begitu ada bukti teknologi di world, jalankan sekali
+        # matcher CVE pasif (nol request; no-op aman bila KB belum sinkron)
+        if world.technologies:
+            self._once(Step("cve_matcher", {},
+                            "pasif: fingerprint teknologi -> KB NVD lokal "
+                            "(lead CVE exposure, tanpa request)",
+                            "passive-audit"))
         self._allocate()
         self._rescale_engines()
         # round bookkeeping is cleared AFTER allocation so follow-up steps
