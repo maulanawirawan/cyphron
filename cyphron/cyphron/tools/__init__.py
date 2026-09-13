@@ -22,6 +22,16 @@ from .sca_probe import ScaProbeTool
 from .wp_probe import WpProbeTool
 from .wp_data_exposure import WpDataExposureTool
 from .lockout_probe import LockoutProbeTool
+from .security_txt import SecurityTxtTool
+from .cors_probe import CorsProbeTool
+from .register_probe import RegisterProbeTool
+from .reset_enum import ResetEnumTool
+from .traversal_probe import TraversalTool
+from .ssrf_oob import SsrfOobTool
+from .crlf_probe import CrlfProbeTool
+from .admin_panel import AdminPanelTool
+from .laravel_panel import LaravelPanelTool
+from .actuator import ActuatorTool
 from .xmlrpc_probe import XmlRpcProbeTool
 from .roadmap_batch2 import HeaderPolicyTool, WsProbeTool
 from .roadmap_batch3 import (
@@ -150,6 +160,16 @@ def build_default_registry(ctx: ToolContext) -> ToolRegistry:
         WpProbeTool(),
         WpDataExposureTool(),
         LockoutProbeTool(),
+        SecurityTxtTool(),
+        CorsProbeTool(),
+        RegisterProbeTool(),
+        ResetEnumTool(),
+        TraversalTool(),
+        SsrfOobTool(),
+        CrlfProbeTool(),
+        AdminPanelTool(),
+        LaravelPanelTool(),
+        ActuatorTool(),
         DebugPageTool(),
         XmlRpcProbeTool(),
     ):
