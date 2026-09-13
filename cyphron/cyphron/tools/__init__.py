@@ -67,6 +67,15 @@ from .header_reflection import HeaderReflectionTool
 from .email_pattern import EmailPatternTool
 from .rate_limit_graceful import RateLimitGracefulTool
 from .archive_diff import ArchiveDiffTool
+from .security_txt_quality import SecurityTxtQualityTool
+from .cookie_prefix_insecure import CookiePrefixInsecureTool
+from .referrer_policy_loose import ReferrerPolicyLooseTool
+from .cache_control_missing import CacheControlMissingTool
+from .sri_subresource import SriSubresourceTool
+from .hsts_short_maxage import HstsShortMaxageTool
+from .robots_sensitive_entry import RobotsSensitiveEntryTool
+from .server_banner_soft import ServerBannerSoftTool
+from .favicon_hash import FaviconHashTool
 from .header_ws_engines import HeaderPolicyTool, WsProbeTool
 from .recon_oauth_engines import (
     CacheDecTool,
@@ -241,6 +250,15 @@ def build_default_registry(ctx: ToolContext) -> ToolRegistry:
         EmailPatternTool(),
         RateLimitGracefulTool(),
         ArchiveDiffTool(),
+        SecurityTxtQualityTool(),
+        CookiePrefixInsecureTool(),
+        ReferrerPolicyLooseTool(),
+        CacheControlMissingTool(),
+        SriSubresourceTool(),
+        HstsShortMaxageTool(),
+        RobotsSensitiveEntryTool(),
+        ServerBannerSoftTool(),
+        FaviconHashTool(),
     ):
         reg.register(tool)
     return reg
