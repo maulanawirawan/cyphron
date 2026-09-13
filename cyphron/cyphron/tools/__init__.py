@@ -52,6 +52,12 @@ from .jwt_exploit import JwtExploitTool
 from .ssrf_chain import SsrfChainTool
 from .rce_proof import RceProofTool
 from .deser_probe import DeserProbeTool
+from .cache_poison import CachePoisonTool
+from .gql_schema_engines import GqlIntrospectTool, GraphqlFieldSuggestTool
+from .mass_assign import MassAssignTool
+from .cloud_bucket_probe import CloudBucketProbeTool
+from .oauth_state_bypass import OAuthStateBypassTool
+from .idor_mass_endpoint import IdorMassEndpointTool
 from .header_ws_engines import HeaderPolicyTool, WsProbeTool
 from .recon_oauth_engines import (
     CacheDecTool,
@@ -210,6 +216,13 @@ def build_default_registry(ctx: ToolContext) -> ToolRegistry:
         SsrfChainTool(),
         RceProofTool(),
         DeserProbeTool(),
+        CachePoisonTool(),
+        GqlIntrospectTool(),
+        GraphqlFieldSuggestTool(),
+        MassAssignTool(),
+        CloudBucketProbeTool(),
+        OAuthStateBypassTool(),
+        IdorMassEndpointTool(),
     ):
         reg.register(tool)
     return reg
