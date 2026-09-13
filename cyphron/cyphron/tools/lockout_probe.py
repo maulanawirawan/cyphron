@@ -93,13 +93,19 @@ def _dynamic_markers(body: str, baseline_markers: set[str]) -> list[str]:
 
 
 
-def _http_retry(fn, *a, **kw):
+def _http_retry(fn, *a, sends: list[int] | None = None, **kw):
     """Satu retry untuk error transien (socket reset/timeout) — probe jangan
-    mati karena noise jaringan; ini bukan re-send logis (attempt tetap 1)."""
+    mati karena noise jaringan. `sends` (list 1 elemen) menghitung TOTAL kirim
+    termasuk retry: target menghitung tiap POST terhadap lockout-nya, jadi
+    plafon keras pemanggil wajib meliputi retry juga."""
     try:
+        if sends is not None:
+            sends[0] += 1
         return fn(*a, **kw)
     except Exception:
         time.sleep(0.3)
+        if sends is not None:
+            sends[0] += 1
         return fn(*a, **kw)
 
 class LockoutProbeTool(Tool):
@@ -146,6 +152,9 @@ class LockoutProbeTool(Tool):
         post_fields.append((form["user_field"], username))
 
         # 2. N bounded attempts, password salah unik per attempt
+        # posts_sent = total POST yang benar-benar dikirim (retry termasuk) —
+        # plafon keras dihitung dari sisi target, bukan dari logika attempt.
+        posts_sent = [0]
         timings: list[int] = []
         statuses: list[int] = []
         dynamic_signals: list[str] = []
@@ -153,6 +162,8 @@ class LockoutProbeTool(Tool):
         for i in range(attempts):
             if ctx.world.request_count >= ctx.max_requests:
                 break
+            if posts_sent[0] >= attempts:
+                break  # budget POST sudah habis (retry memakan slot)
             data_pairs = post_fields + [("password", f"cyphron-wrong-{i}-x{int(time.time()) % 9997}")]
             body_data = "&".join(f"{k}={v}" for k, v in data_pairs)
             try:
@@ -161,7 +172,7 @@ class LockoutProbeTool(Tool):
                     http_engine.http_get, action_url, method="POST",
                     data=body_data.encode("utf-8"),
                     headers={"Content-Type": "application/x-www-form-urlencoded"},
-                    timeout=ctx.timeout_s)
+                    timeout=ctx.timeout_s, sends=posts_sent)
             except Exception as exc:
                 return ToolResult(tool=self.name, ok=True,
                                   data={"error": type(exc).__name__},
