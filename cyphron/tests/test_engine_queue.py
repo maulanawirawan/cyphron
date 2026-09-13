@@ -633,5 +633,99 @@ class TestExploitPack(unittest.TestCase):
         self.assertIn("sudah terbuka", tr.data.get("skipped", ""))
 
 
+class TestExploitBatch2(unittest.TestCase):
+    """proto_pollution, xxe, nosql, host header poison — kondisional server."""
+
+    def _patch(self, responder):
+        from cyphron.tools import http_engine
+        orig = http_engine.http_get
+
+        def fake_get(url, **kw):
+            body = b""
+            if isinstance(kw.get("data"), (bytes, bytearray)):
+                body = kw["data"]
+            method = kw.get("method", "GET")
+            return responder(url, method, body, kw)
+
+        http_engine.http_get = fake_get
+        self.addCleanup(setattr, http_engine, "http_get", orig)
+
+    def test_proto_pollution_double_differential(self):
+        from cyphron.tools.proto_pollution import ProtoPollutionTool
+
+        def resp(url, method, body, kw):
+            b = body.decode() if body else ""
+            if "__proto__" in b and "isAdmin" in b:
+                return 200, {}, '{"ok":1,"admin":true}', 1
+            return 200, {}, '{"ok":1}', 1
+
+        self._patch(resp)
+        tr = ProtoPollutionTool().run({
+            "url": "http://t.test/profile", "body": {"user": "aku"}}, _ctx())
+        self.assertEqual(len(tr.findings), 1)
+        self.assertEqual(tr.findings[0].severity, "critical")
+
+    def test_proto_pollution_decoy_blocks_fp(self):
+        from cyphron.tools.proto_pollution import ProtoPollutionTool
+
+        def resp(url, method, body, kw):
+            b = body.decode() if body else ""
+            # echo semua isi body (decoy juga berubah) -> bukan pollusi
+            return 200, {}, b or "{}", 1
+
+        self._patch(resp)
+        tr = ProtoPollutionTool().run({
+            "url": "http://t.test/profile", "body": {"user": "aku"}}, _ctx())
+        self.assertEqual(tr.findings, [])
+
+    def test_xxe_error_based(self):
+        from cyphron.tools.xxe_probe import XxeProbeTool
+
+        def resp(url, method, body, kw):
+            b = body.decode() if body else ""
+            if "<!DOCTYPE" in b and "&xxe;" in b:
+                return 200, {}, 'error: root:x:0:0:root:/root (line 1)', 1
+            return 200, {}, "ok", 1
+
+        self._patch(resp)
+        tr = XxeProbeTool().run({"url": "http://t.test/xml"}, _ctx())
+        self.assertEqual(len(tr.findings), 1)
+        self.assertEqual(tr.findings[0].severity, "critical")
+
+    def test_nosqli_bypass(self):
+        from cyphron.tools.nosqli_probe import NosqliProbeTool
+
+        def resp(url, method, body, kw):
+            b = body.decode() if body else "{}"
+            j = json.loads(b)
+            pw = j.get("password")
+            if isinstance(pw, dict) or pw == "benar":
+                return 200, {}, '{"msg":"welcome"}', 1
+            return 401, {}, '{"msg":"denied"}', 1
+
+        self._patch(resp)
+        tr = NosqliProbeTool().run({
+            "url": "http://t.test/login", "username": "aku",
+            "password": "benar", "success_hint": "welcome"}, _ctx())
+        self.assertTrue(tr.data["bypass"])
+        self.assertEqual(len(tr.findings), 1)
+        self.assertEqual(tr.findings[0].severity, "high")
+
+    def test_host_header_poison_link(self):
+        from cyphron.tools.host_header_poison import HostHeaderPoisonTool
+
+        def resp(url, method, body, kw):
+            fwd = (kw.get("headers") or {}).get("X-Forwarded-Host", "")
+            if fwd == "cyphron-oob.example":
+                return 200, {}, 'cek: https://cyphron-oob.example/reset?token=abc', 1
+            return 200, {}, "check your email", 1
+
+        self._patch(resp)
+        tr = HostHeaderPoisonTool().run({
+            "url": "http://t.test/reset", "email": "aku@contoh.id"}, _ctx())
+        self.assertEqual(len(tr.findings), 1)
+        self.assertIn("cyphron-oob.example", tr.findings[0].response)
+
+
 if __name__ == "__main__":
     unittest.main()

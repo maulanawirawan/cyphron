@@ -43,6 +43,10 @@ from .sqli_extract import SqliExtractTool
 from .ssti_rce import SstiRceTool
 from .lfi_read import LfiReadTool
 from .auth_bypass_matrix import AuthBypassMatrixTool
+from .proto_pollution import ProtoPollutionTool
+from .xxe_probe import XxeProbeTool
+from .nosqli_probe import NosqliProbeTool
+from .host_header_poison import HostHeaderPoisonTool
 from .header_ws_engines import HeaderPolicyTool, WsProbeTool
 from .recon_oauth_engines import (
     CacheDecTool,
@@ -192,6 +196,10 @@ def build_default_registry(ctx: ToolContext) -> ToolRegistry:
         SstiRceTool(),
         LfiReadTool(),
         AuthBypassMatrixTool(),
+        ProtoPollutionTool(),
+        XxeProbeTool(),
+        NosqliProbeTool(),
+        HostHeaderPoisonTool(),
     ):
         reg.register(tool)
     return reg
