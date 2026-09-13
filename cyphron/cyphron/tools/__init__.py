@@ -47,6 +47,11 @@ from .proto_pollution import ProtoPollutionTool
 from .xxe_probe import XxeProbeTool
 from .nosqli_probe import NosqliProbeTool
 from .host_header_poison import HostHeaderPoisonTool
+from .jndi_probe import JndiProbeTool
+from .jwt_exploit import JwtExploitTool
+from .ssrf_chain import SsrfChainTool
+from .rce_proof import RceProofTool
+from .deser_probe import DeserProbeTool
 from .header_ws_engines import HeaderPolicyTool, WsProbeTool
 from .recon_oauth_engines import (
     CacheDecTool,
@@ -200,6 +205,11 @@ def build_default_registry(ctx: ToolContext) -> ToolRegistry:
         XxeProbeTool(),
         NosqliProbeTool(),
         HostHeaderPoisonTool(),
+        JndiProbeTool(),
+        JwtExploitTool(),
+        SsrfChainTool(),
+        RceProofTool(),
+        DeserProbeTool(),
     ):
         reg.register(tool)
     return reg
