@@ -165,8 +165,10 @@ class TestCveMatcherTool(unittest.TestCase):
 
     def test_kb_missing_is_note_not_error(self):
         ctx = _ctx()
-        from cyphron.tools.cve_matcher import CveMatcherTool
-        tr = CveMatcherTool().run({}, ctx)
+        import tempfile as _tf
+        with _tf.TemporaryDirectory() as empty:
+            from cyphron.tools.cve_matcher import CveMatcherTool
+            tr = CveMatcherTool().run({"kb_dir": empty}, ctx)
         self.assertTrue(tr.ok)
         self.assertEqual(tr.data["skipped"], "kb-belum-tersedia")
 
