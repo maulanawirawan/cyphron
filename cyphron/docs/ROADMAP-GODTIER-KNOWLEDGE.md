@@ -5,8 +5,14 @@
 > PASIF secara default; eksekusi template hanya untuk subset aman + scope
 > berizin. Tetap: zero-FP, cease-on-data, redaksi, rate-limit 1, cap request.
 > Status: [ ] = antrean, [>] = sedang, [x] = tuntas.
-> **Parser YAML: diperintahkan TANYA USER dulu (opsi di §7) — jangan build
-> batch 1 sebelum keputusan ini.**
+> **Parser YAML: DIPUTUSKAN user 14 Sep = perluas `cyphron/yamlite.py` yang
+> sudah ada (no PyYAML, doktrin stdlib-only utuh).**
+> **TUNTAS 14 Sep (batch 1-4b): komponen A-F live, 128 engine terdaftar,
+> suite 438/438 hijau. Catatan realitas jaringan Sep 2026: feed NVD 1.1
+> 403 → fallback API 2.0 otomatis (kb/nvd_api.py, jendela 120 hari +
+> throttle etis); exploitdb pindah ke GitLab resmi → mirror fallback;
+> UA default python-urllib diblokir → User-Agent eksplisit. Bukti: nuclei
+> 14.094 berkas (1.653 lolos gerbang aman), EDB 47.161 entri.**
 
 ## 0. BUKTI NILAI (kenapa ini GOD-TIER)
 123 engine kita menghasilkan temuan per-temuan (CWE biasa). Dengan KB dunia,
@@ -167,32 +173,27 @@ CREATE INDEX idx_cc ON cve_cpe(cve_id);
 - god_report: folder scan dummy + KB fixture → markdown lengkap.
 - Suite penuh 385+ harus tetap hijau di setiap batch.
 
-## 7. KEPUTUSAN TERTANGGUH (wajib tanya user)
-1. **Parser YAML nuclei**: (a) PERLUAS `cyphron/yamlite.py` yang sudah ada
-   (stdlib-only, sudah teruji, doktrin "no PyYAML" terjaga; template yang
-   tidak bisa diparse di-SKIP aman) — REKOMENDASI, atau (b) PyYAML sebagai
-   dependency pertama Cyphron (parse 100%, tapi memecah doktrin stdlib-only).
-2. (tambahan saat build) Rentang tahun feed NVD default: 2018–2026 vs
-   --all-years (default direkomendasikan 2018–2026, ~150 MB).
+## 7. KEPUTUSAN (selesai)
+1. **Parser YAML nuclei**: [x] DIPUTUSKAN USER 14 Sep — PERLUAS
+   `cyphron/yamlite.py` (stdlib-only; tambahan block-scalar pada item list
+   `- |` + varian chomping; template yang tidak terbaca di-SKIP aman).
+   Hasil nyata: 4.141/13.717 template nuclei terbaca yamlite, 1.653 lolos
+   gerbang keamanan — cukup untuk kelas info/low/misconfig/panel.
+2. Rentang tahun feed NVD default [x] 2018-2026 via API 2.0 (feed 1.1 403;
+   API key opsional env NVD_API_KEY untuk kuota 50 req/30 dtk).
 
-## 8. BATCH BUILD (commit + push per batch, pesan Bahasa Indonesia)
-- [ ] Batch 1: roadmap (file ini) + kb package + kb_sync + loader nuclei
-      + `.gitignore kb/data` + test_kb_sync → commit `feat: kb_sync + pustaka KB (GOD-TIER batch 1)`.
-- [ ] Batch 2: cpe_map.yaml + fingerprint_to_cpe + nvd_sqlite + cve_matcher
-      + registry + test → `feat: fingerprint_to_cpe + cve_matcher (GOD-TIER batch 2)`.
-- [ ] Batch 3: edb_reference + nuclei_bridge + registry + test →
-      `feat: edb_reference + nuclei_bridge (GOD-TIER batch 3)`.
-- [ ] Batch 4: god_report + CLI god-report + hook planner ringan (emit
-      cve_matcher sekali setelah ada evidence teknologi) + test →
-      `feat: god_report + integrasi pipeline (GOD-TIER batch 4)`.
-- [ ] Batch 5: DEMO BIM (kerja di scratch/bim_bb/, TIDAK di-push): jalankan
-      pipeline pasif atas fingerprint BIM nyata (WordPress, OJS 3.4.0.7,
-      PHP 8.1.34, Leconfe 1.4.0, Laravel 11, Django, nginx) → god_report →
-      addendum "Analisis Exposure" untuk laporan Rektor. Demo nuclei_bridge
-      live ke host BIM (beberapa template info GET, rate-limit 1) HANYA
-      setelah user bilang gas di sesi.
-- [ ] Batch 6 (tutup): update README/doktrin, ROADMAP-CAPABILITIES, status
-      handoff.
+## 8. BATCH BUILD (commit + push per batch, pesan Bahasa Indonesia) — TUNTAS
+- [x] Batch 1 7853382: fix flaky lockout (retry dihitung plafon)
+- [x] Batch 1 1ecaba5: roadmap + kb package + kb_sync + loader nuclei + CLI kb
+- [x] Batch 2 760af96: cpe_map + fingerprint_to_cpe + nvd_sqlite + cve_matcher
+- [x] Batch 3 e257a04: edb_reference + nuclei_bridge + registry
+- [x] Batch 4 d9534e1: god_report + CLI god-report + hook planner cve_matcher
+- [x] Batch 4b 0f8a1cb: NVD API 2.0 fallback + mirror EDB GitLab + UA + test isolation
+- [x] Batch 5: DEMO BIM (kerja di scratch/bim_bb/, TIDAK di-push): pipeline
+      pasif atas fingerprint BIM nyata → GOD-REPORT-BIM + addendum "Analisis
+      Exposure" untuk laporan Rektor. Demo nuclei_bridge live ke host BIM
+      HANYA setelah user bilang gas di sesi.
+- [ ] Batch 6 (tutup): update README/doktrin + handoff berikutnya.
 
 ## 9. KELUARAN YANG DIJANJIKAN (definisi selesai)
 `python -m cyphron kb --source all` → KB lokal terverifikasi;
