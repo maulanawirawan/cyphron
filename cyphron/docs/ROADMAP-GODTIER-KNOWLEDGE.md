@@ -7,7 +7,7 @@
 > Status: [ ] = antrean, [>] = sedang, [x] = tuntas.
 > **Parser YAML: DIPUTUSKAN user 14 Sep = perluas `cyphron/yamlite.py` yang
 > sudah ada (no PyYAML, doktrin stdlib-only utuh).**
-> **TUNTAS 14 Sep (batch 1-4b): komponen A-F live, 128 engine terdaftar,
+> **TUNTAS 14 Sep (batch 1-4b): komponen A-F live, 127 engine terdaftar,
 > suite 438/438 hijau. Catatan realitas jaringan Sep 2026: feed NVD 1.1
 > 403 → fallback API 2.0 otomatis (kb/nvd_api.py, jendela 120 hari +
 > throttle etis); exploitdb pindah ke GitLab resmi → mirror fallback;
