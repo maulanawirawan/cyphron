@@ -12,7 +12,7 @@ pdfcheck/
 **/landing/reports/
 
 # knowledge base hasil unduhan (berat, bukan kode) — kode & cpe_map tetap masuk
-cyphron/kb/data/
+cyphron/cyphron/kb/data/
 
 # sisa non-code
 package-lock.json
