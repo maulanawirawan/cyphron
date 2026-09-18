@@ -177,6 +177,24 @@ def main(argv: list[str] | None = None) -> int:
                          help="tahan request sampai disetujui (approve/drop via stdin)")
     p_proxy.add_argument("--out", default="cyphron_proxy")
 
+    p_rtl = sub.add_parser("redteam-lab",
+                           help="katalog tradecraft lab (RTL-*) + cakupan "
+                                "deteksi purple-team")
+    p_rtl.add_argument("--auth", choices=["lab", "engagement"],
+                       help="filter katalog per level otorisasi")
+    p_rtl.add_argument("--report", help="tulis lab report markdown (butuh --run)")
+    p_rtl.add_argument("--run", action="store_true",
+                       help="jalankan c2-sim loopback + privesc read-only utk report")
+
+    p_c2 = sub.add_parser("c2-sim",
+                          help="C2-simulation loopback (RTL-09): beacon "
+                               "berbatas utk validasi protokol + rule deteksi")
+    p_c2.add_argument("--lab", action="store_true",
+                      help="konfirmasi eksplisit: jalankan di lab loopback")
+    p_c2.add_argument("--beacons", type=int, default=3)
+    p_c2.add_argument("--interval", type=float, default=0.2)
+    p_c2.add_argument("--out", help="tulis hasil simulasi ke file JSON")
+
     p_tiers = sub.add_parser("tiers", help="tier pack: 100 skills dalam 4 tingkat severity")
     p_tiers.add_argument("--build", action="store_true", help="generate file skill ke .kimchi/skills-tiers/")
     p_tiers.add_argument("--build-bounty", action="store_true", help="generate Bug Bounty pack (harvest 2026-09-06)")
@@ -651,6 +669,45 @@ def main(argv: list[str] | None = None) -> int:
                 except KeyboardInterrupt:
                     pass
             server.shutdown()
+            return 0
+
+        if args.command == "redteam-lab":
+            from .redteam_lab import catalog, render_lab_report
+            if args.run:
+                from .redteam_lab import c2_simulate, privesc_scan
+                sim = c2_simulate(beacons=3, interval_s=0.2)
+                privesc = privesc_scan()
+                md = render_lab_report(sim=sim, privesc=privesc)
+            else:
+                md = render_lab_report()
+            for t in catalog(args.auth):
+                print(f"[cyphron] {t['id']} [{t['phase']}] {t['name']} "
+                      f"(auth: {t['auth']})")
+            if args.report:
+                Path(args.report).parent.mkdir(parents=True, exist_ok=True)
+                Path(args.report).write_text(md, encoding="utf-8")
+                print(f"[cyphron] lab report -> {args.report}")
+            return 0
+
+        if args.command == "c2-sim":
+            from .redteam_lab import c2_simulate
+            if not args.lab:
+                print("[cyphron] c2-sim REFUSED: wajib --lab (loopback lab "
+                      "milik sendiri; ini simulasi protokol, bukan infra "
+                      "serangan)")
+                return 3
+            sim = c2_simulate(beacons=args.beacons, interval_s=args.interval)
+            print(f"[cyphron] c2-sim: {sim['beacons_sent']} beacon -> "
+                  f"{sim['acks_ok']} ACK ({sim['duration_s']}s, loopback "
+                  f"{sim['listener']})")
+            print(f"[cyphron] protokol: {sim['protocol']}")
+            print(f"[cyphron] catatan: {sim['note']}")
+            if args.out:
+                Path(args.out).parent.mkdir(parents=True, exist_ok=True)
+                Path(args.out).write_text(json.dumps(sim, indent=1,
+                                                     ensure_ascii=False),
+                                          encoding="utf-8")
+                print(f"[cyphron] timeline -> {args.out}")
             return 0
 
         if args.command == "check":

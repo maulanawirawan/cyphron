@@ -39,6 +39,7 @@ from .passive_dns import PassiveDnsTool
 from .api_surface_probe import ApiSurfaceProbeTool
 from .apk_surface_probe import ApkSurfaceProbeTool
 from .apk_kit import ApkPentestKitTool
+from .privesc_scan import PrivescScanTool
 from .error_oracle import ErrorOracleTool
 from .github_osint import GithubOsintTool
 from .sqli_extract import SqliExtractTool
@@ -241,6 +242,7 @@ def build_default_registry(ctx: ToolContext) -> ToolRegistry:
         ApiSurfaceProbeTool(),
         ApkSurfaceProbeTool(),
         ApkPentestKitTool(),
+        PrivescScanTool(),
         ErrorOracleTool(),
         GithubOsintTool(),
         SqliExtractTool(),
