@@ -622,6 +622,11 @@ class DeterministicPlanner:
         self._once(Step("browser_engine", {"url": target, "max_pages": 5},
                         "render key pages with headless browser (SPA surface)",
                         "discovery"))
+        self._once(Step("browser_scout", {"url": target, "max_pages": 5},
+                        "CDP headless scout: DOM/trafik/cookie halaman "
+                        "JS-heavy dalam scope (profil terisolasi, bounded, "
+                        "request pihak ketiga diblokir di dalam browser)",
+                        "discovery"))
         if not self.offensive_allowed:
             return
         self._once(Step("liveness_probe", {"url": target},

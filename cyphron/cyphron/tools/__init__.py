@@ -5,6 +5,7 @@ from __future__ import annotations
 from .base import Tool, ToolContext, ToolRegistry, ToolResult, redact
 from .auth_probe import AuthProbeTool
 from .browser_engine import BrowserEngineTool
+from .browser_scout import BrowserScoutTool
 from .code_audit import CodeAuditTool
 from .crawler import CrawlerTool
 from .deep_probe import DeepProbeTool
@@ -145,6 +146,7 @@ def build_default_registry(ctx: ToolContext) -> ToolRegistry:
         TlsAuditTool(),
         EmailProbeTool(),
         BrowserEngineTool(),
+        BrowserScoutTool(),
         CrawlerTool(),
         LivenessProbeTool(),
         CookieAuditTool(),
