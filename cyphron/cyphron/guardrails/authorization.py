@@ -1,4 +1,4 @@
-"""Authorization gate — machine-enforced, ported from
+"""Authorization gate — machine-enforced; protokol lengkap:
 .kimchi/guardrails/authorization-protocol.md.
 
 NO valid authorization document -> active/offensive tools are refused and

@@ -1,5 +1,4 @@
-"""tierpack3 - HARVEST 3 repo GitHub raksasa (anthropic-skills 32.2k,
-CyberStrike 2.6k, CAI 9.8k, Security-101): domain BARU di luar pack lama."""
+"""tierpack3 — kurasi domain BARU di luar pack lama."""
 
 from __future__ import annotations
 
@@ -63,9 +62,7 @@ def build3(kimchi_dir: Path) -> dict:
     from .tierpack import _render
     out_root = kimchi_dir / "skills-tiers3"
     stats, live, total = {}, 0, 0
-    index = ["# Cyphron Tier Pack 3 - HARVEST 3 repo GitHub raksasa", "",
-             "Sumber: Anthropic-Cybersecurity-Skills (32.2k) + CyberStrike (2.6k) +",
-             "CAI (9.8k) + Microsoft Security-101. Domain BARU di luar pack lama.",
+    index = ["# Cyphron Tier Pack 3 - domain baru di luar pack lama", "",
              "FP-guard wajib per skill.", ""]
     for tier, rows in TIERS.items():
         tdir = out_root / tier

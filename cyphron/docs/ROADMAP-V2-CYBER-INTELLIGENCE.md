@@ -45,7 +45,7 @@ Acceptance: planner membuat keputusan HANYA dari graaf; graaf bisa di-dump JSON 
 
 ## FAZ 2 — ADAPTIVE PENTEST PLANNER v2 (prioritas #2) — v2 ✅ 2026-09-08 (deterministik; LLM slot tetap terbuka)
 
-Sudah jalan: 19 engine di-gate bukti; hoplite 30 langkah vs target kaya 41 langkah
+Sudah jalan: 19 engine di-gate bukti; target kedalaman 41 langkah
 (bukti audit; tidak ada lagi urutan 40-tool identik lintas target).
 - [x] **prioritas biaya/manfaat**: urutan langkah EV = impact×confidence/max(cost,1)
       descending, tie-break deterministik (tool, url, param) — dua world logis identik

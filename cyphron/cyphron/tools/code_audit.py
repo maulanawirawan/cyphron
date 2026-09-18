@@ -1,4 +1,4 @@
-"""code_audit — WHITE-BOX SAST (Cyphron's own regex pack, no semgrep).
+"""code_audit — WHITE-BOX SAST (Cyphron's own regex pack).
 Walks a local repository and flags dangerous code patterns with file:line
 evidence. Conservative patterns only — low false-positive by design; every
 match is a candidate for human review, not an automatic verdict."""

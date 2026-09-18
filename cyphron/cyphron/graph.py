@@ -1,12 +1,15 @@
-"""Security Knowledge Graph v1 (FAZ 1 roadmap V2).
+"""Security Knowledge Graph v2 (ROADMAP-UNITY U1).
 
 Graph ringan zero-dependency (pure stdlib) yang memetakan hasil rekognisi
-WorldModel ke node/edge berlabel sehingga planner bisa query permukaan
-serangan, jalur anonim, dan antrean hipotesis secara terstruktur.
+WorldModel + temuan menjadi node/edge berlabel sehingga planner bisa query
+permukaan serangan, jalur anonim, antrean hipotesis, dan PROVENANCE
+("node ini dicapai lewat apa") secara terstruktur.
 
-Node kinds : TARGET, ENDPOINT, PARAM, TECHNOLOGY, HYPOTHESIS, IDENTITY
+Node kinds : TARGET, ENDPOINT, PARAM, TECHNOLOGY, HYPOTHESIS, IDENTITY,
+             ROLE, OBJECT, CREDENTIAL, VULNERABILITY, EVIDENCE
 Edge rels  : HAS_ENDPOINT, HAS_PARAM, USES, RAISED, HAS_IDENTITY,
-             AUTHENTICATES_TO
+             AUTHENTICATES_TO, ACCESSES, OWNS, EXPOSES, TARGETS,
+             LEAKED_TO, REACHED_VIA (provenance), VERIFIED_BY
 """
 
 from __future__ import annotations
@@ -14,7 +17,8 @@ from __future__ import annotations
 import json
 import sqlite3
 
-__all__ = ["KnowledgeGraph", "build_from_world", "queries"]
+__all__ = ["KnowledgeGraph", "build_from_world", "build_with_findings",
+           "attack_paths", "provenance", "queries"]
 
 
 class KnowledgeGraph:
@@ -202,6 +206,7 @@ def build_from_world(world) -> KnowledgeGraph:
     for ident in identities:
         identity_id = g.add_node("IDENTITY", ident)
         g.add_edge(target_id, "HAS_IDENTITY", identity_id)
+        g.add_edge(identity_id, "ACCESSES", target_id)
 
     if has_session:
         for url, ep in world.endpoints.items():
@@ -212,7 +217,95 @@ def build_from_world(world) -> KnowledgeGraph:
     return g
 
 
-# ------------------------------------------------------------------ queries
+# ------------------------------------------------------------- v2: findings
+def build_with_findings(world, findings) -> KnowledgeGraph:
+    """v1 build + proyeksi temuan ke graph ( Vulnerability/Evidence/Object ).
+
+    Per temuan:
+    - VULNERABILITY:{id} (props: title, severity, status, tool, cwe)
+    - ENDPOINT yang ditemukan-nya diurl -EXPOSES-> VULNERABILITY
+    - EVIDENCE:{sha} per entri evidence_chain -VERIFIED_BY-> dari VULNERABILITY
+      (bukti tinggal di graph, bukan hanya di objek Finding)
+    - OBJECT:{param} bila finding.param ada; VULNERABILITY-TARGETS->OBJECT
+    - provenance: VULNERABILITY-REACHED_VIA->ENDPOINT dengan props
+      via=tool penemunya ("sampai sini lewat apa").
+    """
+    g = build_from_world(world)
+    for f in findings:
+        vuln_id = g.add_node(
+            "VULNERABILITY", getattr(f, "id", "") or "",
+            title=getattr(f, "title", ""), severity=getattr(f, "severity", ""),
+            status=getattr(f, "status", ""), tool=getattr(f, "tool", ""),
+            cwe=getattr(f, "cwe", "") or "")
+        url = getattr(f, "target_url", None) or ""
+        if url:
+            ep_id = g.add_node("ENDPOINT", url)
+            g.add_edge(ep_id, "EXPOSES", vuln_id)
+            g.add_edge(vuln_id, "REACHED_VIA", ep_id,
+                       via=getattr(f, "tool", ""))
+        param = getattr(f, "param", None)
+        if param:
+            obj_id = g.add_node("OBJECT", f"{url}:{param}" if url else str(param))
+            g.add_edge(vuln_id, "TARGETS", obj_id)
+        for ev in (getattr(f, "evidence_chain", None) or []):
+            sha = str(ev.get("sha256", ""))[:16] if isinstance(ev, dict) else str(ev)[:16]
+            kind = ev.get("kind", "") if isinstance(ev, dict) else "raw"
+            ev_id = g.add_node("EVIDENCE", sha, evidence_kind=kind)
+            g.add_edge(vuln_id, "VERIFIED_BY", ev_id)
+    return g
+
+
+# ------------------------------------------------------- v2: graph reasoning
+def attack_paths(g: KnowledgeGraph, start_node_id: str, end_node_id: str,
+                 max_hops: int = 8, max_paths: int = 20) -> list[list[str]]:
+    """Semua simple path start->end (BFS deterministik, urut nama tetangga).
+
+    Return list of node-id chains (termasuk ujung). Terbatas max_hops dan
+    max_paths supaya tetap murah di graph besar."""
+    out: list[list[str]] = []
+    if start_node_id not in {n["id"] for n in g.nodes()}:
+        return out
+    queue: list[tuple[str, list[str]]] = [(start_node_id, [start_node_id])]
+    while queue and len(out) < max_paths:
+        cur, path = queue.pop(0)
+        if cur == end_node_id:
+            out.append(path)
+            continue
+        if len(path) > max_hops:
+            continue
+        for nxt in sorted(g.neighbors(cur)):
+            if nxt in path:
+                continue
+            queue.append((nxt, path + [nxt]))
+    return out
+
+
+def provenance(g: KnowledgeGraph, node_id: str, depth: int = 3) -> list[dict]:
+    """Jawab 'node ini dicapai lewat apa': telusuri edge MASUK hingga depth.
+
+    Return daftar {step, via, src, rel, dst} urut terdekat-dulu (BFS
+    deterministik). via = props["via"] bila ada, kosong bila tidak."""
+    steps: list[dict] = []
+    seen = {node_id}
+    frontier = [node_id]
+    for level in range(1, depth + 1):
+        nxt_frontier: list[str] = []
+        for cur in sorted(frontier):
+            ins = sorted(
+                (e for e in g.edges() if e["dst"] == cur),
+                key=lambda e: (e["rel"], e["src"]))
+            for e in ins:
+                steps.append({
+                    "step": level, "via": str(e["props"].get("via", "")),
+                    "src": e["src"], "rel": e["rel"], "dst": e["dst"],
+                })
+                if e["src"] not in seen:
+                    seen.add(e["src"])
+                    nxt_frontier.append(e["src"])
+        frontier = nxt_frontier
+        if not frontier:
+            break
+    return steps
 def _node_key(node_id: str) -> str:
     """Ambil key asli dari node_id (bagian setelah kind prefix pertama)."""
     return node_id.split(":", 1)[1] if ":" in node_id else node_id

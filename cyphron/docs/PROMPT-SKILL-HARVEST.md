@@ -134,7 +134,7 @@ Yang kuminta hanya data/catatan yang SUDAH ADA di konteksmu. Kalau tidak ada,
 tulis "TIDAK ADA" lalu lanjut. Jangan mengarang.
 
 A — PERBAIKAN STATUS (wajib dijawab):
-1. Test #28 (Semgrep custom-rule SAST): JSON-mu bilang DILAKUKAN tapi catatannya
+1. Test #28 (SAST custom-rule engine eksternal): JSON-mu bilang DILAKUKAN tapi catatannya
    bilang "never recorded as run". Mana yang benar? Kalau belum pernah jalan,
    nyatakan status finalnya DIUSULKAN.
 2. Test #17 (Local ZAP baseline): tanggal pelaksanaan + di mana laporan/alert-nya disimpan?
@@ -201,7 +201,7 @@ tempel apa adanya — jangan diringkas sampai hilang detailnya.
 | Test suite | 23/23 pass (termasuk 2 test baru: pack=73 + retrieval skill 67/68) |
 
 **Koreksi klasifikasi dari follow-up:**
-- #28 Semgrep → **DIUSULKAN final** (kartu memang sudah menulis itu; field `bukti` JSON-nya adalah success_criteria, bukan evidence)
+- #28 SAST engine eksternal → **DIUSULKAN final** (kartu memang sudah menulis itu; field `bukti` JSON-nya adalah success_criteria, bukan evidence)
 - #17 ZAP baseline → DILAKUKAN tapi tanpa tanggal/lokasi laporan (disimpan di luar Git per plan §14) — tercatat sebagai evidence lemah
 - #18 route baseline 41 routes → klaim ledger tanpa artefak reproducible (script/daftar route tidak ditemukan; `automation/` ternyata milik local companion Tokopedia/Facebook)
 - Aturan honesty baru: field `bukti` untuk item DIUSULKAN = `success_criteria` — selalu ditandai demikian di skill 69/70/71/72

@@ -2,7 +2,7 @@
 
 **AI pentest agent runtime yang berdiri sendiri** — zero third-party dependency, zero LLM provider, dibangun dari nol di atas Python stdlib. Membaca knowledge pack `.kimchi` (65 skill + guardrails + knowledge base) sebagai otak metodologinya.
 
-> Posisi strategis: Strix butuh Docker + pip + API key LLM berbayar untuk sekadar jalan.
+> Posisi strategis: platform sejenis umumnya butuh Docker + pip + API key LLM berbayar untuk sekadar jalan.
 > Cyphron Core butuh Python. Titik. Itu nilai jualnya.
 
 ---
@@ -15,7 +15,7 @@
 | Authorization Gate | ✅ | **Di-enforce kode, bukan prompt**: dokumen izin JSON (scope domain/wildcard/CIDR/port, expiry, restrictions), default DENY, degradasi ke read-only |
 | Audit Log | ✅ | Hash-chain tamper-evident untuk setiap keputusan otorisasi & tool call (port dari `authorization-protocol.md`) |
 | World Model | ✅ | Endpoint/param/teknologi terobservasi, snapshot, ringkasan ter-budget |
-| Engine buatan sendiri | ✅ 7 unit | `http_probe`, `security_headers`, `crawler`, `dir_probe`, `sqli_probe` (error+boolean), `xss_probe` (marker konteks), `secret_scan` — **tanpa nmap/sqlmap/nuclei/gitleaks/semgrep** |
+| Engine buatan sendiri | ✅ 7 unit | `http_probe`, `security_headers`, `crawler`, `dir_probe`, `sqli_probe` (error+boolean), `xss_probe` (marker konteks), `secret_scan` — **tanpa tool pihak ketiga** |
 | Tool Guard | ✅ | Kill switch, rate limit, budget request, timeout, redaksi secret di semua evidence/log |
 | Verifier | ✅ | Finding = CONFIRMED hanya dengan bukti konkret (request/response, probe-pair, code-line). Sisanya `unconfirmed`, dilaporkan terpisah |
 | Deterministic Planner | ✅ | Loop observe→plan→act→update→verify **tanpa LLM sama sekali** |
@@ -51,16 +51,16 @@ Exit codes: `0` bersih · `2` ada temuan terkonfirmasi · `3` ditolak (otorisasi
 
 Skema dokumen otorisasi: lihat `examples/authorization.localhost.json` (struktur mengikuti `guardrails/authorization-protocol.md`).
 
-## Bedanya dengan Strix/Hoplite (nilai jual)
+## Nilai jual Cyphron (vs platform sejenis)
 
-| | Strix | Hoplite | **Cyphron Core** |
-|---|---|---|---|
-| Mesin deteksi | milik Strix | sewa 6 pihak ketiga | **kode sendiri, bisa diaudit** |
-| Wajib LLM API (bayar/token) | ya | ya (via Strix) | **tidak — jalan tanpa LLM** |
-| Otorisasi | attestation teks | checkbox + secret store | **gate kode: scope CIDR/wildcard/expiry/restrictions + audit hash-chain** |
-| Dependensi runtime | pip+Docker | Bun+Docker+Redis+PG | **stdlib Python, NOL install** |
-| Reasoning | milik pihak ketiga | FP-review saja | **skill-driven, 65 skill .kimchi + sitasi di laporan** |
-| Temuan | PoC-validated (agent) | authoritative per tool | **verifier bukti-basis: confirmed ≠ unconfirmed** |
+| Dimensi | Pola umum platform sejenis | **Cyphron Core** |
+|---|---|---|
+| Mesin deteksi | sering sewa tool pihak ketiga | **kode sendiri, bisa diaudit** |
+| Wajib LLM API (bayar/token) | umumnya ya | **tidak — jalan tanpa LLM** |
+| Otorisasi | attestation teks / checkbox | **gate kode: scope CIDR/wildcard/expiry/restrictions + audit hash-chain** |
+| Dependensi runtime | Docker+DB+queue+runtime khusus | **stdlib Python, NOL install** |
+| Reasoning | sering delegasi ke pihak ketiga | **skill-driven, 65+ skill .kimchi + sitasi di laporan** |
+| Temuan | authoritative per tool | **verifier bukti-basis: confirmed ≠ unconfirmed** |
 
 ## Uji (self-owned lab, aman)
 

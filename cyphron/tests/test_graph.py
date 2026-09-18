@@ -164,7 +164,8 @@ class TestBuildFromWorld(unittest.TestCase):
     def test_edge_relations(self):
         rels = {e["rel"] for e in self.g.edges()}
         self.assertEqual(rels, {"HAS_ENDPOINT", "HAS_PARAM", "USES",
-                                "RAISED", "HAS_IDENTITY", "AUTHENTICATES_TO"})
+                                "RAISED", "HAS_IDENTITY", "AUTHENTICATES_TO",
+                                "ACCESSES"})
         target = "TARGET:https://lab.example.test"
         self.assertEqual(len(self.g.neighbors(target, "HAS_ENDPOINT")), 6)
         self.assertEqual(len(self.g.neighbors(target, "USES")), 2)

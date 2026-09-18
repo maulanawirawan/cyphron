@@ -1,7 +1,6 @@
 """verification — Truth Guard v2: protokol 3-gate formal (baseline -> attack ->
-response comparison), diadopsi dari pola proxy-tester CyberStrike dan
-diperkuat aturan anti-coincidence milik Cyphron. Semua engine probe aktif
-wajib memakai helper ini agar temuan TRUE secara konstruksi."""
+response comparison), diperkuat aturan anti-coincidence milik Cyphron. Semua
+engine probe aktif wajib memakai helper ini agar temuan TRUE secara konstruksi."""
 
 from __future__ import annotations
 

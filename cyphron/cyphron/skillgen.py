@@ -1,7 +1,7 @@
 """skillgen — generator skill dedup + progressive-disclosure.
 
-Mengadopsi pola repo 817-skill: FRONTMATTER ringkas (untuk indeks/scanning)
-+ BODY berat lengkap (metodologi penuh) — dua-duanya bisa, di satu file.
+Format: FRONTMATTER ringkas (untuk indeks/scanning) + BODY berat lengkap
+(metodologi penuh) — dua-duanya bisa, di satu file.
 Sebelum menulis: DEDUP terhadap seluruh skill Cyphron (74 core + tier packs)
 berdasarkan nama + kata kunci teknik. Yang mirip -> ditolak dengan alasan."""
 
@@ -12,7 +12,7 @@ from pathlib import Path
 
 WORD = re.compile(r"[a-z0-9]+")
 
-# Kurasi skill BARU (terinspirasi repo 817-skill & CyberStrike; TIDAK ada di 74+220 Cyphron)
+# Kurasi skill BARU (belum ada di pack 74+220 Cyphron)
 NEW_SKILLS = [
     ("memory-forensics-volatility", "forensics", "Analisis memori (RAM dump) untuk mencari proses tersembunyi, injeksi kode, dan kredensial di memori", "Dump RAM (winpmem/AVML) -> profil OS -> proses anomali -> string yara -> laporan"),
     ("credential-dumping-defense", "endpoint", "Deteksi & mitigasi dumping LSASS/SAM (mimikatz-class)", "Audit event 4656/4624 + perlindungan LSASS PPL + deteksi akses membaca lsass"),
