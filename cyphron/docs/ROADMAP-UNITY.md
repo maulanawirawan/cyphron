@@ -119,10 +119,15 @@ aset pihak ketiga.
       ringkasan CVSS per severity, path graph vektor (PDF) + artifact
       graph.svg (graph.to_svg) dari temuan+world — sumber tunggal findings +
       world model [UPGRADE]
-- [ ] U9 RED-TEAM WORKSTREAM: katalog tradecraft berotorisasi (initial-access
+- [x] U9 RED-TEAM WORKSTREAM: katalog tradecraft berotorisasi (initial-access
       demo, C2-simulation lab, persistence-matrix, privesc playbook,
       lateral-movement), tag MITRE-lite per engine (coverage matriks),
-      deteksi-hint per temuan (nilai jual tim biru) [BARU]
+      deteksi-hint per temuan (nilai jual tim biru) — SEBAGIAN SELESAI:
+      cyphron/redteam.py (tabel MITRE-lite ~110 engine + fallback heuristik,
+      coverage matrix fase x engine dengan gap jujur, deteksi-hint per
+      temuan, engagement report + checklist pembersihan) + CLI
+      `python -m cyphron redteam --from DIR`; katalog tradecraft lab
+      (C2-simulation dsb.) menyusul di Fullpower [BARU]
 - [ ] U10 PRODUK/OPS: ownership proof (DNS TXT/well-known sebelum mode
       ofensif diterima), usage ledger per scan, safe-update script,
       landing v2 + demo 5 menit [BARU]

@@ -107,6 +107,13 @@ def main(argv: list[str] | None = None) -> int:
     p_bench.add_argument("--kb-dir", help="folder KB berisi cpe.sqlite (default: cyphron/kb/data)")
     p_bench.add_argument("--out", help="tulis hasil ke file markdown")
 
+    p_rt = sub.add_parser("redteam",
+                          help="engagement report + coverage matrix MITRE-lite "
+                               "+ deteksi-hint per temuan (dari folder hasil scan)")
+    p_rt.add_argument("--from", dest="from_dir", required=True,
+                      help="folder hasil scan (berisi findings.json + audit.jsonl)")
+    p_rt.add_argument("--out", help="file markdown tujuan (default: <from>/ENGAGEMENT-REPORT.md)")
+
     p_tiers = sub.add_parser("tiers", help="tier pack: 100 skills dalam 4 tingkat severity")
     p_tiers.add_argument("--build", action="store_true", help="generate file skill ke .kimchi/skills-tiers/")
     p_tiers.add_argument("--build-bounty", action="store_true", help="generate Bug Bounty pack (harvest 2026-09-06)")
@@ -346,6 +353,25 @@ def main(argv: list[str] | None = None) -> int:
                 out.parent.mkdir(parents=True, exist_ok=True)
                 out.write_text(render_markdown(results), encoding="utf-8")
                 print(f"[cyphron] benchmark -> {out}")
+            return 0
+
+        if args.command == "redteam":
+            from .redteam import engagement_report
+            src = Path(args.from_dir)
+            if not (src / "findings.json").exists():
+                print(f"[cyphron] redteam: findings.json tidak ada di {src}")
+                return 1
+            report = engagement_report(src)
+            out = Path(args.out) if args.out else src / "ENGAGEMENT-REPORT.md"
+            out.write_text(report["markdown"], encoding="utf-8")
+            m = report["matrix"]
+            print(f"[cyphron] redteam: {m['engines']} engine dieksekusi, "
+                  f"{m['tagged']} ter-tag MITRE-lite eksplisit, "
+                  f"{len(report['hints'])} deteksi-hint")
+            if m["uncovered_phases"]:
+                print(f"[cyphron] fase tanpa cakupan run ini: "
+                      f"{', '.join(m['uncovered_phases'])}")
+            print(f"[cyphron] laporan: {out}")
             return 0
 
         if args.command == "check":
