@@ -123,6 +123,14 @@ def main(argv: list[str] | None = None) -> int:
                        default="auto")
     p_own.add_argument("--timeout", type=float, default=6.0)
 
+    p_ad = sub.add_parser("adapters",
+                          help="daftar engine polyglot (manifest adapter) + "
+                               "runtime yang terdeteksi di mesin ini")
+    p_ad.add_argument("--check", action="store_true",
+                      help="uji satu engine adapter dengan args JSON contoh")
+    p_ad.add_argument("--name", help="nama adapter utk --check")
+    p_ad.add_argument("--args", help="JSON args utk --check, mis. '{\"values\":[\"x\"]}'")
+
     p_tiers = sub.add_parser("tiers", help="tier pack: 100 skills dalam 4 tingkat severity")
     p_tiers.add_argument("--build", action="store_true", help="generate file skill ke .kimchi/skills-tiers/")
     p_tiers.add_argument("--build-bounty", action="store_true", help="generate Bug Bounty pack (harvest 2026-09-06)")
@@ -403,6 +411,38 @@ def main(argv: list[str] | None = None) -> int:
             print(f"[cyphron] verdict: BELUM TERVERIFIKASI "
                   f"({detail.get('error') or 'token tidak ditemukan'})")
             return 1
+
+        if args.command == "adapters":
+            from .adapter import detect_runtimes, load_manifests
+            manifests, errors = load_manifests()
+            runtimes = detect_runtimes()
+            print("[cyphron] runtime terdeteksi:")
+            for rt, path in sorted(runtimes.items()):
+                print(f"           {rt:6} {'ok: ' + path if path else 'absen (engine terkait dilewati anggun)'}")
+            print(f"[cyphron] {len(manifests)} manifest adapter:")
+            for mf in manifests:
+                avail = "SIAP" if runtimes.get(mf["runtime"]) else "SKIP (runtime absen)"
+                print(f"           {mf['name']:20} {mf['runtime']:6} {avail} — {mf.get('description', '')[:60]}")
+            for err in errors:
+                print(f"[cyphron] manifest error: {err}")
+            if args.check:
+                if not args.name:
+                    print("[cyphron] --check butuh --name")
+                    return 1
+                from .guardrails.authorization import AuditLog, AuthorizationGate
+                from .tools.base import ToolContext
+                from .adapter import AdapterEngine
+                mf = next((m for m in manifests if m["name"] == args.name), None)
+                if mf is None:
+                    print(f"[cyphron] adapter tidak ditemukan: {args.name}")
+                    return 1
+                ctx = ToolContext(gate=AuthorizationGate(None), audit=AuditLog(),
+                                  world=WorldModel(), rate_limit_s=0.0)
+                res = AdapterEngine(mf).run(json.loads(args.args or "{}"), ctx)
+                print(f"[cyphron] ok={res.ok} data={json.dumps(res.data, ensure_ascii=False)} "
+                      f"findings={len(res.findings)} error={res.error}")
+                return 0 if res.ok else 1
+            return 0
 
         if args.command == "check":
             from .guardrails.authorization import (

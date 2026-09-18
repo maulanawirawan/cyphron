@@ -1,0 +1,11 @@
+{
+  "name": "echo_node",
+  "description": "Fixture adapter test (node): kontrak stdin JSON -> stdout JSON, termasuk findings tidak-sah yang wajib dibuang",
+  "language": "node",
+  "runtime": "node",
+  "entry": "echo.js",
+  "run": "{compiler} {entry}",
+  "risk_tags": ["local"],
+  "network": false,
+  "timeout_s": 15
+}

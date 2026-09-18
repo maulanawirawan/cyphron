@@ -1,0 +1,11 @@
+{
+  "name": "entropy_audit",
+  "description": "Audit entropy nilai bersesi/token (pilot polyglot C++): Shannon entropy per karakter; token panjang ber-entropy rendah = kandidat lemah (posture, LEAD). Tanpa jaringan.",
+  "language": "cpp",
+  "runtime": "cpp",
+  "entry": "entropy_audit.cpp",
+  "build": "{compiler} -O2 -std=c++17 -o {out} {src}",
+  "risk_tags": ["local"],
+  "network": false,
+  "timeout_s": 20
+}

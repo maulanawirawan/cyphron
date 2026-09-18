@@ -275,4 +275,12 @@ def build_default_registry(ctx: ToolContext) -> ToolRegistry:
         NucleiBridgeTool(),
     ):
         reg.register(tool)
+    # Fullpower B1: engine polyglot via manifest adapter (satu pintu guardrail)
+    from ..adapter import AdapterEngine, load_manifests
+    _adapters, _adapter_errors = load_manifests()
+    for _mf in _adapters:
+        try:
+            reg.register(AdapterEngine(_mf))
+        except Exception:
+            continue
     return reg
