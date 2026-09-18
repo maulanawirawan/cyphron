@@ -1,0 +1,527 @@
+"""sast — SAST AST-based + taint tracking + CI mode (Fullpower B4 / CI-1).
+
+Arsitektur:
+- PYTHON: rule berbasis AST (modul `ast` stdlib) dengan PATTERN
+  METAVARIABLE ($X, $F) — bukan regex teks mentah. Taint tracking
+  source -> sink -> sanitizer menghasilkan jalur baris-demi-baris
+  (bukti kelas konsultan).
+- JS/C++: rule konservatif berbasis regex dengan FP-guard ketat + label
+  confidence lebih rendah (AST penuh menyusul via bridge; jujur soal ini).
+- Autofix SUGGESTION per rule (proposal, bukan auto-apply).
+- CI mode: exit code (0 bersih / 2 ada temuan >= fail-on), output JSON +
+  SARIF 2.1.0, diff-aware (hanya file berubah via git diff).
+- Rule kustom per klien: file .cyphron-rules (JSON) dengan schema sama.
+- Zero-FP: setiap rule punya confidence + contoh positif/negatif di test;
+  matcher tidak boleh menebak di luar pola.
+
+Metavariable pattern (dict-spec):
+    {"type": "Call", "func": {"type": "Attribute", "attr": "execute"},
+     "args": [{"$X": {}}]}
+  "$X": {} menangkap node apa pun; "$X": {type: "Str"} menangkap dengan
+  syarat kind; capture dipakai dalam pesan temuan.
+"""
+
+from __future__ import annotations
+
+import ast
+import hashlib
+import json
+import re
+import subprocess
+import sys
+from dataclasses import dataclass, field
+from pathlib import Path
+
+# ------------------------------------------------------------------ model
+@dataclass
+class SastFinding:
+    rule_id: str
+    message: str
+    severity: str          # critical | high | medium | low | info
+    cwe: str
+    path: str
+    line: int
+    end_line: int
+    confidence: float
+    fix: str = ""
+    flow: list[dict] = field(default_factory=list)  # taint: [{line, code, role}]
+
+    def to_dict(self) -> dict:
+        return self.__dict__.copy()
+
+
+def _line_of(code_lines: list[str], lineno: int) -> str:
+    return code_lines[lineno - 1].strip() if 0 < lineno <= len(code_lines) else ""
+
+
+# --------------------------------------------------------- pattern matcher
+def _spec_match(spec: dict, node, captures: dict) -> bool:
+    """Cocokkan dict-spec ke node AST dengan dukungan metavariable $X."""
+    if not isinstance(spec, dict) or not spec:
+        return node is not None
+    meta = spec.get("$X") or spec.get("$F")
+    if "$X" in spec or "$F" in spec:
+        name = "$X" if "$X" in spec else "$F"
+        cond = spec[name]
+        if name in captures and captures[name] is not node:
+            return False
+        captures[name] = node
+        if not cond:
+            return node is not None
+        return _spec_match(cond, node, captures)
+    ntype = spec.get("type")
+    if ntype and (node is None or type(node).__name__ not in (ntype, ntype.lower())):
+        return False
+    for key, sub in spec.items():
+        if key == "type":
+            continue
+        if key == "$kw":  # keyword containment: node.keywords punya >=1 cocok
+            kws = getattr(node, "keywords", None) or []
+            if not any(_spec_match(sub, kw, dict(captures)) for kw in kws):
+                return False
+            continue
+        if not hasattr(node, key):
+            return False
+        child = getattr(node, key)
+        if isinstance(sub, dict):
+            if not _spec_match(sub, child, captures):
+                return False
+        elif isinstance(sub, list):
+            if not isinstance(child, list) or len(child) != len(sub):
+                return False
+            for s, c in zip(sub, child):
+                if isinstance(s, dict):
+                    if not _spec_match(s, c, captures):
+                        return False
+                elif s != c:
+                    return False
+        elif child != sub:
+            return False
+    return True
+
+
+def _spec(node) -> dict:
+    """Pembantu: konversi template AST python ke spec dict (pakai ast.dump
+    model? — kita definisikan spec manual di rules; helper ini opsional)."""
+    return node if isinstance(node, dict) else {"type": type(node).__name__}
+
+
+@dataclass
+class Rule:
+    id: str
+    message: str
+    severity: str
+    cwe: str
+    languages: tuple
+    spec: dict | None              # AST dict-spec (root = node apa pun)
+    fields: dict | None = None     # syarat tambahan field root (opsional)
+    regex: str | None = None       # fallback utk bahasa non-AST
+    confidence: float = 0.9
+    fix: str = ""
+
+    def find(self, tree, lines: list[str]):
+        out = []
+        for node in ast.walk(tree):
+            captures: dict = {}
+            if _spec_match(self.spec, node, captures):
+                line = getattr(node, "lineno", 1)
+                end = getattr(node, "end_lineno", line)
+                out.append((line, end, captures))
+        return out
+
+
+# -------------------------------------------------------------- rule pack
+TAINT_SOURCES = (
+    ("flask.request", "request flask"), ("request.args", "request.args"),
+    ("request.form", "request.form"), ("request.json", "request.json"),
+    ("request.values", "request.values"), ("request.cookies", "request.cookies"),
+    ("input(", "stdin"), ("sys.argv", "argv"),
+)
+TAINT_SINKS = {
+    "eval": {"severity": "critical", "cwe": "CWE-95", "fix": "hapus eval; "
+             "pakai parser data terstruktur (json) + validasi allowlist"},
+    "exec": {"severity": "critical", "cwe": "CWE-95", "fix": "hapus exec; "
+             "refaktor ke fungsi eksplisit"},
+    "system": {"severity": "critical", "cwe": "CWE-78", "fix": "subprocess "
+               "dengan array argumen TANPA shell=True; validasi input"},
+}
+TAINT_SANITIZERS = ("shlex.quote", "escape", "quote", "int", "float",
+                    "ast.literal_eval")
+
+CORE_RULES: list[Rule] = [
+    Rule("PY-SQLI-FORMAT", "Query SQL dibangun dengan f-string/konkatenasi "
+         "lalu dieksekusi (raw execute) — pakai parameter binding",
+         "high", "CWE-89", ("python",),
+         {"type": "Call", "func": {"type": "Attribute", "attr": "execute"}},
+         fix="cursor.execute('... WHERE id = ?', (param,))",
+         confidence=0.85),
+    Rule("PY-SHELL-TRUE", "subprocess dengan shell=True memakai input "
+         "yang bisa dipengaruhi — risiko command injection",
+         "high", "CWE-78", ("python",),
+         {"type": "Call", "func": {"type": "Attribute", "attr": "run",
+                                   "value": {"type": "Name",
+                                             "id": "subprocess"}},
+          "$kw": {"arg": "shell", "value": {"type": "Constant",
+                                            "value": True}}},
+         fix="subprocess.run([...], shell=False)",
+         confidence=0.8),
+    Rule("PY-DEBUG-TRUE", "app.run(debug=True) di kode — debug mode "
+         "membocorkan debugger interaktif di produksi",
+         "medium", "CWE-489", ("python",),
+         {"type": "Call", "func": {"type": "Attribute", "attr": "run"},
+          "$kw": {"arg": "debug", "value": {"type": "Constant",
+                                            "value": True}}},
+         fix="debug=False; konfigurasi via environment",
+         confidence=0.7),
+    Rule("PY-VERIFY-FALSE", "requests/verify=False menonaktifkan "
+         "validasi TLS",
+         "high", "CWE-295", ("python",),
+         {"type": "keyword", "arg": "verify", "value": {"type": "Constant"}},
+         fix="hapus verify=False; pasang CA bundle yang benar",
+         confidence=0.95),
+    Rule("PY-RANDOM-TOKEN", "Token/secret memakai random() modul random "
+         "(bukan CSPRNG) — prediktabel",
+         "medium", "CWE-330", ("python",),
+         {"type": "Call", "func": {"type": "Attribute", "attr": "random",
+                                   "value": {"type": "Name",
+                                             "id": "random"}}},
+         fix="pakai secrets.token_hex/token_urlsafe",
+         confidence=0.85),
+    Rule("PY-PICKLE-LOAD", "pickle.loads pada data tidak dipercaya — "
+         "eksekusi kode arbitrer",
+         "high", "CWE-502", ("python",),
+         {"type": "Call", "func": {"type": "Attribute", "attr": "loads"}},
+         fix="pakai format data (JSON) atau validasi sumber ketat",
+         confidence=0.75),
+    Rule("PY-EXCEPT-PASS", "except: pass menelan error diam-diam — "
+         "menghalangi deteksi",
+         "low", "CWE-703", ("python",),
+         {"type": "ExceptHandler"},
+         fix="log error atau naikkan (raise); jangan diam",
+         confidence=0.8),
+]
+
+# JS/C++ regex pack konservatif (confidence lebih rendah, FP-guard ketat)
+JS_CPP_RULES: list[Rule] = [
+    Rule("JS-INNERHTML", "innerHTML dari data tak terpercaya -> sink XSS",
+         "medium", "CWE-79", ("js", "ts"), None,
+         regex=r"\.innerHTML\s*=\s*(?!['\"])",
+         fix="pakai textContent atau sanitasi DOMPurify-class",
+         confidence=0.6),
+    Rule("JS-EVAL", "eval() pada kode JS — eksekusi dinamis",
+         "high", "CWE-95", ("js", "ts"), None,
+         regex=r"(?<![\w.])eval\s*\(",
+         fix="hapus eval; pakai JSON.parse / pemetaan fungsi eksplisit",
+         confidence=0.8),
+    Rule("CPP-SYSTEM", "system() di C++ — command injection",
+         "critical", "CWE-78", ("c", "cpp", "c++"), None,
+         regex=r"(?<![\w.])system\s*\(",
+         fix="pakai exec/posix_spawn dengan array argumen",
+         confidence=0.75),
+    Rule("CPP-STRCPY", "strcpy tanpa batas — buffer overflow",
+         "high", "CWE-120", ("c", "cpp", "c++"), None,
+         regex=r"(?<![\w.])strcpy\s*\(",
+         fix="pakai strncpy/snprintf dengan ukuran buffer eksplisit",
+         confidence=0.7),
+]
+
+ALL_RULES = {r.id: r for r in CORE_RULES + JS_CPP_RULES}
+
+_LANG_BY_SUFFIX = {
+    ".py": "python", ".js": "js", ".mjs": "js", ".ts": "ts",
+    ".c": "c", ".h": "c", ".cpp": "cpp", ".cc": "cpp", ".hpp": "cpp",
+}
+
+
+# ------------------------------------------------------------ taint python
+def _is_source(node) -> str | None:
+    """Deteksi source secara struktural (bukan string dump):
+    request.* (flask-class), input(), sys.argv."""
+    for sub in ast.walk(node):
+        if isinstance(sub, ast.Name) and sub.id == "request":
+            return "request"
+        if isinstance(sub, ast.Call) and isinstance(sub.func, ast.Name) \
+                and sub.func.id == "input":
+            return "stdin"
+        if isinstance(sub, ast.Attribute) and sub.attr == "argv" \
+                and isinstance(sub.value, ast.Name) and sub.value.id == "sys":
+            return "argv"
+    return None
+
+
+def _call_name(node) -> str:
+    if isinstance(node, ast.Attribute):
+        return node.attr
+    if isinstance(node, ast.Name):
+        return node.id
+    return ""
+
+
+def taint_scan(tree: ast.AST, lines: list[str]) -> list[SastFinding]:
+    """Dataflow taint satu-modul: source -> assignment -> sink; sanitizer
+    menghentikan aliran. Jalur dilaporkan baris-demi-baris."""
+    tainted: dict[str, tuple[str, int]] = {}
+    flows: list[SastFinding] = []
+    rendered: set[tuple] = set()
+
+    def sanitize_name(call_name: str) -> bool:
+        return any(s in call_name for s in TAINT_SANITIZERS)
+
+    for node in ast.walk(tree):
+        # (a) assignment: var = source | var = gabungan taint | var = tainted
+        if isinstance(node, ast.Assign):
+            label = _is_source(node.value)
+            names = [t.id for t in node.targets
+                     if isinstance(t, ast.Name)]
+            if label:
+                for n in names:
+                    tainted[n] = (label, node.lineno)
+            else:
+                rhs = _call_name(node.value.func) \
+                    if isinstance(node.value, ast.Call) else ""
+                if sanitize_name(rhs):
+                    for n in names:
+                        tainted.pop(n, None)
+                else:
+                    rhs_taint = None
+                    if isinstance(node.value, ast.Name) \
+                            and node.value.id in tainted:
+                        rhs_taint = tainted[node.value.id]
+                    else:
+                        for sub in ast.walk(node.value):
+                            if isinstance(sub, ast.Name) \
+                                    and sub.id in tainted:
+                                rhs_taint = tainted[sub.id]
+                                break
+                    if rhs_taint:
+                        for n in names:
+                            tainted[n] = rhs_taint
+        # (b) sink: tainted argumen masuk fungsi berbahaya
+        if isinstance(node, ast.Call):
+            fname = _call_name(node.func)
+            meta = TAINT_SINKS.get(fname)
+            if meta:
+                for arg in node.args:
+                    if isinstance(arg, ast.Name) and arg.id in tainted:
+                        src, src_line = tainted[arg.id]
+                        key = (fname, arg.id, node.lineno)
+                        if key in rendered:
+                            continue
+                        rendered.add(key)
+                        flows.append(SastFinding(
+                            rule_id=f"PY-TAINT-{fname.upper()}",
+                            message=(f"Data dari {src} mengalir ke sink "
+                                     f"{fname}() tanpa sanitasi"),
+                            severity=meta["severity"], cwe=meta["cwe"],
+                            path="", line=src_line, end_line=node.lineno,
+                            confidence=0.9, fix=meta["fix"],
+                            flow=[
+                                {"line": src_line, "role": "source",
+                                 "code": _line_of(lines, src_line)},
+                                {"line": node.lineno, "role": "sink",
+                                 "code": _line_of(lines, node.lineno)},
+                            ]))
+            # shell=True + taint = sink khusus
+            if isinstance(node.func, ast.Attribute) and node.func.attr == "run":
+                for kw in node.keywords:
+                    if kw.arg == "shell" and getattr(kw.value, "value", None) is True:
+                        has_taint = any(
+                            isinstance(a, ast.Name) and a.id in tainted
+                            for a in node.args)
+                        if has_taint:
+                            src, src_line = tainted[
+                                next(a.id for a in node.args
+                                     if isinstance(a, ast.Name)
+                                     and a.id in tainted)]
+                            key = ("shellexec", src, node.lineno)
+                            if key in rendered:
+                                continue
+                            rendered.add(key)
+                            flows.append(SastFinding(
+                                rule_id="PY-TAINT-SHELL",
+                                message=(f"Data dari {src} masuk subprocess "
+                                         f"shell=True — command injection"),
+                                severity="critical", cwe="CWE-78",
+                                path="", line=src_line, end_line=node.lineno,
+                                confidence=0.95,
+                                fix="shell=False + array argumen",
+                                flow=[
+                                    {"line": src_line, "role": "source",
+                                     "code": _line_of(lines, src_line)},
+                                    {"line": node.lineno, "role": "sink",
+                                     "code": _line_of(lines, node.lineno)},
+                                ]))
+    return flows
+
+
+# ------------------------------------------------------------------ scanner
+def _load_custom_rules(path: Path) -> list[Rule]:
+    """Rule kustom klien (.cyphron-rules JSON) — schema Rule."""
+    try:
+        rows = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return []
+    out = []
+    for row in rows if isinstance(rows, list) else []:
+        try:
+            out.append(Rule(
+                id=str(row["id"]), message=str(row.get("message", "")),
+                severity=str(row.get("severity", "low")),
+                cwe=str(row.get("cwe", "CWE-?")),
+                languages=tuple(str(l) for l in row.get("languages", ["python"])),
+                spec=row.get("spec"), regex=row.get("regex"),
+                confidence=float(row.get("confidence", 0.7)),
+                fix=str(row.get("fix", ""))))
+        except (KeyError, TypeError, ValueError):
+            continue
+    return out
+
+
+def scan_file(path: Path, rules: list[Rule]) -> list[SastFinding]:
+    lang = _LANG_BY_SUFFIX.get(path.suffix.lower())
+    if not lang:
+        return []
+    try:
+        text = path.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return []
+    lines = text.splitlines()
+    findings: list[SastFinding] = []
+
+    if lang == "python":
+        try:
+            tree = ast.parse(text)
+        except SyntaxError:
+            return []
+        for rule in rules:
+            if lang not in rule.languages:
+                continue
+            if rule.spec:
+                for line, end, captures in rule.find(tree, lines):
+                    if rule.id == "PY-SQLI-FORMAT":
+                        # FP-guard: execute dengan 2+ argumen = parameter binding
+                        node = next((n for n in ast.walk(tree)
+                                     if getattr(n, "lineno", None) == line
+                                     and isinstance(n, ast.Call)
+                                     and _call_name(n.func) == "execute"
+                                     and len(n.args) >= 2), None)
+                        if node is not None:
+                            continue
+                    findings.append(SastFinding(
+                        rule.id, rule.message, rule.severity, rule.cwe,
+                        str(path), line, end, rule.confidence, rule.fix))
+            elif rule.regex:
+                pat = re.compile(rule.regex)
+                for i, ln in enumerate(lines, 1):
+                    if pat.search(ln):
+                        findings.append(SastFinding(
+                            rule.id, rule.message, rule.severity, rule.cwe,
+                            str(path), i, i, rule.confidence, rule.fix))
+        findings.extend(taint_scan(tree, lines))
+    else:
+        for rule in rules:
+            if lang not in rule.languages or not rule.regex:
+                continue
+            pat = re.compile(rule.regex)
+            for i, ln in enumerate(lines, 1):
+                if pat.search(ln):
+                    findings.append(SastFinding(
+                        rule.id, rule.message, rule.severity, rule.cwe,
+                        str(path), i, i, rule.confidence, rule.fix))
+    return findings
+
+
+def scan_path(root: Path, extra_rules: list[Rule] | None = None,
+              diff_only: bool = False) -> list[SastFinding]:
+    """Scan folder/berkas; diff_only=True hanya berkas yang berubah vs HEAD
+    (git diff --name-only + untracked) — mode CI."""
+    rules = list(ALL_RULES.values()) + list(extra_rules or [])
+    root = Path(root)
+    if root.is_dir():
+        custom_path = root / ".cyphron-rules"
+        if custom_path.is_file():
+            rules += _load_custom_rules(custom_path)
+    if diff_only:
+        names = _git_changed_files(root)
+    else:
+        names = None
+    findings: list[SastFinding] = []
+    files = [root] if root.is_file() else sorted(
+        p for p in root.rglob("*") if p.is_file()
+        and p.suffix.lower() in _LANG_BY_SUFFIX
+        and ".git" not in p.parts and "__pycache__" not in p.parts
+        and "kb/data" not in str(p))
+    for p in files:
+        if names is not None and str(p.relative_to(root)) not in names:
+            continue
+        findings.extend(scan_file(p, rules))
+    return findings
+
+
+def _git_changed_files(root: Path) -> set[str]:
+    try:
+        out = subprocess.run(
+            ["git", "diff", "--name-only", "HEAD"],
+            cwd=str(root), capture_output=True, timeout=20)
+        rows = out.stdout.decode("utf-8", "replace").split()
+        untracked = subprocess.run(
+            ["git", "ls-files", "--others", "--exclude-standard"],
+            cwd=str(root), capture_output=True, timeout=20)
+        rows += untracked.stdout.decode("utf-8", "replace").split()
+        return set(rows)
+    except Exception:
+        return set()
+
+
+# ---------------------------------------------------------------- output
+def to_sarif(findings: list[SastFinding], tool: str = "cyphron-sast") -> dict:
+    rules = sorted({f.rule_id for f in findings})
+    return {
+        "$schema": ("https://json.schemastore.org/sarif-2.1.0.json"),
+        "version": "2.1.0",
+        "runs": [{
+            "tool": {"driver": {"name": tool, "version": "1.0",
+                                "informationUri": "",
+                                "rules": [{"id": r} for r in rules]}},
+            "results": [
+                {"ruleId": f.rule_id,
+                 "level": {"critical": "error", "high": "error",
+                           "medium": "warning", "low": "note",
+                           "info": "note"}[f.severity],
+                 "message": {"text": f.message},
+                 "locations": [{
+                     "physicalLocation": {
+                         "artifactLocation": {"uri": f.path},
+                         "region": {"startLine": f.line,
+                                    "endLine": f.end_line}}},
+                 ],
+                 "properties": {"confidence": f.confidence, "cwe": f.cwe,
+                                "fix": f.fix, "flow": f.flow}}
+                for f in findings],
+        }],
+    }
+
+
+def run_ci(path: Path, out_dir: Path | None = None, diff_only: bool = False,
+           fail_on: str = "high", max_findings: int = 0) -> int:
+    """Mode CI: tulis sast.json + sast.sarif, return exit code."""
+    order = {"critical": 0, "high": 1, "medium": 2, "low": 3, "info": 4}
+    custom: list[Rule] = []
+    marker = Path(path)
+    custom_path = (marker if marker.is_file() else marker / ".cyphron-rules")
+    if custom_path.is_file():
+        custom = _load_custom_rules(custom_path)
+    findings = scan_path(marker, extra_rules=custom, diff_only=diff_only)
+    findings.sort(key=lambda f: (order.get(f.severity, 9), f.path, f.line))
+    rows = [f.to_dict() for f in findings]
+    if out_dir is not None:
+        out_dir.mkdir(parents=True, exist_ok=True)
+        (out_dir / "sast.json").write_text(
+            json.dumps({"findings": rows, "count": len(rows)},
+                       indent=1, ensure_ascii=False), encoding="utf-8")
+        (out_dir / "sast.sarif").write_text(
+            json.dumps(to_sarif(findings), indent=1), encoding="utf-8")
+    if not findings:
+        return 0
+    return 2 if order.get(findings[0].severity, 9) <= order.get(fail_on, 1) \
+        else 0

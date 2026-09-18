@@ -13,6 +13,7 @@ import argparse
 import json
 import os
 import sys
+import time
 from pathlib import Path
 
 from .config import load
@@ -145,6 +146,36 @@ def main(argv: list[str] | None = None) -> int:
                                 "surface probe) dari file APK")
     p_apk.add_argument("--apk", required=True)
     p_apk.add_argument("--out", default="cyphron_apk", help="folder output")
+
+    p_sast = sub.add_parser("sast",
+                            help="SAST AST+taint + CI mode (exit code, JSON, SARIF, diff-aware)")
+    p_sast.add_argument("--path", required=True, help="folder/berkas yang discan")
+    p_sast.add_argument("--out", help="folder output (sast.json + sast.sarif)")
+    p_sast.add_argument("--diff", action="store_true",
+                        help="hanya berkas berubah vs git HEAD")
+    p_sast.add_argument("--fail-on", choices=["critical", "high", "medium", "low"],
+                        default="high", help="severity minimum utk exit code 2")
+
+    p_dast = sub.add_parser("dast",
+                            help="DAST orchestration profil dev-cicd/standard/full")
+    p_dast.add_argument("--target", required=True)
+    p_dast.add_argument("--auth", help="dokumen otorisasi (wajib utk profil aktif)")
+    p_dast.add_argument("--profile", choices=["dev-cicd", "standard", "full"],
+                        default="standard")
+    p_dast.add_argument("--out", default="cyphron_out")
+
+    p_iac = sub.add_parser("iac",
+                           help="IaC check (Dockerfile/compose/k8s) + SBOM CycloneDX")
+    p_iac.add_argument("--path", required=True)
+    p_iac.add_argument("--out", help="folder output (iac.json + sbom.json)")
+
+    p_proxy = sub.add_parser("proxy",
+                             help="proxy intercept lokal (CLI-first; CONNECT passthrough tanpa dekripsi)")
+    p_proxy.add_argument("--listen", default="127.0.0.1:8080")
+    p_proxy.add_argument("--auth", help="dokumen otorisasi (scope host tujuan)")
+    p_proxy.add_argument("--intercept", action="store_true",
+                         help="tahan request sampai disetujui (approve/drop via stdin)")
+    p_proxy.add_argument("--out", default="cyphron_proxy")
 
     p_tiers = sub.add_parser("tiers", help="tier pack: 100 skills dalam 4 tingkat severity")
     p_tiers.add_argument("--build", action="store_true", help="generate file skill ke .kimchi/skills-tiers/")
@@ -522,6 +553,104 @@ def main(argv: list[str] | None = None) -> int:
             for f in kit.findings + (surface.findings if surface.ok else []):
                 print(f"[cyphron] temuan (LEAD): {f.title}")
             print(f"[cyphron] laporan: {out}")
+            return 0
+
+        if args.command == "sast":
+            from .sast import run_ci
+            rc = run_ci(Path(args.path),
+                        out_dir=Path(args.out) if args.out else None,
+                        diff_only=bool(args.diff), fail_on=args.fail_on)
+            print(f"[cyphron] sast exit={rc} "
+                  f"({'bersih' if rc == 0 else 'temuan >= ' + args.fail_on})")
+            return rc
+
+        if args.command == "dast":
+            from .dast import plan_from_policy, policy_for
+            doc = None
+            if args.auth:
+                from .guardrails.authorization import AuthorizationDocument
+                doc = AuthorizationDocument.load(Path(args.auth))
+            policy = policy_for(
+                args.profile, authorized=doc is not None,
+                doc_restrictions=(doc.restrictions if doc else []))
+            print(f"[cyphron] dast: {policy['requested']} -> "
+                  f"{policy['profile_effective']}"
+                  f" (downgraded: {policy['downgraded']}) — {policy['reason']}")
+            plan = plan_from_policy(policy, args.target)
+            opts = ScanOptions(
+                target=plan["target"],
+                auth_path=Path(args.auth) if args.auth else None,
+                crawl_pages=plan["crawl_pages"], max_steps=plan["max_steps"],
+                max_requests=plan["max_requests"],
+                rate_limit_s=plan["rate_limit_s"], max_time_s=20 * 60)
+            run = run_scan(opts, verbose=True)
+            out_dir = Path(args.out)
+            write_reports(out_dir, opts, run.summary, run.world, run.audit)
+            print(f"[cyphron] dast done: confirmed={len(run.summary.confirmed)} "
+                  f"-> {out_dir / 'report.md'}")
+            return 2 if run.summary.confirmed else 0
+
+        if args.command == "iac":
+            from .iac import license_compliance, sbom_generate, scan_iac
+            root = Path(args.path)
+            rows = scan_iac(root)
+            sbom = sbom_generate(root)
+            lic = license_compliance(sbom)
+            if args.out:
+                out_dir = Path(args.out)
+                out_dir.mkdir(parents=True, exist_ok=True)
+                (out_dir / "iac.json").write_text(
+                    json.dumps(rows, indent=1, ensure_ascii=False),
+                    encoding="utf-8")
+                (out_dir / "sbom.json").write_text(
+                    json.dumps(sbom, indent=1, ensure_ascii=False),
+                    encoding="utf-8")
+            print(f"[cyphron] iac: {len(rows)} temuan misconfig")
+            for r in rows[:10]:
+                print(f"  [{r['severity']:6}] {r['rule']:28} "
+                      f"{r.get('file', '')}:{r['line']} {r['message'][:60]}")
+            print(f"[cyphron] sbom: {len(sbom['components'])} komponen "
+                  f"({', '.join(sbom['_meta']['manifests']) or 'tanpa manifest'})"
+                  f" | lisensi: {lic['checked']} dideklarasi, "
+                  f"{len(lic['denied'])} denied")
+            return 0
+
+        if args.command == "proxy":
+            from .guardrails.authorization import AuditLog, AuthorizationGate
+            from .proxycore import History, serve_proxy
+            doc = None
+            if args.auth:
+                from .guardrails.authorization import AuthorizationDocument
+                doc = AuthorizationDocument.load(Path(args.auth))
+            out_dir = Path(args.out)
+            out_dir.mkdir(parents=True, exist_ok=True)
+            host, _, port = args.listen.rpartition(":")
+            history = History(path=out_dir / "proxy-history.jsonl")
+            server, queue = serve_proxy((host or "127.0.0.1", int(port)),
+                                        AuthorizationGate(doc), history,
+                                        intercept=bool(args.intercept))
+            print(f"[cyphron] proxy listen {args.listen} "
+                  f"(intercept={bool(args.intercept)}); history -> "
+                  f"{history.path}")
+            if args.intercept:
+                print("[cyphron] perintah: 'a ID' = approve, 'd ID' = drop, 'q' = keluar")
+                try:
+                    while True:
+                        line = input().strip()
+                        if line == "q":
+                            break
+                        cmd, _, rid = line.partition(" ")
+                        queue.decide(rid, "approve" if cmd == "a" else "drop")
+                        print(f"[cyphron] {rid} -> {cmd}")
+                except (EOFError, KeyboardInterrupt):
+                    pass
+            else:
+                try:
+                    while True:
+                        time.sleep(3600)
+                except KeyboardInterrupt:
+                    pass
+            server.shutdown()
             return 0
 
         if args.command == "check":
