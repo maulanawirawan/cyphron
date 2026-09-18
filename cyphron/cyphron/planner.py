@@ -45,6 +45,8 @@ import re
 from dataclasses import dataclass
 from urllib.parse import urlsplit
 
+from . import escalation as _escalation
+from . import graph as _knowledge_graph
 from .guardrails.authorization import is_local_path
 from .world.model import WorldModel
 
@@ -70,6 +72,7 @@ _HYP_IMPACT = {
     "H-pagination": 3, "H-sortinject": 3, "H-jsassets": 2,
     "H-graphql-discovery": 1, "H-exposure": 2, "H-infra": 3,
     "H-stale": 1, "H-next": 3, "H-wpdata": 3, "H-login": 3,
+    "H-escalate": 3,
 }
 # Initial confidence for PENDING hypotheses, by evidence strength
 # (discovery-only 0.3; param-backed surfaces such as H-react-params 0.5).
@@ -116,12 +119,15 @@ def _fget(f, name):
 
 class DeterministicPlanner:
     def __init__(self, offensive_allowed: bool, crawl_pages: int = 15,
-                 authenticated: bool = False, request_budget: int = 400):
+                 authenticated: bool = False, request_budget: int = 400,
+                 known_tools: set | None = None):
         self.offensive_allowed = offensive_allowed
         self.crawl_pages = crawl_pages
         self.authenticated = authenticated
         self.request_budget = max(int(request_budget), 0)
         self.account_count = 0
+        self.known_tools = ({str(t) for t in known_tools}
+                            if known_tools is not None else None)
         self._emitted: set[tuple] = set()
         # ---- FAZ 2 adaptive state ----
         self._schedule: list[Step] = []   # every emitted step, in emission order
@@ -138,6 +144,10 @@ class DeterministicPlanner:
         self._world: WorldModel | None = None
         self._seen_gql = False
         self._seen_jwt = False
+        # ---- U2: adaptive escalation state ----
+        self._escalated_patterns: set[str] = set()  # pola yang sudah di-unlock
+        self._last_escalation_fase: str = ""
+        self.escalation_state: dict = {}  # rencana eskalasi terakhir (laporan)
 
     # ----------------------------------------------------------- emission
     def _once(self, step: Step) -> list[Step]:
@@ -320,6 +330,17 @@ class DeterministicPlanner:
                           "status": "PENDING"})
         except Exception:
             pass
+        # U2-integ: antrean eskalasi adaptif tampil sebagai hipotesis
+        if "H-escalate" in self._hyp:
+            esc = self.escalation_state or {}
+            H.append({"id": "H-escalate",
+                      "claim": "Eskalasi adaptif: pola attack surface terdeteksi -> "
+                               "antrean engine ofensif terbuka (budget-aware)",
+                      "evidence": ("pola: "
+                                   + (", ".join(sorted(esc.get("patterns", {}))) or "-")
+                                   + f"; fase {esc.get('fase', '-')}"),
+                      "decision": "jadwalkan engine hasil unlock (dedup per pola)",
+                      "status": self._hyp["H-escalate"]["status"]})
         for h in H:
             self._reconcile(h)
         # reactive hypotheses opened by observe_findings persist across rebuilds
@@ -430,12 +451,95 @@ class DeterministicPlanner:
                 str(step.args.get("url", "")),
                 str(step.args.get("param", "")))
 
+    # ------------------------------------------------- escalation (U2-integ)
+    def _escalation_phase(self, world: WorldModel) -> None:
+        """Adaptive Escalation sebagai bagian otak planner: proyeksikan world
+        menjadi Evidence Graph, tanyakan fase berikutnya ke escalation_plan,
+        catat perubahan fase di world note, dan pada fase ESCALATE jadwalkan
+        engine hasil unlock sebagai step (dedup `_once`, sekali per pola,
+        budget-aware lewat hipotesis H-escalate). Tanpa otorisasi offensive
+        fase berhenti di PATTERN (fail-closed)."""
+        try:
+            g = _knowledge_graph.build_from_world(world)
+            plan = _escalation.escalation_plan(
+                g, self.offensive_allowed,
+                has_vuln_candidates=bool(world.findings_seen))
+        except Exception:
+            return
+        self.escalation_state = plan
+        fase = str(plan.get("fase", ""))
+        if fase and fase != self._last_escalation_fase:
+            world.note(
+                "escalation fase: "
+                + (f"{self._last_escalation_fase} -> {fase}"
+                   if self._last_escalation_fase else fase)
+                + f" (pola: {', '.join(sorted(plan.get('patterns', {}))) or 'belum ada'})")
+            self._last_escalation_fase = fase
+        if fase != _escalation.FASE_ESCALATE:
+            return
+        if "H-escalate" not in self._hyp:
+            self._hyp["H-escalate"] = {
+                "claim": "Eskalasi adaptif: pola attack surface terdeteksi -> "
+                         "antrean engine ofensif terbuka (budget-aware)",
+                "confidence": 0.8, "impact": _HYP_IMPACT["H-escalate"],
+                "allocated": 0, "status": "CONFIRMED"}
+        for pola, engines in sorted((plan.get("unlocked_by_pattern") or {}).items()):
+            if pola in self._escalated_patterns:
+                continue
+            emitted: list[str] = []
+            for eng in engines:
+                if self.known_tools is not None and eng not in self.known_tools:
+                    continue
+                args = self._escalation_args(eng, world)
+                if args is None:
+                    continue
+                if self._once(Step(
+                        eng, args,
+                        f"eskalasi adaptif: pola '{pola}' terdeteksi -> engine "
+                        f"'{eng}' masuk antrian (dedup per pola, budget H-escalate)",
+                        "active-testing", 6, "H-escalate")):
+                    emitted.append(eng)
+            if emitted:
+                self._escalated_patterns.add(pola)
+                world.note(f"escalation unlock: pola '{pola}' -> {', '.join(emitted)}")
+
+    def _escalation_args(self, eng: str, world: WorldModel) -> dict | None:
+        """Argumen minimum untuk engine hasil unlock; None = lewati engine
+        ini (butuh konteks yang belum ada, mis. multi-sesi atau pasangan
+        (url,param) konkret)."""
+        if eng in ("sqli_probe", "xss_probe", "redirect_probe"):
+            # probe param-pair: planner menjadwalkannya pada (url,param)
+            # konkret lewat skeleton/re-plan, bukan generik tanpa param
+            return None
+        if eng in ("bola", "priv_matrix", "idor_mass_endpoint"):
+            # uji lintas akun bermakna hanya dengan >= 2 sesi
+            if self.account_count < 2:
+                return None
+        if eng == "idor_mass_endpoint":
+            return {"base_url": world.target, "allow_foreign_probe": True}
+        if eng == "param_miner":
+            # samakan args dengan skeleton agar _once mendedup (bukan ganda)
+            return {"url": world.target, "max_requests": 40}
+        if eng == "traversal":
+            params: list[str] = []
+            for ep in world.param_endpoints(limit=6):
+                for prm in ep.params:
+                    if prm not in params:
+                        params.append(prm)
+                if len(params) >= 3:
+                    break
+            if not params:
+                return None
+            return {"url": world.target, "params": params[:3]}
+        return {"url": world.target}
+
     # -------------------------------------------------------------- plan
     def plan(self, world: WorldModel) -> list[Step]:
         """Build (once per run) and return the full pending schedule,
         EV-ordered: the orchestrator executes the first step not yet run and
         re-plans, so step N+1 always reflects findings from step N."""
         self._world = world
+        self._escalation_phase(world)
         self._hypotheses(world)
         target = world.target
         if is_local_path(target):

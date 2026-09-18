@@ -65,6 +65,7 @@ class ScanSummary:
     scope: dict | None = None  # scope AKTUAL dari dokumen otorisasi (untuk laporan)
     attack_chains: list[dict] = field(default_factory=list)  # Attack Chain Composer
     quorum_summary: dict = field(default_factory=dict)       # Independent Validator Quorum
+    escalation: dict = field(default_factory=dict)           # fase eskalasi adaptif (U2)
 
     def counts_by_severity(self) -> dict[str, int]:
         out = {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0}
@@ -118,7 +119,8 @@ def run_scan(opts: ScanOptions, verbose: bool = True) -> ScanRun:
     tools = build_default_registry(ctx)
     planner = DeterministicPlanner(offensive_allowed=(mode == "offensive"),
                                    crawl_pages=opts.crawl_pages,
-                                   request_budget=opts.max_requests)
+                                   request_budget=opts.max_requests,
+                                   known_tools={t.name for t in tools.all()})
 
     # Grey-box / god-mode: authenticate before probing so cookie-protected
     # surface is in scope. `--account` = satu sesi; `--accounts` = multi-sesi.
@@ -240,6 +242,7 @@ def run_scan(opts: ScanOptions, verbose: bool = True) -> ScanRun:
         scope=scope_summary,
         attack_chains=[c.to_dict() for c in chains],
         quorum_summary=_quorum.summarize(verdicts),
+        escalation=dict(getattr(planner, "escalation_state", {}) or {}),
     )
     audit.append({"kind": "scan-end", "confirmed": len(confirmed),
                   "unconfirmed": len(unconfirmed), "steps": steps_executed})

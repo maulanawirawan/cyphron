@@ -77,10 +77,15 @@ def _patterns_in_graph(g) -> dict[str, list[str]]:
 
 def escalation_plan(g, offensive_allowed: bool,
                     has_vuln_candidates: bool = False) -> dict:
-    """Fase eskalasi berikutnya + antrian engine, dari isi graph saja."""
+    """Fase eskalasi berikutnya + antrian engine, dari isi graph saja.
+
+    ``unlocked_by_pattern`` memetakan pola -> engine yang dibukanya (dipakai
+    planner untuk menjadwalkan sekali per pola; ``unlocked_engines`` tetap
+    gabungan datar untuk konsumsi umum)."""
     patterns = _patterns_in_graph(g)
     n_nodes = len(g.nodes())
     vuln_nodes = len(g.nodes("VULNERABILITY")) + (1 if has_vuln_candidates else 0)
+    unlock_by_pattern: dict[str, list[str]] = {}
 
     if vuln_nodes:
         fase = FASE_PROVE
@@ -91,10 +96,11 @@ def escalation_plan(g, offensive_allowed: bool,
     elif patterns and n_nodes >= 3:
         fase = FASE_ESCALATE
         unlocked = []
-        for pola, _evidence in patterns.items():
+        for pola in sorted(patterns):
             for eng in _UNLOCK:
                 if eng[0] == pola:
                     unlocked.extend(eng[1])
+                    unlock_by_pattern[pola] = sorted(eng[1])
         unlocked = sorted(set(unlocked))
     else:
         fase = FASE_PROBE
@@ -103,6 +109,7 @@ def escalation_plan(g, offensive_allowed: bool,
         "fase": fase,
         "patterns": {k: sorted(set(v))[:8] for k, v in sorted(patterns.items())},
         "unlocked_engines": unlocked,
+        "unlocked_by_pattern": unlock_by_pattern,
         "graph_nodes": n_nodes,
         "offensive_allowed": bool(offensive_allowed),
     }

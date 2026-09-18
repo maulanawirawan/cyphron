@@ -88,8 +88,13 @@ aset pihak ketiga.
       EVIDENCE + EXPOSES/TARGETS/REACHED_VIA/ACCESSES/VERIFIED_BY +
       attack_paths + provenance) + verdicts.py (tangga 0-5/REJECTED) + 10 test — SELESAI
 - [x] U8 Sweep narasi eksternal repo-wide (kode/docs/README) — SELESAI
-- [ ] U2 Planner v5 graph-aware + ADAPTIVE ESCALATION MODE (probe -> pelajari
-      pola -> eskalasi ofensif terukur; LLM hanya advisor opsional) [UPGRADE]
+- [x] U2 Planner v5 graph-aware + ADAPTIVE ESCALATION MODE (probe -> pelajari
+      pola -> eskalasi ofensif terukur; LLM hanya advisor opsional) — SELESAI:
+      planner/orchestrator mengonsumsi escalation_plan(graph): fase PROBE->
+      PATTERN->ESCALATE->PROVE tercatat di world note + ScanSummary.escalation,
+      unlocked_engines dijadwalkan sebagai step H-escalate (dedup `_once`,
+      sekali per pola, budget-aware, fail-closed tanpa otorisasi offensive)
+      [UPGRADE]
 - [ ] U3 Blind re-producer (verdict level 5: validator independen
       mereproduksi dari claim saja) [UPGRADE]
 - [ ] U4 browser_scout engine (formalisasi CDP) + SPA/OAuth guarded [PARSIAL]

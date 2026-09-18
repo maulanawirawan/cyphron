@@ -177,6 +177,9 @@ def _build_doc(opts: ScanOptions, s: ScanSummary, w: WorldModel, audit: AuditLog
                ("Scope dikecualikan", "; ".join(s.scope["excluded"]) or "tidak ada")]
               if s.scope else []),
             ("Langkah / request", f"{s.steps_executed} / {w.request_count}"),
+            *([("Fase eskalasi", f"{s.escalation.get('fase', '-')} (pola: "
+               + (", ".join(sorted(s.escalation.get("patterns", {}))) or "-") + ")")]
+              if s.escalation else []),
             ("Temuan terkonfirmasi", str(len(s.confirmed)) or "0"),
             ("Observasi (tanpa bukti penuh)", str(len(s.unconfirmed))),
             ("Integritas audit", "UTUH (hash-chain)" if s.audit_verified else "TAMPERED"),
@@ -342,6 +345,11 @@ def _build_blocks(opts: ScanOptions, s: ScanSummary, w: WorldModel, audit: Audit
     b.append(("kv", f"Mode pengujian: {s.mode}. Otorisasi: {s.auth_id or 'tidak ada (read-only)'}."))
     b.append(("kv", f"Langkah dijalankan: {s.steps_executed}. Aksi yang ditolak gate: {s.refused_actions}. "
                     f"Request terkirim: {w.request_count}. Durasi: {s.elapsed_s} detik."))
+    if s.escalation:
+        b.append(("kv", f"Fase eskalasi adaptif: {s.escalation.get('fase', '-')} — pola terdeteksi: "
+                        + (", ".join(sorted(s.escalation.get("patterns", {}))) or "-")
+                        + ". Antrean engine hasil unlock dijadwalkan sekali per pola "
+                          "dan tunduk pada budget yang sama."))
     b.append(("kv", f"Integritas jejak audit: {'terverifikasi (hash-chain utuh)' if s.audit_verified else 'GAGAL - rantai terdeteksi berubah'}."))
     if w.technologies:
         b.append(("kv", "Teknologi teramati: " + "; ".join(list(w.technologies)[:6]) + "."))
