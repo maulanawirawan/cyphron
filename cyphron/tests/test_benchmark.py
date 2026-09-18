@@ -183,6 +183,22 @@ class TestClaimLanguage(unittest.TestCase):
         self.assertIn("benchmark", readme)
         self.assertIn("ambiguity rejection", readme)
 
+    def test_tanpa_narasi_provenance_eksternal(self):
+        """Aturan user: NOL narasi provenance eksternal di kode/docs/commit
+        (penyerapan ilmu = reimplementasi, bukan kredit)."""
+        patterns = ("terinspirasi", "inspired by", "ported from", "diadopsi",
+                    "cyberstrike", "hoplite", "strix", "semgrep", "snyk",
+                    "mythos", "xbow", "nodezero", "pentera", "aimardcr")
+        targets = list((_REPO / "docs").glob("*.md"))
+        targets.append(_REPO / "README.md")
+        targets += list((_REPO / "cyphron").glob("*.py"))
+        targets += list((_REPO / "cyphron" / "tools").glob("*.py"))
+        for t in targets:
+            low = t.read_text(encoding="utf-8", errors="replace").lower()
+            for pat in patterns:
+                self.assertNotIn(pat, low,
+                                 f"{t.name} memuat narasi provenance: {pat!r}")
+
 
 if __name__ == "__main__":
     unittest.main()

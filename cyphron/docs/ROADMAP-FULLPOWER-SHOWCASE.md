@@ -1,11 +1,10 @@
 # ROADMAP-FULLPOWER-SHOWCASE — Cyphron level "dilirik korporat" [DIPARKIR]
 
-> Status: DRAFT/PARKIR — dibuat 14 Sep 2026 atas permintaan user; TIDAK dieksekusi
-> sebelum ada perintah "gas". Inspirasi arah: profil peneliti keamanan Android
-> publik (aimardcr dkk) — yang menunjukkan jalur menuju pengakuan korporat.
-> PRINSIP PENYERAPAN ILMU: pelajari teknik dari riset/tool publik → PAHAMI →
-> tulis ulang versi Cyphron sendiri (bukan tempel kode; hasil akhir = pemikiran
-> & kode kita; sekaligus bersih dari sisi lisensi).
+> Status: dieksekusi 18 Sep 2026 (semua batch B1-B5 tuntas, suite hijau per
+> batch). PRINSIP PENYERAPAN ILMU: pahami teknik dari riset publik → tulis
+> ulang versi Cyphron sendiri (bukan tempel kode; hasil akhir = pemikiran &
+> kode kita; sekaligus bersih dari sisi lisensi); tanpa narasi provenance
+> eksternal di seluruh repo.
 
 ## 0. TESIS (dari bukti pasar)
 Yang bikin researcher/produk "dilirik" korporat — terbukti dari data:
@@ -136,11 +135,19 @@ Yang bikin researcher/produk "dilirik" korporat — terbukti dari data:
   lisensi repo publik dihormati (GPL tidak dicampur).
 - Zero-FP, evidence ledger, redaksi — tidak kompromi di suite manapun.
 
-## 5. BATCH (menunggu "gas")
-- [ ] B1: Engine Adapter Layer + manifest + auto-detect + 1 engine C++ pilot.
-- [ ] B2: Deobfuscation/CDP/attribution kit (formalisasi kamipex).
-- [ ] B3: APK pentest kit v1 + laporan mobile.
-- [ ] B4: SAST/Taint polyglot (C++ rules) + resilience profile.
-- [ ] B5: Red-team tradecraft catalog (lab) + showcase landing + publikasi
-      studi kasus kamipex.
-- Tiap batch: test offline, suite hijau, commit+push per batch.
+## 5. BATCH (dieksekusi 18 Sep 2026 — suite hijau per batch, commit+push)
+- [x] B1: Engine Adapter Layer + manifest + auto-detect + 1 engine C++ pilot
+      (ca40537 — adapter.py + entropy_audit.cpp; runtime absen = skipped
+      anggun; jalur eksekusi dibuktikan via fixture node).
+- [x] B2: Deobfuscation/CDP/attribution kit (fa24543 — chain_decoder,
+      wallet_fp_guard base58check, phishing_kit_extract, affiliate_mapper;
+      sisi DOM = browser_scout U4).
+- [x] B3: APK pentest kit v1 + laporan mobile (997090b — apk_kit.py:
+      perm berbahaya via string-pool AXML, native/packer, signing v1/v2,
+      anti-tamper coverage, MOBILE-REPORT.md).
+- [x] B4: SAST/Taint + CI-1..CI-6 (6c02272 — sast.py AST+metavariable+taint
+      +SARIF+diff-aware; proxycore intercept; fleet partisi/merge; dast
+      profil fail-closed; iac/sbom CycloneDX + license).
+- [x] B5: Showcase artifacts (studi kasus GAMBLER ter-redaksi + DEMO-5-MENIT
+      + DEMO-VIDEO-3MENIT + INDEX docs) — commit ini.
+- Tiap batch: test offline, suite hijau, commit+push per batch. ✅

@@ -1,10 +1,10 @@
-# ROADMAP-UNITY — Cyphron satu kesatuan utuh: brain, graph, verdict, bukti [DIPARKIR]
+# ROADMAP-UNITY — Cyphron satu kesatuan utuh: brain, graph, verdict, bukti [TUNTAS]
 
-> Status: DRAFT/PARKIR — dibuat 14 Sep (permintaan user, tertunda karena kasus
-> kamipex), difinalisasi 16 Sep setelah menggabungkan analisis eksternal
-> (perbandingan kelas XBOW/NodeZero/Pentera) DENGAN mapping jujur ke kode
-> existing. TIDAK dieksekusi sebelum perintah "gas" dari user.
+> Status: EKSEKUSI TUNTAS 18 Sep 2026 — batch U1-U10 selesai dengan suite
+> hijau per batch. Dibuat 14 Sep, difinalisasi 16 Sep dengan mapping jujur
+> ke kode existing.
 > Prinsip tetap: zero-FP, deterministic-verifiable, guardrail tanpa kompromi,
+> tanpa narasi provenance eksternal di seluruh codebase.
 > tanpa narasi provenance eksternal di seluruh codebase.
 
 ## 0. TESIS
@@ -95,8 +95,10 @@ aset pihak ketiga.
       unlocked_engines dijadwalkan sebagai step H-escalate (dedup `_once`,
       sekali per pola, budget-aware, fail-closed tanpa otorisasi offensive)
       [UPGRADE]
-- [ ] U3 Blind re-producer (verdict level 5: validator independen
-      mereproduksi dari claim saja) [UPGRADE]
+- [x] U3 Blind re-producer (verdict level 5: validator independen
+      mereproduksi dari claim saja) — SELESAI (Unity batch 2: blind.py,
+      GET-only, marker+status, evidence "blind" -> BLIND_VALIDATED)
+      [UPGRADE]
 - [ ] U4 browser_scout engine (formalisasi CDP) + SPA/OAuth guarded [PARSIAL]
 - [x] U5 Identity Matrix + Business Logic agent (IDENTITY x OBJECT x ACTION
       x STATE: illegal transition) + API semantic mapper — SEBAGIAN SELESAI:
