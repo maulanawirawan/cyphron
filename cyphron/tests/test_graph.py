@@ -146,8 +146,9 @@ class TestBuildFromWorld(unittest.TestCase):
 
     def test_endpoint_nodes_have_status_method(self):
         eps = {n["id"]: n["props"] for n in self.g.nodes("ENDPOINT")}
-        self.assertEqual(eps["ENDPOINT:https://lab.example.test/login"],
-                         {"status": 200, "method": "POST"})
+        login = eps["ENDPOINT:https://lab.example.test/login"]
+        self.assertEqual((login["status"], login["method"]), (200, "POST"))
+        self.assertIn("password", login.get("form_fields", []))
         self.assertEqual(len(eps), 6)
 
     def test_param_nodes_keyed_url_param(self):

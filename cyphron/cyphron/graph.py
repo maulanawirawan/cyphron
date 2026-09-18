@@ -185,7 +185,9 @@ def build_from_world(world) -> KnowledgeGraph:
     target_id = g.add_node("TARGET", world.target or "", mode=world.mode)
 
     for url, ep in world.endpoints.items():
-        endpoint_id = g.add_node("ENDPOINT", url, status=ep.status, method=ep.method)
+        endpoint_id = g.add_node(
+            "ENDPOINT", url, status=ep.status, method=ep.method,
+            form_fields=list(ep.form_fields))
         g.add_edge(target_id, "HAS_ENDPOINT", endpoint_id)
         for param in ep.params:
             param_id = g.add_node("PARAM", f"{url}:{param}")
