@@ -114,6 +114,15 @@ def main(argv: list[str] | None = None) -> int:
                       help="folder hasil scan (berisi findings.json + audit.jsonl)")
     p_rt.add_argument("--out", help="file markdown tujuan (default: <from>/ENGAGEMENT-REPORT.md)")
 
+    p_own = sub.add_parser("own",
+                           help="bukti kepemilikan domain: hitung token + "
+                                "verifikasi DNS TXT / well-known (U10)")
+    p_own.add_argument("--target", required=True)
+    p_own.add_argument("--auth", required=True, help="dokumen otorisasi JSON")
+    p_own.add_argument("--channel", choices=["auto", "dns", "wellknown"],
+                       default="auto")
+    p_own.add_argument("--timeout", type=float, default=6.0)
+
     p_tiers = sub.add_parser("tiers", help="tier pack: 100 skills dalam 4 tingkat severity")
     p_tiers.add_argument("--build", action="store_true", help="generate file skill ke .kimchi/skills-tiers/")
     p_tiers.add_argument("--build-bounty", action="store_true", help="generate Bug Bounty pack (harvest 2026-09-06)")
@@ -374,6 +383,27 @@ def main(argv: list[str] | None = None) -> int:
             print(f"[cyphron] laporan: {out}")
             return 0
 
+        if args.command == "own":
+            from .guardrails.authorization import AuthorizationDocument
+            from .ownership import token_for, verify_ownership
+            doc = AuthorizationDocument.load(Path(args.auth))
+            token = token_for(doc)
+            print(f"[cyphron] host   : {args.target}")
+            print(f"[cyphron] token  : {token}")
+            print("[cyphron] publikasikan dengan salah satu kanal berikut:")
+            print(f"           DNS TXT  : <host> IN TXT \"{token}\"")
+            print(f"           wellknown: https://<host>/.well-known/"
+                  f"cyphron-verify.txt berisi token di baris pertama")
+            ok, detail = verify_ownership(args.target, doc,
+                                          channel=args.channel,
+                                          timeout=args.timeout)
+            if ok:
+                print(f"[cyphron] verdict: TERVERIFIKASI via {detail.get('method')}")
+                return 0
+            print(f"[cyphron] verdict: BELUM TERVERIFIKASI "
+                  f"({detail.get('error') or 'token tidak ditemukan'})")
+            return 1
+
         if args.command == "check":
             from .guardrails.authorization import (
                 AuthorizationDocument, AuthorizationGate, host_port_of)
@@ -406,6 +436,11 @@ def main(argv: list[str] | None = None) -> int:
         out_dir = Path(args.out)
         paths = write_reports(out_dir, opts, run.summary, run.world, run.audit)
         db_path = persist(out_dir, opts, run.summary, run.audit)
+        try:
+            from .ledger import record_scan
+            record_scan(out_dir)
+        except Exception:
+            pass  # ledger tidak boleh menggagalkan scan
         counts = run.summary.counts_by_severity()
         print()
         print(f"[cyphron] done in {run.summary.elapsed_s}s — mode={run.summary.mode}, "

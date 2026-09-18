@@ -97,9 +97,29 @@ def run_scan(opts: ScanOptions, verbose: bool = True) -> ScanRun:
 
     world = WorldModel()
     host, port = ("", 0) if is_local_path(opts.target) else host_port_of(opts.target)
-    # classify initial mode by testing what the gate would allow for active tools
     initial = gate.evaluate(host, port, {"active"})
     mode = initial.mode
+    # U10: bukti kepemilikan domain — bila dokumen menuntutnya (fail-closed)
+    if doc is not None and mode == "offensive" \
+            and bool(doc.raw.get("require_ownership")) \
+            and not is_local_path(opts.target):
+        from .ownership import verify_ownership
+        ok, detail = verify_ownership(
+            opts.target, doc,
+            channel=str(doc.raw.get("ownership_channel") or "auto"))
+        audit.append({"kind": "ownership-check", "ok": ok,
+                      "host": detail.get("host"), "method": detail.get("method"),
+                      "channel": detail.get("channel")})
+        if ok:
+            world.note(f"ownership proof OK via {detail.get('method')} "
+                       f"({detail.get('host')})")
+        else:
+            mode = "read-only"
+            initial = type(initial)(allowed=False, mode=mode,
+                                    reason="ownership proof gagal (fail-closed)",
+                                    auth_id=doc.id)
+            world.note("ownership proof GAGAL — mode ofensif ditolak, "
+                       "lanjut read-only")
     world.observe_target(opts.target, mode)
     audit.append({"kind": "scan-start", "target": opts.target, "mode": mode,
                   "reason": initial.reason})

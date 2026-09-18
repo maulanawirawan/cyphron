@@ -169,6 +169,32 @@
   </div>
 </div></section>
 
+<section id="verdict"><div class="wrap">
+  <div class="kicker">verdict ladder</div>
+  <h2>lead ≠ temuan. tidak ada klaim setengah jalan.</h2>
+  <p class="lead">setiap kandidat berhenti di satu level tangga keputusan.
+     hanya level 3 ke atas yang tampil sebagai temuan klien — selebihnya dilabel
+     <b>lead</b> dan tidak pernah dicampur.</p>
+  <div class="compare"><table>
+    <tr><th>level</th><th>arti</th><th>status</th></tr>
+    <tr><td>l0-l1</td><td>sinyal mentah / pola cocok</td><td>lead</td></tr>
+    <tr><td>l2</td><td>respons diferensial konsisten</td><td>lead</td></tr>
+    <tr><td>l3</td><td>bukti deterministik (marker/aritmetika/oob)</td><td>temuan</td></tr>
+    <tr><td>l4</td><td>dampak minimal terbukti</td><td>temuan</td></tr>
+    <tr><td>l5</td><td>validator independen reproduksi ulang</td><td>temuan</td></tr>
+  </table></div>
+  <div class="truth">
+    <h3>benchmark — angka, bukan slogan</h3>
+    <p>klaim pencocokan CVE: <b>high-confidence deterministic matching with
+       ambiguity rejection</b> — kasus ambigu ditolak (tercatat terpisah),
+       bukan ditebak. metrik precision/recall/f1, cpe- & version-resolution
+       dihitung dari pipeline nyata atas dataset gold dan diterbitkan apa adanya.</p>
+    <div class="term"><span class="c"># jalankan benchmark di mesinmu</span>
+<span class="a">python -m cyphron benchmark</span>
+<span class="c"># precision 1.00 · recall 1.00 · cpe-resolution 6/6 (fixture gold)</span></div>
+  </div>
+</div></section>
+
 <section id="pricing"><div class="wrap">
   <div class="kicker">Pricing</div>
   <h2>Tingkatan berdasarkan kemampuan — bukan sisa jatah.</h2>
@@ -194,9 +220,9 @@
   </div>
   <div class="compare"><table>
     <tr><th>Kenapa Cyphron</th><th>Artinya buat kamu</th></tr>
-    <tr><td>16 engine milik sendiri</td><td>Tidak bergantung tool luar</td></tr>
+    <tr><td>Seluruh engine + knowledge base NVD/EDB offline</td><td>Tidak bergantung tool luar</td></tr>
     <tr><td>Tanpa kredit & tanpa token</td><td>Scan sepuasnya, biaya tetap</td></tr>
-    <tr><td>FP-guard wajib per skill</td><td>Temuan dijamin TRUE</td></tr>
+    <tr><td>Verdict ladder + verifier bukti-basis</td><td>LEAD dan temuan terkonfirmasi tidak pernah dicampur</td></tr>
     <tr><td>Data tidak keluar dari mesin</td><td>Privasi penuh, jalan offline</td></tr>
     <tr><td>Fix packs + verify delta</td><td>Perbaikan terbukti, bukan janji</td></tr>
   </table></div>

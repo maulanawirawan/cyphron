@@ -128,9 +128,14 @@ aset pihak ketiga.
       temuan, engagement report + checklist pembersihan) + CLI
       `python -m cyphron redteam --from DIR`; katalog tradecraft lab
       (C2-simulation dsb.) menyusul di Fullpower [BARU]
-- [ ] U10 PRODUK/OPS: ownership proof (DNS TXT/well-known sebelum mode
+- [x] U10 PRODUK/OPS: ownership proof (DNS TXT/well-known sebelum mode
       ofensif diterima), usage ledger per scan, safe-update script,
-      landing v2 + demo 5 menit [BARU]
+      landing v2 + demo 5 menit — SEBAGIAN SELESAI: cyphron/ownership.py
+      (token deterministik dari dokumen otorisasi; kanal DNS TXT via DoH +
+      well-known; fail-closed turun read-only; CLI `own`), cyphron/ledger.py
+      (usage-ledger.jsonl per scan + agregasi), scripts/safe-update.sh
+      (gerbang suite dua kali + rollback otomatis), landing v2 (verdict
+      ladder + benchmark + KB section); demo 5 menit menyusul di B5 [BARU]
 - P2 (belakangan): Cloud/IAM/AD/K8s, mobile runtime penuh.
 
 ## 7. PAGAR
