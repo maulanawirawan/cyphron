@@ -129,7 +129,9 @@ aset pihak ketiga.
       coverage matrix fase x engine dengan gap jujur, deteksi-hint per
       temuan, engagement report + checklist pembersihan) + CLI
       `python -m cyphron redteam --from DIR`; katalog tradecraft lab
-      (C2-simulation dsb.) menyusul di Fullpower [BARU]
+      (C2-simulation dsb.) — SELESAI PENUH 19 Sep: redteam_lab.py
+      (RTL-01..12, c2-sim loopback berotorisasi, privesc read-only,
+      detection coverage purple-team) [BARU]
 - [x] U10 PRODUK/OPS: ownership proof (DNS TXT/well-known sebelum mode
       ofensif diterima), usage ledger per scan, safe-update script,
       landing v2 + demo 5 menit — SEBAGIAN SELESAI: cyphron/ownership.py
