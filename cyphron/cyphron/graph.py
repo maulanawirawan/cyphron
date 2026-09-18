@@ -18,7 +18,7 @@ import json
 import sqlite3
 
 __all__ = ["KnowledgeGraph", "build_from_world", "build_with_findings",
-           "attack_paths", "provenance", "queries"]
+           "attack_paths", "provenance", "queries", "to_svg"]
 
 
 class KnowledgeGraph:
@@ -308,6 +308,123 @@ def provenance(g: KnowledgeGraph, node_id: str, depth: int = 3) -> list[dict]:
         if not frontier:
             break
     return steps
+# ------------------------------------------------------------- v2: SVG (U7)
+_KIND_COLOR = {
+    "TARGET": "#0b334d", "ENDPOINT": "#1d4e6b", "PARAM": "#5a7684",
+    "VULNERABILITY": "#b01e1e", "EVIDENCE": "#1e7a68", "OBJECT": "#b07d1e",
+    "IDENTITY": "#5b3a8c", "ROLE": "#5b3a8c", "CREDENTIAL": "#5b3a8c",
+    "TECHNOLOGY": "#2b6b8f", "HYPOTHESIS": "#777777",
+}
+_KIND_COL = ["TARGET", "IDENTITY", "ROLE", "CREDENTIAL", "ENDPOINT",
+             "PARAM", "OBJECT", "TECHNOLOGY", "VULNERABILITY", "EVIDENCE",
+             "HYPOTHESIS"]
+
+
+def to_svg(g: "KnowledgeGraph", max_nodes: int = 30) -> str:
+    """Graph -> SVG sederhana (stdlib string, tanpa dependensi).
+
+    Layout deterministik: kolom per kind (urut alur Target -> Identity ->
+    Endpoint -> Object -> Vulnerability -> Evidence), baris urut id. Node
+    yang menyentuh VULNERABILITY diprioritaskan bila graph melebihi
+    max_nodes. Dipakai laporan PDF (graph.db/graph.svg artifact) sebagai
+    jawaban visual 'sampai sini lewat apa'."""
+    nodes = g.nodes()
+    if not nodes:
+        return ('<svg xmlns="http://www.w3.org/2000/svg" width="420" '
+                'height="60"><text x="10" y="34" font-size="13">'
+                'graph kosong</text></svg>')
+
+    vulns = [n["id"] for n in nodes if n["kind"] == "VULNERABILITY"]
+    keep: set[str] = set()
+    if vulns:
+        # BFS dua arah dari vulnerability: provenance + bukti ikut tergambar
+        frontier = list(vulns)
+        keep.update(vulns)
+        while frontier and len(keep) < max_nodes:
+            nxt: list[str] = []
+            for nid in frontier:
+                for e in g.edges():
+                    if e["dst"] == nid and e["src"] not in keep:
+                        keep.add(e["src"])
+                        nxt.append(e["src"])
+                    elif e["src"] == nid and e["dst"] not in keep:
+                        keep.add(e["dst"])
+                        nxt.append(e["dst"])
+                if len(keep) >= max_nodes:
+                    break
+            frontier = nxt
+    for n in sorted(nodes, key=lambda x: x["id"]):
+        if len(keep) >= max_nodes:
+            break
+        keep.add(n["id"])
+
+    selected = [n for n in nodes if n["id"] in keep]
+    col_of = {k: i for i, k in enumerate(_KIND_COL)}
+    buckets: dict[int, list[dict]] = {}
+    for n in selected:
+        buckets.setdefault(col_of.get(n["kind"], len(_KIND_COL)), []).append(n)
+    max_col = max(buckets)
+    max_rows = max(len(v) for v in buckets.values())
+
+    box_w, box_h, gap_x, gap_y = 168.0, 34.0, 46.0, 16.0
+    width = 20 + int((max_col + 1) * (box_w + gap_x))
+    height = 30 + int(max_rows * (box_h + gap_y))
+    pos: dict[str, tuple[float, float]] = {}
+    parts = [
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" '
+        f'height="{height}" viewBox="0 0 {width} {height}" '
+        f'font-family="Helvetica,Arial,sans-serif">',
+        f'<rect width="{width}" height="{height}" fill="#ffffff"/>',
+    ]
+    for col in sorted(buckets):
+        for row, n in enumerate(sorted(buckets[col], key=lambda x: x["id"])):
+            x = 20 + col * (box_w + gap_x)
+            y = 20 + row * (box_h + gap_y)
+            pos[n["id"]] = (x, y)
+    # edges dulu (di bawah box)
+    for e in sorted(g.edges(), key=lambda x: (x["src"], x["rel"], x["dst"])):
+        if e["src"] not in pos or e["dst"] not in pos:
+            continue
+        sx, sy = pos[e["src"]]
+        dx, dy = pos[e["dst"]]
+        x1, y1 = sx + box_w, sy + box_h / 2
+        x2, y2 = dx, dy + box_h / 2
+        if abs(y1 - y2) < 2:
+            y2 = y1
+        color = "#9aa7ad"
+        if e["rel"] in ("EXPOSES", "TARGETS", "REACHED_VIA"):
+            color = "#b01e1e"
+        elif e["rel"] in ("VERIFIED_BY", "ACCESSES"):
+            color = "#1e7a68"
+        parts.append(
+            f'<path d="M {x1} {y1} C {x1 + gap_x / 2} {y1}, '
+            f'{x2 - gap_x / 2} {y2}, {x2 - 6} {y2}" fill="none" '
+            f'stroke="{color}" stroke-width="1.1"/>')
+        parts.append(
+            f'<polygon points="{x2},{y2} {x2 - 6},{y2 - 3} '
+            f'{x2 - 6},{y2 + 3}" fill="{color}"/>')
+    # node boxes
+    for nid, (x, y) in sorted(pos.items(), key=lambda kv: kv[1]):
+        n = g._nodes.get(nid) or {"kind": nid.split(":", 1)[0], "props": {}}
+        color = _KIND_COLOR.get(n["kind"], "#777777")
+        key = nid.split(":", 1)[-1]
+        key = (key[:24] + "...") if len(key) > 26 else key
+        parts.append(
+            f'<rect x="{x}" y="{y}" width="{box_w}" height="{box_h}" '
+            f'rx="5" fill="#f5f7f8" stroke="{color}" stroke-width="1.4"/>')
+        parts.append(
+            f'<rect x="{x}" y="{y}" width="{box_w}" height="5" rx="2" '
+            f'fill="{color}"/>')
+        parts.append(
+            f'<text x="{x + 8}" y="{y + 17}" font-size="9.5" '
+            f'font-weight="bold" fill="{color}">{n["kind"]}</text>')
+        parts.append(
+            f'<text x="{x + 8}" y="{y + 29}" font-size="8.5" '
+            f'fill="#333">{key}</text>')
+    parts.append("</svg>")
+    return "\n".join(parts)
+
+
 def _node_key(node_id: str) -> str:
     """Ambil key asli dari node_id (bagian setelah kind prefix pertama)."""
     return node_id.split(":", 1)[1] if ":" in node_id else node_id

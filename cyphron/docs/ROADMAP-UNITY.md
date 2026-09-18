@@ -113,8 +113,12 @@ aset pihak ketiga.
       docs/BENCHMARK.md + sweep bahasa klaim di README/landing/god_report/
       reporting (test anti-klaim-terlarang); adaptive path/payload menyusul
       [CAMPURAN]
-- [ ] U7 PDF god-tier sempurna (template brandable, exec summary, path graph
-      visual, tak setengah jalan) [UPGRADE]
+- [x] U7 PDF god-tier sempurna (template brandable, exec summary, path graph
+      visual, tak setengah jalan) — SELESAI: halaman cover penuh brandable,
+      verdict ladder visual LEAD vs TEMUAN (chip L0-L5 di tiap kartu temuan),
+      ringkasan CVSS per severity, path graph vektor (PDF) + artifact
+      graph.svg (graph.to_svg) dari temuan+world — sumber tunggal findings +
+      world model [UPGRADE]
 - [ ] U9 RED-TEAM WORKSTREAM: katalog tradecraft berotorisasi (initial-access
       demo, C2-simulation lab, persistence-matrix, privesc playbook,
       lateral-movement), tag MITRE-lite per engine (coverage matriks),

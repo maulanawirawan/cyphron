@@ -10,7 +10,11 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from . import docxout, pdfout
+from . import verdicts as _verdicts
 from .guardrails.authorization import AuditLog
+from .graph import attack_paths as _graph_attack_paths
+from .graph import build_with_findings as _graph_with_findings
+from .graph import to_svg as _graph_svg
 from .orchestrator import ScanOptions, ScanSummary
 from .world.model import WorldModel
 
@@ -18,6 +22,11 @@ _SEV_ORDER = ("critical", "high", "medium", "low", "info")
 _SEV_ID = {"critical": "Kritis", "high": "Tinggi", "medium": "Sedang", "low": "Rendah", "info": "Info"}
 _CVSS_BAND = {"critical": "9.0 - 10.0", "high": "7.0 - 8.9", "medium": "4.0 - 6.9",
               "low": "0.1 - 3.9", "info": "0.0"}
+_SEV_DEF = {"critical": "Eksploitasi trivial, dampak total (RCE/akses penuh)",
+            "high": "Dampak besar dengan syarat terbatas (akun/data sensitif)",
+            "medium": "Berbutuh kondisi khusus; dampak terbatas atau terkurung",
+            "low": "Perkuatan postur; dampak kecil per insiden",
+            "info": "Observasi/informasi; bukan kerentanan"}
 _CLASS_ID = {"exploitable": "Kerentanan dapat dieksploitasi", "weakness": "Kelemahan konfigurasi",
              "posture": "Postur keamanan (bukan exploit)", "surface": "Pengungkapan attack surface",
              "info": "Observasi"}
@@ -95,6 +104,15 @@ def write_reports(out_dir: Path, opts: ScanOptions, summary: ScanSummary,
     except Exception:
         pass
 
+    # U7: path graph SVG dari temuan + world (jawaban visual "sampai sini
+    # lewat apa") — satu sumber data dengan laporan
+    try:
+        g2 = _graph_with_findings(world, list(summary.confirmed)
+                                  + list(summary.unconfirmed))
+        (out_dir / "graph.svg").write_text(_graph_svg(g2), encoding="utf-8")
+    except Exception:
+        pass
+
     pdf_path = out_dir / "report.pdf"
     doc = _build_doc(opts, summary, world, audit, blocks)
     pdf_path.write_bytes(pdfout.render_report(doc))
@@ -116,6 +134,22 @@ def _build_doc(opts: ScanOptions, s: ScanSummary, w: WorldModel, audit: AuditLog
     now = datetime.now(timezone.utc).strftime("%d %B %Y, %H:%M UTC")
     ref = "CYPHRON-" + hashlib.sha256(
         f"{opts.target}{s.steps_executed}{now}".encode()).hexdigest()[:10].upper()
+
+    # ---- U7: verdict ladder per temuan (LEAD vs VERIFIED) + path graph ----
+    ladder_of = {f.id: _verdicts.verdict_of(f)
+                 for f in list(s.confirmed) + list(s.unconfirmed)}
+    graph_paths: list[list[dict]] = []
+    try:
+        g2 = _graph_with_findings(w, list(s.confirmed) + list(s.unconfirmed))
+        for vid in [n["id"] for n in g2.nodes("VULNERABILITY")][:4]:
+            for pth in _graph_attack_paths(g2, f"TARGET:{opts.target}", vid,
+                                           max_hops=8, max_paths=1):
+                graph_paths.append([
+                    {"kind": nid.split(":", 1)[0],
+                     "key": nid.split(":", 1)[1] if ":" in nid else nid}
+                    for nid in pth])
+    except Exception:
+        graph_paths = []
 
     if counts["critical"]:
         chip = {"text": "RISIKO KRITIKAL - SEGERA TANGANI", "kind": "red"}
@@ -193,6 +227,7 @@ def _build_doc(opts: ScanOptions, s: ScanSummary, w: WorldModel, audit: AuditLog
                      "gagal memenuhi standar bukti dikeluarkan dari daftar temuan dan "
                      "dilaporkan terpisah sebagai observasi."),
         },
+        "full_cover": True,
         "sections": [
             {"no": "01", "title": "RINGKASAN EKSEKUTIF", "kind": "generic", "blocks": [
                 ("box", (f"Pengujian menemukan {len(s.confirmed)} temuan terkonfirmasi dan "
@@ -204,6 +239,8 @@ def _build_doc(opts: ScanOptions, s: ScanSummary, w: WorldModel, audit: AuditLog
                          f"{s.steps_executed} langkah planner, {w.request_count} request, "
                          f"durasi {s.elapsed_s:.0f} detik; {s.refused_actions} aksi ditolak gate."),
             ]},
+            {"no": "01b", "title": "VERDICT LADDER - LEAD vs TEMUAN KLIEN",
+             "kind": "ladder"},
             {"no": "02", "title": "KEPUTUSAN (VERDICT) PER AREA",
              "kind": "table",
              "head": ["No", "Area / Temuan", "Verdict", "Tingkat", "Klasifikasi"],
@@ -212,6 +249,13 @@ def _build_doc(opts: ScanOptions, s: ScanSummary, w: WorldModel, audit: AuditLog
                  "-", f"{len(clean_tools)} engine lain (lihat rincian bagian 04)",
                  "TIDAK DITEMUKAN", "BERSIH"]])
              or [["-", "Semua area yang diuji", "TIDAK DITEMUKAN", "BERSIH"]]},
+            {"no": "02b", "title": "RINGKASAN CVSS v3.1 PER SEVERITY", "kind": "table",
+             "head": ["Severity", "Jumlah temuan", "Band CVSS", "Definisi ringkas"],
+             "widths": [1.4, 1.3, 1.5, 4.4],
+             "rows": [
+                 [_SEV_ID[sev].upper(), str(counts[sev]), _CVSS_BAND[sev],
+                  _SEV_DEF[sev]]
+                 for sev in _SEV_ORDER]},
             {"no": "03", "title": "HIPOTESIS & KEPUTUSAN PLANNER", "kind": "table",
              "head": ["ID", "Hipotesis", "Bukti di world model", "Keputusan", "Conf", "Budget"],
              "widths": [0.9, 2.9, 2.4, 1.9, 0.7, 0.7],
@@ -238,9 +282,12 @@ def _build_doc(opts: ScanOptions, s: ScanSummary, w: WorldModel, audit: AuditLog
              "rows": [[c["name"], chr(10).join("-> " + s for s in c["steps"]),
                        f"{c['confidence']:.0%}"] for c in chains]
                       or [["Tidak ada rantai lintas-temuan pada run ini", "-", "-"]]},
+            {"no": "04c", "title": "PATH GRAPH (SAMPAI SINI LEWAT APA)",
+             "kind": "graph", "paths": graph_paths},
             {"no": "04", "title": "DETAIL TEMUAN TERKONFIRMASI", "kind": "findings", "items": [
                 {"sev": f.severity, "title": f.title,
                  "verdict": "ADA - TERKONFIRMASI",
+                 "ladder": ladder_of.get(f.id, 3),
                  "meta": (f"Klasifikasi: {_class_of(f)} | Tool: {f.tool} | CWE: {f.cwe or '-'} | Confidence: "
                           f"{f.confidence:.0%} | Skill: {f.source_skill or '-'} | "
                           f"CVSS band: {_CVSS_BAND[f.severity]}"

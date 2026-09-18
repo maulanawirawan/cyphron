@@ -39,6 +39,32 @@ SEV_CHIP = {  # label, warna teks, warna surface
 }
 SEV_ORDER = ("critical", "high", "medium", "low", "info")
 
+# ---- U7: verdict ladder (LEAD vs VERIFIED) ----
+LADDER_CHIP = {
+    -1: ("L-x REJECTED", C["muted"], C["surface"]),
+    0: ("L0 OBSERVED - LEAD", C["muted"], C["surface"]),
+    1: ("L1 SUSPECTED - LEAD", C["muted"], C["surface"]),
+    2: ("L2 REPRODUCED - LEAD", C["amber"], C["amber_surface"]),
+    3: ("L3 DETERMINISTIC VERIFIED", C["teal"], C["teal_surface"]),
+    4: ("L4 IMPACT VERIFIED", C["teal"], C["teal_surface"]),
+    5: ("L5 BLIND-VALIDATED", C["green"], C["teal_surface"]),
+}
+LADDER_DESC = [
+    ("L0 OBSERVED", "sinyal mentah - bukan klaim", "lead"),
+    ("L1 SUSPECTED", "pola cocok + konteks - masih LEAD", "lead"),
+    ("L2 REPRODUCED", "respons diferensial konsisten - LEAD", "lead"),
+    ("L3 DETERMINISTICALLY VERIFIED", "bukti aritmetika/marker/OOB - TEMUAN", "ok"),
+    ("L4 IMPACT VERIFIED", "dampak minimal terbukti - TEMUAN", "ok"),
+    ("L5 BLIND-VALIDATED", "validator independen reproduksi ulang - TEMUAN", "ok"),
+]
+NODE_COLOR = {
+    "TARGET": C["navy"], "ENDPOINT": (0.12, 0.31, 0.42),
+    "PARAM": C["muted"], "VULNERABILITY": C["red"], "EVIDENCE": C["teal"],
+    "OBJECT": (0.69, 0.49, 0.12), "IDENTITY": (0.36, 0.23, 0.55),
+    "ROLE": (0.36, 0.23, 0.55), "CREDENTIAL": (0.36, 0.23, 0.55),
+    "TECHNOLOGY": (0.17, 0.42, 0.56), "HYPOTHESIS": C["muted"],
+}
+
 _FW = {"F1": 0.505, "F2": 0.535, "F3": 0.60}  # lebar rata-rata per char / size
 
 
@@ -242,7 +268,8 @@ class _Page:
 
     def finding(self, idx: str, sev: str, title: str, verdict: str,
                 meta: str, desc: str, req: str | None, resp: str | None,
-                poc: str | None, rec: str | None) -> None:
+                poc: str | None, rec: str | None,
+                ladder: int | None = None) -> None:
         chip_label, fg, bg = SEV_CHIP.get(sev, SEV_CHIP["info"])
         # KEEP-TOGETHER: hitung tinggi total kartu; jika tak muat di sisa
         # halaman, pindah halaman SEKALI di depan -> kartu tidak pernah terbelah
@@ -269,6 +296,11 @@ class _Page:
         if verdict.startswith("TIDAK"):
             vx, vw = C["teal"], C["teal_surface"]
         self.chip(x, self.y - 12, verdict, vx, vw)
+        if ladder is not None:
+            l_label, l_fg, l_bg = LADDER_CHIP.get(ladder, LADDER_CHIP[0])
+            lw = _FW["F2"] * 8.2 * len(l_label) + 14
+            self.chip(PAGE_W - MARGIN - lw, self.y - 12, l_label, l_fg, l_bg,
+                      size=8.2)
         self.y -= 26
         self.para(MARGIN, USABLE, title, "F2", 10.6, gap=3)
         if meta:
@@ -291,6 +323,118 @@ class _Page:
             self.callout("PERBAIKAN", rec, C["teal"], C["teal_surface"])
         self.strict = False
         self.y -= 10
+
+
+    # ------------------------------------------------- U7: ladder & graph
+    def ladder(self) -> None:
+        """Verdict ladder 0-5 dengan label LEAD vs TEMUAN yang tegas."""
+        for label, desc, kind in LADDER_DESC:
+            self.break_if(22)
+            h = 19.0
+            ok = kind == "ok"
+            bg = C["teal_surface"] if ok else C["surface"]
+            bar = C["teal"] if ok else (0.62, 0.64, 0.65)
+            self.rect(MARGIN, self.y - h, USABLE, h, bg)
+            self.rect(MARGIN, self.y - h, 3.2, h, bar)
+            w_chip = _FW["F2"] * 8.4 * len(label) + 12
+            self.rect(MARGIN + 10, self.y - h + 3.5, w_chip, 12.5,
+                      C["white"])
+            self.text(MARGIN + 15, self.y - h + 6.5, "F2", 8.4,
+                      C["teal"] if ok else C["muted"], label)
+            self.text(MARGIN + 10 + w_chip + 12, self.y - h + 6.5, "F1", 8.6,
+                      C["ink"], desc)
+            self.y -= h + 3.5
+        self.y -= 4
+
+    def graph_paths(self, paths: list[list[dict]], max_paths: int = 6) -> None:
+        """Attack path diagram vektor: tiap path = rantai kotak node
+        berwarna per kind dengan panah antar node."""
+        for k, path in enumerate(paths[:max_paths], 1):
+            n = max(len(path), 1)
+            self.break_if(72)
+            self.text(MARGIN, self.y, "F2", 8.6, C["navy"],
+                      f"PATH-{k} ({n} node)")
+            self.y -= 10
+            gap = 14.0
+            box_w = min(118.0, (USABLE - gap * (n - 1)) / n)
+            box_h = 30.0
+            x = MARGIN
+            for i, node in enumerate(path):
+                kind = str(node.get("kind", "")).upper()
+                key = str(node.get("key", ""))[:16]
+                color = NODE_COLOR.get(kind, C["muted"])
+                if self.y - box_h < MARGIN + 40:
+                    self.new_page()
+                self.rect(x, self.y - box_h, box_w, box_h,
+                          C["navy_soft"])
+                self.rect(x, self.y - box_h, box_w, 2.2, color)
+                label_lines = _wrap(kind or "?", "F2", 6.8, box_w - 8)[:1]
+                self.text(x + 5, self.y - 11.5, "F2", 6.8, color,
+                          label_lines[0] if label_lines else "")
+                key_lines = _wrap(key, "F1", 6.4, box_w - 8)[:2]
+                yy = self.y - 20.5
+                for ln in key_lines:
+                    self.text(x + 5, yy, "F1", 6.4, C["ink"], ln)
+                    yy -= 7.8
+                if i < n - 1:
+                    ax = x + box_w
+                    self.line(ax + 1.5, self.y - box_h / 2,
+                              ax + gap - 3.5, self.y - box_h / 2,
+                              color, 1.0)
+                    self.rect(ax + gap - 4.5, self.y - box_h / 2 - 1.6,
+                              2.4, 3.2, color)
+                x += box_w + gap
+            self.y -= box_h + 9
+        self.y -= 2
+
+    def full_cover(self, doc: dict) -> None:
+        """Halaman cover penuh brandable (U7): band navy, brand, judul,
+        chip, meta ringkas, disclaimer verdict ladder di dasar."""
+        band_h = 190.0
+        self.rect(0, PAGE_H - band_h, PAGE_W, band_h, C["navy"])
+        self.rect(0, PAGE_H - band_h - 5, PAGE_W, 5, C["amber"])
+        self.rect(MARGIN, PAGE_H - 120, 44, 44, C["white"])
+        self.text(MARGIN + 15, PAGE_H - 105, "F2", 22, C["navy"], "C")
+        self.text(MARGIN + 60, PAGE_H - 88, "F2", 24, C["white"],
+                  doc.get("brand", "CYPHRON"))
+        self.text(MARGIN + 60, PAGE_H - 108, "F1", 9,
+                  (0.78, 0.85, 0.90),
+                  doc.get("brand_sub", "SECURITY ASSESSMENT - DOKUMEN TERKENDALI"))
+        chip = doc.get("chip") or {"text": "LAPORAN", "kind": "teal"}
+        colors = {"teal": (C["teal"], C["teal_surface"]),
+                  "amber": (C["amber"], C["amber_surface"]),
+                  "red": (C["red"], C["red_surface"])}
+        fg, bg = colors.get(chip["kind"], colors["teal"])
+        cw = _FW["F2"] * 8.6 * len(chip["text"]) + 16
+        self.rect(MARGIN, PAGE_H - band_h - 40, cw, 20, bg)
+        self.text(MARGIN + 8, PAGE_H - band_h - 27, "F2", 8.6, fg,
+                  chip["text"])
+        self.y = PAGE_H - band_h - 90
+        self.para(MARGIN, USABLE, doc.get("title", "Laporan Uji Keamanan"),
+                  "F2", 21, C["navy"], gap=6)
+        if doc.get("doc_title"):
+            self.para(MARGIN, USABLE, doc["doc_title"], "F1", 11.5,
+                      C["ink"], gap=10)
+        if doc.get("subtitle"):
+            self.para(MARGIN, USABLE, doc["subtitle"], "F1", 9.5,
+                      C["muted"], gap=8)
+        meta_rows = list(doc.get("meta") or [])[:5]
+        for k, v in meta_rows:
+            self.break_if(14)
+            self.text(MARGIN, self.y, "F2", 8.4, C["muted"], str(k))
+            self.text(MARGIN + 120, self.y, "F1", 8.6, C["ink"],
+                      _wrap(str(v), "F1", 8.6, USABLE - 130)[0])
+            self.y -= 13.5
+        self.y = MARGIN + 66
+        self.line(MARGIN, self.y, PAGE_W - MARGIN, self.y, C["line"], 0.7)
+        self.y -= 12
+        self.para(MARGIN, USABLE,
+                  "Aturan verdict: hanya level >= 3 (deterministically "
+                  "verified ke atas) yang tampil sebagai temuan klien. "
+                  "Indikasi level 0-2 dilabel LEAD dan tidak dihitung "
+                  "sebagai temuan. Tidak ada klaim setengah jalan.",
+                  "F1", 8.2, C["muted"])
+        self.new_page()
 
 
 def _decorate(p: _Page, brand: str, doc_title: str) -> None:
@@ -318,6 +462,10 @@ def render_report(doc: dict) -> bytes:
     ref = doc.get("ref", "CYPHRON")
     p = _Page(f"{ref} - dokumen terkendali - dihasilkan otomatis oleh Cyphron Core")
     brand, doc_title = doc.get("brand", "CYPHRON"), doc.get("doc_title", "Security Assessment")
+
+    # ---- U7: halaman cover penuh (opsional) ----
+    if doc.get("full_cover"):
+        p.full_cover(doc)
 
     # ---- cover header ----
     p.rect(MARGIN, p.y - 40, 34, 34, C["navy"])
@@ -348,6 +496,10 @@ def render_report(doc: dict) -> bytes:
         kind = sec.get("kind", "generic")
         if kind == "table":
             p.data_table(sec["head"], sec["rows"], sec["widths"])
+        elif kind == "ladder":
+            p.ladder()
+        elif kind == "graph":
+            p.graph_paths(sec.get("paths") or [])
         elif kind == "findings":
             items = sec.get("items", [])
             if not items:
@@ -357,7 +509,8 @@ def render_report(doc: dict) -> bytes:
                 p.finding(sec["no"] + "." + str(i), f.get("sev", "info"),
                           f.get("title", ""), f.get("verdict", "TERKONFIRMASI ADA"),
                           f.get("meta", ""), f.get("desc", ""), f.get("req"),
-                          f.get("resp"), f.get("poc"), f.get("rec"))
+                          f.get("resp"), f.get("poc"), f.get("rec"),
+                          ladder=f.get("ladder"))
         else:
             for style, text in sec.get("blocks", []):
                 if style == "box":
