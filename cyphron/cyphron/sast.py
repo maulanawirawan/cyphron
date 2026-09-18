@@ -32,6 +32,9 @@ import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from .languages import LANGUAGES as _FLEET_LANGS
+from .languages import _sink_rows as _fleet_sink_rows
+
 # ------------------------------------------------------------------ model
 @dataclass
 class SastFinding:
@@ -228,9 +231,42 @@ JS_CPP_RULES: list[Rule] = [
 ALL_RULES = {r.id: r for r in CORE_RULES + JS_CPP_RULES}
 
 _LANG_BY_SUFFIX = {
-    ".py": "python", ".js": "js", ".mjs": "js", ".ts": "ts",
-    ".c": "c", ".h": "c", ".cpp": "cpp", ".cc": "cpp", ".hpp": "cpp",
+    ".py": "python", ".pyw": "python",
+    ".js": "js", ".mjs": "js", ".cjs": "js", ".ts": "ts", ".tsx": "ts",
+    ".mts": "ts",
+    ".c": "c", ".h": "c", ".cpp": "cpp", ".cc": "cpp", ".cxx": "cpp",
+    ".hpp": "cpp", ".hh": "cpp",
+    ".java": "java", ".kt": "kotlin", ".kts": "kotlin", ".scala": "scala",
+    ".groovy": "groovy", ".clj": "clojure", ".cljs": "clojure",
+    ".cljc": "clojure",
+    ".cs": "csharp", ".fs": "fsharp", ".fsx": "fsharp", ".vb": "visualbasic",
+    ".go": "go", ".rs": "rust", ".swift": "swift", ".dart": "dart",
+    ".php": "php", ".rb": "ruby", ".pl": "perl", ".pm": "perl",
+    ".lua": "lua", ".r": "r", ".jl": "julia",
+    ".f90": "fortran", ".f95": "fortran", ".f": "fortran", ".for": "fortran",
+    ".pas": "pascal", ".dpr": "pascal", ".hs": "haskell", ".ml": "ocaml",
+    ".mli": "ocaml", ".erl": "erlang", ".hrl": "erlang", ".ex": "elixir",
+    ".exs": "elixir", ".zig": "zig", ".nim": "nim", ".cr": "crystal",
+    ".d": "d", ".ps1": "powershell", ".psm1": "powershell",
+    ".sh": "shell", ".bash": "shell", ".sql": "sql", ".coffee": "coffeescript",
 }
+
+
+def _fleet_rules(lang: str) -> list[Rule]:
+    """Sink-rules per bahasa dari Language Fleet (B6) — regex konservatif,
+    confidence ditandai jujur lebih rendah daripada AST Python."""
+    lang_obj = _FLEET_LANGS.get(lang)
+    if not lang_obj or not lang_obj.sink_rules:
+        return []
+    out = []
+    for regex, suffix, message, severity in _fleet_sink_rows(lang_obj):
+        out.append(Rule(
+            id=f"FL-{lang.upper()}-{suffix}", message=message,
+            severity=severity, cwe="CWE-78", languages=(lang,), spec=None,
+            regex=regex, confidence=0.65,
+            fix="validasi/allowlist argumen; hindari membangun string shell "
+                "dari input"))
+    return out
 
 
 # ------------------------------------------------------------ taint python
@@ -419,6 +455,10 @@ def scan_file(path: Path, rules: list[Rule]) -> list[SastFinding]:
                             str(path), i, i, rule.confidence, rule.fix))
         findings.extend(taint_scan(tree, lines))
     else:
+        # js/ts/c/cpp sudah dicakup JS_CPP_RULES — fleet hanya menambah
+        # bahasa baru (30+) supaya tidak ada temuan ganda
+        if lang not in ("js", "ts", "c", "cpp"):
+            rules = list(rules) + _fleet_rules(lang)
         for rule in rules:
             if lang not in rule.languages or not rule.regex:
                 continue

@@ -1,0 +1,12 @@
+{
+  "name": "java_note",
+  "description": "Fixture adapter test (JVM): javac -d + java -cp membuktikan jalur compile-and-run adapter di bahasa JVM",
+  "language": "java",
+  "runtime": "java",
+  "entry": "Main.java",
+  "build": "{compiler} -d {out} {src}",
+  "run": "java -cp {out} Main",
+  "risk_tags": ["local"],
+  "network": false,
+  "timeout_s": 30
+}

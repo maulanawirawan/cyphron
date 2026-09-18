@@ -119,6 +119,24 @@ Yang bikin researcher/produk "dilirik" korporat — terbukti dari data:
   tabel benchmark (Precision/Recall/F1, CPE & version resolution accuracy,
   exploit-validation rate). Selaras ROADMAP-UNITY §4.
 
+## 2g. LANGUAGE FLEET — 36 bahasa (B6, selesai 19 Sep)
+- Registry `languages.py`: 36 bahasa (python, js, ts, java, kotlin, scala,
+  groovy, clojure, c, cpp, csharp, fsharp, vb, go, rust, swift, dart, php,
+  ruby, perl, lua, r, julia, fortran, pascal, haskell, ocaml, erlang,
+  elixir, zig, nim, crystal, d, powershell, shell, sql) dengan ekstensi +
+  fingerprint isi + shebang + sink-rules + runtime binary kandidat.
+- Deteksi otomatis zero-FP: ekstensi = sinyal kuat, konten menambah skor;
+  dua kandidat berdekatan tanpa ekstensi = AMBIGU DITOLAK (bukan ditebak).
+- SAST: sink-rules per bahasa (command injection/deser/eval/dynamic exec)
+  menyatu ke sast.py; bahasa non-AST dilabel confidence lebih rendah (jujur).
+- Runtime fleet: adapter B1 kini tahu binary tiap bahasa; JVM end-to-end
+  terbukti (javac -d + java -cp fixture adapter).
+- lang-sync: hash knowledge pack versioned + deteksi versi runtime terpasang
+  (--version, tanpa instal); CLI `lang-scan` / `lang-sync`. Auto-update =
+  update pack via repo; kompiler TIDAK diinstal otomatis.
+- Lesson AV: fixture uji berisi pola webshell literal membuat Defender
+  mengkarantina file test — payload dipecah string + test penjaga AV-safe.
+
 ## 3. SHOWCASE ARTIFACTS (cara dilirik)
 - Landing/demo page Cyphron (folder landing/ sudah ada) + demo 5-menit script.
 - Publikasi riset: kasus kamipex/GAMBLER (dengan izin user, redaksi data pribadi).
@@ -151,3 +169,5 @@ Yang bikin researcher/produk "dilirik" korporat — terbukti dari data:
 - [x] B5: Showcase artifacts (studi kasus GAMBLER ter-redaksi + DEMO-5-MENIT
       + DEMO-VIDEO-3MENIT + INDEX docs) — commit ini.
 - Tiap batch: test offline, suite hijau, commit+push per batch. ✅
+- [x] B6 (19 Sep): Language Fleet 36 bahasa (§2g) + red-team lab expansion
+      (RTL-01..12, c2-sim loopback, privesc read-only — Unity U9 full).

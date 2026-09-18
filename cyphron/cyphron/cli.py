@@ -195,6 +195,17 @@ def main(argv: list[str] | None = None) -> int:
     p_c2.add_argument("--interval", type=float, default=0.2)
     p_c2.add_argument("--out", help="tulis hasil simulasi ke file JSON")
 
+    p_lang = sub.add_parser("lang-scan",
+                            help="inventaris bahasa repo (deteksi otomatis "
+                                 "36 bahasa) + runtime terpasang + versi")
+    p_lang.add_argument("--path", required=True)
+    p_lang.add_argument("--out", help="tulis inventaris ke JSON")
+
+    p_sync = sub.add_parser("lang-sync",
+                            help="lang-sync: hash knowledge pack versioned "
+                                 "+ deteksi versi runtime (TANPA instal apa pun)")
+    p_sync.add_argument("--out", help="tulis inventaris ke JSON")
+
     p_tiers = sub.add_parser("tiers", help="tier pack: 100 skills dalam 4 tingkat severity")
     p_tiers.add_argument("--build", action="store_true", help="generate file skill ke .kimchi/skills-tiers/")
     p_tiers.add_argument("--build-bounty", action="store_true", help="generate Bug Bounty pack (harvest 2026-09-06)")
@@ -708,6 +719,59 @@ def main(argv: list[str] | None = None) -> int:
                                                      ensure_ascii=False),
                                           encoding="utf-8")
                 print(f"[cyphron] timeline -> {args.out}")
+            return 0
+
+        if args.command == "lang-scan":
+            from .languages import detect_language, sync_inventory, installed_count
+            root = Path(args.path)
+            counts: dict[str, int] = {}
+            ambiguous = 0
+            suffixes = {".py", ".js", ".mjs", ".cjs", ".ts", ".tsx", ".java",
+                        ".kt", ".scala", ".groovy", ".clj", ".cs", ".fs",
+                        ".vb", ".go", ".rs", ".swift", ".dart", ".php",
+                        ".rb", ".pl", ".lua", ".r", ".jl", ".f90", ".pas",
+                        ".hs", ".ml", ".erl", ".ex", ".zig", ".nim", ".cr",
+                        ".d", ".ps1", ".sh", ".sql", ".c", ".cpp", ".h",
+                        ".hpp", ".coffee"}
+            files = ([root] if root.is_file() else
+                     [p for p in sorted(root.rglob("*"))
+                      if p.is_file() and ".git" not in p.parts
+                      and "__pycache__" not in p.parts
+                      and "kb/data" not in str(p)
+                      and p.suffix.lower() in suffixes])
+            for p in files:
+                det = detect_language("", str(p))
+                if det["language"]:
+                    counts[det["language"]] = counts.get(det["language"], 0) + 1
+                elif det["ambiguous"]:
+                    ambiguous += 1
+            inv = sync_inventory(Path(args.out) if args.out else None)
+            have, total = installed_count(inv)
+            print(f"[cyphron] lang-scan: {len(files)} berkas teridentifikasi "
+                  f"di {len(counts)} bahasa (ambigu ditolak: {ambiguous})")
+            for lid, n in sorted(counts.items(), key=lambda kv: -kv[1])[:15]:
+                print(f"  {lid:14} {n}")
+            print(f"[cyphron] runtime terpasang: {have}/{total} bahasa "
+                  f"punya toolchain di mesin ini")
+            for lid, info in sorted(inv["runtimes"].items()):
+                if info.get("binary"):
+                    print(f"  {lid:14} {info.get('version') or '?'} "
+                          f"({info['binary']})")
+            return 0
+
+        if args.command == "lang-sync":
+            from .languages import sync_inventory, installed_count
+            inv = sync_inventory(Path(args.out) if args.out else None)
+            have, total = installed_count(inv)
+            print(f"[cyphron] lang-sync: knowledge pack sha:{inv['knowledge_sha256_16']} "
+                  f"({inv['languages']} bahasa)")
+            print(f"[cyphron] runtime: {have}/{total} terpasang")
+            for lid, info in sorted(inv["runtimes"].items()):
+                status = f"{info.get('version') or 'terpasang'}" \
+                    if info.get("binary") else "absen (engine terkait skip anggun)"
+                print(f"  {lid:14} {status}")
+            print("[cyphron] catatan: auto-update = update knowledge pack ini "
+                  "via repo (hash di atas); kompiler TIDAK diinstal otomatis")
             return 0
 
         if args.command == "check":
