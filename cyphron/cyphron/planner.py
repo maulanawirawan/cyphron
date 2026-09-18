@@ -816,6 +816,16 @@ class DeterministicPlanner:
             self._once(Step("priv_matrix", {"url": target},
                             "privilege matrix: user sees admin panel?",
                             "active-testing", 1, "H-idor"))
+            self._once(Step("identity_matrix", {"url": target},
+                            "matriks multi-identitas: expected-behavior "
+                            "anonymous/A/B per endpoint, deviasi differential "
+                            "= weakness (GET-only)",
+                            "active-testing", 1, "H-idor"))
+        self._once(Step("business_logic", {"url": target},
+                        "logika bisnis IDENTITY x OBJECT x ACTION x STATE: "
+                        "validasi transisi teramati vs tabel legalitas "
+                        "(pasif, tanpa request state-changing)",
+                        "passive-audit"))
         # fixed capacity ladder, hard caps, no escalation — cost is a ladder estimate
         self._once(Step("load_probe", {"url": target, "profile": "capacity",
                                        "max_total": 750},

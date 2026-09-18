@@ -98,8 +98,14 @@ aset pihak ketiga.
 - [ ] U3 Blind re-producer (verdict level 5: validator independen
       mereproduksi dari claim saja) [UPGRADE]
 - [ ] U4 browser_scout engine (formalisasi CDP) + SPA/OAuth guarded [PARSIAL]
-- [ ] U5 Identity Matrix + Business Logic agent (IDENTITY x OBJECT x ACTION
-      x STATE: illegal transition) + API semantic mapper [BARU]
+- [x] U5 Identity Matrix + Business Logic agent (IDENTITY x OBJECT x ACTION
+      x STATE: illegal transition) + API semantic mapper — SEBAGIAN SELESAI:
+      engine identity_matrix (expected-behavior anonymous/A/B, deviasi
+      differential GET-only, satu temuan per endpoint, zero-FP) + engine
+      business_logic (tabel legalitas order/refund/coupon/account/approval,
+      illegal transition + repeated-terminal, rekaman tunggal = LEAD,
+      rekaman ganda = weakness terkonfirmasi, nol request state-changing);
+      API semantic mapper menyusul [BARU]
 - [ ] U6 Adaptive path/payload + benchmark suite (Precision/Recall/F1, CPE &
       version resolution accuracy) + claim language [CAMPURAN]
 - [ ] U7 PDF god-tier sempurna (template brandable, exec summary, path graph
