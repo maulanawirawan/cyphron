@@ -170,7 +170,8 @@ def build(target: str, confirmed: list[dict], texts: list[str],
     md.append("")
     md.append("1. **Pasif**: bagian 2-3 dihitung dari knowledge base lokal "
               "(feed NVD + Exploit-DB) tanpa satu pun request ke target.")
-    md.append("2. **Zero-FP**: hanya versi eksplisit yang dipetakan; rentang "
+    md.append("2. **Penolakan ambiguitas (deterministik)**: hanya versi "
+              "eksplisit yang dipetakan; rentang "
               "versi ambigu dibuang, bukan ditebak; template Nuclei yang "
               "dijalankan hanya subset aman dan wajib mencocokkan ISI "
               "respons (bukan status code semata).")

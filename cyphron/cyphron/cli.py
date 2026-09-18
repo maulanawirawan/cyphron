@@ -101,6 +101,12 @@ def main(argv: list[str] | None = None) -> int:
     p_god.add_argument("--tech", action="append", default=[],
                        help="tambahan fingerprint manual (bisa diulang)")
 
+    p_bench = sub.add_parser("benchmark",
+                             help="metrik Precision/Recall/F1, CPE & version "
+                                  "resolution atas dataset gold (angka, bukan slogan)")
+    p_bench.add_argument("--kb-dir", help="folder KB berisi cpe.sqlite (default: cyphron/kb/data)")
+    p_bench.add_argument("--out", help="tulis hasil ke file markdown")
+
     p_tiers = sub.add_parser("tiers", help="tier pack: 100 skills dalam 4 tingkat severity")
     p_tiers.add_argument("--build", action="store_true", help="generate file skill ke .kimchi/skills-tiers/")
     p_tiers.add_argument("--build-bounty", action="store_true", help="generate Bug Bounty pack (harvest 2026-09-06)")
@@ -324,6 +330,22 @@ def main(argv: list[str] | None = None) -> int:
                   f"produk berversi, {stats['cve_rows']} CVE lead, "
                   f"{stats['edb_products']} produk ber-exploit publik")
             print(f"[cyphron] laporan: {out}")
+            return 0
+
+        if args.command == "benchmark":
+            from .benchmark import render_markdown, run_cve_benchmark
+            try:
+                results = run_cve_benchmark(
+                    kb_dir=Path(args.kb_dir) if args.kb_dir else None)
+            except FileNotFoundError as exc:
+                print(f"[cyphron] benchmark: {exc}")
+                return 1
+            print(render_markdown(results, "Benchmark Cyphron (CLI)"))
+            if args.out:
+                out = Path(args.out)
+                out.parent.mkdir(parents=True, exist_ok=True)
+                out.write_text(render_markdown(results), encoding="utf-8")
+                print(f"[cyphron] benchmark -> {out}")
             return 0
 
         if args.command == "check":

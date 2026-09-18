@@ -106,8 +106,13 @@ aset pihak ketiga.
       illegal transition + repeated-terminal, rekaman tunggal = LEAD,
       rekaman ganda = weakness terkonfirmasi, nol request state-changing);
       API semantic mapper menyusul [BARU]
-- [ ] U6 Adaptive path/payload + benchmark suite (Precision/Recall/F1, CPE &
-      version resolution accuracy) + claim language [CAMPURAN]
+- [x] U6 Adaptive path/payload + benchmark suite (Precision/Recall/F1, CPE &
+      version resolution accuracy) + claim language — SEBAGIAN SELESAI:
+      cyphron/benchmark.py (metrik murni + runner pipeline nyata atas dataset
+      gold + render markdown) + CLI `python -m cyphron benchmark` +
+      docs/BENCHMARK.md + sweep bahasa klaim di README/landing/god_report/
+      reporting (test anti-klaim-terlarang); adaptive path/payload menyusul
+      [CAMPURAN]
 - [ ] U7 PDF god-tier sempurna (template brandable, exec summary, path graph
       visual, tak setengah jalan) [UPGRADE]
 - [ ] U9 RED-TEAM WORKSTREAM: katalog tradecraft berotorisasi (initial-access

@@ -62,6 +62,26 @@ Skema dokumen otorisasi: lihat `examples/authorization.localhost.json` (struktur
 | Reasoning | sering delegasi ke pihak ketiga | **skill-driven, 65+ skill .kimchi + sitasi di laporan** |
 | Temuan | authoritative per tool | **verifier bukti-basis: confirmed ≠ unconfirmed** |
 
+## Klaim & benchmark (angka, bukan slogan)
+
+Klaim pencocokan CVE Cyphron: **high-confidence deterministic matching with
+ambiguity rejection** — rentang versi ambigu DITOLAK dan dicatat terpisah
+(bukan false positive), bukan ditebak. Konsekuensinya precision naik dan
+recall bisa turun; angkanya dilaporkan jujur, bukan disembunyikan.
+
+Metrik kuantitatif (precision/recall/F1, CPE-resolution accuracy,
+version-resolution accuracy, exploit-validation rate) dihitung dari pipeline
+pencocokan NYATA atas dataset gold internal:
+
+```bash
+python -m cyphron benchmark                  # pakai KB lokal (kb sync nvd)
+python -m cyphron benchmark --out docs/BENCHMARK.md
+```
+
+Hasil + metodologi: `docs/BENCHMARK.md`. Verdict ladder: hanya level >= 3
+(deterministically verified ke atas) yang layak jadi temuan klien; level
+0-2 = LEAD dilabel jelas dan tidak pernah dihitung sebagai temuan.
+
 ## Uji (self-owned lab, aman)
 
 ```bash

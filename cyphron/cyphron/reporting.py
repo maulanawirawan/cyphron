@@ -167,7 +167,7 @@ def _build_doc(opts: ScanOptions, s: ScanSummary, w: WorldModel, audit: AuditLog
         "doc_title": opts.target,
         "title": "Laporan Uji Keamanan (Penetration Test)",
         "subtitle": (f"Target: {opts.target} - blackbox, loop observasi-plan-act-verify "
-                     f"milik Cyphron (53 engine sendiri, tanpa alat pihak ketiga)."),
+                     f"milik Cyphron (seluruh engine kode sendiri, tanpa alat pihak ketiga)."),
         "chip": chip,
         "meta": [
             ("Tanggal", now.replace("UTC", "UTC (WIB +7)")),

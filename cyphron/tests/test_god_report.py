@@ -101,7 +101,7 @@ class TestGodReport(unittest.TestCase):
         self.assertIn("TIDAK dieksekusi", md)
         # disclaimer metodologi
         self.assertIn("skema severity program", md)
-        self.assertIn("Zero-FP", md)
+        self.assertIn("Penolakan ambiguitas", md)
         # statistik konsisten
         self.assertGreaterEqual(stats["cve_rows"], 2)
         self.assertGreaterEqual(stats["edb_products"], 1)
