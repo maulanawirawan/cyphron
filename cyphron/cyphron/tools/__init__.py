@@ -38,6 +38,7 @@ from .subdomain_brute import SubdomainBruteTool
 from .passive_dns import PassiveDnsTool
 from .api_surface_probe import ApiSurfaceProbeTool
 from .apk_surface_probe import ApkSurfaceProbeTool
+from .apk_kit import ApkPentestKitTool
 from .error_oracle import ErrorOracleTool
 from .github_osint import GithubOsintTool
 from .sqli_extract import SqliExtractTool
@@ -239,6 +240,7 @@ def build_default_registry(ctx: ToolContext) -> ToolRegistry:
         PassiveDnsTool(),
         ApiSurfaceProbeTool(),
         ApkSurfaceProbeTool(),
+        ApkPentestKitTool(),
         ErrorOracleTool(),
         GithubOsintTool(),
         SqliExtractTool(),

@@ -140,6 +140,12 @@ def main(argv: list[str] | None = None) -> int:
                          help="rantai step dipisah koma: b64,hex,url,rot13,xor,rc4")
     p_deobf.add_argument("--key", default="", help="key utk step rc4/xor")
 
+    p_apk = sub.add_parser("apk-report",
+                           help="laporan pentest mobile statis (kit v1 + "
+                                "surface probe) dari file APK")
+    p_apk.add_argument("--apk", required=True)
+    p_apk.add_argument("--out", default="cyphron_apk", help="folder output")
+
     p_tiers = sub.add_parser("tiers", help="tier pack: 100 skills dalam 4 tingkat severity")
     p_tiers.add_argument("--build", action="store_true", help="generate file skill ke .kimchi/skills-tiers/")
     p_tiers.add_argument("--build-bounty", action="store_true", help="generate Bug Bounty pack (harvest 2026-09-06)")
@@ -484,6 +490,38 @@ def main(argv: list[str] | None = None) -> int:
             for f in dec.findings + wallet.findings + kit.findings:
                 print(f"[cyphron] temuan (LEAD): {f.title}")
             print(f"[cyphron] decoded (200 char pertama): {text[:200]!r}")
+            return 0
+
+        if args.command == "apk-report":
+            from .guardrails.authorization import AuditLog, AuthorizationGate
+            from .tools import build_default_registry
+            from .tools.apk_kit import render_mobile_report
+            from .tools.base import ToolContext
+            from .world.model import WorldModel as _WM
+            w = _WM()
+            ctx = ToolContext(gate=AuthorizationGate(None), audit=AuditLog(),
+                              world=w, rate_limit_s=0.0)
+            reg = build_default_registry(ctx)
+            kit = reg.execute("apk_pentest_kit", {"path": args.apk})
+            if not kit.ok:
+                print(f"[cyphron] apk-report: {kit.error}")
+                return 1
+            surface = reg.execute("apk_surface_probe", {"path": args.apk})
+            out_dir = Path(args.out)
+            out_dir.mkdir(parents=True, exist_ok=True)
+            md = render_mobile_report({
+                "kit": kit.data, "surface":
+                    surface.data if surface.ok else {}})
+            out = out_dir / "MOBILE-REPORT.md"
+            out.write_text(md, encoding="utf-8")
+            k = kit.data
+            print(f"[cyphron] apk: {k.get('entries')} entri, "
+                  f"{len(k.get('permissions_dangerous', []))} perm berbahaya, "
+                  f"hardening={k.get('hardening_score')} "
+                  f"({k.get('assessment')})")
+            for f in kit.findings + (surface.findings if surface.ok else []):
+                print(f"[cyphron] temuan (LEAD): {f.title}")
+            print(f"[cyphron] laporan: {out}")
             return 0
 
         if args.command == "check":
