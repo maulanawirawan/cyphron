@@ -121,6 +121,12 @@ from .infra_xss_engines import (
 from .authz_engines import BolaTool, PrivMatrixTool
 from .identity_matrix import IdentityMatrixTool
 from .business_logic import BusinessLogicTool
+from .deobf import (
+    AffiliateMapperTool,
+    ChainDecoderTool,
+    PhishingKitExtractTool,
+    WalletFpGuardTool,
+)
 from .bounty_engines import AuthzBypassTool, LlmProbeTool, ParamMinerTool, TakeoverTool
 from .nextjs_probe import MiddlewareBypassTool, NextImageProxyTool
 from .client_audit import CookieAuditTool, SriAuditTool
@@ -194,6 +200,10 @@ def build_default_registry(ctx: ToolContext) -> ToolRegistry:
         PrivMatrixTool(),
         IdentityMatrixTool(),
         BusinessLogicTool(),
+        ChainDecoderTool(),
+        WalletFpGuardTool(),
+        PhishingKitExtractTool(),
+        AffiliateMapperTool(),
         ParamMinerTool(),
         AuthzBypassTool(),
         TakeoverTool(),

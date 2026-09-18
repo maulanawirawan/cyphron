@@ -131,6 +131,15 @@ def main(argv: list[str] | None = None) -> int:
     p_ad.add_argument("--name", help="nama adapter utk --check")
     p_ad.add_argument("--args", help="JSON args utk --check, mis. '{\"values\":[\"x\"]}'")
 
+    p_deobf = sub.add_parser("deobf",
+                             help="deobfuscation kit: dekode rantai blob + "
+                                  "ekstraksi kit + validasi wallet anti-FP")
+    p_deobf.add_argument("--from", dest="from_file", required=True,
+                         help="file berisi blob/konten (teks)")
+    p_deobf.add_argument("--chain", default="b64",
+                         help="rantai step dipisah koma: b64,hex,url,rot13,xor,rc4")
+    p_deobf.add_argument("--key", default="", help="key utk step rc4/xor")
+
     p_tiers = sub.add_parser("tiers", help="tier pack: 100 skills dalam 4 tingkat severity")
     p_tiers.add_argument("--build", action="store_true", help="generate file skill ke .kimchi/skills-tiers/")
     p_tiers.add_argument("--build-bounty", action="store_true", help="generate Bug Bounty pack (harvest 2026-09-06)")
@@ -442,6 +451,39 @@ def main(argv: list[str] | None = None) -> int:
                 print(f"[cyphron] ok={res.ok} data={json.dumps(res.data, ensure_ascii=False)} "
                       f"findings={len(res.findings)} error={res.error}")
                 return 0 if res.ok else 1
+            return 0
+
+        if args.command == "deobf":
+            from .guardrails.authorization import AuditLog, AuthorizationGate
+            from .tools.base import ToolContext
+            from .tools.deobf import (
+                ChainDecoderTool, PhishingKitExtractTool, WalletFpGuardTool)
+            from .world.model import WorldModel as _WM
+            src = Path(args.from_file)
+            blob = src.read_text(encoding="utf-8", errors="replace")
+            ctx = ToolContext(gate=AuthorizationGate(None), audit=AuditLog(),
+                              world=_WM(), rate_limit_s=0.0)
+            chain = [c.strip() for c in args.chain.split(",") if c.strip()]
+            dec = ChainDecoderTool().run({"blob": blob, "chain": chain,
+                                          "key": args.key}, ctx)
+            if not dec.ok:
+                print(f"[cyphron] deobf: decode gagal — {dec.error}")
+                return 1
+            text = dec.data.get("decoded", "")
+            print(f"[cyphron] chain {' -> '.join(chain)}: {len(text)} karakter "
+                  f"({len(dec.data.get('markers', []))} marker loader)")
+            wallet = WalletFpGuardTool().run({"texts": [text]}, ctx)
+            kit = PhishingKitExtractTool().run({"texts": [text]}, ctx)
+            print(f"[cyphron] wallet valid-checksum: "
+                  f"{len(wallet.data.get('valid', []))} "
+                  f"(kandidat dibuang checksum: "
+                  f"{len(wallet.data.get('rejected_by_checksum', []))})")
+            for k, v in kit.data.items():
+                if v:
+                    print(f"[cyphron] kit[{k}]: {str(v)[:160]}")
+            for f in dec.findings + wallet.findings + kit.findings:
+                print(f"[cyphron] temuan (LEAD): {f.title}")
+            print(f"[cyphron] decoded (200 char pertama): {text[:200]!r}")
             return 0
 
         if args.command == "check":
