@@ -46,6 +46,11 @@ class ToolContext:
     kill_switch: bool = False
     errors: list[str] = field(default_factory=list)
     sessions: dict[str, str] = field(default_factory=dict)  # user -> cookie (god mode)
+    # kuota token (trial/lisensi ber-kuota): credit_gate(tool, risk_tags) ->
+    # (ok, reason); credit_spend(tool, risk_tags) dipanggil setelah sukses.
+    credit_gate: object = None
+    credit_spend: object = None
+    report_mode: str = "full"  # full | redacted (trial)
 
     def throttle(self) -> None:
         now = time.monotonic()
@@ -113,6 +118,12 @@ class ToolRegistry:
         if ctx.world.request_count >= ctx.max_requests:
             ctx.audit.append({"kind": "tool-blocked", "tool": name, "reason": "request budget exhausted"})
             return ToolResult(tool=name, ok=False, error="request budget exhausted")
+        if ctx.credit_gate is not None:
+            tok_ok, tok_reason = ctx.credit_gate(name, set(tool.risk_tags))
+            if not tok_ok:
+                ctx.audit.append({"kind": "tool-blocked", "tool": name,
+                                  "reason": f"token: {tok_reason}"})
+                return ToolResult(tool=name, ok=False, error=f"token: {tok_reason}")
         # Per-step scope: evaluasi URL/PATH yang BENAR-BENAR diprobe step ini,
         # bukan selalu world.target (planner memakai key url/base_url/path).
         step_target = str(args.get("url") or args.get("base_url")
@@ -153,6 +164,11 @@ class ToolRegistry:
         except Exception as exc:  # engines must never crash the loop
             ctx.errors.append(f"{name}: {exc}")
             return ToolResult(tool=name, ok=False, error=f"{type(exc).__name__}: {exc}")
+        if ctx.credit_spend is not None:
+            try:
+                ctx.credit_spend(name, set(tool.risk_tags))
+            except Exception:
+                pass  # pembukuan gagal jangan kunci hasil engine
         result.raw_excerpt = redact(result.raw_excerpt)
         for f in result.findings:
             f.request = redact(f.request)

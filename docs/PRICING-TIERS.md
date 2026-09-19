@@ -50,6 +50,53 @@
 > Nilai jual inti: **temuan terjamin TRUE** (FP-guard wajib per skill), **penambalan
 > terverifikasi** (bukan sekadar laporan), **privasi lokal** (tanpa token, tanpa data keluar).
 
+## Harga final — tier × token × mode (2026-09-19)
+
+Model hybrid: **tier = kemampuan, token = kuota konsumsi, mode = multiplier.**
+
+1 token = 1 eksekusi tool, dibobot `risk_tag`: pasif 1, aktif 2, load 3,
+agresif/eksploit 4. Mode scan mengalikan konsumsi: read-only ×1, active ×1.5,
+offensive ×2. Sumber kode: `cyphron/pricing.py`; ledger: `cyphron/credits.py`.
+
+| Paket | Harga/bln | Token | Target | Report | Trial gating |
+|---|---|---|---|---|---|
+| TRIAL | Rp 0 | 30 | 1 | **redacted** | 1 scan/24 jam, 7 hari, 1x/device |
+| basic | Rp 299.000 | 150 | 1 | full | — |
+| pro | Rp 799.000 | 600 | 2 | full + fix packs + verify | — |
+| business | Rp 1.999.000 | 2.000 | 3 | full + perf + white-box | — |
+| god | Rp 4.999.000 | 5.000 (fair-use) | unlimited | full + multi-akun + API | — |
+| top-up | Rp 500.000 | +1.000 | — | — | semua tier |
+
+Pasar internasional: ±×10 (USD $29 / $79 / $199 / $499) — di billing server.
+
+### Kenapa trial pakai report redacted (bukan "beberapa fitur mati")
+Trial menghasilkan **report beneran** tapi: PoC/request/response/fix pack
+disembunyikan (`[redacted — trial]`), hanya 5 temuan teratas yang dirinci,
+watermark TRIAL, dan `findings.json` berisi `report_mode: redacted +
+total_confirmed` (jumlah jujur, detail dipangkas). Klien melihat kualitas
+kerja — nilai jual penuh (bukti yang bisa direproduksi + penambalan) baru
+terbuka saat berbayar.
+
+### Anti-abuse (dua lapis, jujur soal batasnya)
+Lapis lokal (`cyphron/antibuse.py`, kode-enforced):
+- **Lisensi bertanda tangan HMAC** — tier di atas basic tanpa `sig` valid =
+  INVALID (dulu `sig` cuma ada di docstring; file bisa diedit jadi "god").
+- **Device binding** — `device_hash` (SHA256 platform+machine+MAC); lisensi
+  yang disalin ke mesin lain REFUSED.
+- **Token ledger rantai HMAC** — habis kuota = REFUSED di ToolRegistry
+  (kode-enforced, bukan UI).
+Lapis server (helper murni untuk billing/edge, pluggable):
+- **JA3/JA4 TLS fingerprint** dari header CDN (`cf-ja3-hash`/`x-ja3`) —
+  fingerprint klien nyata di balik IP rotasi.
+- **IP reputation pluggable** (hosting/datacenter = VPN, proxy, Tor).
+- **Signup velocity** — bulk-account detector per subnet-IP/device/domain
+  email (10 akun 1 device = DENY).
+- **Proof-of-work signup** — mahal untuk bot massal, tak terasa bagi manusia.
+- **`abuse_verdict()`** — skor transparan: user sah di balik VPN = CHALLENGE
+  (PoW), bukan DENY; device sama klaim trial lagi = DENY.
+Batas jujur: penghapusan file ledger offline tidak bisa dicegah penuh —
+kuota reset-proof dicatat billing server; modul ini tamper-EVIDENT lokal.
+
 ## Level skill → tier mapping (tier pack 100 skills)
 
 | Tier produk | Skill tier yang terbuka |

@@ -79,6 +79,7 @@ class ScanRun:
     summary: ScanSummary
     world: WorldModel
     audit: AuditLog
+    report_mode: str = "full"
 
 
 def run_scan(opts: ScanOptions, verbose: bool = True) -> ScanRun:
@@ -136,6 +137,17 @@ def run_scan(opts: ScanOptions, verbose: bool = True) -> ScanRun:
         max_requests=opts.max_requests, license_path=opts.license_path,
         kill_switch=opts.kill_switch,
     )
+    # kuota token (trial/token_limit): habis = REFUSED di ToolRegistry
+    from .licensing import License
+    from .credits import CreditLedger
+    lic_info = License(opts.license_path)
+    if lic_info.valid and lic_info.token_limit is not None:
+        ledger = CreditLedger(lic_info.licensee, mode=mode)
+        ctx.credit_gate = (
+            lambda tool, tags: ledger.can_spend(tags, lic_info.token_limit))
+        ctx.credit_spend = (
+            lambda tool, tags: ledger.spend(tool, tags))
+        ctx.report_mode = lic_info.kind  # trial → report redacted
     tools = build_default_registry(ctx)
     planner = DeterministicPlanner(offensive_allowed=(mode == "offensive"),
                                    crawl_pages=opts.crawl_pages,
@@ -269,4 +281,5 @@ def run_scan(opts: ScanOptions, verbose: bool = True) -> ScanRun:
     )
     audit.append({"kind": "scan-end", "confirmed": len(confirmed),
                   "unconfirmed": len(unconfirmed), "steps": steps_executed})
-    return ScanRun(summary=summary, world=world, audit=audit)
+    return ScanRun(summary=summary, world=world, audit=audit,
+                   report_mode=getattr(ctx, "report_mode", "full"))

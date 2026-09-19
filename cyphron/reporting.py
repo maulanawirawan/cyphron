@@ -77,19 +77,47 @@ def _attack_chains(confirmed) -> list[dict]:
     return chains
 
 def write_reports(out_dir: Path, opts: ScanOptions, summary: ScanSummary,
-                  world: WorldModel, audit: AuditLog) -> dict[str, Path]:
+                  world: WorldModel, audit: AuditLog,
+                  report_mode: str = "full") -> dict[str, Path]:
     out_dir.mkdir(parents=True, exist_ok=True)
     blocks = _build_blocks(opts, summary, world, audit)
+
+    if report_mode == "redacted":
+        # TRIAL: hasil dipangkas — bukan bukti penuh. PoC & bukti mentah
+        # disembunyikan, jumlah temuan dilaporkan jujur tapi detail cuma 5.
+        blocks.append(("h1", "AKUN TRIAL — HASIL REDACTED"))
+        blocks.append(("body",
+                       "Ini laporan TRIAL: bukti mentah (PoC, response, fix "
+                       "pack) disembunyikan dan hanya 5 temuan teratas yang "
+                       "dirinci. Laporan berbayar memuat bukti lengkap yang "
+                       "dapat direproduksi."))
+        for i, b in enumerate(blocks):
+            if b[0] == "mono" and ("excerpt" in str(b[1]) or "curl" in str(b[1])
+                                   or "status=" in str(b[1])):
+                blocks[i] = (b[0], "[redacted — trial]")
 
     md_path = out_dir / "report.md"
     md_path.write_text(_render_md(blocks), encoding="utf-8")
 
     json_path = out_dir / "findings.json"
+    confirmed_dicts = [f.to_dict() for f in summary.confirmed]
+    if report_mode == "redacted":
+        total_confirmed = len(confirmed_dicts)
+        confirmed_dicts = confirmed_dicts[:5]
+        for d in confirmed_dicts:
+            for k in ("request", "response", "poc"):
+                if d.get(k):
+                    d[k] = "[redacted — trial]"
+        redact_meta = {"report_mode": "redacted", "total_confirmed": total_confirmed,
+                       "shown_confirmed": 5}
+    else:
+        redact_meta = {"report_mode": "full"}
     json_path.write_text(json.dumps({
         "target": opts.target, "mode": summary.mode, "authorization": summary.auth_id,
         "generated_at": datetime.now(timezone.utc).isoformat(),
+        **redact_meta,
         "counts": summary.counts_by_severity(),
-        "confirmed": [f.to_dict() for f in summary.confirmed],
+        "confirmed": confirmed_dicts,
         "unconfirmed": [f.to_dict() for f in summary.unconfirmed],
         "world": world.snapshot(), "skills_used": summary.skills_used,
         "audit_verified": summary.audit_verified, "steps": summary.steps_executed,
@@ -118,7 +146,10 @@ def write_reports(out_dir: Path, opts: ScanOptions, summary: ScanSummary,
     pdf_path.write_bytes(pdfout.render_report(doc))
 
     docx_path = out_dir / "report.docx"
-    docx_path.write_bytes(docxout.render(blocks, f"Dihasilkan otomatis oleh Cyphron Core untuk {opts.target}."))
+    footer = (f"Dihasilkan otomatis oleh Cyphron Core untuk {opts.target}.")
+    if report_mode == "redacted":
+        footer += " [TRIAL — bukan laporan lengkap]"
+    docx_path.write_bytes(docxout.render(blocks, footer))
 
     audit_path = out_dir / "audit.jsonl"
     audit_path.write_text("\n".join(json.dumps(e, default=str) for e in audit.entries),

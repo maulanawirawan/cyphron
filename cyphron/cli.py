@@ -162,6 +162,28 @@ def main(argv: list[str] | None = None) -> int:
                              help="gerbang kualitas laporan (anti-slop) — PASS/FAIL per blok")
     p_rlint.add_argument("file", help="file laporan markdown (.md)")
 
+    p_lic = sub.add_parser("license",
+                           help="kelola lisensi: issue (trial/tier) atau show status")
+    lic_sub = p_lic.add_subparsers(dest="lic_cmd", required=True)
+    p_lic_issue = lic_sub.add_parser("issue", help="generate + sign license.json")
+    p_lic_issue.add_argument("--out", default="license.json")
+    p_lic_issue.add_argument("--licensee", required=True)
+    p_lic_issue.add_argument("--tier", choices=["basic", "pro", "business", "god"],
+                             default="basic")
+    p_lic_issue.add_argument("--trial", action="store_true",
+                             help="lisensi trial: 30 token, report redacted, 7 hari")
+    p_lic_issue.add_argument("--days", type=int, default=30)
+    p_lic_issue.add_argument("--no-device-bind", action="store_true",
+                             help="JANGAN ikat ke mesin ini (tidak disarankan)")
+    p_lic_show = lic_sub.add_parser("show", help="tampilkan status lisensi")
+    p_lic_show.add_argument("--path", default="license.json")
+
+    p_price = sub.add_parser("pricing",
+                             help="tampilkan harga per tier/mode/token + estimasi scan")
+    p_price.add_argument("--estimate", type=int, default=None,
+                         metavar="STEPS",
+                         help="estimasi token untuk N langkah aktif (2 token/step)")
+
     p_dast = sub.add_parser("dast",
                             help="DAST orchestration profil dev-cicd/standard/full")
     p_dast.add_argument("--target", required=True)
@@ -660,7 +682,8 @@ def main(argv: list[str] | None = None) -> int:
                 rate_limit_s=plan["rate_limit_s"], max_time_s=20 * 60)
             run = run_scan(opts, verbose=True)
             out_dir = Path(args.out)
-            write_reports(out_dir, opts, run.summary, run.world, run.audit)
+            write_reports(out_dir, opts, run.summary, run.world, run.audit,
+                          report_mode=getattr(run, "report_mode", "full"))
             print(f"[cyphron] dast done: confirmed={len(run.summary.confirmed)} "
                   f"-> {out_dir / 'report.md'}")
             return 2 if run.summary.confirmed else 0
@@ -895,6 +918,45 @@ def main(argv: list[str] | None = None) -> int:
             print(f"target   : {args.target} -> {host}:{port}")
             print(f"decision : {'ALLOWED' if decision.allowed else 'REFUSED'} — {decision.reason}")
             return 0 if decision.allowed else 3
+
+        if args.command == "license":
+            from .licensing import License, issue_license
+            if args.lic_cmd == "issue":
+                payload = issue_license(
+                    Path(args.out), licensee=args.licensee, tier=args.tier,
+                    kind="trial" if args.trial else "standard",
+                    days=7 if args.trial else args.days,
+                    token_limit=30 if args.trial else None,
+                    bind_device=not args.no_device_bind)
+                print(f"[cyphron] lisensi ditulis: {args.out}")
+                print(f"  licensee    : {payload['licensee']}")
+                print(f"  tier/kind   : {payload['tier']} / {payload['kind']}")
+                print(f"  expires     : {payload['expires']}")
+                print(f"  token_limit : {payload['token_limit'] or 'unlimited (tier)'}")
+                print(f"  device_bind : {'ya' if payload['device_hash'] else 'tidak'}")
+                return 0
+            lic = License(Path(args.path))
+            print(f"licensee    : {lic.licensee}")
+            print(f"tier/kind   : {lic.tier} / {lic.kind}")
+            print(f"expires     : {lic.expires.isoformat() if lic.expires else '-'}")
+            print(f"token_limit : {lic.token_limit or 'unlimited (tier)'}")
+            print(f"device_bound: {'ya' if lic.device_hash else 'tidak'}")
+            print(f"valid       : {'YA' if lic.valid else 'TIDAK'} — {lic.reason}")
+            print(f"report_mode : {'redacted' if lic.is_trial else 'full'}")
+            return 0 if lic.valid else 1
+
+        if args.command == "pricing":
+            from .pricing import PLANS, price_table
+            print(price_table())
+            if args.estimate:
+                est = int(args.estimate) * 2  # langkah aktif rata-rata 2 token
+                print("")
+                print(f"estimasi {args.estimate} langkah aktif: ~{est} token "
+                      f"(x1.5 mode active = {int(est * 1.5)})")
+                for tier, p in PLANS.items():
+                    print(f"  {tier:9}: {'CUKUP' if p['token_limit'] >= est else 'kurang'} "
+                          f"({p['token_limit']} token/bln)")
+            return 0
 
         # --- scan ---
         opts = ScanOptions(
