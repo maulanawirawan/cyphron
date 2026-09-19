@@ -38,7 +38,8 @@ def _max_sev(sevs: list[str]) -> str:
 
 
 def _esc(sev: str) -> str:
-    return _ORDER[max(0, _ORDER.index(sev) - 1)] if sev != "critical" else "critical"
+    """Eskalasi SATU tingkat: info→low→medium→high→critical (cap di critical)."""
+    return _ORDER[min(_ORDER.index(sev) + 1, len(_ORDER) - 1)]
 
 
 # ----------------------------------------------------------- capability classes
@@ -197,8 +198,10 @@ def compose(findings: list[Finding], rules: list[ChainRule] | None = None) -> li
                 continue
             step_sevs = [s.severity for s in steps]
             combined = _max_sev(step_sevs)
+            # Eskalasi maksimal SATU tingkat di atas bukti individu (invarian
+            # docstring) — rule yang minta lompatan lebih hanya naik satu tingkat.
             if _sev_ge(rule.escalate_to, combined):
-                combined = rule.escalate_to
+                combined = _esc(combined)
             chains.append(Chain(
                 chain_id=f"{rule.rule_id}:{h}",
                 name=rule.name, rule_id=rule.rule_id,

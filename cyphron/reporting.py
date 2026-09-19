@@ -163,6 +163,7 @@ def _build_doc(opts: ScanOptions, s: ScanSummary, w: WorldModel, audit: AuditLog
     # ---- verdict matrix dari jejak audit (definitif: ADA vs TIDAK DITEMUKAN) ----
     runs: dict[str, int] = {}
     clean_tools: list[str] = []
+    failed_tools: list[str] = []
     executed = sorted({e["tool"] for e in audit.entries if e["kind"] == "tool-run"})
     chains = _attack_chains(s.confirmed)
     finding_tools = {f.tool for f in s.confirmed}
@@ -178,6 +179,10 @@ def _build_doc(opts: ScanOptions, s: ScanSummary, w: WorldModel, audit: AuditLog
         n_found = e.get("findings", 0) or 0
         if tool in finding_tools or n_found:
             continue
+        if not e.get("ok") or e.get("error"):
+            # engine gagal dieksekusi ≠ "diuji, nol temuan" (anti false-negative)
+            failed_tools.append(tool)
+            continue
         clean_tools.append(tool)
 
     verdict_rows: list[list[str]] = []
@@ -188,6 +193,9 @@ def _build_doc(opts: ScanOptions, s: ScanSummary, w: WorldModel, audit: AuditLog
     for tool in clean_tools:
         verdict_rows.append(["-", f"Uji {tool} ({runs.get(tool, 1)}x eksekusi)",
                              "TIDAK DITEMUKAN", "BERSIH", "-"])
+    for tool in failed_tools:
+        verdict_rows.append(["-", f"Uji {tool} ({runs.get(tool, 1)}x eksekusi)",
+                             "GAGAL DIEKSEKUSI", "PERIKSA", "-"])
 
     rec_rows = [
         [str(i + 1), f.title, _SEV_ID[f.severity], (f.recommendation or "-")[:180]]
@@ -245,10 +253,8 @@ def _build_doc(opts: ScanOptions, s: ScanSummary, w: WorldModel, audit: AuditLog
              "kind": "table",
              "head": ["No", "Area / Temuan", "Verdict", "Tingkat", "Klasifikasi"],
              "widths": [0.4, 4.0, 2.0, 1.1, 2.0],
-             "rows": (verdict_rows + [[
-                 "-", f"{len(clean_tools)} engine lain (lihat rincian bagian 04)",
-                 "TIDAK DITEMUKAN", "BERSIH"]])
-             or [["-", "Semua area yang diuji", "TIDAK DITEMUKAN", "BERSIH"]]},
+             "rows": verdict_rows or [["-", "Semua area yang diuji",
+                                       "TIDAK DITEMUKAN", "BERSIH", "-"]]},
             {"no": "02b", "title": "RINGKASAN CVSS v3.1 PER SEVERITY", "kind": "table",
              "head": ["Severity", "Jumlah temuan", "Band CVSS", "Definisi ringkas"],
              "widths": [1.4, 1.3, 1.5, 4.4],

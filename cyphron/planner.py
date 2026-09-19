@@ -105,9 +105,12 @@ _TITLE_HINTS = (("graphql", "H-graphql"), ("jwt", "H-jwt"), ("sql", "H-params"),
                 ("redirect", "H-params"), ("pagination", "H-pagination"),
                 ("sort", "H-sortinject"), ("idor", "H-idor"),
                 ("sourcemap", "H-jsassets"))
-_IDOR_PARAMS = ("id", "uid", "user_id", "userid", "order_id", "doc_id")
+# Sinkron dengan scheduler Step() di bawah (world.has_param) — jangan drift lagi.
+_IDOR_PARAMS = ("id", "uid", "user_id", "userid", "order_id", "doc_id",
+                "invoice_id", "account_id")
 _PAGIN_PARAMS = ("limit", "first", "size", "per_page", "page_size", "count", "take")
-_SORT_PARAMS = ("sort", "order", "orderby", "order_by", "filter", "sort_by")
+_SORT_PARAMS = ("sort", "order", "orderby", "order_by", "filter", "sort_by",
+                "sortby")
 
 
 def _fget(f, name):

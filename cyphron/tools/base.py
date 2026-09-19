@@ -113,7 +113,13 @@ class ToolRegistry:
         if ctx.world.request_count >= ctx.max_requests:
             ctx.audit.append({"kind": "tool-blocked", "tool": name, "reason": "request budget exhausted"})
             return ToolResult(tool=name, ok=False, error="request budget exhausted")
-        if is_local_path(str(args.get("target", ctx.world.target))):
+        # Per-step scope: evaluasi URL/PATH yang BENAR-BENAR diprobe step ini,
+        # bukan selalu world.target (planner memakai key url/base_url/path).
+        step_target = str(args.get("url") or args.get("base_url")
+                          or args.get("target") or ctx.world.target)
+        if step_target.startswith("/") and not is_local_path(str(ctx.world.target)):
+            step_target = str(ctx.world.target).rstrip("/") + step_target
+        if is_local_path(step_target):
             # local filesystem tools: no network scope to check; passive/local only
             decision_ok, decision_mode, decision_reason = True, "read-only", "local target"
             if "active" in tool.risk_tags or "aggressive" in tool.risk_tags:
@@ -121,14 +127,17 @@ class ToolRegistry:
                 decision_ok, decision_mode, decision_reason = (
                     gate_decision.allowed, gate_decision.mode, gate_decision.reason)
         else:
-            host, port = host_port_of(str(args.get("target", ctx.world.target)))
+            host, port = host_port_of(step_target)
+            if not host:
+                # URL tak lengkap → evaluasi terhadap target utama
+                host, port = host_port_of(str(ctx.world.target))
             gate_decision = ctx.gate.evaluate(host, port, tool.risk_tags)
             decision_ok, decision_mode, decision_reason = (
                 gate_decision.allowed, gate_decision.mode, gate_decision.reason)
         if not decision_ok:
             ctx.audit.append({
                 "kind": "authorization-refusal", "tool": name,
-                "target": args.get("target", ctx.world.target),
+                "target": step_target,
                 "reason": decision_reason, "risk_tags": sorted(tool.risk_tags),
             })
             return ToolResult(tool=name, ok=False, error=f"refused: {decision_reason}")

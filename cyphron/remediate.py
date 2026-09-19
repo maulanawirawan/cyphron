@@ -12,7 +12,7 @@ import hashlib
 import json
 from pathlib import Path
 
-from .findings import Finding
+from .findings import Finding, SEVERITY_ORDER
 
 # match keywords (lowercased title/cwe) -> bundle
 BUNDLES: list[dict] = [
@@ -226,7 +226,9 @@ def build_fix_bundles(findings: list[Finding], out_dir: Path) -> Path:
     index: list[str] = ["# Fix Packs — rencana penambalan", "",
                         "Dibuat deterministik dari temuan (tanpa LLM). Setiap paket berisi langkah, "
                         "snippet siap adaptasi, perintah verifikasi, dan sitasi knowledge base.", ""]
-    for i, f in enumerate(sorted(findings, key=lambda x: x.severity), start=1):
+    # urut PRIORITAS (critical dulu) — sort alfabetis menaruh info di atas low
+    for i, f in enumerate(
+            sorted(findings, key=lambda x: SEVERITY_ORDER.get(x.severity, 99)), start=1):
         pack = fix_pack_for(f)
         slug = hashlib.sha1(pack["pack_title"].encode()).hexdigest()[:8]
         lines = [f"# FIX-{i:02d}: {pack['pack_title']}", "",

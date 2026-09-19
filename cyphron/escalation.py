@@ -16,6 +16,9 @@ offensive, eskalasi BERHENTI DI FASE 2 selamanya (fail-closed).
 
 from __future__ import annotations
 
+import re
+from urllib.parse import urlsplit
+
 FASE_PROBE = "PROBE"
 FASE_PATTERN = "PATTERN"
 FASE_ESCALATE = "ESCALATE"
@@ -37,6 +40,25 @@ _UNLOCK: list[tuple[str, tuple[str, ...]]] = [
 _ADMIN_HINTS = ("admin", "dashboard", "manage", "panel", "console")
 _UPLOAD_HINTS = ("upload", "media", "file", "attachment")
 
+_API_PATH_RE = re.compile(r"/api(/|\.|$)", re.IGNORECASE)
+
+
+def _url_path(url: str) -> str:
+    """Path dari URL node (bisa absolut atau relatif)."""
+    if url.startswith(("http://", "https://")):
+        return urlsplit(url).path
+    return url
+
+
+def _segment_match(path: str, hints: tuple[str, ...]) -> bool:
+    """Cocokkan hint per SEGMENT path — substring bebas terlalu salah sasaran
+    (mis. "file" kena /profile)."""
+    for seg in path.lower().split("/"):
+        seg = seg.strip()
+        if seg and seg.split(".", 1)[0].startswith(hints):
+            return True
+    return False
+
 
 def _patterns_in_graph(g) -> dict[str, list[str]]:
     """Deteksi pola dari isi graph; return {pola: [bukti ringkas]}."""
@@ -54,7 +76,7 @@ def _patterns_in_graph(g) -> dict[str, list[str]]:
         params_by_ep.setdefault(e["src"], []).append(e["dst"])
     for ep_id, params in params_by_ep.items():
         url = ep_id.split(":", 1)[-1]
-        if url.rstrip("/").lower().startswith(("http", "/api")) or "/api" in url.lower():
+        if _API_PATH_RE.search(_url_path(url)):
             patterns.setdefault("json-api-params", []).append(url)
         if len(params) >= 3:
             patterns.setdefault("many-params", []).append(url)
@@ -68,9 +90,10 @@ def _patterns_in_graph(g) -> dict[str, list[str]]:
 
     for n in g.nodes("ENDPOINT"):
         url = n["id"].split(":", 1)[-1].lower()
-        if any(h in url for h in _ADMIN_HINTS):
+        path = _url_path(url)
+        if _segment_match(path, _ADMIN_HINTS):
             patterns.setdefault("admin-panel", []).append(url)
-        if any(h in url for h in _UPLOAD_HINTS):
+        if _segment_match(path, _UPLOAD_HINTS):
             patterns.setdefault("upload-endpoint", []).append(url)
     return patterns
 
