@@ -190,8 +190,34 @@ def build(target: str, confirmed: list[dict], texts: list[str],
     return "\n".join(md) + "\n", stats
 
 
+def _quality_gate(md: str) -> dict:
+    """Gerbang kualitas laporan (B8): lint anti-slop deterministik.
+    Gagal lint TIDAK memblok laporan — hasilnya dilampirkan apa adanya
+    supaya penulis laporan memperbaiki blok yang bermasalah."""
+    from .reportslop import lint_report
+    return lint_report(md)
+
+
 def write_report(md: str, out_path: Path) -> Path:
     out_path = Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(md, encoding="utf-8")
     return out_path
+
+
+def build_with_quality_gate(target: str, confirmed: list[dict],
+                            texts: list[str], out_path: Path,
+                            kb_dir: Path | str | None = None,
+                            top: int = 15) -> tuple[Path, dict]:
+    """build() + lampiran gerbang kualitas + stats.gate."""
+    md, stats = build(target, confirmed, texts, kb_dir=kb_dir, top=top)
+    gate = _quality_gate(md)
+    stats["gate"] = {"verdict": gate["verdict"], "score": gate["score"]}
+    md += "\n---\n\n## Gerbang kualitas laporan (anti-slop)\n\n"
+    md += f"Verdict: **{gate['verdict']}** (skor {gate['score']})\n\n"
+    for b in gate["blocks"]:
+        md += f"- [{b['verdict']}] {b['heading']}\n"
+        for i in b["issues"]:
+            md += f"    - {i['rule']}: {i['quote'][:100]!r} — {i['note']}\n"
+    write_report(md, out_path)
+    return out_path, stats

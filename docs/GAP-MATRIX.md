@@ -15,7 +15,7 @@
 |---|---|---|---|---|---|
 | 1 | cloud-security | 66 | PARSIAL | skill 17 + `cloud_bucket_probe` | port skill 79 (audit IAM read-only) |
 | 2 | threat-hunting | 58 | GAP | — (skill 09/45 hanya deteksi/SIEM) | port skill 77 |
-| 3 | threat-intelligence | 52 | PARSIAL | skill 44; deobf kit untuk intel | cukup; nanti pivot graph |
+| 3 | threat-intelligence | 52 | ADA | skill 44 + skill 83 (pivot graf) | selesai (B10) |
 | 4 | network-security | 43 | PARSIAL | skill 21; engine web-centric | parkir (di luar fokus web) |
 | 5 | web-application-security | 42 | ADA | puluhan engine tools/ | — |
 | 6 | digital-forensics | 41 | PARSIAL | skill 14 generik | port skill 75, 76 |
@@ -25,7 +25,7 @@
 | 10 | red-teaming | 35 | ADA | skill 51 + redteam + redteam_lab | — |
 | 11 | container-security | 33 | PARSIAL | skill 18 + `iac.py` (Dockerfile/compose/k8s) | cukup |
 | 12 | security-operations | 28 | PARSIAL | skill 45, 58 | parkir |
-| 13 | ot-ics-security | 29 | GAP | — (skill 23 IoT menyentuh sebagian) | parkir (di luar fokus) |
+| 13 | ot-ics-security | 29 | ADA | skill 85 (pasif-first, staging-only) | selesai (B10) |
 | 14 | api-security | 28 | ADA | skill 16 + api_* engines | — |
 | 15 | incident-response | 26 | ADA | skill 10 + skill 14 | — |
 | 16 | vulnerability-management | 25 | ADA | skill 34 + kb NVD/EDB | — |
@@ -37,7 +37,7 @@
 | 22 | phishing-defense | 15 | PARSIAL | skill 46 + phishing_kit_extract | port skill 78 + engine `email_intel` |
 | 23 | ai-security | 14 | PARSIAL | skill 65 | parkir |
 | 24 | mobile-security | 13 | ADA | skill 23 + apk_kit | — |
-| 25 | ransomware-defense | 13 | PARSIAL | skill 40 (statis) | parkir |
+| 25 | ransomware-defense | 13 | ADA | skill 40 + skill 84 (playbook) | selesai (B10) |
 | 26 | compliance-governance | 11 | ADA | skill 32, 33 | — |
 | 27 | supply-chain-security | 8 | ADA | skill 19 + SBOM | — |
 | 28 | threat-detection | 7 | ADA | skill 09 | — |
@@ -52,7 +52,7 @@
 | 37 | data-protection | 1 | ADA | skill 28 | — |
 | 38 | purple-team | 1 | PARSIAL | redteam detection_coverage | parkir |
 
-Rekap: **ADA 22 · PARSIAL 18 · GAP 6** dari 38 subdomain unik setelah
+Rekap: **ADA 25 · PARSIAL 16 · GAP 5** dari 38 subdomain unik setelah
 normalisasi duplikat nama (identity-* dan red-team-* digabung).
 
 ## 2. Gap prioritas yang di-port (batch ini)

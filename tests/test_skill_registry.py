@@ -16,11 +16,11 @@ class TestSkillRegistry(unittest.TestCase):
 
     def test_all_skills_loaded(self):
         # 65 original + 8 harvested (66-73) + 1 forensics (74)
-        # + 7 gap-port (75-81) + 1 recon (82) = 82
-        self.assertEqual(len(self.registry), 82, "must load all .cyphron skills")
+        # + 7 gap-port (75-81) + 1 recon (82) + 3 intel (83-85) = 85
+        self.assertEqual(len(self.registry), 85, "must load all .cyphron skills")
         ids = {s.id for s in self.registry.skills}
         self.assertTrue({"66", "67", "68", "69", "70", "71", "72", "73",
-                         "74", "75", "76", "77", "78", "79", "80", "81", "82"} <= ids)
+                         "74", "75", "76", "77", "78", "79", "80", "81", "82", "83", "84", "85"} <= ids)
         inventory = self.registry.inventory()
         self.assertTrue(all(mode == "defensive" for _i, _n, mode in inventory))
 

@@ -45,6 +45,8 @@ _PLATFORMS = {
     "kaggle": "https://www.kaggle.com/{u}",
     "pinterest": "https://www.pinterest.com/{u}/",
     "replit": "https://replit.com/@{u}",
+    "devto": "https://dev.to/{u}",
+    "codepen": "https://codepen.io/{u}",
 }
 _NO_SUCH_MARKERS = {
     "hackernews": "No such user",
