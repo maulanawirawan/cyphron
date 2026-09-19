@@ -79,6 +79,8 @@ from .sri_subresource import SriSubresourceTool
 from .hsts_short_maxage import HstsShortMaxageTool
 from .robots_sensitive_entry import RobotsSensitiveEntryTool
 from .email_intel import EmailIntelTool
+from .username_osint import UsernameOsintTool
+from .ip_intel import IpIntelTool
 from .server_banner_soft import ServerBannerSoftTool
 from .favicon_hash import FaviconHashTool
 from .fingerprint_to_cpe import FingerprintToCpeTool
@@ -285,6 +287,8 @@ def build_default_registry(ctx: ToolContext) -> ToolRegistry:
         HstsShortMaxageTool(),
         RobotsSensitiveEntryTool(),
         EmailIntelTool(),
+        UsernameOsintTool(),
+        IpIntelTool(),
         ServerBannerSoftTool(),
         FaviconHashTool(),
         FingerprintToCpeTool(),
