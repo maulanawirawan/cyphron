@@ -151,6 +151,9 @@ def run_scan(opts: ScanOptions, verbose: bool = True) -> ScanRun:
             creds.insert(0, opts.account)
         logged_in = False
         for cred in creds[:4]:
+            if ":" not in cred:
+                ctx.world.note("credentials dilewati (format wajib user:pass)")
+                continue
             user, pwd = cred.split(":", 1)
             cookie = login(opts.target, user, pwd, timeout=opts.timeout_s)
             if cookie:

@@ -54,7 +54,7 @@ class Config:
     raw: dict = field(default_factory=dict)
 
     def knowledge_path(self, key: str) -> Path:
-        return self.cyphron_dir / self.knowledge[key]
+        return self.kimchi_dir / self.knowledge[key]
 
 
 def load(kimchi_dir: Path | None = None) -> Config:

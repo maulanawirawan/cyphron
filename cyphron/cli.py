@@ -318,8 +318,10 @@ def main(argv: list[str] | None = None) -> int:
         if args.command == "drift":
             import json as _json
             from . import drift as _drift
-            old_rows = _json.load(open(args.old, encoding="utf-8"))
-            new_rows = _json.load(open(args.new, encoding="utf-8"))
+            with open(args.old, encoding="utf-8") as fh:
+                old_rows = _json.load(fh)
+            with open(args.new, encoding="utf-8") as fh:
+                new_rows = _json.load(fh)
             report = _drift.diff_surface(old_rows, new_rows)
             print(f"added={report['counts']['added']} removed={report['counts']['removed']} "
                   f"changed={report['counts']['changed']} "
@@ -334,7 +336,8 @@ def main(argv: list[str] | None = None) -> int:
                 for r in queue:
                     print(f"  -> {r.get('url')}")
             if args.out:
-                _json.dump(report, open(args.out, "w", encoding="utf-8"), indent=1)
+                with open(args.out, "w", encoding="utf-8") as fh:
+                    _json.dump(report, fh, indent=1)
                 print(f"drift report -> {args.out}")
             return 0
 
@@ -533,6 +536,7 @@ def main(argv: list[str] | None = None) -> int:
                 from .guardrails.authorization import AuditLog, AuthorizationGate
                 from .tools.base import ToolContext
                 from .adapter import AdapterEngine
+                from .world.model import WorldModel
                 mf = next((m for m in manifests if m["name"] == args.name), None)
                 if mf is None:
                     print(f"[cyphron] adapter tidak ditemukan: {args.name}")
