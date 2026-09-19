@@ -7,28 +7,100 @@ Aturan keamanan (kenapa bukan python -m http.server biasa):
 3. Path terlarang diblokir total: .py, .cyphron (skill!), .git, .env, json, yaml —
    source code attack engine TIDAK PERNAH tersaji ke publik.
 4. Default bind 127.0.0.1. Untuk VPS: jalankan di belakang nginx + HTTPS.
+5. /api/scan menjalankan engine sebagai subprocess TANPA shell, satu job
+   sekaligus per klik, target wajib http(s)://, kerja di folder jobs/<id>/.
+
+Alur user (wizard minimal-klik di app.html):
+  masukkan URL -> klik 1 kartu mode -> MULAI -> polling progress -> unduh PDF.
 
 Jalankan:  python serve.py            (localhost:8080)
 Daftar:    buka /register  atau POST register dari halaman login.
 """
-import hashlib, json, os, secrets
+import hashlib, json, os, secrets, subprocess, sys, threading, time, urllib.parse
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 
 ROOT = Path(__file__).parent
+REPO = ROOT.parent
 ACCOUNTS = ROOT / "accounts.json"
-BLOCK = (".py", ".cyphron", ".git", ".env", ".json", ".yaml", ".md", "__", "cyphron/")
+JOBS = ROOT / "jobs"
+BLOCK = (".py", ".cyphron", ".git", ".env", ".json", ".yaml", "__", "cyphron/")
+
+# mode wizard -> profil dast + kebutuhan otorisasi + lisensi otomatis
+MODES = {
+    "trial":    {"profile": "dev-cicd", "auth_required": False, "kind": "trial",
+                 "tier": "basic", "days": 7, "token_limit": 30},
+    "standard": {"profile": "standard", "auth_required": True, "kind": "standard",
+                 "tier": None, "days": 30, "token_limit": None},
+    "full":     {"profile": "full", "auth_required": True, "kind": "standard",
+                 "tier": None, "days": 30, "token_limit": None},
+}
+
 
 def _load_accounts():
     if ACCOUNTS.exists():
         return json.loads(ACCOUNTS.read_text())
     return {}
 
+
 def _save_accounts(acc):
     ACCOUNTS.write_text(json.dumps(acc, indent=2))
 
+
 def _hash(salt, pw):
     return hashlib.sha256((salt + pw).encode()).hexdigest()
+
+
+class Job:
+    def __init__(self, jid: str):
+        self.dir = JOBS / jid
+        self.dir.mkdir(parents=True, exist_ok=True)
+        self.log_path = self.dir / "log.txt"
+
+    def append(self, line: str):
+        with self.log_path.open("a", encoding="utf-8") as fh:
+            fh.write(line.rstrip() + "\n")
+
+    def tail(self, n: int = 12) -> list:
+        if not self.log_path.exists():
+            return []
+        return self.log_path.read_text(
+            encoding="utf-8", errors="replace").splitlines()[-n:]
+
+    @property
+    def done(self) -> bool:
+        return (self.dir / "out" / "report.md").exists()
+
+
+def _run_job(jid: str, meta: dict):
+    """Worker: spawn engine sebagai subprocess (tanpa shell), catat log."""
+    job = Job(jid)
+    job.append(f"[job] mode={meta['mode']} target={meta['target']}")
+    cmd = [sys.executable, "-m", "cyphron", "dast",
+           "--target", meta["target"],
+           "--profile", meta["profile"],
+           "--out", str(job.dir / "out")]
+    if meta.get("license_path"):
+        cmd += ["--license", meta["license_path"]]
+    if meta.get("auth_path"):
+        cmd += ["--auth", meta["auth_path"]]
+    job.append("[job] " + " ".join(cmd))
+    try:
+        proc = subprocess.run(
+            cmd, cwd=REPO, capture_output=True, text=True, timeout=60 * 60,
+            env={**os.environ, "PYTHONIOENCODING": "utf-8"})
+        for line in (proc.stdout or "").splitlines():
+            job.append(line)
+        if proc.returncode not in (0, 2):
+            job.append(f"[job] engine keluar dengan kode {proc.returncode}")
+            if proc.stderr:
+                job.append(proc.stderr[-500:])
+    except subprocess.TimeoutExpired:
+        job.append("[job] WAKTU HABIS (60 menit) — scan dihentikan")
+    except Exception as exc:  # jangan biarkan job zombie
+        job.append(f"[job] gagal: {type(exc).__name__}: {exc}")
+    job.append("[job] SELESAI" if job.done else "[job] SELESAI tanpa laporan")
+
 
 class Handler(BaseHTTPRequestHandler):
     def log_message(self, *a): pass
@@ -42,20 +114,57 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(data)
 
+    def _raw(self, data: bytes, ctype: str):
+        self.send_response(200)
+        self.send_header("Content-Type", ctype)
+        self.send_header("Content-Length", str(len(data)))
+        self.end_headers()
+        self.wfile.write(data)
+
     def _blocked(self, path):
         low = path.lower()
         return any(b in low for b in BLOCK) or ".." in path
 
+    def _session_email(self):
+        # cookie bernilai token sesi; kita pakai nilainya sebagai identitas
+        # demo — di produksi: session store server-side.
+        cookie = self.headers.get("Cookie", "")
+        if "cyphron_session=" not in cookie:
+            return None
+        return cookie.split("cyphron_session=", 1)[1].split(";", 1)[0]
+
     def do_GET(self):
-        path, _, query = self.path.partition("?")
+        path, _, _q = self.path.partition("?")
         if path == "/register":
             return self._send(200, (ROOT / "app.html").read_text(encoding="utf-8"))
         if self._blocked(path):
             return self._send(404, "not found")
-        if path in ("/app.html", "/api/session"):
-            # butuh token sesi: cek cookie cyphron_session
-            if "cyphron_session=" not in (self.headers.get("Cookie") or ""):
-                return self._send(403, "<h1>403</h1><p>Login dulu via halaman utama.</p>")
+        if path.startswith("/api/"):
+            if not self._session_email():
+                return self._send(403, '{"error":"login dulu"}')
+            if path == "/api/session":
+                return self._send(200, '{"ok":true}')
+            if path.startswith("/api/job/"):
+                jid = path.rsplit("/", 1)[-1]
+                jdir = JOBS / jid
+                if not jdir.is_dir():
+                    return self._send(404, '{"error":"job tidak ditemukan"}')
+                job = Job(jid)
+                pdf = jdir / "out" / "report.pdf"
+                md = jdir / "out" / "report.md"
+                return self._send(200, json.dumps({
+                    "id": jid, "done": job.done, "lines": job.tail(12),
+                    "report": {"pdf": "report.pdf" if pdf.exists() else None,
+                               "md": "report.md" if md.exists() else None}}))
+            if path.startswith("/api/report/"):
+                rest = path.partition("/api/report/")[2]
+                jid, _, fname = rest.partition("/")
+                f = JOBS / jid / "out" / (fname or "report.pdf")
+                if not f.is_file() or f.suffix not in (".pdf", ".md"):
+                    return self._send(404, "laporan belum siap")
+                ctype = ("application/pdf" if f.suffix == ".pdf"
+                         else "text/markdown; charset=utf-8")
+                return self._raw(f.read_bytes(), ctype)
         file = ROOT / (path.lstrip("/") or "index.html")
         if file.is_file():
             return self._send(200, file.read_text(encoding="utf-8"))
@@ -65,9 +174,51 @@ class Handler(BaseHTTPRequestHandler):
         if self._blocked(self.path):
             return self._send(404, "not found")
         length = int(self.headers.get("Content-Length", 0))
-        form = dict(p.split("=", 1) for p in self.headers.get("Cookie", "").split("; ") if "=" in p)
         raw = self.rfile.read(length).decode()
         fields = dict(p.split("=", 1) for p in raw.split("&") if "=" in p)
+        fields = {k: urllib.parse.unquote_plus(v) for k, v in fields.items()}
+        cookie_fields = dict(p.split("=", 1)
+                             for p in self.headers.get("Cookie", "").split("; ")
+                             if "=" in p)
+
+        if self.path == "/api/scan":
+            email = cookie_fields.get("cyphron_session")
+            if not email:
+                return self._send(403, '{"error":"login dulu"}')
+            target = fields.get("target", "").strip()
+            mode = fields.get("mode", "trial")
+            if mode not in MODES:
+                return self._send(400, '{"error":"mode tidak dikenal"}')
+            if not target.startswith(("http://", "https://")):
+                return self._send(400, '{"error":"target wajib http(s)://"}')
+            m = MODES[mode]
+            auth_text = (fields.get("auth_doc") or "").strip()
+            if m["auth_required"] and not auth_text:
+                return self._send(400, '{"error":"mode ini butuh dokumen otorisasi"}')
+            jid = secrets.token_urlsafe(12)
+            job = Job(jid)
+            job.append(f"[job] user={email}")
+            meta = {"target": target, "mode": mode, "profile": m["profile"]}
+            if auth_text:
+                try:
+                    json.loads(auth_text)  # validasi sebelum dipercaya
+                except json.JSONDecodeError as exc:
+                    return self._send(400, f'{{"error":"dokumen otorisasi bukan JSON valid: {exc}"}}')
+                auth_path = job.dir / "auth-doc.json"
+                auth_path.write_text(auth_text, encoding="utf-8")
+                meta["auth_path"] = str(auth_path)
+            # lisensi: trial di-issue otomatis; tier lain dari akun
+            tier = m["tier"] or _load_accounts().get(email, {}).get("tier", "basic")
+            sys.path.insert(0, str(REPO))
+            from cyphron.licensing import issue_license
+            lic_path = job.dir / "license.json"
+            issue_license(lic_path, licensee=email, tier=tier, kind=m["kind"],
+                          days=m["days"], token_limit=m["token_limit"],
+                          bind_device=False)  # scan jalan di server, bukan klien
+            meta["license_path"] = str(lic_path)
+            threading.Thread(target=_run_job, args=(jid, meta), daemon=True).start()
+            return self._send(200, json.dumps({"ok": True, "id": jid}))
+
         action = fields.get("action", "")
         email, pw = fields.get("email", ""), fields.get("password", "")
         if not email or not pw or len(pw) < 8:
@@ -89,8 +240,8 @@ class Handler(BaseHTTPRequestHandler):
             return self._send(200, '{"ok":true}', cookie=f"cyphron_session={tok}; HttpOnly; SameSite=Lax; Path=/")
         return self._send(401, "kredensial salah")
 
+
 if __name__ == "__main__":
-    import sys
     port = int(sys.argv[1]) if len(sys.argv) > 1 else 8080
     print(f"[cyphron] aman di http://127.0.0.1:{port} (register/login: Hash SHA-256, source code TIDAK dilayani)")
     HTTPServer(("127.0.0.1", port), Handler).serve_forever()

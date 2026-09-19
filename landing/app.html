@@ -2,67 +2,155 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Cyphron Console — Login</title>
+<title>Cyphron Console — 3 klik sampai laporan</title>
 <style>
-:root{--bg:#0a0a0b;--p:#121215;--l:#26262c;--a:#f5a524;--t:#e8e8ea;--m:#9b9ba3}
+:root{--bg:#0a0a0b;--p:#121215;--l:#26262c;--a:#f5a524;--t:#e8e8ea;--m:#9b9ba3;--ok:#22c55e}
 *{margin:0;box-sizing:border-box}body{background:var(--bg);color:var(--t);font-family:Inter,system-ui,sans-serif}
-.box{max-width:380px;margin:12vh auto;background:var(--p);border:1px solid var(--l);border-radius:14px;padding:32px}
+.box{max-width:560px;margin:8vh auto;background:var(--p);border:1px solid var(--l);border-radius:14px;padding:32px}
+.wide{max-width:860px}
 h1{font-size:22px}.logo b{color:var(--a)}
-input,select{width:100%;padding:11px;margin:6px 0;border-radius:8px;border:1px solid var(--l);background:#0d0d10;color:var(--t)}
-button{width:100%;padding:12px;background:var(--a);border:0;border-radius:8px;font-weight:700;color:#111;cursor:pointer;margin-top:10px}
-label{font-size:12px;color:var(--m)}
-#app{display:none;max-width:1000px;margin:0 auto;padding:24px}
-.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
-.tier{background:var(--a);color:#111;padding:4px 12px;border-radius:999px;font-weight:700;font-size:13px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
-.card{background:var(--p);border:1px solid var(--l);border-radius:12px;padding:20px;min-height:130px}
-.card h3{margin-bottom:6px;font-size:16px}.card p{color:var(--m);font-size:13px;margin-bottom:12px}
-.lock{opacity:.45}.lock .btn2{background:#333;color:#888;cursor:not-allowed}
-.btn2{display:inline-block;padding:8px 16px;background:var(--a);color:#111;border-radius:6px;font-weight:600;font-size:13px;text-decoration:none}
-.lockmsg{color:var(--a);font-size:12px;margin-top:8px}
-code{background:#0d0d10;padding:2px 6px;border-radius:4px;font-size:12px}
+input,textarea,select{width:100%;padding:11px;margin:6px 0;border-radius:8px;border:1px solid var(--l);background:#0d0d10;color:var(--t)}
+button{padding:12px 22px;background:var(--a);border:0;border-radius:8px;font-weight:700;color:#111;cursor:pointer;margin-top:10px}
+button:disabled{background:#333;color:#888;cursor:not-allowed}
+label{font-size:12px;color:var(--m);display:block;margin-top:10px}
+.steps{display:flex;gap:8px;margin-bottom:18px}
+.step{flex:1;height:4px;background:var(--l);border-radius:2px}.step.on{background:var(--a)}
+.modes{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:8px}
+.mode{background:#0d0d10;border:2px solid var(--l);border-radius:12px;padding:16px;cursor:pointer;transition:.15s}
+.mode:hover{border-color:var(--a)}
+.mode.sel{border-color:var(--a);background:rgba(245,165,36,.08)}
+.mode h3{font-size:15px;margin-bottom:4px}.mode p{color:var(--m);font-size:12px;line-height:1.5}
+.badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;margin-bottom:8px}
+.b-free{background:rgba(34,197,94,.15);color:var(--ok)}
+.b-pro{background:rgba(245,165,36,.15);color:var(--a)}
+#log{background:#0d0d10;border:1px solid var(--l);border-radius:8px;padding:12px;font-family:monospace;font-size:11.5px;min-height:200px;max-height:300px;overflow-y:auto;white-space:pre-wrap;color:var(--m)}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid var(--a);border-top-color:transparent;border-radius:50%;animation:s 1s linear infinite;vertical-align:-2px;margin-right:6px}
+@keyframes s{to{transform:rotate(360deg)}}
+.done{background:rgba(34,197,94,.1);border:1px solid var(--ok);border-radius:10px;padding:16px;margin-top:14px;text-align:center}
+a.dl{display:inline-block;margin:8px 6px 0;padding:10px 20px;background:var(--a);color:#111;border-radius:8px;font-weight:700;text-decoration:none}
+.mut{color:var(--m);font-size:12px}
 </style></head>
 <body>
 <div class="box" id="login">
   <div class="logo"><h1>CYPHRON<b>.</b> Console</h1></div>
-  <p style="color:var(--m);font-size:13px;margin:6px 0 16px">Masuk ke konsol pentest lokal. Tier menentukan engine yang terbuka (gate ada di engine, bukan di halaman ini).</p>
-  <label>Email akun uji</label><input id="u" value="pentest@pentester.com">
-  <label>Password</label><input id="p" type="password" value="pentester123">
-  <label>Tier lisensi (simulasi license.json)</label>
-  <select id="t"><option value="basic">Basic — scan + PDF</option><option value="pro">Pro — + Penambalan</option><option value="business">Business — + Kapasitas & White-box</option><option value="god">God — Semua</option></select>
-  <button onclick="enter()">MASUK</button>
+  <p style="color:var(--m);font-size:13px;margin:6px 0 16px">Masuk atau daftar — trial gratis langsung bisa jalan.</p>
+  <label>Email</label><input id="u" value="pentest@pentester.com">
+  <label>Password (min 8 karakter)</label><input id="p" type="password" value="pentester123">
+  <button onclick="auth()">MASUK / DAFTAR</button>
+  <p style="color:var(--m);font-size:11px;margin-top:14px">Gate tier tetap ditegakkan di engine (kode), bukan di halaman ini.</p>
 </div>
-<div id="app">
-  <div class="top"><div class="logo"><b style="color:var(--a)">CYPHRON</b> Console</div>
-  <div><span class="tier" id="tierlbl"></span> <span style="color:var(--m);font-size:13px" id="who"></span></div></div>
-  <div class="grid" id="cards"></div>
-  <p style="color:var(--m);font-size:12px;margin-top:18px">Jalankan lewat CLI: <code>python -m cyphron scan --target &lt;host&gt; --auth &lt;doc&gt; --license &lt;license.json&gt;</code> — gate tier tetap ditegakkan engine meski halaman ini dibuka paksa.</p>
+
+<div class="box wide" id="app" style="display:none">
+  <div class="logo"><h1>CYPHRON<b>.</b> <span style="font-size:14px;color:var(--m)">wizard pentest otomatis</span></h1></div>
+  <div class="steps" style="margin-top:16px"><div class="step on" id="s1"></div><div class="step" id="s2"></div><div class="step" id="s3"></div></div>
+
+  <div id="w1">
+    <label>1. Target yang MAU DIPERIKSA (wajib milik sendiri / ada izin tertulis)</label>
+    <input id="target" placeholder="https://situskamu.com" autofocus>
+    <button onclick="toMode()">LANJUT →</button>
+    <p class="mut" style="margin-top:12px">Scan tanpa izin pemilik aset itu ilegal — Cyphron menolak mode aktif tanpa dokumen otorisasi.</p>
+  </div>
+
+  <div id="w2" style="display:none">
+    <label>2. PILIH MODE (tinggal klik satu)</label>
+    <div class="modes">
+      <div class="mode" onclick="pick('trial',this)">
+        <span class="badge b-free">GRATIS · TRIAL</span>
+        <h3>Cek Permukaan</h3>
+        <p>Pasif &amp; aman. Tanpa dokumen apa pun. Laporan hasil dipangkas (redacted). 30 token.</p>
+      </div>
+      <div class="mode" onclick="pick('standard',this)">
+        <span class="badge b-pro">STANDAR</span>
+        <h3>Pentest Standar</h3>
+        <p>Scan aktif penuh + laporan lengkap (PoC + bukti). Butuh dokumen otorisasi.</p>
+      </div>
+      <div class="mode" onclick="pick('full',this)">
+        <span class="badge b-pro">PENUH</span>
+        <h3>Pentest Penuh</h3>
+        <p>Crawl dalam + semua engine. Butuh dokumen otorisasi. Paling banyak token.</p>
+      </div>
+    </div>
+    <div id="authbox" style="display:none">
+      <label>Dokumen otorisasi (JSON) — paste di sini</label>
+      <textarea id="authdoc" rows="6" placeholder='{"id":"...","target":"...","allowed_by":"...","expires":"..."}'></textarea>
+    </div>
+    <button onclick="run()">MULAI SCAN OTOMATIS</button>
+    <button style="background:none;color:var(--m)" onclick="back()">← ganti mode</button>
+  </div>
+
+  <div id="w3" style="display:none">
+    <label>3. ENGINE BERJALAN OTOMATIS — tinggal tunggu</label>
+    <p class="mut" style="margin:4px 0 10px"><span class="spin" id="spin"></span>Planner menyusun langkah, engine berjalan berurutan, token tercatat otomatis. Jangan tutup tab ini.</p>
+    <div id="log"></div>
+    <div id="finish"></div>
+  </div>
 </div>
+
 <script>
-const F=[
-{n:"Target & Scan",d:"Black/grey/white-box scan 19 engine",min:"basic",cmd:"scan"},
-{n:"Laporan PDF/DOCX/MD",d:"Temuan + bukti + PoC + CVSS band",min:"basic",cmd:"laporan otomatis"},
-{n:"Fix Packs (Penambalan)",d:"Rencana perbaikan per temuan",min:"pro",cmd:"fix"},
-{n:"Verify Delta",d:"Bukti fixed/open/new setelah nambal",min:"pro",cmd:"verify"},
-{n:"Grey-box Login",d:"Login akun uji + sesi terautentikasi",min:"pro",cmd:"--account"},
-{n:"Perf Engine (k6-class)",d:"Load test bertahap + kapasitas",min:"business",cmd:"perf"},
-{n:"White-box SAST + SCA",d:"code_audit + OSV.dev pada repo",min:"business",cmd:"code_audit"},
-{n:"Session & Chain Analysis",d:"JWT/JWE tamper, multi-peran, attack chain",min:"god",cmd:"session_probe"},
-];
-const R={basic:1,pro:2,business:3,god:4};
-function enter(){
-  localStorage.cyTier=document.getElementById("t").value;
-  const tier=localStorage.cyTier;
+let MODE="trial", JOBID=null;
+function auth(){
+  const u=encodeURIComponent(document.getElementById("u").value),
+        p=encodeURIComponent(document.getElementById("p").value);
+  const body=`action=login&email=${u}&password=${p}`;
+  fetch("/",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},
+    body}).then(r=>r.text()).then(t=>{
+      if(t.indexOf('"ok"')>-1){masuk();}
+      else if(t.indexOf("kredensial")>-1){ // belum terdaftar -> daftar otomatis
+        fetch("/",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},
+          body:`action=register&email=${u}&password=${p}&tier=basic`})
+          .then(r2=>r2.text()).then(()=>masuk());}
+      else alert(t);
+    });
+}
+function masuk(){
   document.getElementById("login").style.display="none";
   document.getElementById("app").style.display="block";
-  document.getElementById("tierlbl").innerText=tier.toUpperCase();
-  document.getElementById("who").innerText=document.getElementById("u").value;
-  const r=R[tier];
-  document.getElementById("cards").innerHTML=F.map(f=>{
-    const ok=R[f.min]<=r;
-    return `<div class="card ${ok?"":"lock"}"><h3>${ok?"":"🔒 "}${f.n}</h3><p>${f.d}</p>
-    ${ok?`<span class="btn2">${f.cmd}</span>`:`<div class="lockmsg">Butuh tier ${f.min.toUpperCase()} — upgrade untuk membuka (engine akan REFUSED)</div>`}</div>`;
-  }).join("");
+}
+function toMode(){
+  const t=document.getElementById("target").value.trim();
+  if(t.indexOf("http://")!==0&&t.indexOf("https://")!==0){alert("Target wajib diawali http:// atau https://");return;}
+  document.getElementById("s1").classList.remove("on");
+  document.getElementById("s2").classList.add("on");
+  document.getElementById("w1").style.display="none";
+  document.getElementById("w2").style.display="block";
+}
+function pick(m,el){
+  document.querySelectorAll(".mode").forEach(x=>x.classList.remove("sel"));
+  el.classList.add("sel");MODE=m;
+  document.getElementById("authbox").style.display=(m==="trial")?"none":"block";
+}
+function back(){document.getElementById("w2").style.display="none";
+  document.getElementById("w1").style.display="block";
+  document.getElementById("s1").classList.add("on");
+  document.getElementById("s2").classList.remove("on");}
+function run(){
+  const t=encodeURIComponent(document.getElementById("target").value.trim());
+  const d=encodeURIComponent(document.getElementById("authdoc").value);
+  fetch("/api/scan",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},
+    body:`target=${t}&mode=${MODE}&auth_doc=${d}`})
+    .then(r=>r.json()).then(j=>{
+      if(j.error){alert(j.error);return;}
+      JOBID=j.id;
+      document.getElementById("s2").classList.remove("on");
+      document.getElementById("s3").classList.add("on");
+      document.getElementById("w2").style.display="none";
+      document.getElementById("w3").style.display="block";
+      poll();
+    });
+}
+function poll(){
+  fetch("/api/job/"+JOBID).then(r=>r.json()).then(j=>{
+    document.getElementById("log").textContent=j.lines.join("\n");
+    if(j.done){
+      document.getElementById("spin").style.display="none";
+      document.getElementById("finish").innerHTML=
+        `<div class="done"><b style="color:var(--ok)">SELESAI — laporan siap</b><br>
+        <a class="dl" href="/api/report/${JOBID}/report.pdf">Unduh PDF</a>
+        <a class="dl" style="background:none;border:1px solid var(--a);color:var(--a)" href="/api/report/${JOBID}/report.md">Unduh MD</a></div>`;
+      return;
+    }
+    setTimeout(poll,2500);
+  }).catch(()=>setTimeout(poll,4000));
 }
 </script>
 </body></html>
