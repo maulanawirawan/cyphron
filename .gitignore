@@ -12,9 +12,12 @@ pdfcheck/
 **/landing/reports/
 
 # knowledge base hasil unduhan (berat, bukan kode) — kode & cpe_map tetap masuk
-cyphron/cyphron/kb/data/
+cyphron/kb/data/
 
-# sisa non-code
+# runtime pack: proposal skill hasil fermentasi (review gate manual)
+.cyphron/ferments/
+
+# sisa non-code & data lokal
 package-lock.json
 progress_terakhir_cybersecurity.txt
 scratch/

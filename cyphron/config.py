@@ -13,8 +13,14 @@ def default_kimchi_dir() -> Path:
     env = os.environ.get("CYPHRON_HOME")
     if env:
         return Path(env).resolve()
-    # cyphron/config.py -> cyphron pkg -> cyphron root -> training/
-    return Path(__file__).resolve().parents[2] / KIMCHI_DIRNAME
+    # cyphron/config.py -> cyphron pkg -> project root (repo root)
+    root = Path(__file__).resolve().parents[2]
+    # pack lives at project root; legacy layout (pack one level above) still honored
+    candidates = (root / KIMCHI_DIRNAME, root.parent / KIMCHI_DIRNAME)
+    for cand in candidates:
+        if (cand / "agent-config.yaml").is_file():
+            return cand
+    return candidates[0]
 
 
 @dataclass
