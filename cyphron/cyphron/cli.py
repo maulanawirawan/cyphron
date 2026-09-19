@@ -206,6 +206,26 @@ def main(argv: list[str] | None = None) -> int:
                                  "+ deteksi versi runtime (TANPA instal apa pun)")
     p_sync.add_argument("--out", help="tulis inventaris ke JSON")
 
+    p_res = sub.add_parser("resilience",
+                           help="uji ketahanan bertahap: ladder bounded + "
+                                "knee detection + verdict SURVIVE/DEGRADE/FAIL "
+                                "(butuh --auth; bukan modul flood)")
+    p_res.add_argument("--target", required=True)
+    p_res.add_argument("--auth", required=True)
+    p_res.add_argument("--profile", choices=["quick", "standard"],
+                       default="standard")
+    p_res.add_argument("--out", default="cyphron_resilience")
+
+    p_fraud = sub.add_parser("fraud-dossier",
+                             help="dossier pengaduan penipuan pasif: analisis "
+                                  "prefix operator/bank + langkah resmi "
+                                  "(TANPA resolusi identitas orang)")
+    p_fraud.add_argument("--phone", help="nomor HP pelaku (dianalisis struktur)")
+    p_fraud.add_argument("--account", help="nomor rekening pelaku")
+    p_fraud.add_argument("--bank-hint", help="indikasi bank dari bukti transfer klien")
+    p_fraud.add_argument("--note", default="", help="catatan kasus")
+    p_fraud.add_argument("--out", default="cyphron_fraud")
+
     p_tiers = sub.add_parser("tiers", help="tier pack: 100 skills dalam 4 tingkat severity")
     p_tiers.add_argument("--build", action="store_true", help="generate file skill ke .kimchi/skills-tiers/")
     p_tiers.add_argument("--build-bounty", action="store_true", help="generate Bug Bounty pack (harvest 2026-09-06)")
@@ -772,6 +792,67 @@ def main(argv: list[str] | None = None) -> int:
                 print(f"  {lid:14} {status}")
             print("[cyphron] catatan: auto-update = update knowledge pack ini "
                   "via repo (hash di atas); kompiler TIDAK diinstal otomatis")
+            return 0
+
+        if args.command == "resilience":
+            from .guardrails.authorization import (
+                AuthorizationDocument, AuthorizationGate, host_port_of)
+            from .resilience import render_resilience_report, run_resilience
+            doc = AuthorizationDocument.load(Path(args.auth))
+            gate = AuthorizationGate(doc)
+            host, port = host_port_of(args.target)
+            decision = gate.evaluate(host, port, {"active", "load"})
+            if not decision.allowed:
+                print(f"[cyphron] resilience REFUSED — {decision.reason}")
+                return 3
+            print(f"[cyphron] resilience: ladder bounded pada {args.target} "
+                  f"(profile {args.profile}; bukan modul flood)")
+            res = run_resilience(args.target, profile=args.profile,
+                                 timeout=8.0)
+            out_dir = Path(args.out)
+            out_dir.mkdir(parents=True, exist_ok=True)
+            (out_dir / "resilience.json").write_text(
+                json.dumps(res, indent=1, ensure_ascii=False),
+                encoding="utf-8")
+            (out_dir / "RESILIENCE-REPORT.md").write_text(
+                render_resilience_report(res), encoding="utf-8")
+            for s in res["stages"]:
+                print(f"  {s['vus']:>3} VU  rps={s['rps']:>7} p95={s['p95_ms']:>5}ms "
+                      f"err={s['error_rate']:.1%}")
+            knee = res.get("knee")
+            if knee:
+                print(f"[cyphron] knee: {knee['vus']} VU — "
+                      + "; ".join(knee["reasons"]))
+            print(f"[cyphron] verdict: {res['verdict']} — {res['reason']}")
+            print(f"[cyphron] laporan: {out_dir / 'RESILIENCE-REPORT.md'}")
+            return 0
+
+        if args.command == "fraud-dossier":
+            if not (args.phone or args.account):
+                print("[cyphron] fraud-dossier: butuh --phone dan/atau --account")
+                return 1
+            from .fraudintel import build_fraud_case
+            case = build_fraud_case(
+                phone_raw=args.phone, account_raw=args.account,
+                bank_hint=args.bank_hint, case_note=args.note,
+                out_dir=Path(args.out))
+            if case["phone"]:
+                ph = case["phone"]
+                op = (ph["candidates"][0]["operator"] if ph["candidates"]
+                      else "AMBIGU")
+                print(f"[cyphron] phone {ph['e164_masked']}: operator "
+                      f"kandidat = {op}")
+            if case["account"]:
+                ac = case["account"]
+                banks = ", ".join(c["bank"] for c in ac["candidates"][:3]) \
+                    or "AMBIGU"
+                print(f"[cyphron] account {ac['account_masked']}: kandidat "
+                      f"bank = {banks}")
+            print(f"[cyphron] dossier (teredaksi): "
+                  f"{Path(args.out) / 'FRAUD-DOSSIER.md'}")
+            print("[cyphron] batas: TIDAK ada resolusi identitas orang — "
+                  "jalur resmi = cekrekening.id / bank / OJK 157 / Polri "
+                  "Tipid Siber")
             return 0
 
         if args.command == "check":
