@@ -58,11 +58,30 @@ class TestCacheDeception(unittest.TestCase):
 
     def test_confirmed_when_cache_serves_member_without_session(self):
         _CacheSim(self, cacheable=True)
-        tr = self.tool.run({"url": "https://t.test/dashboard"}, _ctx())
+        tr = self.tool.run({"url": "https://t.test/dashboard",
+                            "member_marker": "secret-member"}, _ctx())
         self.assertEqual(len(tr.findings), 2)  # .css dan .js sama-sama kena
         self.assertTrue(all(f.status == "confirmed" for f in tr.findings))
         self.assertTrue(all(f.severity == "high" for f in tr.findings))
         self.assertEqual(len(tr.data["confirmed"]), 2)
+
+    def test_no_marker_stays_unconfirmed(self):
+        # anti-FP: tanpa member_marker, bukti konten member tak ada → kandidat
+        _CacheSim(self, cacheable=True)
+        tr = self.tool.run({"url": "https://t.test/dashboard"}, _ctx())
+        self.assertEqual(len(tr.findings), 2)
+        self.assertTrue(all(f.status == "unconfirmed" for f in tr.findings))
+        self.assertTrue(all(f.confidence < 0.9 for f in tr.findings))
+
+    def test_no_session_skipped(self):
+        # anti-FP: tanpa sesi, dua langkah = dua GET anonim identik → skip
+        ctx = ToolContext(gate=AuthorizationGate(None), audit=AuditLog(),
+                          world=WorldModel(), rate_limit_s=0.0, timeout_s=5.0,
+                          max_requests=50, sessions={})
+        _CacheSim(self, cacheable=True)
+        tr = self.tool.run({"url": "https://t.test/dashboard"}, ctx)
+        self.assertEqual(tr.findings, [])
+        self.assertIn("butuh session_cookie", tr.data["note"])
 
     def test_no_store_blocks(self):
         _CacheSim(self, cacheable=False)

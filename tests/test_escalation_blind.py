@@ -104,7 +104,7 @@ class TestBlindReproducer(unittest.TestCase):
 
         w = WorldModel()
         f = _finding(request="GET https://t.test/admin",
-                     response=body)
+                     response=f"HTTP 200; {body}")
         r = replay(f, _ctx(w))
         self.assertTrue(r["attempted"])
         self.assertTrue(r["match"])
@@ -114,6 +114,21 @@ class TestBlindReproducer(unittest.TestCase):
         self.assertIn("blind", kinds)
         self.assertEqual(verdicts.verdict_of(f), verdicts.BLIND_VALIDATED)
 
+    def test_marker_match_requires_same_status(self):
+        body = "selamat datang di panel admin ACME-INTERNAL-7788 terpercaya"
+        _orig = http_engine.http_get
+        def fake_get(url, **kw):
+            return 200, {}, body, 1
+        http_engine.http_get = fake_get
+        self.addCleanup(setattr, http_engine, "http_get", _orig)
+        f = _finding(request="GET https://t.test/admin",
+                     response=f"HTTP 302; {body}")
+        r = replay(f, _ctx())
+        self.assertTrue(r["attempted"])
+        self.assertFalse(r["match"])
+        self.assertIn("status berubah", r["reason"])
+        self.assertNotIn("blind", [e["kind"] for e in f.evidence_chain])
+
     def test_marker_missing_is_not_rejection(self):
         _orig = http_engine.http_get
         def fake_get(url, **kw):
@@ -122,7 +137,7 @@ class TestBlindReproducer(unittest.TestCase):
         self.addCleanup(setattr, http_engine, "http_get", _orig)
         w = WorldModel()
         f = _finding(request="GET https://t.test/admin",
-                     response="konten lama yang berbeda sekali")
+                     response="HTTP 200; konten lama yang berbeda sekali")
         r = replay(f, _ctx(w))
         self.assertTrue(r["attempted"])
         self.assertFalse(r["match"])

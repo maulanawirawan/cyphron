@@ -59,6 +59,25 @@ class CacheDeceptionProbeTool(Tool):
         probes = [_PROBE_SUFFIXES[0], _PROBE_SUFFIXES[1]]
         candidates: list[dict] = []
         confirmed: list[dict] = []
+        note_extra = ""
+
+        if not cookie:
+            # tanpa sesi, kedua langkah adalah dua GET anonim yang sama —
+            # halaman publik apa pun (atau SPA catch-all) bakal "terkonfirmasi"
+            # palsu. WCD hanya bermakna pada halaman TERAUTENTIKASI.
+            return ToolResult(tool=self.name, ok=True, data={
+                "base": base, "candidates": [], "confirmed": [],
+                "note": "dilewati: butuh session_cookie/ctx.sessions — "
+                        "tanpa sesi probe tidak valid (anti-FP)",
+            }, findings=[])
+
+        # kontrol: konten anonim di path ASLI — jadi pembanding diferensial.
+        # Situs yang membalas halaman yang sama untuk SEMUA path (catch-all)
+        # tidak boleh lolos sebagai "konten member".
+        ctx.throttle()
+        st_k, h_k, b_k, _ = http_engine.http_get(base, timeout=ctx.timeout_s)
+        ctx.world.observe_response(base, st_k, h_k, b_k, self.name)
+        generic_body = (st_k == 200 and b_k and b_k[:400] is not None)
 
         for suffix in probes:
             url = base + suffix
@@ -74,6 +93,9 @@ class CacheDeceptionProbeTool(Tool):
             memberish = (len(b1) > 200 and "<html" in b1.lower())
             if marker:
                 memberish = memberish and marker.lower() in b1.lower()
+            # diferensial: halaman sesi HARUS berbeda dari konten publik
+            if generic_body and b1[:400] == b_k[:400]:
+                continue
             if not (ok1 and memberish):
                 continue
             candidates.append({"url": url, "why": why1, "len": len(b1)})
@@ -86,7 +108,8 @@ class CacheDeceptionProbeTool(Tool):
             if marker and same:
                 same = marker.lower() in b2.lower()
             if same:
-                confirmed.append({"url": url, "len": len(b2)})
+                confirmed.append({"url": url, "len": len(b2),
+                                  "has_marker": bool(marker)})
 
         findings = [Finding(
             tool=self.name,
@@ -94,22 +117,30 @@ class CacheDeceptionProbeTool(Tool):
             severity="high", cwe="CWE-524",
             description=("Halaman terautentikasi ter-cache pada path statis "
                          "dan konten member terbaca TANPA sesi (dua-langkah "
-                         "divalidasi: dengan sesi 200 + cacheable; tanpa "
-                         "sesi mengembalikan konten identik). Penyerang bisa "
-                         "membaca cache korban bila korban membuka link "
-                         "berakhiran ekstensi statis."),
+                         "divalidasi: dengan sesi 200 + cacheable + konten "
+                         "berbeda dari halaman publik; tanpa sesi "
+                         "mengembalikan konten identik"
+                         + (", marker member ada di kedua langkah" if c["has_marker"]
+                            else "; TANPA member_marker — verifikasi manual "
+                                 "konten member wajib sebelum dipakai")
+                         + "). Penyerang bisa membaca cache korban bila korban "
+                           "membuka link berakhiran ekstensi statis."),
             recommendation=("Set Cache-Control: private, no-store pada semua "
                             "respons terautentikasi; jangan meng-cache path "
                             "member berdasarkan ekstensi."),
             target_url=c["url"], request="GET " + c["url"],
             response=f"len={c['len']} (identik dengan sesi)",
-            confidence=0.9, source_skill=self.source_skill,
-            status="confirmed", evidence_kind="request-response",
+            confidence=0.9 if c["has_marker"] else 0.55,
+            source_skill=self.source_skill,
+            status="confirmed" if c["has_marker"] else "unconfirmed",
+            evidence_kind="request-response",
         ) for c in confirmed]
 
         return ToolResult(tool=self.name, ok=True, data={
             "base": base,
             "candidates": candidates,
             "confirmed": confirmed,
-            "note": "tanpa langkah-2 identik = bukan temuan (no-store benar)",
+            "note": ("tanpa langkah-2 identik = bukan temuan (no-store benar); "
+                     "tanpa member_marker temuan tetap kandidat")
+                     + note_extra,
         }, findings=findings)

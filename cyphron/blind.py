@@ -33,6 +33,13 @@ def _request_url(finding: Finding) -> str | None:
     return url or None
 
 
+def _old_status(finding: Finding) -> int | None:
+    """Status HTTP asli dari field response (format umum engine: 'HTTP 200; ...')."""
+    resp = (getattr(finding, "response", "") or "").strip()
+    m = re.match(r"HTTP/?[\d.]*\s*(\d{3})", resp, re.I)
+    return int(m.group(1)) if m else None
+
+
 def _old_marker(finding: Finding) -> str | None:
     resp = (getattr(finding, "response", "") or "")
     body = resp.strip()
@@ -54,8 +61,10 @@ def replay(finding: Finding, ctx, timeout: float | None = None) -> dict:
         return result
     url = _request_url(finding)
     marker = _old_marker(finding)
-    if not url or not marker:
-        result["reason"] = "evidence tidak cukup (butuh request GET + respons lama)"
+    old_status = _old_status(finding)
+    if not url or not marker or old_status is None:
+        result["reason"] = ("evidence tidak cukup (butuh request GET + respons lama "
+                            "dengan status HTTP terekam)")
         return result
     try:
         ctx.throttle()
@@ -66,18 +75,20 @@ def replay(finding: Finding, ctx, timeout: float | None = None) -> dict:
         return result
     result["attempted"] = True
     result["status"] = st if isinstance(st, int) else -1
-    old_status = getattr(finding, "response", "") or ""
     result["marker"] = marker
     marker_found = marker in (body or "")
-    # status tidak wajib identik-integer; cukup marker + tidak error
-    if marker_found:
+    # anti catch-all: marker + status HARUS sama (docstring: "status + isi")
+    if result["status"] != old_status:
+        result["reason"] = (f"status berubah (asli {old_status}, replay "
+                            f"{result['status']}) — kemungkinan catch-all/error")
+    elif marker_found:
         result["match"] = True
         finding.attach_evidence("blind", {
             "replayed_url": url, "marker": marker,
             "status": result.get("status"), "mode": "GET-blind",
         })
         ctx.world.note(f"blind re-producer: {finding.id} reproduksi ulang "
-                       f"(marker cocok) -> BLIND_VALIDATED")
+                       f"(marker cocok, status {old_status}) -> BLIND_VALIDATED")
     else:
         result["reason"] = "marker tidak muncul pada replay (state berubah?)"
     return result
@@ -88,5 +99,8 @@ def replay_all(findings: list[Finding], ctx, cap: int = 10) -> list[dict]:
     for f in findings:
         if len(out) >= cap:
             break
+        req = (getattr(f, "request", "") or "").upper()
+        if req.startswith(("POST", "PUT", "PATCH", "DELETE")):
+            continue  # non-GET tidak memakan jatah cap
         out.append({"id": getattr(f, "id", ""), **replay(f, ctx)})
     return out

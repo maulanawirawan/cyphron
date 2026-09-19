@@ -184,8 +184,11 @@ class DirProbeTool(Tool):
         base = str(args["url"]).rstrip("/")
         findings: list[Finding] = []
         # baseline: a path that must not exist, to learn the 404 shape
+        # (redirects NOT followed: CMS yang 301-kan semua path ke login
+        #  tidak boleh jadi "200 + konten generik" palsu)
         marker = "/cx-zz-not-a-real-path-" + str(ctx.world.request_count)
-        miss_status, _h, miss_body, _ms = http_engine.http_get(base + marker, timeout=ctx.timeout_s)
+        miss_status, _h, miss_body, _ms = http_engine.http_get(
+            base + marker, timeout=ctx.timeout_s, follow_redirects=False)
         ctx.world.observe_response(base + marker, miss_status, _h, miss_body, self.name)
         misses = {miss_status, 404}
         miss_len = len(miss_body)
@@ -220,7 +223,8 @@ class DirProbeTool(Tool):
             ct-nya berbeda (zip/sqlite/plain) atau ada magic bytes."""
             m2 = "/cx-zz-not-a-real-path-" + str(ctx.world.request_count) + "-v"
             st2, h2, body2, _ms2 = http_engine.http_get(base + m2,
-                                                        timeout=ctx.timeout_s)
+                                                        timeout=ctx.timeout_s,
+                                                        follow_redirects=False)
             ctx.world.observe_response(base + m2, st2, h2, body2, self.name)
             ct2 = next((v for k, v in (h2 or {}).items()
                         if k.lower() == "content-type"), "").lower()
@@ -230,7 +234,8 @@ class DirProbeTool(Tool):
         seen_paths = {q[0] for q in PATHS}
         for path, severity, message in PATHS + [q for q in PATHS_EXTENDED if q[0] not in seen_paths]:
             url = f"{base}/{path}"
-            status, _h, body, _ms = http_engine.http_get(url, timeout=ctx.timeout_s)
+            status, _h, body, _ms = http_engine.http_get(url, timeout=ctx.timeout_s,
+                                                         follow_redirects=False)
             ctx.world.observe_response(url, status, _h, body, self.name)
             soft404 = (
                 miss_body.strip() == body.strip()
@@ -244,7 +249,9 @@ class DirProbeTool(Tool):
             if status < 400 and not soft404 and not _magic_real(body) \
                     and not _ct_plausible(path, ct.lower()):
                 soft404 = True  # /backup.zip yang "nyata" tak pernah text/html
-            if status < 400 and status not in misses and not soft404:
+            # 3xx = redirect (kini TIDAK diikuti): bukan konten langsung,
+            # jangan pernah jadi hit "exposed/confirmed"
+            if status < 300 and status not in misses and not soft404:
                 if not _magic_real(body) and _fresh_miss_looks_same(status, body, ct):
                     soft404_count += 1
                     continue

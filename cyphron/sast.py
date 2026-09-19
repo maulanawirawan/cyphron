@@ -179,7 +179,8 @@ CORE_RULES: list[Rule] = [
     Rule("PY-VERIFY-FALSE", "requests/verify=False menonaktifkan "
          "validasi TLS",
          "high", "CWE-295", ("python",),
-         {"type": "keyword", "arg": "verify", "value": {"type": "Constant"}},
+         {"type": "keyword", "arg": "verify", "value": {"type": "Constant",
+                                                        "value": False}},
          fix="hapus verify=False; pasang CA bundle yang benar",
          confidence=0.95),
     Rule("PY-RANDOM-TOKEN", "Token/secret memakai random() modul random "
@@ -193,13 +194,15 @@ CORE_RULES: list[Rule] = [
     Rule("PY-PICKLE-LOAD", "pickle.loads pada data tidak dipercaya — "
          "eksekusi kode arbitrer",
          "high", "CWE-502", ("python",),
-         {"type": "Call", "func": {"type": "Attribute", "attr": "loads"}},
+         {"type": "Call", "func": {"type": "Attribute", "attr": "loads",
+                                   "value": {"type": "Name",
+                                             "id": "pickle"}}},
          fix="pakai format data (JSON) atau validasi sumber ketat",
          confidence=0.75),
     Rule("PY-EXCEPT-PASS", "except: pass menelan error diam-diam — "
          "menghalangi deteksi",
          "low", "CWE-703", ("python",),
-         {"type": "ExceptHandler"},
+         {"type": "ExceptHandler", "body": [{"type": "Pass"}]},
          fix="log error atau naikkan (raise); jangan diam",
          confidence=0.8),
 ]
@@ -272,9 +275,12 @@ def _fleet_rules(lang: str) -> list[Rule]:
 # ------------------------------------------------------------ taint python
 def _is_source(node) -> str | None:
     """Deteksi source secara struktural (bukan string dump):
-    request.* (flask-class), input(), sys.argv."""
+    request.* (flask-class, termasuk flask.request.args), input(), sys.argv."""
     for sub in ast.walk(node):
         if isinstance(sub, ast.Name) and sub.id == "request":
+            return "request"
+        if isinstance(sub, ast.Attribute) and sub.attr == "request":
+            # flask.request / request pada rantai atribut apa pun
             return "request"
         if isinstance(sub, ast.Call) and isinstance(sub.func, ast.Name) \
                 and sub.func.id == "input":
@@ -304,29 +310,30 @@ def taint_scan(tree: ast.AST, lines: list[str]) -> list[SastFinding]:
         return any(s in call_name for s in TAINT_SANITIZERS)
 
     for node in ast.walk(tree):
-        # (a) assignment: var = source | var = gabungan taint | var = tainted
+        # (a) assignment: sanitizer dicek DULU (x = sanitize(source) = bersih),
+        #     baru source / gabungan taint
         if isinstance(node, ast.Assign):
-            label = _is_source(node.value)
             names = [t.id for t in node.targets
                      if isinstance(t, ast.Name)]
+            rhs_name = _call_name(node.value.func) \
+                if isinstance(node.value, ast.Call) else ""
+            if sanitize_name(rhs_name):
+                for n in names:
+                    tainted.pop(n, None)
+                continue
+            label = _is_source(node.value)
             if label:
                 for n in names:
                     tainted[n] = (label, node.lineno)
             else:
-                rhs = _call_name(node.value.func) \
-                    if isinstance(node.value, ast.Call) else ""
-                if sanitize_name(rhs):
-                    for n in names:
-                        tainted.pop(n, None)
+                rhs_taint = None
+                if isinstance(node.value, ast.Name) \
+                        and node.value.id in tainted:
+                    rhs_taint = tainted[node.value.id]
                 else:
-                    rhs_taint = None
-                    if isinstance(node.value, ast.Name) \
-                            and node.value.id in tainted:
-                        rhs_taint = tainted[node.value.id]
-                    else:
-                        for sub in ast.walk(node.value):
-                            if isinstance(sub, ast.Name) \
-                                    and sub.id in tainted:
+                    for sub in ast.walk(node.value):
+                        if isinstance(sub, ast.Name) \
+                                and sub.id in tainted:
                                 rhs_taint = tainted[sub.id]
                                 break
                     if rhs_taint:
@@ -340,6 +347,8 @@ def taint_scan(tree: ast.AST, lines: list[str]) -> list[SastFinding]:
                 for arg in node.args:
                     if isinstance(arg, ast.Name) and arg.id in tainted:
                         src, src_line = tainted[arg.id]
+                        if src_line > node.lineno:
+                            continue  # flow harus maju: source sebelum sink
                         key = (fname, arg.id, node.lineno)
                         if key in rendered:
                             continue
@@ -429,20 +438,27 @@ def scan_file(path: Path, rules: list[Rule], slop: bool = False) -> list[SastFin
             tree = ast.parse(text)
         except SyntaxError:
             return []
+        sqli_reported: set[tuple] = set()
         for rule in rules:
             if "*" not in rule.languages and lang not in rule.languages:
                 continue
             if rule.spec:
                 for line, end, captures in rule.find(tree, lines):
                     if rule.id == "PY-SQLI-FORMAT":
-                        # FP-guard: execute dengan 2+ argumen = parameter binding
-                        node = next((n for n in ast.walk(tree)
-                                     if getattr(n, "lineno", None) == line
-                                     and isinstance(n, ast.Call)
-                                     and _call_name(n.func) == "execute"
-                                     and len(n.args) >= 2), None)
-                        if node is not None:
+                        # FP-guard: hanya execute dengan SQL dibangun dinamis
+                        # (f-string/konkatenasi) yang dilaporkan; konstanta dan
+                        # parameter binding tidak.
+                        calls = [n for n in ast.walk(tree)
+                                 if getattr(n, "lineno", None) == line
+                                 and isinstance(n, ast.Call)
+                                 and _call_name(n.func) == "execute"]
+                        dynamic = any(
+                            n.args and isinstance(n.args[0],
+                                                  (ast.JoinedStr, ast.BinOp))
+                            for n in calls)
+                        if not dynamic or (rule.id, str(path), line) in sqli_reported:
                             continue
+                        sqli_reported.add((rule.id, str(path), line))
                     findings.append(SastFinding(
                         rule.id, rule.message, rule.severity, rule.cwe,
                         str(path), line, end, rule.confidence, rule.fix))
