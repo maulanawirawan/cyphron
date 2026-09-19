@@ -185,7 +185,10 @@ class TestFraudIntel(unittest.TestCase):
         self.assertNotIn("901017704020", md)
 
     def test_mask_helpers(self):
-        self.assertEqual(mask_account("901017704020"), "9010****4020")
+        # kontrak redaksi: maksimal 4 digit terakhir yang terlihat
+        self.assertEqual(mask_account("901017704020"), "********4020")
+        # rekening pendek jangan sampai tampil utuh
+        self.assertEqual(mask_account("12345678"), "****5678")
         self.assertTrue(mask_phone("+6283865063443").startswith("+62 838-"))
 
 

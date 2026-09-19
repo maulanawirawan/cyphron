@@ -58,6 +58,9 @@ def _p(style: str, text: str, mono: bool = False, color: str | None = None) -> s
         rpr = '<w:rPr><w:rFonts w:ascii="Consolas" w:hAnsi="Consolas"/><w:sz w:val="18"/></w:rPr>'
     if color:
         rpr = f'<w:rPr><w:b/><w:color w:val="{color}"/><w:sz w:val="22"/></w:rPr>'
+    # karakter kontrol dari wire (ANSI \x1b, \x00, dll.) korupkan document.xml
+    text = "".join(ch if ch >= " " or ch in "\t\n\r" else f"\\x{ord(ch):02x}"
+                   for ch in text)
     runs.append(f"<w:r>{rpr}<w:t xml:space=\"preserve\">{escape(text)}</w:t></w:r>")
     return f'<w:p><w:pPr><w:pStyle w:val="{style}"/></w:pPr>{"".join(runs)}</w:p>'
 

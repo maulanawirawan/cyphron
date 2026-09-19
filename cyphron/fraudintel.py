@@ -101,9 +101,9 @@ def mask_phone(e164: str) -> str:
 
 
 def mask_account(num: str) -> str:
-    if len(num) >= 8:
-        return num[:4] + "*" * (len(num) - 8) + num[-4:]
-    return "*" * len(num)
+    # redaksi dossier yang diteruskan ke banyak pihak: sisakan MAKSIMAL 4 digit
+    # terakhir (rekening pendek jangan tampil utuh)
+    return "*" * max(len(num) - 4, 0) + num[-4:]
 
 
 def analyze_phone(raw: str) -> dict:

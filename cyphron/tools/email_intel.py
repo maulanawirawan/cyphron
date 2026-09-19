@@ -113,11 +113,15 @@ class EmailIntelTool(Tool):
 
         # 1. hasil autentikasi yang dilaporkan header
         auth: dict[str, str] = {}
+        # multiple Authentication-Results (satu per hop) normal — simpan yang
+        # TERBURUK, jangan "terakhir menang" (fail bisa tertimpa softfail)
+        _AR_RANK = {"fail": 0, "softfail": 1, "none": 2, "pass": 3, "neutral": 2}
         for val in ar_values:
             for mech, res in _LABEL_RE.findall(val):
-                cur = auth.get(mech.lower())
-                if cur is None or res in ("fail", "softfail", "none"):
-                    auth[mech.lower()] = res
+                key = mech.lower()
+                cur = auth.get(key)
+                if cur is None or _AR_RANK.get(res, 2) < _AR_RANK.get(cur, 2):
+                    auth[key] = res
         if auth.get("dmarc") == "fail" or auth.get("spf") == "fail":
             leads.append({
                 "kind": "auth_fail",

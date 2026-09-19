@@ -70,11 +70,14 @@ class License:
                 exp = data.get("expires")
                 if exp:
                     self.expires = datetime.fromisoformat(str(exp).replace("Z", "+00:00"))
+                    if self.expires.tzinfo is None:
+                        # naive timestamp → anggap UTC (naive vs aware = TypeError)
+                        self.expires = self.expires.replace(tzinfo=timezone.utc)
                     if self.expires < datetime.now(timezone.utc):
                         self.valid = False
                         self.reason = f"license expired at {exp}"
                         self.tier = "basic"
-            except (json.JSONDecodeError, ValueError) as exc:
+            except (json.JSONDecodeError, ValueError, TypeError) as exc:
                 self.valid = False
                 self.reason = f"license file invalid: {exc}"
 
@@ -82,7 +85,9 @@ class License:
         return TIER_RANK.get(self.tier, 1)
 
     def allows(self, engine: str) -> tuple[bool, str]:
-        needed = ENGINE_TIERS.get(engine, "basic")
+        # fail-closed: engine tak terdaftar butuh tier tertinggi (harus
+        # diregistrasi eksplisit di ENGINE_TIERS — bukan lolos sebagai basic)
+        needed = ENGINE_TIERS.get(engine, "god")
         if not self.valid:
             return False, f"license invalid: {self.reason}"
         if self.rank() >= TIER_RANK.get(needed, 1):

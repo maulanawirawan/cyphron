@@ -106,6 +106,12 @@ def classify(stages: list[dict], knee: dict | None) -> tuple[str, str]:
         if worst < 0.01:
             return ("SURVIVE",
                     "semua stage sehat (error < 1%, p95 stabil)")
+        if worst >= _ERROR_RATE_ALERT:
+            # degradasi tinggi TAPI MERATA tak pernah menghasilkan knee —
+            # jangan sebut "masih rendah"
+            return ("DEGRADE",
+                    f"error puncak {worst:.0%} merata antar stage tanpa titik "
+                    "jenuh jelas — layanan stabil-buruk, perbaiki sebelum beban nyata")
         return ("SURVIVE",
                 f"nol knee terdeteksi; error puncak {worst:.0%} masih rendah")
     return ("DEGRADE",

@@ -83,7 +83,9 @@ def run_scenario(sc: dict) -> dict:
     wall = time.monotonic() - t_start
 
     statuses = [s for _t, s, _e in samples]
-    latencies = sorted(e for _t, _s, e in samples)
+    # request gagal jaringan (status 0, elapsed 0) tidak boleh masuk distribusi
+    # latensi — target down bikin p50/p90 palsu "sehat"
+    latencies = sorted(e for _t, s, e in samples if s != 0)
     ok = sum(1 for s in statuses if 200 <= s < 400)
     e4 = sum(1 for s in statuses if 400 <= s < 500)
     e5 = sum(1 for s in statuses if s >= 500)

@@ -63,12 +63,26 @@ def scan_dockerfile(text: str) -> list[dict]:
     return out
 
 
+def _parse_yaml_docs(text: str) -> list[tuple[dict | None, str]]:
+    """Parse YAML (dukung multi-document `---`). YamliteError DILEMPAR —
+    pemanggil harus fail-loud, jangan senyap (kontrak yamlite)."""
+    docs: list[tuple[dict | None, str]] = []
+    for part in re.split(r"(?m)^---\s*$", text):
+        if not part.strip():
+            continue
+        docs.append((yamlite.parse(part), part))
+    return docs
+
+
 def scan_compose(text: str) -> list[dict]:
     out = []
     try:
-        data = yamlite.parse(text)
-    except Exception:
-        return []
+        docs = _parse_yaml_docs(text)
+    except yamlite.YamliteError as exc:
+        return [{"rule": "IAC-PARSE-ERROR", "line": 0, "code": "-",
+                 "severity": "info",
+                 "message": f"manifest gagal di-parse (periksa manual): {exc}"}]
+    data = next((d for d, _ in docs if isinstance(d, dict)), None)
     services = (data or {}).get("services") or {}
     if not isinstance(services, dict):
         return []
@@ -91,9 +105,12 @@ def scan_compose(text: str) -> list[dict]:
 def scan_k8s(text: str) -> list[dict]:
     out = []
     try:
-        data = yamlite.parse(text)
-    except Exception:
-        return []
+        docs = _parse_yaml_docs(text)
+    except yamlite.YamliteError as exc:
+        return [{"rule": "IAC-PARSE-ERROR", "line": 0, "code": "-",
+                 "severity": "info",
+                 "message": f"manifest gagal di-parse (periksa manual): {exc}"}]
+
     def walk_spec(spec: dict, path: str):
         if not isinstance(spec, dict):
             return
@@ -123,7 +140,27 @@ def scan_k8s(text: str) -> list[dict]:
                                     "severity": "medium",
                                     "message": "Secret via env literal — "
                                                "pakai Secret volume/envRef"})
-    if isinstance(data, dict):
+                # securityContext level CONTAINER (bentuk paling umum di dunia
+                # nyata) — pod-level saja tidak cukup
+                csec = c.get("securityContext") or {}
+                if isinstance(csec, dict):
+                    cname = c.get("name") or "?"
+                    if csec.get("privileged") is True:
+                        out.append({"rule": "IAC-K8S-PRIVILEGED", "line": 0,
+                                    "code": f"{path}.containers.{cname}.privileged",
+                                    "severity": "high",
+                                    "message": "Container privileged"})
+                    if csec.get("allowPrivilegeEscalation") is not False \
+                            and csec.get("privileged") is not True:
+                        out.append({"rule": "IAC-K8S-PRIV-ESC", "line": 0,
+                                    "code": (f"{path}.containers.{cname}"
+                                             ".allowPrivilegeEscalation"),
+                                    "severity": "low",
+                                    "message": "allowPrivilegeEscalation "
+                                               "tidak eksplisit false"})
+    for data, _ in docs:
+        if not isinstance(data, dict):
+            continue
         spec = ((data.get("spec") or {}).get("template") or {}).get("spec") \
             or data.get("spec") or {}
         walk_spec(spec if isinstance(spec, dict) else {},

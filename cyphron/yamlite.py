@@ -182,7 +182,11 @@ def _parse_list(lines, i, indent):
             elif v2 != "":
                 item[k2] = _parse_scalar(v2)
                 i += 1
-            elif i + 1 < len(lines) and lines[i + 1][0] > lines[i][0]:
+            elif i + 1 < len(lines) and (
+                    lines[i + 1][0] > lines[i][0]
+                    or lines[i + 1][1].startswith("- ")):
+                # blok dalam bisa lebih indent ATAU list same-indent
+                # (sama seperti _parse_mapping) — YAML sah, jangan ditolak
                 item[k2], i = _parse_block(lines, i + 1, lines[i + 1][0])
             else:
                 item[k2] = None

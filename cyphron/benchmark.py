@@ -174,8 +174,10 @@ def render_markdown(results: dict, title: str = "Benchmark Cyphron") -> str:
         "|---|---|---|---|---|---|",
     ]
     for r in results["cases"]:
+        cpe = r.get("cpe")
+        cpe_txt = f"{cpe[0]}/{cpe[1]}" if cpe else "-"
         lines.append(
-            f"| {r['text']} | {r['cpe'][0]}/{r['cpe'][1] if r['cpe'] else '-'} "
+            f"| {r['text']} | {cpe_txt} "
             f"| {', '.join(r['predicted']) or '-'} | "
             f"{', '.join(r['gold']) or '-'} | {r['ambiguous_rejected']} | "
             f"{'ya' if r['ok'] else 'TIDAK'} |")
