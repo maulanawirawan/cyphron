@@ -52,10 +52,22 @@ Yang bikin researcher/produk "dilirik" korporat — terbukti dari data:
 - Setiap teknik: lab-sandbox + dokumentasi + batas otorisasi eksplisit.
 - Fungsi: bukti kemampuan ofensif TINGKAT ATAS tanpa menyentuh infra orang.
 
-### 2d. Resilience & load (versi legal dari "DDoS")
-- Naikkan `perf_engine` → profile stress terjadwal dengan authorization gate,
-  laporan ketahanan (aplikasi/CDN/WAF survive atau tidak) = produk yang
-  korporat BELI ("uji ketahanan infra terhadap serangan", bukan serangannya).
+### 2d. Resilience & load (versi legal dari "DDoS") — SELESAI 19 Sep
+- `resilience.py`: ladder VU bertahap bounded (cap 50 VU / 180s total, rate
+  tetap, tanpa eskalasi) + knee detection deterministik + verdict
+  SURVIVE/DEGRADE/FAIL + RESILIENCE-REPORT.md siap klien; CLI `resilience`
+  wajib --auth (gate active+load). Modul flood/DDoS TETAP tidak ada —
+  kebutuhan "tes website sendiri" terjawab penuh di sini.
+
+### 2h. Fraud-intel & attribution kit (baru, selesai 19 Sep)
+- `fraudintel.py` + CLI `fraud-dossier`: analisis nomor HP (E.164 + blok
+  prefix operator ID, confidence + catatan porting) dan nomor rekening
+  (kandidat bank dari panjang terdokumentasi; ambigu DILABEL, hint klien
+  mempersempit); dossier pengaduan teredaksi dengan urutan langkah resmi
+  (CekRekening.id / bank / OJK 157 / Polri Tipid Siber) + checklist bukti.
+- BATAS ditegakkan: TANPA resolusi identitas orang; TANPA data kebocoran
+  (UU PDP/UU ITE) — Cyphron menyiapkan paket pengaduan korban, identitas
+  pelaku tetap kewenangan operator/bank/penegak hukum.
 
 ### 2e. SAST/Taint polyglot (dari ROADMAP-UNITY)
 - Rule engine + taint source→sink→sanitizer untuk Python/JS/C++ — C++ masuk
