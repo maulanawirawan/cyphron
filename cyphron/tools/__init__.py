@@ -79,6 +79,7 @@ from .sri_subresource import SriSubresourceTool
 from .hsts_short_maxage import HstsShortMaxageTool
 from .robots_sensitive_entry import RobotsSensitiveEntryTool
 from .email_intel import EmailIntelTool
+from .cache_deception_probe import CacheDeceptionProbeTool
 from .username_osint import UsernameOsintTool
 from .ip_intel import IpIntelTool
 from .server_banner_soft import ServerBannerSoftTool
@@ -288,6 +289,7 @@ def build_default_registry(ctx: ToolContext) -> ToolRegistry:
         RobotsSensitiveEntryTool(),
         EmailIntelTool(),
         UsernameOsintTool(),
+        CacheDeceptionProbeTool(),
         IpIntelTool(),
         ServerBannerSoftTool(),
         FaviconHashTool(),
