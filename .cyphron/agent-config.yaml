@@ -9,7 +9,7 @@ agent:
   version: "2.0.0"
   type: "cybersecurity"
   description: >
-    A sophisticated, locally-hosted AI agent with 65 specialized skills.
+    A sophisticated, locally-hosted AI agent with 81 specialized skills.
     Cyphron operates in two modes: Defensive (build, defend, educate) and
     Offensive (authorized pentesting with scope validation). All offensive
     actions require explicit authorization and scope verification.
@@ -574,6 +574,50 @@ skills:
     name: "Malware Static Triage & Deobfuscation"
     file: "skills/74-malware-static-triage-deobfuscation.md"
     triggers: ["apk", "deobfuscate", "deobfuscate", "malware analysis", "suspicious file", "fake invitation", "static triage"]
+    priority: 1
+    mode: defensive
+
+  # ─── Gap Port dari studi komunitas 2026-09 (75-81) ───
+  - id: "75"
+    name: "Forensik Memori (RAM)"
+    file: "skills/75-forensik-memori.md"
+    triggers: ["memory forensics", "ram dump", "analisis memori", "volatility", "proses terinjeksi", "fileless"]
+    priority: 2
+    mode: defensive
+  - id: "76"
+    name: "Analisis Event Log"
+    file: "skills/76-analisis-event-log.md"
+    triggers: ["event log", "log windows", "auth.log", "sysmon", "4624", "triage log", "timeline log"]
+    priority: 2
+    mode: defensive
+  - id: "77"
+    name: "Threat Hunting Berbasis Hipotesis"
+    file: "skills/77-threat-hunting.md"
+    triggers: ["threat hunting", "hunt hipotesis", "cari indikasi", "beaconing", "persistence hunt", "lolbin"]
+    priority: 2
+    mode: defensive
+  - id: "78"
+    name: "Deteksi Phishing & BEC"
+    file: "skills/78-deteksi-phishing-bec.md"
+    triggers: ["email mencurigakan", "phishing", "bec", "header email", "spf dkim dmarc", "emailIntel"]
+    priority: 1
+    mode: defensive
+  - id: "79"
+    name: "Audit Cloud & IAM (Read-Only)"
+    file: "skills/79-audit-cloud-iam.md"
+    triggers: ["audit iam", "cloud audit", "mfa", "access key", "trust policy", "bucket publik", "eskalasi cloud"]
+    priority: 2
+    mode: defensive
+  - id: "80"
+    name: "Rekomendasi Pertahanan Terpetakan"
+    file: "skills/80-rekomendasi-pertahanan.md"
+    triggers: ["cara ngeblok", "rekomendasi pertahanan", "kontrol defensif", "remediasi prioritas", "sisa risiko"]
+    priority: 2
+    mode: defensive
+  - id: "81"
+    name: "Playbook Penanganan Fraud"
+    file: "skills/81-playbook-fraud.md"
+    triggers: ["rekkening", "penipuan", "fraud", "transfer pelaku", "dossier pengaduan", "pinjaman online"]
     priority: 1
     mode: defensive
 

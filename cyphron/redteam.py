@@ -324,6 +324,10 @@ ENGINE_MITRE: dict[str, dict] = {
     "archive_diff": {"phases": ["RECON"],
                      "hint": "Route historis hidup lagi: tanggalkan "
                      "arsip usang."},
+    "email_intel": {"phases": ["RECON"],
+                    "hint": "header email menunjukkan impersonasi/"
+                            "spoofing: karantina sejenis + verifikasi "
+                            "kanal kedua."},
     "robots_sensitive_entry": {"phases": ["RECON"],
                                "hint": "robots.txt memuat path rahasia: "
                                "hapus entri sensitif (bukan disallow)."},

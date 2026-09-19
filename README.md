@@ -1,6 +1,6 @@
 # Cyphron Core
 
-**AI pentest agent runtime yang berdiri sendiri** — zero third-party dependency, zero LLM provider, dibangun dari nol di atas Python stdlib. Membaca knowledge pack `.kimchi` (65 skill + guardrails + knowledge base) sebagai otak metodologinya.
+**AI pentest agent runtime yang berdiri sendiri** — zero third-party dependency, zero LLM provider, dibangun dari nol di atas Python stdlib. Membaca knowledge pack `.kimchi` (81 skill + guardrails + knowledge base) sebagai otak metodologinya.
 
 > Posisi strategis: platform sejenis umumnya butuh Docker + pip + API key LLM berbayar untuk sekadar jalan.
 > Cyphron Core butuh Python. Titik. Itu nilai jualnya.
@@ -11,7 +11,7 @@
 
 | Komponen | Status | Catatan |
 |---|---|---|
-| Skill Registry | ✅ | Parse `agent-config.yaml` (parser YAML sendiri — bukan PyYAML), muat 65 skill, retrieval top-k deterministik |
+| Skill Registry | ✅ | Parse `agent-config.yaml` (parser YAML sendiri — bukan PyYAML), muat 81 skill, retrieval top-k deterministik |
 | Authorization Gate | ✅ | **Di-enforce kode, bukan prompt**: dokumen izin JSON (scope domain/wildcard/CIDR/port, expiry, restrictions), default DENY, degradasi ke read-only |
 | Audit Log | ✅ | Hash-chain tamper-evident untuk setiap keputusan otorisasi & tool call (port dari `authorization-protocol.md`) |
 | World Model | ✅ | Endpoint/param/teknologi terobservasi, snapshot, ringkasan ter-budget |
@@ -34,7 +34,7 @@ Tim belum memilih model/provider — dan memang tidak dibutuhkan untuk jalan. Ti
 ```bash
 cd D:/GODMODE/training/cyphron
 
-# 1. Cek skill registry (65 skill dari .kimchi)
+# 1. Cek skill registry (81 skill dari .kimchi)
 python -m cyphron skills --query "sql injection di form login"
 
 # 2. Validasi dokumen otorisasi saja
@@ -93,7 +93,7 @@ python -m unittest discover -s tests -v
 ## ROADMAP (setelah v0.1)
 
 1. **Engine perluasan**: cookie/session handling, form-POST probing, NoSQLi probe, SSRF probe, open-redirect, template injection (SSTI), CORS audit, TLS quick-check.
-2. **Skill atomization**: refactor 65 skill prosa → unit atomik (inputs/outputs/allowed_tools/preconditions) + index SQLite; retrieval embedding menyusul saat LLM slot dipasang.
+2. **Skill atomization**: refactor 81 skill prosa → unit atomik (inputs/outputs/allowed_tools/preconditions) + index SQLite; retrieval embedding menyusul saat LLM slot dipasang.
 3. **Skill synthesis**: pola sukses → skill baru status `proposed` di `.kimchi/ferments/` (review gate manual).
 4. **LLM slot**: `LLMPlanner` (provider TBD oleh tim) untuk narasi laporan + hipotesis ad-hoc; gate tetap kode.
 5. **Eval harness**: regresi otomatis terhadap Juice Shop (`../juice-shop`) — detection rate & false positive rate per engine.

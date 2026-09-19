@@ -78,6 +78,7 @@ from .cache_control_missing import CacheControlMissingTool
 from .sri_subresource import SriSubresourceTool
 from .hsts_short_maxage import HstsShortMaxageTool
 from .robots_sensitive_entry import RobotsSensitiveEntryTool
+from .email_intel import EmailIntelTool
 from .server_banner_soft import ServerBannerSoftTool
 from .favicon_hash import FaviconHashTool
 from .fingerprint_to_cpe import FingerprintToCpeTool
@@ -283,6 +284,7 @@ def build_default_registry(ctx: ToolContext) -> ToolRegistry:
         SriSubresourceTool(),
         HstsShortMaxageTool(),
         RobotsSensitiveEntryTool(),
+        EmailIntelTool(),
         ServerBannerSoftTool(),
         FaviconHashTool(),
         FingerprintToCpeTool(),

@@ -15,12 +15,31 @@ class TestSkillRegistry(unittest.TestCase):
         cls.registry = SkillRegistry(cls.config)
 
     def test_all_skills_loaded(self):
-        # 65 original + 8 harvested (66-73) + 1 forensics (74) = 74
-        self.assertEqual(len(self.registry), 74, "must load all .cyphron skills")
+        # 65 original + 8 harvested (66-73) + 1 forensics (74)
+        # + 7 gap-port (75-81) = 81
+        self.assertEqual(len(self.registry), 81, "must load all .cyphron skills")
         ids = {s.id for s in self.registry.skills}
-        self.assertTrue({"66", "67", "68", "69", "70", "71", "72", "73", "74"} <= ids)
+        self.assertTrue({"66", "67", "68", "69", "70", "71", "72", "73",
+                         "74", "75", "76", "77", "78", "79", "80", "81"} <= ids)
         inventory = self.registry.inventory()
         self.assertTrue(all(mode == "defensive" for _i, _n, mode in inventory))
+
+    def test_gap_port_skills_content(self):
+        """Skill 75-81: file ada, non-trivial, struktur minimal terpenuhi."""
+        root = default_kimchi_dir()
+        for sid, stem in [("75", "75-forensik-memori"),
+                          ("76", "76-analisis-event-log"),
+                          ("77", "77-threat-hunting"),
+                          ("78", "78-deteksi-phishing-bec"),
+                          ("79", "79-audit-cloud-iam"),
+                          ("80", "80-rekomendasi-pertahanan"),
+                          ("81", "81-playbook-fraud")]:
+            p = root / "skills" / f"{stem}.md"
+            self.assertTrue(p.exists(), f"{stem}.md harus ada")
+            body = p.read_text(encoding="utf-8")
+            self.assertGreater(len(body), 2000, f"{stem} terlalu tipis")
+            self.assertIn("WHEN TO ACTIVATE", body, stem)
+            self.assertIn("METHODOLOGY", body, stem)
 
     def test_harvested_skills_retrieve(self):
         top = [s.id for s, _ in self.registry.retrieve("webhook replay idempotency", top_k=1)]
