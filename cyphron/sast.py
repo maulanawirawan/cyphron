@@ -413,7 +413,7 @@ def _load_custom_rules(path: Path) -> list[Rule]:
     return out
 
 
-def scan_file(path: Path, rules: list[Rule]) -> list[SastFinding]:
+def scan_file(path: Path, rules: list[Rule], slop: bool = False) -> list[SastFinding]:
     lang = _LANG_BY_SUFFIX.get(path.suffix.lower())
     if not lang:
         return []
@@ -430,7 +430,7 @@ def scan_file(path: Path, rules: list[Rule]) -> list[SastFinding]:
         except SyntaxError:
             return []
         for rule in rules:
-            if lang not in rule.languages:
+            if "*" not in rule.languages and lang not in rule.languages:
                 continue
             if rule.spec:
                 for line, end, captures in rule.find(tree, lines):
@@ -454,13 +454,16 @@ def scan_file(path: Path, rules: list[Rule]) -> list[SastFinding]:
                             rule.id, rule.message, rule.severity, rule.cwe,
                             str(path), i, i, rule.confidence, rule.fix))
         findings.extend(taint_scan(tree, lines))
+        if slop:
+            findings.extend(slop_scan_python(text, tree, lines, str(path)))
     else:
         # js/ts/c/cpp sudah dicakup JS_CPP_RULES — fleet hanya menambah
         # bahasa baru (30+) supaya tidak ada temuan ganda
         if lang not in ("js", "ts", "c", "cpp"):
             rules = list(rules) + _fleet_rules(lang)
         for rule in rules:
-            if lang not in rule.languages or not rule.regex:
+            if ("*" not in rule.languages and lang not in rule.languages) \
+                    or not rule.regex:
                 continue
             pat = re.compile(rule.regex)
             for i, ln in enumerate(lines, 1):
@@ -472,10 +475,13 @@ def scan_file(path: Path, rules: list[Rule]) -> list[SastFinding]:
 
 
 def scan_path(root: Path, extra_rules: list[Rule] | None = None,
-              diff_only: bool = False) -> list[SastFinding]:
+              diff_only: bool = False, slop: bool = False) -> list[SastFinding]:
     """Scan folder/berkas; diff_only=True hanya berkas yang berubah vs HEAD
-    (git diff --name-only + untracked) — mode CI."""
+    (git diff --name-only + untracked) — mode CI. slop=True menambahkan
+    rule pack kualitas kode (slop)."""
     rules = list(ALL_RULES.values()) + list(extra_rules or [])
+    if slop:
+        rules = rules + SLOP_RULES
     root = Path(root)
     if root.is_dir():
         custom_path = root / ".cyphron-rules"
@@ -491,10 +497,13 @@ def scan_path(root: Path, extra_rules: list[Rule] | None = None,
         and p.suffix.lower() in _LANG_BY_SUFFIX
         and ".git" not in p.parts and "__pycache__" not in p.parts
         and "kb/data" not in str(p))
+    dup_map: dict[str, tuple] = {}
     for p in files:
         if names is not None and str(p.relative_to(root)) not in names:
             continue
-        findings.extend(scan_file(p, rules))
+        findings.extend(scan_file(p, rules, slop=slop))
+        if slop:
+            _dup_helpers(p, findings, dup_map)
     return findings
 
 
@@ -511,6 +520,171 @@ def _git_changed_files(root: Path) -> set[str]:
         return set(rows)
     except Exception:
         return set()
+
+
+# ------------------------------------------------------------ slop pack
+# Rule pack kualitas kode (aktif dengan slop=True / CLI --slop).
+# Filosofi: deteksi PENA menyimpulkan "kualitas rendah" hanya dari pola
+# konkret — komentar naratif yang mengulang kode, stub, sisa debug,
+# nama generik, fungsi raksasa, helper duplikat. Semua confidence di
+# bawah 1.0 dan label severity rendah: ini alat bantu review, bukan vonis.
+SL_ALL = ("*",)
+
+SLOP_RULES: list[Rule] = [
+    Rule("SL-TODO-STUB", "TODO/FIXME/XXX tertinggal — pekerjaan setengah "
+         "jadi; selesaikan atau catat di issue tracker, bukan di kode",
+         "info", "CWE-546", SL_ALL, None,
+         regex=r"(?i)\b(todo|fixme|xxx)\b(:|\s|$)", confidence=0.95),
+    Rule("SL-CONSOLE-LOG", "console.log tertinggal — sisa debug di kode "
+         "javascript", "low", "CWE-489", ("js", "ts"), None,
+         regex=r"console\.log\(", confidence=0.9),
+    Rule("SL-PHP-DUMP", "var_dump/print_r tertinggal — sisa debug PHP",
+         "low", "CWE-489", ("php",), None,
+         regex=r"\b(var_dump|print_r)\s*\(", confidence=0.9),
+]
+
+_GENERIC_NAMES = re.compile(
+    r"^(foo|bar|baz|temp|tmp|util|utils|helper|stuff|thing|things|obj|data2|"
+    r"do_stuff|handle_stuff|my_func|myfunc|func1|func2|method1|test1|"
+    r"variable1|aaa|bbb)\d*$", re.IGNORECASE)
+
+_TRIVIAL_COMMENTS = {
+    "increment", "decrement", "loop", "iterate", "init", "initialize",
+    "constructor", "destructor", "getter", "setter", "get value",
+    "set value", "return", "call function", "import", "end", "start",
+    "counter", "increment counter", "loop through items", "next",
+}
+
+_COMMENT_CODE_STOP = re.compile(r"[^a-z0-9]+")
+
+_FUNC_LINE_CAP = 60
+
+
+def _comment_lines(lines: list[str]) -> list[tuple[int, str, str]]:
+    """(nomor_baris, teks_komentar, kode_dibawahnya) — komentar standalone
+    atau di akhir baris, utk deteksi naratif/trivial."""
+    out = []
+    for i, ln in enumerate(lines, 1):
+        m = re.search(r"#(.*)$", ln)
+        if not m or ln.lstrip().startswith("#!") or "@@" in ln:
+            continue
+        comment = m.group(1).strip()
+        if not comment or comment.startswith(("!", "#")):
+            continue
+        # kode sisa di kiri komentar (kalau komentar inline)
+        left = ln[:m.start()].strip()
+        below = lines[i] if i < len(lines) else ""
+        out.append((i, comment, left or below))
+    return out
+
+
+def _norm_code(s: str) -> str:
+    return _COMMENT_CODE_STOP.sub("", s.lower())
+
+
+def slop_scan_python(text: str, tree: ast.AST, lines: list[str],
+                     path: str) -> list[SastFinding]:
+    out: list[SastFinding] = []
+
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef,
+                             ast.ClassDef)):
+            span = getattr(node, "end_lineno", node.lineno) - node.lineno + 1
+            if span > _FUNC_LINE_CAP:
+                out.append(SastFinding(
+                    "SL-FUNC-LONG",
+                    f"{type(node).__name__} '{node.name}' {span} baris "
+                    f"(> {_FUNC_LINE_CAP}) — pecah jadi unit kecil yang "
+                    "bisa diuji",
+                    "low", "CWE-1061", path, node.lineno,
+                    getattr(node, "end_lineno", node.lineno), 0.7,
+                    "refaktor: ekstrak langkah jadi fungsi bernama jelas"))
+            if not isinstance(node, ast.ClassDef) and \
+                    _GENERIC_NAMES.match(node.name):
+                out.append(SastFinding(
+                    "SL-NAMA-GENERIK",
+                    f"nama '{node.name}' generik — tidak mengatakan apa yang "
+                    "dikerjakan",
+                    "info", "CWE-1099", path, node.lineno, node.lineno,
+                    0.6, "ganti nama sesuai maksud domain, bukan tipe data"))
+        if isinstance(node, ast.Call) and _call_name(node.func) == "print" \
+                and node.args and all(
+                    isinstance(a, (ast.Constant, ast.JoinedStr))
+                    for a in node.args):
+            out.append(SastFinding(
+                "SL-PRINT-LEFTOVER",
+                "print() dengan argumen konstanta — kemungkinan sisa debug",
+                "low", "CWE-489", path, node.lineno, node.lineno, 0.5,
+                "pakai logging dengan level, atau hapus"))
+
+    # komentar naratif/trivial: token compare terhadap kode di dekatnya
+    for lineno, comment, near_code in _comment_lines(lines):
+        cnorm = _norm_code(comment)
+        if not cnorm:
+            continue
+        if cnorm in _TRIVIAL_COMMENTS:
+            out.append(SastFinding(
+                "SL-KOMENTAR-TRIVIAL",
+                f"komentar trivial '{comment}' tidak menambah informasi",
+                "info", "CWE-1078", path, lineno, lineno, 0.75,
+                "hapus, atau tulis KENAPA-nya (konstrain/alasan)"))
+            continue
+        knorm = _norm_code(near_code)
+        if knorm and cnorm == knorm:
+            out.append(SastFinding(
+                "SL-KOMENTAR-NARATIF",
+                f"komentar '{comment}' hanya mengulang kode di bawahnya",
+                "info", "CWE-1078", path, lineno, lineno, 0.8,
+                "hapus komentar yang mengulang kode yang sudah jelas"))
+    return out
+
+
+def _dup_helpers(path: Path, findings: list[SastFinding],
+                 seen: dict[str, tuple]) -> None:
+    """Helper duplikat hash-based: badan fungsi python yang identik
+    (setelah normalisasi) di file mana pun -> temuan di kemunculan ke-2."""
+    lang = _LANG_BY_SUFFIX.get(path.suffix.lower())
+    if lang != "python":
+        return
+    try:
+        text = path.read_text(encoding="utf-8", errors="replace")
+        tree = ast.parse(text)
+    except (OSError, SyntaxError):
+        return
+    lines = text.splitlines()
+    for node in ast.walk(tree):
+        if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            continue
+        end = getattr(node, "end_lineno", node.lineno)
+        # hash badan fungsi TANPA baris def — rename tidak mengubah hash
+        start = node.body[0].lineno - 1 if node.body else node.lineno - 1
+        body = "\n".join(l for l in lines[start:end]
+                         if l.strip() and not l.strip().startswith("#"))
+        if len(body.splitlines()) < 3:
+            continue  # getter/alias 1-2 baris terlalu rentan FP
+        h = hashlib.sha256(_norm_code(body).encode()).hexdigest()
+        first = seen.get(h)
+        if first is None:
+            seen[h] = (str(path), node.lineno, node.name)
+            continue
+        fpath, fline, fname = first
+        findings.append(SastFinding(
+            "SL-DUP-HELPER",
+            f"fungsi '{node.name}' identik dengan '{fname}' ({fpath}:"
+            f"{fline}) — satukan jadi satu helper",
+            "low", "CWE-1078", str(path), node.lineno, end, 0.85,
+            "ekstrak ke satu modul bersama; hapus salinannya"))
+
+
+_SLOP_WEIGHT = {"info": 2, "low": 5, "medium": 15, "high": 30, "critical": 50}
+
+
+def slop_score(findings: list[SastFinding]) -> int:
+    """Skor kebersihan slop 0-100: 100 bersih; temuan menurunkan skor
+    sebesar bobot severity x confidence."""
+    penalty = sum(_SLOP_WEIGHT.get(f.severity, 5) * f.confidence
+                  for f in findings)
+    return max(0, min(100, round(100 - penalty)))
 
 
 # ---------------------------------------------------------------- output
@@ -543,7 +717,8 @@ def to_sarif(findings: list[SastFinding], tool: str = "cyphron-sast") -> dict:
 
 
 def run_ci(path: Path, out_dir: Path | None = None, diff_only: bool = False,
-           fail_on: str = "high", max_findings: int = 0) -> int:
+           fail_on: str = "high", max_findings: int = 0,
+           slop: bool = False) -> int:
     """Mode CI: tulis sast.json + sast.sarif, return exit code."""
     order = {"critical": 0, "high": 1, "medium": 2, "low": 3, "info": 4}
     custom: list[Rule] = []
@@ -551,14 +726,19 @@ def run_ci(path: Path, out_dir: Path | None = None, diff_only: bool = False,
     custom_path = (marker if marker.is_file() else marker / ".cyphron-rules")
     if custom_path.is_file():
         custom = _load_custom_rules(custom_path)
-    findings = scan_path(marker, extra_rules=custom, diff_only=diff_only)
+    findings = scan_path(marker, extra_rules=custom, diff_only=diff_only,
+                         slop=slop)
     findings.sort(key=lambda f: (order.get(f.severity, 9), f.path, f.line))
     rows = [f.to_dict() for f in findings]
     if out_dir is not None:
         out_dir.mkdir(parents=True, exist_ok=True)
+        payload = {"findings": rows, "count": len(rows)}
+        if slop:
+            payload["slop_score"] = slop_score(
+                [f for f in findings if f.rule_id.startswith("SL-")])
         (out_dir / "sast.json").write_text(
-            json.dumps({"findings": rows, "count": len(rows)},
-                       indent=1, ensure_ascii=False), encoding="utf-8")
+            json.dumps(payload, indent=1, ensure_ascii=False),
+            encoding="utf-8")
         (out_dir / "sast.sarif").write_text(
             json.dumps(to_sarif(findings), indent=1), encoding="utf-8")
     if not findings:

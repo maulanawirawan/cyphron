@@ -155,6 +155,12 @@ def main(argv: list[str] | None = None) -> int:
                         help="hanya berkas berubah vs git HEAD")
     p_sast.add_argument("--fail-on", choices=["critical", "high", "medium", "low"],
                         default="high", help="severity minimum utk exit code 2")
+    p_sast.add_argument("--slop", action="store_true",
+                        help="tambahkan rule pack slop (kualitas kode) + skor")
+
+    p_rlint = sub.add_parser("report-lint",
+                             help="gerbang kualitas laporan (anti-slop) — PASS/FAIL per blok")
+    p_rlint.add_argument("file", help="file laporan markdown (.md)")
 
     p_dast = sub.add_parser("dast",
                             help="DAST orchestration profil dev-cicd/standard/full")
@@ -605,13 +611,29 @@ def main(argv: list[str] | None = None) -> int:
             return 0
 
         if args.command == "sast":
-            from .sast import run_ci
+            from .sast import run_ci, slop_score
+            slop_on = bool(getattr(args, "slop", False))
             rc = run_ci(Path(args.path),
                         out_dir=Path(args.out) if args.out else None,
-                        diff_only=bool(args.diff), fail_on=args.fail_on)
+                        diff_only=bool(args.diff), fail_on=args.fail_on,
+                        slop=slop_on)
+            extra = ""
+            if slop_on:
+                from .sast import scan_path
+                slop_rows = [f for f in scan_path(
+                    Path(args.path), slop=True)
+                    if f.rule_id.startswith("SL-")]
+                extra = f" slop_score={slop_score(slop_rows)}"
             print(f"[cyphron] sast exit={rc} "
-                  f"({'bersih' if rc == 0 else 'temuan >= ' + args.fail_on})")
+                  f"({'bersih' if rc == 0 else 'temuan >= ' + args.fail_on})"
+                  f"{extra}")
             return rc
+
+        if args.command == "report-lint":
+            from .reportslop import lint_report_file, format_result
+            res = lint_report_file(args.file)
+            print(format_result(res))
+            return 2 if res["verdict"] == "FAIL" else 0
 
         if args.command == "dast":
             from .dast import plan_from_policy, policy_for
