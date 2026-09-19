@@ -1,11 +1,50 @@
 """dir_probe — lightweight path exposure discovery (no dirb/ffuf).
-Small curated list, 404-baseline heuristic. Active: needs authorization."""
+Small curated list, 404-baseline heuristic. Active: needs authorization.
+
+Pelajaran lapangan 2026-09-19 (pay.kredivo.com, 41 FP): SPA catch-all di
+balik load balancer bisa membalas 200 HTML identik untuk SEMUA path, sementara
+baseline garbage path kebetulan dibalas node lain dengan 404 — satu baseline
+tidak cukup. Anti-FP berlapis sekarang:
+  1. similarity body kandidat vs baseline (difflib, >= 0.9 = soft-404);
+  2. sanity Content-Type vs ekstensi + magic bytes (PK/SQLite) — file
+     arsip/database sungguhan tidak pernah berupa text/html;
+  3. VERIFIKASI MISS KEDUA: sebelum kandidat jadi temuan, satu garbage
+     path baru di-fetch; kalau balasannya mirip kandidat = soft-404.
+"""
 
 from __future__ import annotations
+
+import difflib
 
 from . import http_engine
 from .base import Tool, ToolContext, ToolResult
 from ..findings import Finding
+
+# ekstensi yang "file nyata" — bila Content-Type-nya text/html tanpa magic
+# bytes yang cocok, hampir pasti SPA shell, bukan file yang dituju
+_BINARY_EXT_CT = {
+    ".zip": ("application/zip", "application/x-zip-compressed",
+             "application/octet-stream"),
+    ".tar.gz": ("application/gzip", "application/x-tar",
+                "application/octet-stream"),
+    ".tgz": ("application/gzip", "application/octet-stream"),
+    ".gz": ("application/gzip", "application/octet-stream"),
+    ".sqlite": ("application/octet-stream", "application/x-sqlite3"),
+    ".sqlite3": ("application/octet-stream", "application/x-sqlite3"),
+    ".db": ("application/octet-stream",),
+    ".bak": ("application/octet-stream", "text/plain"),
+    ".sql": ("application/sql", "application/octet-stream", "text/plain",
+             "text/x-sql"),
+    ".env": ("text/plain", "application/octet-stream"),
+    ".pem": ("application/x-pem-file", "text/plain"),
+    ".key": ("application/x-pem-file", "text/plain"),
+    ".log": ("text/plain",),
+}
+_MAGIC = (
+    (b"PK\x03\x04", "zip"),
+    (b"SQLite format 3\x00", "sqlite"),
+    (b"\x1f\x8b", "gzip"),
+)
 
 PATHS = [
     # intel (info, tidak jadi temuan tapi diambil untuk lead)
@@ -150,7 +189,44 @@ class DirProbeTool(Tool):
         ctx.world.observe_response(base + marker, miss_status, _h, miss_body, self.name)
         misses = {miss_status, 404}
         miss_len = len(miss_body)
+        soft404_count = 0
         hits = 0
+
+        def _norm(s: str) -> str:
+            return " ".join((s or "").split())[:20000]
+
+        def _similar(a: str, b: str, thr: float = 0.9) -> bool:
+            if not a or not b:
+                return False
+            if len(a) == len(b) and a == b:
+                return True
+            return difflib.SequenceMatcher(None, _norm(a), _norm(b)).ratio() >= thr
+
+        def _magic_real(body: str) -> bool:
+            raw = (body or "")[:8].encode("utf-8", "replace")
+            return any(raw.startswith(m) for m, _k in _MAGIC)
+
+        def _ct_plausible(path: str, ct: str) -> bool:
+            name = path.lower().rsplit("?", 1)[0]
+            for ext, cts in _BINARY_EXT_CT.items():
+                if name.endswith(ext):
+                    return ct in cts
+            return True
+
+        def _fresh_miss_looks_same(status: int, body: str, ct: str) -> bool:
+            """Miss kedua dengan garbage path unik: kalau status, content-type,
+            dan struktur body-nya mirip kandidat, host adalah catch-all SPA
+            -> kandidat tidak punya bukti -> soft-404. File nyata selamat:
+            ct-nya berbeda (zip/sqlite/plain) atau ada magic bytes."""
+            m2 = "/cx-zz-not-a-real-path-" + str(ctx.world.request_count) + "-v"
+            st2, h2, body2, _ms2 = http_engine.http_get(base + m2,
+                                                        timeout=ctx.timeout_s)
+            ctx.world.observe_response(base + m2, st2, h2, body2, self.name)
+            ct2 = next((v for k, v in (h2 or {}).items()
+                        if k.lower() == "content-type"), "").lower()
+            return (st2 == status and ct2 == ct.split(";")[0].strip()
+                    and _similar(body2, body, 0.75))
+
         seen_paths = {q[0] for q in PATHS}
         for path, severity, message in PATHS + [q for q in PATHS_EXTENDED if q[0] not in seen_paths]:
             url = f"{base}/{path}"
@@ -159,8 +235,19 @@ class DirProbeTool(Tool):
             soft404 = (
                 miss_body.strip() == body.strip()
                 or ("not found" in body.lower() and "not found" in miss_body.lower())
+                or (status == miss_status and _similar(miss_body, body))
             )
+            ct = ""
+            if isinstance(_h, dict):
+                ct = next((v for k, v in _h.items()
+                           if k.lower() == "content-type"), "").lower()
+            if status < 400 and not soft404 and not _magic_real(body) \
+                    and not _ct_plausible(path, ct.lower()):
+                soft404 = True  # /backup.zip yang "nyata" tak pernah text/html
             if status < 400 and status not in misses and not soft404:
+                if not _magic_real(body) and _fresh_miss_looks_same(status, body, ct):
+                    soft404_count += 1
+                    continue
                 hits += 1
                 # /admin* yang hidup BELUM bukti kerentanan: bisa halaman login,
                 # SPA shell, atau redirect JS. Kandidat dulu - bukti konten
@@ -226,5 +313,7 @@ class DirProbeTool(Tool):
                         confidence=0.9, source_skill=self.source_skill,
                         status="confirmed", evidence_kind="request-response",
                     ))
-        return ToolResult(tool=self.name, ok=True, data={"base": base, "hits": hits},
+        return ToolResult(tool=self.name, ok=True,
+                          data={"base": base, "hits": hits,
+                                "soft404_blocked": soft404_count},
                           findings=findings)
