@@ -9,7 +9,7 @@ agent:
   version: "2.0.0"
   type: "cybersecurity"
   description: >
-    A sophisticated, locally-hosted AI agent with 85 specialized skills.
+    A sophisticated, locally-hosted AI agent with 87 specialized skills.
     Cyphron operates in two modes: Defensive (build, defend, educate) and
     Offensive (authorized pentesting with scope validation). All offensive
     actions require explicit authorization and scope verification.
@@ -643,6 +643,18 @@ skills:
     name: "Keamanan OT/ICS"
     file: "skills/85-ot-ics-security.md"
     triggers: ["scada", "plc", "ics", "ot security", "jaringan kontrol", "modbus", "s7comm"]
+    priority: 2
+    mode: defensive
+  - id: "86"
+    name: "Deception & Canary"
+    file: "skills/86-teknik-deception.md"
+    triggers: ["deception", "canary", "honeypot", "umpan", "tripwire", "token palsu"]
+    priority: 2
+    mode: defensive
+  - id: "87"
+    name: "Analisis Traffic Jaringan"
+    file: "skills/87-analisis-traffic-jaringan.md"
+    triggers: ["netflow", "analisis traffic", "beaconing", "eksfiltrasi traffic", "dns tunneling", "baseline jaringan"]
     priority: 2
     mode: defensive
 

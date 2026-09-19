@@ -16,7 +16,7 @@
 | 1 | cloud-security | 66 | PARSIAL | skill 17 + `cloud_bucket_probe` | port skill 79 (audit IAM read-only) |
 | 2 | threat-hunting | 58 | GAP | — (skill 09/45 hanya deteksi/SIEM) | port skill 77 |
 | 3 | threat-intelligence | 52 | ADA | skill 44 + skill 83 (pivot graf) | selesai (B10) |
-| 4 | network-security | 43 | PARSIAL | skill 21; engine web-centric | parkir (di luar fokus web) |
+| 4 | network-security | 43 | ADA | skill 21 + skill 87 (analisis traffic) | selesai (B11) |
 | 5 | web-application-security | 42 | ADA | puluhan engine tools/ | — |
 | 6 | digital-forensics | 41 | PARSIAL | skill 14 generik | port skill 75, 76 |
 | 7 | malware-analysis | 39 | ADA | skill 40, 74 + `deobf` + apk_kit | — |
@@ -41,7 +41,7 @@
 | 26 | compliance-governance | 11 | ADA | skill 32, 33 | — |
 | 27 | supply-chain-security | 8 | ADA | skill 19 + SBOM | — |
 | 28 | threat-detection | 7 | ADA | skill 09 | — |
-| 29 | deception-technology | 6 | GAP | — | parkir (nilai kecil utk Cyphron) |
+| 29 | deception-technology | 6 | ADA | skill 86 (canary & umpan) | selesai (B11) |
 | 30 | hardware-firmware-security | 6 | GAP | — | parkir |
 | 31 | application-security | 4 | ADA | inti | — |
 | 32 | blockchain-security | 2 | ADA | skill 25 + wallet_fp_guard | — |
@@ -52,7 +52,7 @@
 | 37 | data-protection | 1 | ADA | skill 28 | — |
 | 38 | purple-team | 1 | PARSIAL | redteam detection_coverage | parkir |
 
-Rekap: **ADA 25 · PARSIAL 16 · GAP 5** dari 38 subdomain unik setelah
+Rekap: **ADA 26 · PARSIAL 9 · GAP 3** dari 38 subdomain unik setelah
 normalisasi duplikat nama (identity-* dan red-team-* digabung).
 
 ## 2. Gap prioritas yang di-port (batch ini)
