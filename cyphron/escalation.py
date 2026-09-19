@@ -29,12 +29,13 @@ _UNLOCK: list[tuple[str, tuple[str, ...]]] = [
     ("login-form", ("auth_login", "lockout", "register", "reset_enum",
                     "auth_bypass_matrix")),
     ("json-api-params", ("bola", "idor_mass_endpoint", "mass_assign",
-                         "api_version_diff")),
+                         "api_version_diff", "variant_sweep")),
     ("session-cookie", ("session_probe", "cookie_audit", "priv_matrix")),
-    ("admin-panel", ("admin_panel", "laravel_panel", "actuator")),
+    ("admin-panel", ("admin_panel", "laravel_panel", "actuator",
+                     "header_variant_matrix")),
     ("wp-signature", ("wp_probe", "wp_dataexp", "xmlrpc_probe")),
     ("upload-endpoint", ("traversal", "lfi_read")),
-    ("many-params", ("param_miner", "sqli_probe", "xss_probe")),
+    ("many-params", ("param_miner", "sqli_probe", "xss_probe", "variant_sweep")),
 ]
 
 _ADMIN_HINTS = ("admin", "dashboard", "manage", "panel", "console")

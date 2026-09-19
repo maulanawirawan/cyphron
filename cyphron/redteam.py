@@ -398,6 +398,15 @@ ENGINE_MITRE: dict[str, dict] = {
     "param_miner": {"phases": ["DISCOVERY"],
                     "hint": "Param hidden terdeteksi via diff: dokumentasikan "
                     "param internal + hapus debug param."},
+    "variant_sweep": {"phases": ["DISCOVERY", "EXECUTION"],
+                      "hint": "Refleksi mentah lewat varian encoding = filter "
+                      "input berlapis-lapis: normalisasi sebelum validasi."},
+    "method_override_matrix": {"phases": ["DISCOVERY", "INITIAL_ACCESS"],
+                               "hint": "Endpoint menghormati override header: "
+                               "middleware method-check bisa terlewati."},
+    "header_variant_matrix": {"phases": ["INITIAL_ACCESS", "CRED_ACCESS"],
+                              "hint": "Status turun dengan header spoof = "
+                              "kontrol akses percaya header klien."},
     "fuzz_engine": {"phases": ["DISCOVERY", "EXECUTION"],
                     "hint": "Payload diferensial di log: respons 500 massal "
                     "= fuzzer aktif; tangani error dengan rapi."},

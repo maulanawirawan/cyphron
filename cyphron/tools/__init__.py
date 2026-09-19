@@ -30,6 +30,11 @@ from .reset_enum import ResetEnumTool
 from .traversal_probe import TraversalTool
 from .ssrf_oob import SsrfOobTool
 from .crlf_probe import CrlfProbeTool
+from .redteam_variants import (
+    HeaderVariantMatrixTool,
+    MethodOverrideMatrixTool,
+    VariantSweepTool,
+)
 from .admin_panel import AdminPanelTool
 from .laravel_panel import LaravelPanelTool
 from .actuator import ActuatorTool
@@ -297,6 +302,9 @@ def build_default_registry(ctx: ToolContext) -> ToolRegistry:
         CveMatcherTool(),
         EdbReferenceTool(),
         NucleiBridgeTool(),
+        VariantSweepTool(),
+        MethodOverrideMatrixTool(),
+        HeaderVariantMatrixTool(),
     ):
         reg.register(tool)
     # Fullpower B1: engine polyglot via manifest adapter (satu pintu guardrail)

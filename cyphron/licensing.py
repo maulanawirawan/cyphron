@@ -71,6 +71,9 @@ _ENGINE_TIERS_RAW = {
     "subdomain_brute": "pro", "wp_probe": "pro", "wp_dataexp": "pro",
     "xmlrpc_probe": "pro", "nosqli_probe": "pro", "crlf": "pro",
     "session_cookie_probe": "pro",
+    # pro: red team variants (eskalasi variasi, deterministik + baseline)
+    "variant_sweep": "pro", "method_override_matrix": "pro",
+    "header_variant_matrix": "pro",
     # business: verifikasi exploitability + intel + white-box
     "exploitability": "business", "cve_matcher": "business",
     "fingerprint_to_cpe": "business", "edb_reference": "business",

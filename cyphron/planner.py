@@ -809,6 +809,19 @@ class DeterministicPlanner:
         self._once(Step("param_miner", {"url": target, "max_requests": 40},
                         "hidden parameter mining via response diff",
                         "active-testing", 40, "H-params"))
+        # red team variants (eskalasi variasi; baseline-guard, zero-FP)
+        self._once(Step("variant_sweep", {"url": target},
+                        "encoding-variant sweep of observed parameters "
+                        "(probe-pair: baseline vs variant, marker aman)",
+                        "active-testing", 7, "H-params"))
+        self._once(Step("method_override_matrix", {"url": target},
+                        "method override acceptance matrix "
+                        "(X-HTTP-Method-Override / _method)",
+                        "active-testing", 5))
+        self._once(Step("header_variant_matrix", {"url": target},
+                        "trusted-header spoof matrix on protected endpoints "
+                        "(4xx -> <400 differential)",
+                        "active-testing", 7))
         self._once(Step("llm_probe", {"url": target},
                         "AI/LLM endpoint policy-compliance canary probe",
                         "active-testing"))
