@@ -116,7 +116,7 @@ class WpDataExposureTool(Tool):
     name = "wp_dataexp"
     description = ("WP comments/media PII exposure (email/phone) dengan mask "
                    "wajib + cease-on-data; FP-guard filename lookalike.")
-    risk_tags = {"active"}
+    risk_tags = {"active", "external"}
     source_skill = "manual-bb-06"
 
     def run(self, args: dict, ctx: ToolContext) -> ToolResult:

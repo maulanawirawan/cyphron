@@ -87,7 +87,7 @@ class PassiveDnsTool(Tool):
     name = "passive_dns"
     description = ("Census subdomain pasif via OTX + verifikasi DoH 2x + "
                    "klasifikasi staging — nol trafik ke infra target.")
-    risk_tags = {"passive"}
+    risk_tags = {"external", "passive"}
     source_skill = "20"
 
     def run(self, args: dict, ctx: ToolContext) -> ToolResult:

@@ -190,6 +190,10 @@ RESTRICTION_TAGS = {
     "no_persistence": {"persistence"},
     "no_aggressive": {"aggressive"},
     "read_only": {"active"},
+    # engine ber-tag "external" mengakses layanan/publik di luar target
+    # (intel IP, passive DNS, OSINT, crt.sh, wayback, OSV, OOB capture) —
+    # dokumen otorisasi bisa melarang seluruh kategori ini
+    "no_external_intel": {"external"},
 }
 
 

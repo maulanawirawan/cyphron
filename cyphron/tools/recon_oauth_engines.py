@@ -72,7 +72,7 @@ def _json_key_injected(body: str) -> bool:
 class WaybackTool(Tool):
     name = "wayback"
     description = "Wayback diff: rute yang dulu hidup (arsip 200) tapi kini 404/410."
-    risk_tags = {"passive"}
+    risk_tags = {"external", "passive"}
     source_skill = "t2-low-02"
 
     def run(self, args: dict, ctx: ToolContext) -> ToolResult:

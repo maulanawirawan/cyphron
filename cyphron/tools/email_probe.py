@@ -179,7 +179,7 @@ def dns_txt(name: str, timeout: float = 5.0) -> list[str]:
 class EmailProbeTool(Tool):
     name = "email_probe"
     description = "Check SPF/DMARC DNS records for the target domain (email spoofing surface)."
-    risk_tags = {"passive"}
+    risk_tags = {"external", "passive"}
     source_skill = "22"
 
     def run(self, args: dict, ctx: ToolContext) -> ToolResult:

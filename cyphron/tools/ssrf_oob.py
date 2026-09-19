@@ -34,7 +34,7 @@ class SsrfOobTool(Tool):
     name = "ssrf_oob"
     description = ("Generic SSRF via URL-ish params + OOB capture confirm. "
                    "Tanpa capture = LEAD (bukan finding).")
-    risk_tags = {"active"}
+    risk_tags = {"active", "external"}
     source_skill = "manual-bb-13"
 
     def run(self, args: dict, ctx: ToolContext) -> ToolResult:

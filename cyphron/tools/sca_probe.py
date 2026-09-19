@@ -47,7 +47,7 @@ def _packages_from_repo(root: Path) -> list[tuple[str, str, str]]:
 class ScaProbeTool(Tool):
     name = "sca_probe"
     description = "Query public OSV.dev database for known vulns in local dependencies."
-    risk_tags = {"local", "passive"}
+    risk_tags = {"external", "local", "passive"}
     source_skill = "19"
 
     def run(self, args: dict, ctx: ToolContext) -> ToolResult:

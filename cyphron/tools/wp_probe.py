@@ -41,7 +41,7 @@ class WpProbeTool(Tool):
     name = "wp_probe"
     description = ("WordPress hardening check: REST user enumeration (2 path), "
                    "debug.log exposure, xmlrpc posture. JSON-slug guard wajib.")
-    risk_tags = {"active"}
+    risk_tags = {"active", "external"}
     source_skill = "manual-bb-02"
 
     def run(self, args: dict, ctx: ToolContext) -> ToolResult:

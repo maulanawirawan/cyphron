@@ -31,7 +31,7 @@ class CtSanLeakTool(Tool):
     name = "tls_mismatch_leak"
     description = ("Pasif: host internal/mentah di SAN sertifikat publik "
                    "dari CT log. Nol koneksi ke host hasil. Intel/surface.")
-    risk_tags = {"passive"}
+    risk_tags = {"external", "passive"}
     source_skill = "bounty-medium-01"
 
     def run(self, args: dict, ctx: ToolContext) -> ToolResult:

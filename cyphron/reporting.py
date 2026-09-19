@@ -42,6 +42,37 @@ def _class_of(f) -> str:
     return _CLASS_ID.get(_CLASS_BY_TOOL.get(f.tool, "weakness"), _CLASS_ID["weakness"])
 
 
+# transparansi: engine yang mengakses layanan DI LUAR target saat scan —
+# wajib dinyatakan ke klien (audit anti-pihak-ketiga 2026-09-19).
+# CATATAN: cve_matcher/edb_reference TIDAK termasuk — murni baca KB lokal
+# (sqlite/csv) yang diunduh lewat `cyphron kb` eksplisit.
+TOOLS_EXTERNAL_SOURCES = {
+    "ip_intel": "ipwho.is (intel IP publik)",
+    "passive_dns": "otx.alienvault.com (passive DNS), dns.google (DoH)",
+    "subdomain_brute": "dns.google (DNS-over-HTTPS)",
+    "email_probe": "dns.google (DNS-over-HTTPS, lookup MX)",
+    "github_osint": "api.github.com (pencarian publik)",
+    "username_osint": "15 situs profil publik (github, gitlab, medium, dsb.)",
+    "sca_probe": "api.osv.dev (basis kerentanan paket)",
+    "wp_probe": "wordpress.org (katalog plugin publik)",
+    "wp_dataexp": "wordpress.org / wpscan.com (katalog plugin publik)",
+    "archive_diff": "web.archive.org (arsip CDX)",
+    "tls_mismatch_leak": "crt.sh (log sertifikat publik)",
+    "recon_oauth_engines": "crt.sh, certspotter, web.archive.org",
+    "nextjs_probe": "www.google.com/favicon.ico (kontrol hash favicon)",
+    "ssrf_oob": "webhook.site (kaptured OOB — payload memuat URL layanan ini)",
+    "jndi_probe": "webhook.site (kaptured OOB — payload memuat URL layanan ini)",
+}
+
+
+def external_sources_used(executed_tools) -> list[str]:
+    seen = []
+    for t in executed_tools:
+        if t in TOOLS_EXTERNAL_SOURCES and TOOLS_EXTERNAL_SOURCES[t] not in seen:
+            seen.append(TOOLS_EXTERNAL_SOURCES[t])
+    return seen
+
+
 
 
 def _attack_chains(confirmed) -> list[dict]:
@@ -116,6 +147,8 @@ def write_reports(out_dir: Path, opts: ScanOptions, summary: ScanSummary,
         "target": opts.target, "mode": summary.mode, "authorization": summary.auth_id,
         "generated_at": datetime.now(timezone.utc).isoformat(),
         **redact_meta,
+        "external_sources_accessed": external_sources_used(
+            sorted({e["tool"] for e in audit.entries if e["kind"] == "tool-run"})),
         "counts": summary.counts_by_severity(),
         "confirmed": confirmed_dicts,
         "unconfirmed": [f.to_dict() for f in summary.unconfirmed],
@@ -196,6 +229,11 @@ def _build_doc(opts: ScanOptions, s: ScanSummary, w: WorldModel, audit: AuditLog
     clean_tools: list[str] = []
     failed_tools: list[str] = []
     executed = sorted({e["tool"] for e in audit.entries if e["kind"] == "tool-run"})
+    ext_sources = external_sources_used(executed)
+    if ext_sources:
+        verdict_rows.append(["-", "SUMBER DATA PIHAK KETIGA diakses (transparansi): "
+                             + "; ".join(ext_sources),
+                             "DIKETAHUI", "INFO", "-"])
     chains = _attack_chains(s.confirmed)
     finding_tools = {f.tool for f in s.confirmed}
     done: dict[str, dict] = {}
@@ -477,6 +515,20 @@ def _build_blocks(opts: ScanOptions, s: ScanSummary, w: WorldModel, audit: Audit
                       "(tanpa alat pihak ketiga)."))
     b.append(("body", "Engine yang benar-benar dieksekusi pada run ini (dari jejak audit): "
                       + ", ".join(executed) + "."))
+    ext = external_sources_used(executed)
+    if ext:
+        b.append(("h2", "Transparansi: akses sumber data pihak ketiga"))
+        b.append(("body",
+                  "Semua engine adalah kode milik Cyphron, tetapi beberapa engine "
+                  "intel mengakses basis data PUBLIK di luar target untuk memperkaya "
+                  "rekon. Data yang dikirim terbatas pada aset yang diperiksa (domain/"
+                  "IP/hash paket), bukan data sensitif. Akses berikut terjadi pada run ini:"))
+        for x in ext:
+            b.append(("bullet", x))
+        b.append(("body",
+                  "Ingin menonaktifkan seluruh kategori ini? Tambahkan restriction "
+                  "\"no_external_intel\" pada dokumen otorisasi — engine ber-tag "
+                  "external akan REFUSED oleh gate."))
     b.append(("kv", f"- Endpoint teramati: {len(w.endpoints)}"))
     b.append(("kv", f"- Endpoint dengan parameter teruji: {len(w.param_endpoints())}"))
     if w.notes:

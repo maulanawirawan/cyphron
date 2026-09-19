@@ -25,7 +25,7 @@ class ArchiveDiffTool(Tool):
     name = "archive_wayback_diff"
     description = ("Cek URL arsip wayback yang masih 200 sekarang (endpoint "
                    "terlupakan). Surface intel; konten tidak disimpan.")
-    risk_tags = {"passive"}
+    risk_tags = {"external", "passive"}
     source_skill = "bounty-medium-01"
 
     def run(self, args: dict, ctx: ToolContext) -> ToolResult:

@@ -50,7 +50,7 @@ class MiddlewareBypassTool(Tool):
     description = ("CVE-2025-29927: bypass middleware Next.js via "
                    "x-middleware-subrequest (diferensial 3-gate, bukti Next.js "
                    "wajib dari world model).")
-    risk_tags = {"active"}
+    risk_tags = {"active", "external"}
     source_skill = "agent-manual-2026-09"
 
     def run(self, args: dict, ctx: ToolContext) -> ToolResult:

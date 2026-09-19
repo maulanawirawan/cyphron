@@ -93,7 +93,7 @@ class SubdomainBruteTool(Tool):
     description = ("DNS prefix bruteforce via DoH (dns.google) dengan "
                    "liveness 2x — recon subdomain yang tahan jaringan "
                    "pembuang DNS plaintext.")
-    risk_tags = {"passive"}
+    risk_tags = {"external", "passive"}
     source_skill = "20"
 
     def run(self, args: dict, ctx: ToolContext) -> ToolResult:

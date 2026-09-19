@@ -63,7 +63,7 @@ class GithubOsintTool(Tool):
     description = ("OSINT kode GitHub untuk kredensial terkait domain target "
                    "(butuh GITHUB_TOKEN/GH_TOKEN; tanpa token = skip). "
                    "Semua hit diverifikasi ulang via raw + cek tanggal push.")
-    risk_tags = {"passive"}
+    risk_tags = {"external", "passive"}
     source_skill = "20"
 
     def run(self, args: dict, ctx: ToolContext) -> ToolResult:

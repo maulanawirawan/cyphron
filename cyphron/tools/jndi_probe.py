@@ -35,7 +35,7 @@ class JndiProbeTool(Tool):
     name = "jndi_probe"
     description = ("Log4Shell-class JNDI lookup via OOB capture (webhook.site "
                    "milik peneliti). Tanpa capture = LEAD.")
-    risk_tags = {"active"}
+    risk_tags = {"active", "external"}
     source_skill = "bounty-high-02"
 
     def run(self, args: dict, ctx: ToolContext) -> ToolResult:
