@@ -47,11 +47,16 @@ def run_benchmark() -> dict:
 
 
 def engine_count() -> int:
-    """Engine terdaftar = instantiation Tool() UNIK di build_default_registry."""
-    src = (ROOT / "cyphron" / "tools" / "__init__.py").read_text(
-        encoding="utf-8", errors="replace")
-    import re
-    return len(set(re.findall(r"(\w+Tool)\(\)", src)))
+    """Angka resmi: build_default_registry langsung (bukan regex — file
+    multi-engine membuat hitungan manual undercount)."""
+    sys.path.insert(0, str(ROOT))
+    from cyphron.guardrails.authorization import AuditLog, AuthorizationGate
+    from cyphron.tools import build_default_registry
+    from cyphron.tools.base import ToolContext
+    from cyphron.world.model import WorldModel
+    ctx = ToolContext(gate=AuthorizationGate(None), audit=AuditLog(),
+                      world=WorldModel())
+    return len({t.name for t in build_default_registry(ctx).all()})
 
 
 def main() -> int:

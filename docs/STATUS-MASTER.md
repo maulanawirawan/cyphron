@@ -12,7 +12,7 @@
 
 | Komponen | Kondisi |
 |---|---|
-| Engine registry | **109 engine** terdaftar (semua tier-mapped, fail-closed) |
+| Engine registry | **145 engine** terdaftar (semua tier-mapped, fail-closed) |
 | Skill registry | 87 skill `.cyphron` + tier packs + KB (nuclei/NVD/EDB lokal) |
 | Suite | **683 tests OK** (2 skipped) |
 | Lisensi | tier basic/pro/business/god + HMAC sig + device binding + token |
@@ -124,7 +124,7 @@ dedupe lintas-bucket deterministik.
 | 21 Sep | Transparansi pihak ketiga: tag external 13 engine + restriction no_external_intel + section laporan | a9eb51d |
 | 21 Sep | Wizard web minimal-klik: /api/scan job runner + unduh PDF | ab8489a |
 | 21 Sep | Pricing token per tier/mode + trial redacted + lisensi HMAC + device binding + credit ledger + antibuse | (batch pricing) |
-| 21 Sep | Red team variants pack: variant_sweep, method_override_matrix, header_variant_matrix | 48e1b5e |
+| 21 Sep | Red team variants pack: variant_sweep, method_override_matrix, header_variant_matrix (registry jadi 145) | 48e1b5e |
 | 21 Sep | Batch 2 audit: proxycore 4 bug, perf ramp, verdict determinism, ladder enforcement, coverage matrix, chains terpadu | a9da5b5 |
 | 19 Sep | Batch 1 audit: bug mati (WorldModel import, knowledge_path, guard kredensial) + tekan mesin FP (sast/blind/WCD/dir_probe) | 450db96, 11dae30, 506fbf1 |
 | 19 Sep | Audit pihak ketiga: 15 engine luar dipetakan (semua fitur sah, kini transparan) | d8ebc88 |
