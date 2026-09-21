@@ -19,25 +19,21 @@ def run_suite() -> dict:
     proc = subprocess.run(
         [sys.executable, "-m", "unittest", "discover", "-s", "tests"],
         cwd=ROOT, capture_output=True, text=True, timeout=1200)
-    tail = (proc.stdout or "").splitlines()[-5:]
-    ran = fail = err = 0
+    # hasil unittest ditulis ke STDERR, dan print aplikasi test bisa mencemari
+    # baris terakhir — pakai regex MULTILINE ke seluruh output, ambil terakhir
+    combined = (proc.stderr or "") + "\n" + (proc.stdout or "")
+    ran_m = re.findall(r"^Ran (\d+) tests", combined, re.M)
+    ran = int(ran_m[-1]) if ran_m else 0
     ok = not proc.returncode
-    for line in tail:
-        m = re.search(r"Ran (\d+) tests", line)
-        if m:
-            ran = int(m.group(1))
-        m = re.match(r"(FAILED|OK)(?: \(failures=(\d+),? ?(?:errors=(\d+))?)?", line)
-        if line.startswith("OK"):
-            ok = True
-        elif line.startswith("FAILED"):
-            ok = False
-            fm = re.search(r"failures=(\d+)", line)
-            em = re.search(r"errors=(\d+)", line)
-            fail = int(fm.group(1)) if fm else 0
-            err = int(em.group(1)) if em else 0
-    skipped = 2 if "skipped" in (proc.stdout or "") else 0
+    ok_lines = re.findall(r"^OK", combined, re.M)
+    fail_lines = re.findall(r"^FAILED", combined, re.M)
+    if fail_lines:
+        ok = False
+    fail = int(re.findall(r"failures=(\d+)", combined)[-1]) if "failures=" in combined else 0
+    err = int(re.findall(r"errors=(\d+)", combined)[-1]) if "errors=" in combined else 0
+    skipped = 2 if "skipped" in combined else 0
     return {"ok": ok, "ran": ran, "failures": fail, "errors": err,
-            "skipped": skipped, "seconds": round(proc.elapsed if hasattr(proc, "elapsed") else 0, 1)}
+            "skipped": skipped}
 
 
 def run_benchmark() -> dict:
@@ -51,10 +47,11 @@ def run_benchmark() -> dict:
 
 
 def engine_count() -> int:
+    """Engine terdaftar = instantiation Tool() UNIK di build_default_registry."""
     src = (ROOT / "cyphron" / "tools" / "__init__.py").read_text(
         encoding="utf-8", errors="replace")
     import re
-    return len(re.findall(r"Tool\(\)", src))
+    return len(set(re.findall(r"(\w+Tool)\(\)", src)))
 
 
 def main() -> int:
