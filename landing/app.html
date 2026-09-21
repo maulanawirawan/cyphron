@@ -42,7 +42,10 @@ a.dl{display:inline-block;margin:8px 6px 0;padding:10px 20px;background:var(--a)
 </div>
 
 <div class="box wide" id="app" style="display:none">
-  <div class="logo"><h1>CYPHRON<b>.</b> <span style="font-size:14px;color:var(--m)">wizard pentest otomatis</span></h1></div>
+  <div class="logo" style="display:flex;justify-content:space-between;align-items:center">
+    <h1>CYPHRON<b>.</b> <span style="font-size:14px;color:var(--m)">wizard pentest otomatis</span></h1>
+    <span id="whoami" style="font-size:12px;color:var(--m)"></span>
+  </div>
   <div class="steps" style="margin-top:16px"><div class="step on" id="s1"></div><div class="step" id="s2"></div><div class="step" id="s3"></div></div>
 
   <div id="w1">
@@ -72,12 +75,24 @@ a.dl{display:inline-block;margin:8px 6px 0;padding:10px 20px;background:var(--a)
       </div>
     </div>
     <div id="authbox" style="display:none">
-      <label>Dokumen otorisasi (JSON) — paste di sini</label>
-      <textarea id="authdoc" rows="6" placeholder='{"id":"...","target":"...","allowed_by":"...","expires":"..."}'></textarea>
+      <label>Dokumen otorisasi (JSON) — paste di sini
+        <details style="margin-top:6px"><summary style="cursor:pointer;color:var(--a)">Apa ini? Contoh format</summary>
+        <p class="mut" style="margin:6px 0">Bukti izin tertulis dari pemilik target
+        (nama pemberi izin, target, masa berlaku, pembatasan). Tanpa ini mode
+        aktif otomatis diturunkan ke pasif. Format minimal:</p>
+        <code style="display:block;background:#0d0d10;padding:8px;border-radius:6px">{"id":"izin-001","issued_at":"2026-09-01T00:00:00Z",
+ "expires_at":"2026-10-01T00:00:00Z","scope":{"targets":["situskamu.com"]},
+ "authorized_by":{"name":"Pemilik Situs"},"signature":"ttd-pemilik",
+ "restrictions":[]}</code></details></label>
+      <textarea id="authdoc" rows="6" placeholder='{"id":"izin-001","issued_at":"...","expires_at":"...","scope":{"targets":["..."]},"authorized_by":{"name":"..."},"signature":"...","restrictions":[]}'></textarea>
     </div>
     <button onclick="run()">MULAI SCAN OTOMATIS</button>
     <button style="background:none;color:var(--m)" onclick="back()">← ganti mode</button>
   </div>
+
+  <details style="margin-top:18px" id="histbox"><summary style="cursor:pointer;color:var(--m);font-size:13px">Riwayat scan saya</summary>
+    <div id="hist" style="margin-top:10px"></div>
+  </details>
 
   <div id="w3" style="display:none">
     <label>3. ENGINE BERJALAN OTOMATIS — tinggal tunggu</label>
@@ -106,6 +121,25 @@ function auth(){
 function masuk(){
   document.getElementById("login").style.display="none";
   document.getElementById("app").style.display="block";
+  fetch("/api/me").then(r=>r.json()).then(m=>{
+    document.getElementById("whoami").textContent =
+      m.email + " · paket " + m.tier.toUpperCase() +
+      " · scan hari ini " + m.scans_today + "/" + m.scans_per_day;
+  }).catch(()=>{});
+  loadHistory();
+}
+function loadHistory(){
+  fetch("/api/my-jobs").then(r=>r.json()).then(j=>{
+    const el = document.getElementById("hist");
+    if(!j.jobs || !j.jobs.length){ el.innerHTML =
+      '<p class="mut">Belum ada scan. Mulai dari wizard di atas.</p>'; return; }
+    el.innerHTML = "<table style=\"width:100%;font-size:12px\"><tr style=\"color:var(--m)\">" +
+      "<th align=\"left\">Tanggal</th><th>Mode</th><th>Status</th><th>Laporan</th></tr>" +
+      j.jobs.map(x=>"<tr><td>"+(x.day||"-")+"</td><td>"+(x.mode||"-")+"</td><td>"+
+        (x.done?"<span style=\"color:var(--ok)\">selesai</span>":"berjalan")+"</td><td>"+
+        (x.done? '<a class="dl" style="padding:4px 10px;margin:2px" href="/api/report/'+x.id+'/report.pdf">PDF</a>' : "-") +
+        "</td></tr>").join("") + "</table>";
+  }).catch(()=>{});
 }
 function toMode(){
   const t=document.getElementById("target").value.trim();
@@ -132,6 +166,7 @@ function run(){
     .then(r=>r.json()).then(j=>{
       if(j.error){alert(j.error);return;}
       JOBID=j.id;
+      loadHistory();
       document.getElementById("s2").classList.remove("on");
       document.getElementById("s3").classList.add("on");
       document.getElementById("w2").style.display="none";

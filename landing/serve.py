@@ -192,6 +192,15 @@ class Handler(BaseHTTPRequestHandler):
                  if "cyphron_session=" in cookie else None)
         return _session_email(token)
 
+    def _owns_job(self, email: str | None, jdir: Path) -> bool:
+        meta = jdir / "job.json"
+        if not email or not meta.is_file():
+            return False
+        try:
+            return json.loads(meta.read_text(encoding="utf-8")).get("user") == email
+        except (OSError, ValueError):
+            return False
+
     def do_GET(self):
         path, _, _q = self.path.partition("?")
         if path == "/register":
@@ -202,12 +211,41 @@ class Handler(BaseHTTPRequestHandler):
             if not self._session_email():
                 return self._send(403, '{"error":"login dulu"}')
             if path == "/api/session":
-                return self._send(200, '{"ok":true}')
+                email = self._session_email()
+                tier = _load_accounts().get(email, {}).get("tier", "basic")
+                from cyphron.pricing import PLANS
+                plan = PLANS.get(tier) or PLANS["basic"]
+                return self._send(200, json.dumps({
+                    "email": email, "tier": tier,
+                    "scans_today": _scans_today(email),
+                    "scans_per_day": plan.get("scans_per_day", 4)}))
+            if path == "/api/my-jobs":
+                email = self._session_email()
+                mine = []
+                if JOBS.is_dir():
+                    for j in sorted(JOBS.iterdir()):
+                        meta = j / "job.json"
+                        if not meta.is_file():
+                            continue
+                        try:
+                            m = json.loads(meta.read_text(encoding="utf-8"))
+                        except (OSError, ValueError):
+                            continue
+                        if m.get("user") != email:
+                            continue  # laporan orang lain bukan urusan kita
+                        pdf = (j / "out" / "report.pdf").exists()
+                        mine.append({"id": j.name, "mode": m.get("mode"),
+                                     "day": m.get("day", ""),
+                                     "done": (j / "out" / "report.md").exists(),
+                                     "has_pdf": pdf})
+                return self._send(200, json.dumps({"jobs": mine[:20]}))
             if path.startswith("/api/job/"):
                 jid = path.rsplit("/", 1)[-1]
                 jdir = JOBS / jid
                 if not jdir.is_dir():
                     return self._send(404, '{"error":"job tidak ditemukan"}')
+                if not self._owns_job(email=self._session_email(), jdir=jdir):
+                    return self._send(403, '{"error":"bukan job kamu"}')
                 job = Job(jid)
                 pdf = jdir / "out" / "report.pdf"
                 md = jdir / "out" / "report.md"
@@ -218,6 +256,9 @@ class Handler(BaseHTTPRequestHandler):
             if path.startswith("/api/report/"):
                 rest = path.partition("/api/report/")[2]
                 jid, _, fname = rest.partition("/")
+                if not self._owns_job(email=self._session_email(),
+                                      jdir=JOBS / jid):
+                    return self._send(403, "bukan job kamu")
                 f = JOBS / jid / "out" / (fname or "report.pdf")
                 if not f.is_file() or f.suffix not in (".pdf", ".md"):
                     return self._send(404, "laporan belum siap")
