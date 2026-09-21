@@ -1,10 +1,10 @@
 # CYPHRON — STATUS MASTER (dokumen tunggal konsolidasi)
 
 > Dikonsolidasikan: **2026-09-21** dari 9 dokumen yang sebelumnya berserakan
-> (ROADMAP.md, ROADMAP-CAPABILITIES, ROADMAP-EXPLOIT-40, ROADMAP-FULLPOWER-
-> SHOWCASE, ROADMAP-GODTIER-KNOWLEDGE, ROADMAP-UNITY, ROADMAP-V2-CYBER-
-> INTELLIGENCE, GAP-MATRIX, AUDIT-2026-09-19). Dokumen lama TETAP ADA sebagai
-> arsip rincian tapi headernya sudah ditandai "DIKONSOLIDASIKAN → baca file ini".
+> (kini di docs/arsip/ dengan nama sesuai isi: PLAN-R1-R6-FASE-AWAL,
+> PLAN-EXPLOIT-40-TUNTAS, PLAN-FULLPOWER-B1-B5-TUNTAS, PLAN-KB-GODTIER-TUNTAS,
+> PLAN-UNITY-U1-U10-TUNTAS, PRINSIP-CAPABILITY-LEAN, GAP-MATRIX,
+> AUDIT-2026-09-19 — peta lengkap di INDEX.md).
 > Sumber kebenaran status = kode + suite (683 tests, hijau per 2026-09-21) +
 > git log (commit timestamp).
 
