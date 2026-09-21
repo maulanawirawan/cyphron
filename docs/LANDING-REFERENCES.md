@@ -15,7 +15,7 @@
 | **Hero Parallax** (Manu Arora) | cari di /s/hero | Gerakan berlapis premium di hero |
 | **Home Hero Landing Scroll Animation** | /s/landing-page | Cerita scroll: Temukan → Nambal → Buktikan |
 | **Digital Serenity – Animated Landing Page** | /s/landing-page | Mood gelap-tenang khas produk security |
-| **Pricing Section** (Mikolaj Dobrucki) | /s/pricing-section | Templat 4 tier (PRICING-TIERS.md) |
+| **Pricing Section** (Mikolaj Dobrucki) | /s/pricing-section | Templat 4 tier (PRICING-LISENSI.md) |
 
 ## 2. Yang tidak dipakai
 - **MotionSites.ai** — katalog premium ("Cyber Ronin", "Obsidian", "Portal" — miris cocok)

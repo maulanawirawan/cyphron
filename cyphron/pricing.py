@@ -1,6 +1,6 @@
 """pricing — tabel harga, konversi token, dan batasan trial Cyphron.
 
-Model HYBRID yang disengaja (lihat docs/PRICING-TIERS.md):
+Model HYBRID yang disengaja (lihat docs/PRICING-LISENSI.md):
 - TIER  = kemampuan (engine apa yang boleh jalan; licensing.ENGINE_TIERS).
 - TOKEN = kuota konsumsi. 1 token = 1 eksekusi tool (tool-run), dibobot
   risk_tag: pasif=1, aktif=2, agresif/eksploit=4. Mode scan mengalikan

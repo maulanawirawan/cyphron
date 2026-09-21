@@ -1,4 +1,4 @@
-"""Security Knowledge Graph v2 (ROADMAP-UNITY U1).
+"""Security Knowledge Graph v2 (PLAN-UNITY-U1-U10 (arsip) — U1).
 
 Graph ringan zero-dependency (pure stdlib) yang memetakan hasil rekognisi
 WorldModel + temuan menjadi node/edge berlabel sehingga planner bisa query

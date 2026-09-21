@@ -1,4 +1,4 @@
-"""languages — Language Fleet: registry 36 bahasa pemrograman (Fullpower B6).
+"""languages — Language Fleet: registry 37 bahasa pemrograman (Fullpower B6).
 
 Tiga kapabilitas:
 
