@@ -210,7 +210,8 @@ def c2_simulate(host: str = "127.0.0.1", port: int = 0, beacons: int = 3,
     duration_cap_s = min(float(duration_cap_s), 30.0)
     timeline: list[dict] = []
 
-    srv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    fam = socket.AF_INET6 if host == "::1" else socket.AF_INET
+    srv = socket.socket(fam, socket.SOCK_STREAM)
     srv.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     srv.bind((host, port))
     srv.listen(beacons)

@@ -54,10 +54,8 @@ RULES = [
      "medium", "CWE-338",
      "Security token derived from Math.random() — predictable.",
      "Use crypto.randomBytes / crypto.getRandomValues."),
-    ("SQL built from f-string", re.compile(r"\.(query|execute)\s*\(\s*f[\"']"),
-     "critical", "CWE-89",
-     "SQL query built with an f-string — user input may reach the query.",
-     "Use parameterized queries."),
+    # (rule duplikat "SQL built from f-string" dihapus — dulu satu baris
+    #  menghasilkan dua temuan identik dari dua label bertumpuk)
 ]
 
 SKIP_DIRS = {".git", "node_modules", "__pycache__", ".venv", "venv", "dist", "build"}

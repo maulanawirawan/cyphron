@@ -57,6 +57,7 @@ class CrawlerTool(Tool):
     def run(self, args: dict, ctx: ToolContext) -> ToolResult:
         base = str(args["url"]).rstrip("/")
         max_pages = int(args.get("max_pages", 15))
+        max_depth = max(1, int(args.get("depth", 4)))
         host = urlparse(base).hostname or ""
         queue: list[str] = [base + "/"]
         seen: set[str] = set()
@@ -92,10 +93,14 @@ class CrawlerTool(Tool):
             ctx.world.note(f"sitemap.xml ingested ({sm_body.count('<loc>')} urls)")
 
         # --- main walk ---
+        # BFS berlapis: simpan kedalaman tiap URL (root depth 0)
+        depth_of: dict[str, int] = {base + "/": 0}
         while queue and pages_fetched < max_pages:
             url = queue.pop(0)
             norm = url.split("#", 1)[0]
             if not norm or norm in seen:
+                continue
+            if depth_of.get(norm, 0) > max_depth:
                 continue
             if urlparse(norm).hostname != host:
                 continue
@@ -115,6 +120,8 @@ class CrawlerTool(Tool):
                     continue  # never kill the grey-box session
                 if urlparse(absolute).hostname == host and absolute not in seen:
                     queue.append(absolute)
+                    depth_of.setdefault(absolute,
+                                        depth_of.get(norm, 0) + 1)
             for form in parser.forms:
                 action = urljoin(norm, form["action"] or norm)
                 if urlparse(action).hostname == host:

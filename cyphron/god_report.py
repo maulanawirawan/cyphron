@@ -42,7 +42,8 @@ def collect_technologies(data: dict, extra: list[str] | None = None) -> list[str
 def _sev_rows(findings: list[dict]) -> list[str]:
     order = {"critical": 0, "high": 1, "medium": 2, "low": 3, "info": 4}
     rows = sorted(findings, key=lambda f: (order.get(f.get("severity"), 9),
-                                           -float(f.get("confidence") or 0)))
+                                           -(float(f.get("confidence") or 0)
+                                             if isinstance(f.get("confidence"), (int, float)) else 0.0)))
     lines = []
     for f in rows:
         lines.append(
@@ -103,7 +104,8 @@ def build(target: str, confirmed: list[dict], texts: list[str],
 
     sev_counts = {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0}
     for f in confirmed:
-        sev_counts[f.get("severity")] = sev_counts.get(f.get("severity"), 0) + 1
+        sev = str(f.get("severity", "info")).lower()
+        sev_counts[sev] = sev_counts.get(sev, 0) + 1
 
     md: list[str] = []
     md.append(f"# Laporan GOD-TIER — {target}")

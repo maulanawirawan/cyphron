@@ -122,10 +122,12 @@ def _fget(f, name):
 
 class DeterministicPlanner:
     def __init__(self, offensive_allowed: bool, crawl_pages: int = 15,
+                 crawl_depth: int = 2,
                  authenticated: bool = False, request_budget: int = 400,
                  known_tools: set | None = None):
         self.offensive_allowed = offensive_allowed
         self.crawl_pages = crawl_pages
+        self.crawl_depth = crawl_depth
         self.authenticated = authenticated
         self.request_budget = max(int(request_budget), 0)
         self.account_count = 0
@@ -331,8 +333,12 @@ class DeterministicPlanner:
                           "evidence": f"source: {c['source']}",
                           "decision": "masuk antrean riset zero-day (FAZ 3)",
                           "status": "PENDING"})
-        except Exception:
-            pass
+        except Exception as exc:
+            H.append({"id": "H-zd-error",
+                      "claim": "FAZ 3 zero-day candidates gagal dihitung",
+                      "evidence": f"{type(exc).__name__}: {exc}",
+                      "decision": "lewati FAZ 3 pada run ini",
+                      "status": "REJECTED"})
         # U2-integ: antrean eskalasi adaptif tampil sebagai hipotesis
         if "H-escalate" in self._hyp:
             esc = self.escalation_state or {}
@@ -467,7 +473,11 @@ class DeterministicPlanner:
             plan = _escalation.escalation_plan(
                 g, self.offensive_allowed,
                 has_vuln_candidates=bool(world.findings_seen))
-        except Exception:
+        except Exception as exc:
+            # kegagalan fase eskalasi jangan senyap — state laporan bisa salah
+            self.escalation_state = {
+                "fase": "PROBE",
+                "error": f"escalation disabled: {type(exc).__name__}: {exc}"}
             return
         self.escalation_state = plan
         fase = str(plan.get("fase", ""))
@@ -619,8 +629,10 @@ class DeterministicPlanner:
     def _plan_web(self, world: WorldModel, target: str) -> None:
         """Full web skeleton: discovery -> offensive testing (evidence-gated).
         Every step is tagged with the hypothesis it serves."""
-        self._once(Step("crawler", {"url": target, "max_pages": self.crawl_pages},
-                        f"deep crawl (up to {self.crawl_pages} pages) with sitemap/"
+        self._once(Step("crawler", {"url": target, "max_pages": self.crawl_pages,
+                                    "depth": self.crawl_depth},
+                        f"deep crawl (up to {self.crawl_pages} pages, depth "
+                        f"{self.crawl_depth}) with sitemap/"
                         "robots/security.txt lead ingestion", "discovery"))
         self._once(Step("browser_engine", {"url": target, "max_pages": 5},
                         "render key pages with headless browser (SPA surface)",

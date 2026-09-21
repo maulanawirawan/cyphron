@@ -241,12 +241,22 @@ def sbom_generate(root: Path) -> dict:
 
 def license_compliance(sbom: dict, deny: tuple = ("GPL-3.0", "AGPL-3.0")) -> dict:
     """Cek lisensi yang dideklarasikan; DENIED bila kena denylist, selain
-    itu 'ok' (dideklarasi). Tanpa deklarasi = tidak dicek (dilabel)."""
+    itu 'ok' (dideklarasi). Tanpa deklarasi = tidak dicek (dilabel).
+    Kecocokan EXACT id — substring menyalahkan LGPL-3.0 sebagai GPL-3.0.
+    Lisensi perlu dikecualikan (mis. LGPL) pakai argumen allow.
+    """
+    allow_always = ("LGPL-",)
     rows = []
     for lic in sbom.get("_meta", {}).get("license_declarations", []):
         lid = str(lic.get("license", {}).get("id", "unknown"))
-        verdict = "DENIED" if any(d in lid for d in deny) else "ok"
-        rows.append({"license": lid, "verdict": verdict})
+        denied_by = next((d for d in deny
+                          if lid == d or lid.startswith(d + "-")
+                          or lid.startswith(d + "or")), None)
+        if denied_by and any(lid.startswith(a) for a in allow_always):
+            denied_by = None  # LGPL tetap LGPL, bukan GPL
+        verdict = "DENIED" if denied_by else "ok"
+        rows.append({"license": lid, "verdict": verdict,
+                     **({"rule": denied_by} if denied_by else {})})
     return {"checked": len(rows), "rows": rows,
             "denied": [r for r in rows if r["verdict"] == "DENIED"]}
 
@@ -261,13 +271,13 @@ def scan_iac(root: Path) -> list[dict]:
                                                    errors="replace")):
                 out.append({**row, "file": name})
     for p in sorted(root.rglob("docker-compose*.y*ml")):
-        if "kb/data" in str(p) or ".git" in p.parts:
+        if p.parts[-2:] == ("kb", "data") or ".git" in p.parts:
             continue
         for row in scan_compose(p.read_text(encoding="utf-8",
                                             errors="replace")):
             out.append({**row, "file": str(p.relative_to(root))})
     for p in sorted(root.rglob("*.yaml")) + sorted(root.rglob("*.yml")):
-        if ".git" in p.parts or "kb/data" in str(p) or "node_modules" in p.parts:
+        if ".git" in p.parts or p.parts[-2:] == ("kb", "data") or "node_modules" in p.parts:
             continue
         text = p.read_text(encoding="utf-8", errors="replace")
         if re.search(r"(?i)^\s*apiVersion:", text, re.M):

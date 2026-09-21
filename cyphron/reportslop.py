@@ -61,12 +61,23 @@ _MIN_SENT_FOR_PCT = True
 
 def _sentences(block_text: str) -> list[str]:
     """Gabungkan baris paragraf dulu (kalimat bisa wrap antar baris),
-    baru pecah jadi kalimat. Heading/tabel/codeblock dilewati."""
+    baru pecah jadi kalimat. Heading/tabel dilewati; ISI code block (di
+    antara ``` fence) juga dilewati — perintah/angka di kode bukan kalimat
+    naratif yang bisa memicu temuan slop palsu."""
     out = []
     para: list[str] = []
+    in_code = False
     for line in block_text.splitlines():
         s = line.strip()
-        is_meta = (not s or s.startswith(("#", "|", "```", "- [ ]", "- [x]")))
+        if s.startswith("```"):
+            in_code = not in_code
+            if para:
+                out.extend(_split_sents(" ".join(para)))
+                para = []
+            continue
+        if in_code:
+            continue
+        is_meta = (not s or s.startswith(("#", "|", "- [ ]", "- [x]")))
         if is_meta:
             if para:
                 out.extend(_split_sents(" ".join(para)))
@@ -156,8 +167,8 @@ def lint_report(text: str) -> dict:
 
 
 def lint_report_file(path) -> dict:
-    return lint_report(open(path, "r", encoding="utf-8",
-                            errors="replace").read())
+    with open(path, "r", encoding="utf-8", errors="replace") as fh:
+        return lint_report(fh.read())
 
 
 def format_result(res: dict) -> str:

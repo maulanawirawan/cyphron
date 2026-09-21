@@ -1,6 +1,6 @@
 """lang_detect — deteksi bahasa pemrograman otomatis (Fullpower B6).
 
-Sumber: extension + fingerprint isi + shebang (registry 36 bahasa).
+Sumber: extension + fingerprint isi + shebang (registry 37 bahasa).
 Zero-FP: dua kandidat terlalu berdekatan tanpa ekstensi = AMBIGU (dilabel,
 bukan ditebak). Dipakai SAST (pilih rule pack) dan adapter (pilih runtime).
 """
@@ -16,7 +16,7 @@ from .. import languages
 
 class LangDetectTool(Tool):
     name = "lang_detect"
-    description = ("Deteksi bahasa pemrograman otomatis (36 bahasa): "
+    description = ("Deteksi bahasa pemrograman otomatis (37 bahasa): "
                    "ekstensi + fingerprint isi + shebang; ambigu ditolak.")
     risk_tags = {"local", "passive"}
     source_skill = "fleet-01"
@@ -38,7 +38,7 @@ class LangDetectTool(Tool):
         if path.is_dir():
             counts: dict[str, int] = {}
             for p in sorted(path.rglob("*")):
-                if not p.is_file() or "kb/data" in str(p) \
+                if not p.is_file() or p.parts[-2:] == ("kb", "data") \
                         or ".git" in p.parts or "__pycache__" in p.parts:
                     continue
                 det = languages.detect_language("", str(p))

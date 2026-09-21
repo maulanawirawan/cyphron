@@ -47,8 +47,9 @@ def confirm_classic(baseline_body: str, baseline_status: int,
     if not gate2_attack(attack_body, marker):
         return ThreeGateResult(False, f"marker {marker!r} tidak muncul di attack", 0.0)
     if min_delay_ms:
-        # time-based: gate 3 diganti syarat delay di penelepon
-        return ThreeGateResult(True, f"marker + delay >= {min_delay_ms}ms", 0.85)
+        # time-based: penelepon WAJIB memverifikasi delay >= ambang sendiri
+        # (fungsi ini tidak mengukur — jangan kirim delay teramati ke sini)
+        return ThreeGateResult(True, f"marker + delay >= {min_delay_ms}ms (dinyatakan penelepon)", 0.85)
     diff = gate3_differential(baseline_status, baseline_body, attack_status, attack_body)
     if not diff:
         return ThreeGateResult(False, "attack response identik dengan baseline (no-op)", 0.0)

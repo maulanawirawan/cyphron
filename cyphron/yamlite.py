@@ -118,7 +118,7 @@ def _parse_mapping(lines, i, indent):
         if key is None:
             raise YamliteError(f"cannot parse mapping line {i}: {content!r}")
         if val in _BLOCK_SCALARS:
-            block, i = _parse_block_scalar(lines, i + 1, cur_indent)
+            block, i = _parse_block_scalar(lines, i + 1, cur_indent, style=val)
             out[key] = block
             continue
         if val != "":
@@ -142,8 +142,10 @@ def _parse_list(lines, i, indent):
             break
         item_content = content[1:].strip()
         if item_content in _BLOCK_SCALARS:
-            # item list yang berupa block scalar: - |  /  - >-
-            block, i = _parse_block_scalar(lines, i + 1, cur_indent)
+            # item list murni berupa block scalar (- | / - >): konten = semua
+            # baris lebih dalam dari item itu sendiri
+            block, i = _parse_block_scalar(lines, i + 1, cur_indent,
+                                           style=item_content)
             out.append(block)
             continue
         if item_content == "":
@@ -160,12 +162,16 @@ def _parse_list(lines, i, indent):
             i += 1
             continue
         item: dict = {}
-        if val != "":
+        # block scalar dicek SEBELUM scalar biasa — dulu '>' dianggap string
+        if val in _BLOCK_SCALARS:
+            # parent = indent kolom KEY (item_indent + prefix '- ') — baris
+            # lanjutan item (mis. 'n: 1') tidak ikut tertelan blok
+            key_indent = cur_indent + (len(content) - len(item_content))
+            block, i = _parse_block_scalar(lines, i + 1, key_indent, style=val)
+            item[key] = block
+        elif val != "":
             item[key] = _parse_scalar(val)
             i += 1
-        elif val in _BLOCK_SCALARS:
-            block, i = _parse_block_scalar(lines, i + 1, cur_indent)
-            item[key] = block
         else:
             if i + 1 < len(lines) and lines[i + 1][0] > cur_indent:
                 item[key], i = _parse_block(lines, i + 1, lines[i + 1][0])
@@ -177,7 +183,7 @@ def _parse_list(lines, i, indent):
             if k2 is None:
                 raise YamliteError(f"bad list-item continuation at line {i}: {lines[i][1]!r}")
             if v2 in _BLOCK_SCALARS:
-                block, i = _parse_block_scalar(lines, i + 1, lines[i][0])
+                block, i = _parse_block_scalar(lines, i + 1, lines[i][0], style=v2)
                 item[k2] = block
             elif v2 != "":
                 item[k2] = _parse_scalar(v2)
@@ -195,7 +201,10 @@ def _parse_list(lines, i, indent):
     return out, i
 
 
-def _parse_block_scalar(lines, i, parent_indent):
+def _parse_block_scalar(lines, i, parent_indent, style="|"):
+    """Block scalar: '|' = literal (newline dipertahankan), '>' = folded
+    (newline biasa digabung spasi, paragraf kosong = newline) — sesuai YAML.
+    Indentasi konten dipertahankan relatif terhadap blok."""
     chunk: list[str] = []
     block_indent = None
     while i < len(lines) and lines[i][0] > parent_indent:
@@ -203,4 +212,27 @@ def _parse_block_scalar(lines, i, parent_indent):
             block_indent = lines[i][0]
         chunk.append(" " * max(0, lines[i][0] - block_indent) + lines[i][1])
         i += 1
-    return "\n".join(chunk).strip(), i
+    text = "\n".join(chunk).strip("\n")
+    if style == ">":
+        # folding: baris berurutan digabung spasi; baris kosong = pemisah
+        # paragraf; baris berindentasi lebih dalam dipertahankan literal
+        out_lines: list[str] = []
+        buf: list[str] = []
+        for ln in text.split("\n"):
+            if ln.startswith((" ", "\t")):
+                if buf:
+                    out_lines.append(" ".join(buf))
+                    buf = []
+                out_lines.append(ln)
+                continue
+            if ln.strip() == "":
+                if buf:
+                    out_lines.append(" ".join(buf))
+                    buf = []
+                out_lines.append("")
+                continue
+            buf.append(ln.strip())
+        if buf:
+            out_lines.append(" ".join(buf))
+        text = "\n".join(out_lines).strip()
+    return text, i

@@ -69,7 +69,9 @@ def fetch_wellknown(target: str, timeout: float = 6.0) -> str | None:
         with urlopen(req, timeout=timeout) as r:
             body = r.read().decode("utf-8", errors="replace")
     except Exception:
-        if parts.scheme == "https":
+        # target eksplisit https: jangan retry http identik (dead path);
+        # host tanpa skema (dianggap https awal) boleh dicoba http sekali
+        if "://" in target:
             return None
         try:
             req = Request(f"http://{parts.netloc}{WELLKNOWN_PATH}",

@@ -117,8 +117,10 @@ def run_cve_benchmark(kb_dir=None, cases: list[dict] | None = None) -> dict:
             try:
                 rows, ambiguous = nvd_sqlite.query_cves_for_product(
                     db, match.vendor, match.product, match.version)
-            except Exception:
+            except Exception as exc:
                 rows = []
+                print(f"[benchmark] KB query gagal ({match.vendor}/{match.product}): "
+                      f"{type(exc).__name__}: {exc}")
             predicted = {r["id"] for r in rows}
             matched_rows = sorted(predicted)
         ambiguous_total += ambiguous

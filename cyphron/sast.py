@@ -401,7 +401,10 @@ def taint_scan(tree: ast.AST, lines: list[str]) -> list[SastFinding]:
 
 # ------------------------------------------------------------------ scanner
 def _load_custom_rules(path: Path) -> list[Rule]:
-    """Rule kustom klien (.cyphron-rules JSON) — schema Rule."""
+    """Rule kustom klien (.cyphron-rules JSON) — schema Rule. Regex di-
+    compile saat load: rule dengan regex tak valid di-SKIP (dengan jejak
+    di daftar yang dikembalikan lewat closure log), bukan crash saat scan.
+    """
     try:
         rows = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, ValueError):
@@ -409,14 +412,19 @@ def _load_custom_rules(path: Path) -> list[Rule]:
     out = []
     for row in rows if isinstance(rows, list) else []:
         try:
-            out.append(Rule(
+            rule = Rule(
                 id=str(row["id"]), message=str(row.get("message", "")),
-                severity=str(row.get("severity", "low")),
+                severity=str(row.get("severity", "low")).lower(),
                 cwe=str(row.get("cwe", "CWE-?")),
                 languages=tuple(str(l) for l in row.get("languages", ["python"])),
                 spec=row.get("spec"), regex=row.get("regex"),
                 confidence=float(row.get("confidence", 0.7)),
-                fix=str(row.get("fix", ""))))
+                fix=str(row.get("fix", "")))
+            if rule.regex:
+                re.compile(rule.regex)  # gagal -> ValueError -> skip
+            if rule.severity not in ("critical", "high", "medium", "low", "info"):
+                rule.severity = "info"  # severity custom: turunkan jujur
+            out.append(rule)
         except (KeyError, TypeError, ValueError):
             continue
     return out
@@ -512,9 +520,11 @@ def scan_path(root: Path, extra_rules: list[Rule] | None = None,
         p for p in root.rglob("*") if p.is_file()
         and p.suffix.lower() in _LANG_BY_SUFFIX
         and ".git" not in p.parts and "__pycache__" not in p.parts
-        and "kb/data" not in str(p))
+        and ("kb", "data") != p.parts[-2:])
     dup_map: dict[str, tuple] = {}
     for p in files:
+        # diff mode fail-closed: git gagal (bukan repo, dsb.) -> names None
+        # -> scan penuh, BUKAN "nol file" yang dilaporkan bersih
         if names is not None and str(p.relative_to(root)) not in names:
             continue
         findings.extend(scan_file(p, rules, slop=slop))
@@ -523,19 +533,26 @@ def scan_path(root: Path, extra_rules: list[Rule] | None = None,
     return findings
 
 
-def _git_changed_files(root: Path) -> set[str]:
+def _git_changed_files(root: Path) -> set[str] | None:
+    """Daftar file berubah (diff HEAD + untracked). Return None bila git
+    gagal — fail-CLOSED untuk mode diff: jalankan scan penuh, jangan
+    'nol file' yang dilaporkan bersih. splitlines() menjaga path ber-spasi."""
     try:
         out = subprocess.run(
             ["git", "diff", "--name-only", "HEAD"],
             cwd=str(root), capture_output=True, timeout=20)
-        rows = out.stdout.decode("utf-8", "replace").split()
+        if out.returncode != 0:
+            return None
+        rows = out.stdout.decode("utf-8", "replace").splitlines()
         untracked = subprocess.run(
             ["git", "ls-files", "--others", "--exclude-standard"],
             cwd=str(root), capture_output=True, timeout=20)
-        rows += untracked.stdout.decode("utf-8", "replace").split()
-        return set(rows)
+        if untracked.returncode != 0:
+            return None
+        rows += untracked.stdout.decode("utf-8", "replace").splitlines()
+        return {r for r in rows if r.strip()}
     except Exception:
-        return set()
+        return None
 
 
 # ------------------------------------------------------------ slop pack
@@ -717,7 +734,7 @@ def to_sarif(findings: list[SastFinding], tool: str = "cyphron-sast") -> dict:
                 {"ruleId": f.rule_id,
                  "level": {"critical": "error", "high": "error",
                            "medium": "warning", "low": "note",
-                           "info": "note"}[f.severity],
+                           "info": "note"}.get(f.severity, "note"),
                  "message": {"text": f.message},
                  "locations": [{
                      "physicalLocation": {

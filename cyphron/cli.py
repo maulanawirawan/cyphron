@@ -677,7 +677,8 @@ def main(argv: list[str] | None = None) -> int:
             opts = ScanOptions(
                 target=plan["target"],
                 auth_path=Path(args.auth) if args.auth else None,
-                crawl_pages=plan["crawl_pages"], max_steps=plan["max_steps"],
+                crawl_pages=plan["crawl_pages"], crawl_depth=plan["crawl_depth"],
+                max_steps=plan["max_steps"],
                 max_requests=plan["max_requests"],
                 rate_limit_s=plan["rate_limit_s"], max_time_s=20 * 60)
             run = run_scan(opts, verbose=True)

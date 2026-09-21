@@ -83,8 +83,9 @@ def queue_file_roundtrip(path: Path, items: list[dict]) -> dict:
         path.write_text("", encoding="utf-8")
     rows = [json.loads(l) for l in
             path.read_text(encoding="utf-8").splitlines() if l.strip()]
+    # jangan timpa status existing (pending/in-progress milik worker lain)
     for r in rows:
-        r["status"] = "done"
+        r.setdefault("status", "done")
     path.write_text("\n".join(json.dumps(r) for r in rows) + "\n",
                     encoding="utf-8")
     return {"queued": len(rows), "done": sum(

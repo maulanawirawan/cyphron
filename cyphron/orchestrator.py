@@ -43,6 +43,7 @@ class ScanOptions:
     rate_limit_s: float = 0.05
     max_time_s: float = 15 * 60
     crawl_pages: int = 15
+    crawl_depth: int = 2
     account: str | None = None  # grey-box: "user:password" for authenticated testing
     accounts: list[str] | None = None  # god mode: ["userA:pass", "userB:pass", ...]
     license_path: Path | None = None  # tier gate: license.json (basic/pro/business/god)
@@ -151,6 +152,7 @@ def run_scan(opts: ScanOptions, verbose: bool = True) -> ScanRun:
     tools = build_default_registry(ctx)
     planner = DeterministicPlanner(offensive_allowed=(mode == "offensive"),
                                    crawl_pages=opts.crawl_pages,
+                                   crawl_depth=opts.crawl_depth,
                                    request_budget=opts.max_requests,
                                    known_tools={t.name for t in tools.all()})
 

@@ -60,6 +60,7 @@ def plan_from_policy(policy: dict, target: str) -> dict:
     return {
         "target": target,
         "crawl_pages": p["crawl_pages"],
+        "crawl_depth": p["crawl_depth"],
         "max_steps": p["max_steps"],
         "max_requests": p["max_requests"],
         "rate_limit_s": p["rate_limit"],

@@ -343,15 +343,17 @@ def to_svg(g: "KnowledgeGraph", max_nodes: int = 30) -> str:
         while frontier and len(keep) < max_nodes:
             nxt: list[str] = []
             for nid in frontier:
+                if len(keep) >= max_nodes:
+                    break
                 for e in g.edges():
+                    if len(keep) >= max_nodes:
+                        break
                     if e["dst"] == nid and e["src"] not in keep:
                         keep.add(e["src"])
                         nxt.append(e["src"])
                     elif e["src"] == nid and e["dst"] not in keep:
                         keep.add(e["dst"])
                         nxt.append(e["dst"])
-                if len(keep) >= max_nodes:
-                    break
             frontier = nxt
     for n in sorted(nodes, key=lambda x: x["id"]):
         if len(keep) >= max_nodes:
