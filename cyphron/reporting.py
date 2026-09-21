@@ -95,6 +95,16 @@ def _render_rule_chains(s) -> list[dict]:
     return out
 
 
+def _finding_json(f) -> dict:
+    """Dict temuan + verdict terpusat: label tangga ikut ke JSON supaya
+    konsumen (god_report, fleet) tidak menebak ulang level buktinya."""
+    d = f.to_dict()
+    lv = _verdicts.verdict_of(f)
+    d["verdict"] = lv
+    d["verdict_tag"] = _verdicts.tag(lv)
+    return d
+
+
 def write_reports(out_dir: Path, opts: ScanOptions, summary: ScanSummary,
                   world: WorldModel, audit: AuditLog,
                   report_mode: str = "full") -> dict[str, Path]:
@@ -119,7 +129,7 @@ def write_reports(out_dir: Path, opts: ScanOptions, summary: ScanSummary,
     md_path.write_text(_render_md(blocks), encoding="utf-8")
 
     json_path = out_dir / "findings.json"
-    confirmed_dicts = [f.to_dict() for f in summary.confirmed]
+    confirmed_dicts = [_finding_json(f) for f in summary.confirmed]
     if report_mode == "redacted":
         total_confirmed = len(confirmed_dicts)
         confirmed_dicts = confirmed_dicts[:5]
@@ -140,7 +150,7 @@ def write_reports(out_dir: Path, opts: ScanOptions, summary: ScanSummary,
             sorted({e["tool"] for e in audit.entries if e["kind"] == "tool-run"})),
         "counts": summary.counts_by_severity(),
         "confirmed": confirmed_dicts,
-        "unconfirmed": [f.to_dict() for f in summary.unconfirmed],
+        "unconfirmed": [_finding_json(f) for f in summary.unconfirmed],
         "world": world.snapshot(), "skills_used": summary.skills_used,
         "audit_verified": summary.audit_verified, "steps": summary.steps_executed,
         "refused_actions": summary.refused_actions, "elapsed_s": summary.elapsed_s,
@@ -191,6 +201,14 @@ def _build_doc(opts: ScanOptions, s: ScanSummary, w: WorldModel, audit: AuditLog
     # ---- U7: verdict ladder per temuan (LEAD vs VERIFIED) + path graph ----
     ladder_of = {f.id: _verdicts.verdict_of(f)
                  for f in list(s.confirmed) + list(s.unconfirmed)}
+    # verdict enforcement lanjutan: label LEAD terpusat di permukaan laporan
+    lead_levels = Counter(_verdicts.verdict_of(f) for f in s.unconfirmed)
+    lead_total = sum(v for k, v in lead_levels.items()
+                     if 0 <= k < _verdicts.MIN_REPORT_LEVEL)
+    rejected_total = lead_levels.get(_verdicts.REJECTED, 0)
+    lead_detail = " ".join(
+        [f"L{k}:{lead_levels[k]}" for k in (0, 1, 2) if lead_levels.get(k)]
+        + ([f"REJECTED:{rejected_total}"] if rejected_total else []))
     graph_paths: list[list[dict]] = []
     try:
         g2 = _graph_with_findings(w, list(s.confirmed) + list(s.unconfirmed))
@@ -246,7 +264,10 @@ def _build_doc(opts: ScanOptions, s: ScanSummary, w: WorldModel, audit: AuditLog
     verdict_rows: list[list[str]] = []
     n = 0
     for f in s.confirmed:
-        verdict_rows.append([str(n), f.title, "ADA (terkonfirmasi)",
+        verdict_rows.append([str(n), f.title,
+                             "ADA (terkonfirmasi) - "
+                             + _verdicts.tag(ladder_of.get(f.id,
+                                                           _verdicts.MIN_REPORT_LEVEL)),
                              _SEV_ID[f.severity].upper(), _class_of(f)])
     for tool in clean_tools:
         verdict_rows.append(["-", f"Uji {tool} ({runs.get(tool, 1)}x eksekusi)",
@@ -281,7 +302,8 @@ def _build_doc(opts: ScanOptions, s: ScanSummary, w: WorldModel, audit: AuditLog
                + (", ".join(sorted(s.escalation.get("patterns", {}))) or "-") + ")")]
               if s.escalation else []),
             ("Temuan terkonfirmasi", str(len(s.confirmed)) or "0"),
-            ("Observasi (tanpa bukti penuh)", str(len(s.unconfirmed))),
+            ("Observasi (LEAD L0-L2)",
+             str(lead_total) + (f" ({lead_detail})" if lead_detail else "")),
             ("Integritas audit", "UTUH (hash-chain)" if s.audit_verified else "TAMPERED"),
             ("Durasi", f"{s.elapsed_s:.0f} detik"),
         ],
@@ -291,7 +313,8 @@ def _build_doc(opts: ScanOptions, s: ScanSummary, w: WorldModel, audit: AuditLog
                      "(terkonfirmasi dengan bukti reproduktif) atau TIDAK DITEMUKAN "
                      "(diuji, nol temuan). Tidak ada perkataan 'mungkin' - kandidat yang "
                      "gagal memenuhi standar bukti dikeluarkan dari daftar temuan dan "
-                     "dilaporkan terpisah sebagai observasi."),
+                     "dilaporkan terpisah berlabel LEAD (level 0-2 tangga verdict, "
+                     "bukan klaim)."),
         },
         "full_cover": True,
         "sections": [
@@ -299,8 +322,10 @@ def _build_doc(opts: ScanOptions, s: ScanSummary, w: WorldModel, audit: AuditLog
                 ("box", (f"Pengujian menemukan {len(s.confirmed)} temuan terkonfirmasi dan "
                          f"memastikan {len(clean_tools)} area uji BERSIH (tidak ditemukan "
                          f"kerentanan). {'Tidak ada temuan critical/high.' if not counts['critical'] and not counts['high'] else 'Perhatian: terdapat temuan berdampak tinggi.'} "
-                         f"Seluruh keputusan berbasis bukti request-response yang dapat "
-                         f"direproduksi; jejak keputusan terkunci pada rantai hash.")),
+                         + (f"Terdapat juga {lead_total} kandidat berstatus LEAD (level 0-2; "
+                            f"dilabel, bukan klaim). " if lead_total else "")
+                         + "Seluruh keputusan berbasis bukti request-response yang dapat "
+                           "direproduksi; jejak keputusan terkunci pada rantai hash.")),
                 ("body", f"Mode {s.mode}; otorisasi {s.auth_id or 'tidak ada'}; "
                          f"{s.steps_executed} langkah planner, {w.request_count} request, "
                          f"durasi {s.elapsed_s:.0f} detik; {s.refused_actions} aksi ditolak gate."),
@@ -375,7 +400,9 @@ def _build_doc(opts: ScanOptions, s: ScanSummary, w: WorldModel, audit: AuditLog
             {"no": "07", "title": "OBSERVASI TANPA BUKTI EKSPLOITASI PENUH", "kind": "table",
              "head": ["Observasi", "Verdict", "Confidence"],
              "widths": [5.4, 3.0, 1.1],
-             "rows": [[f.title, "TIDAK ADA BUKTI EKSPLOITASI - tidak dihitung sebagai temuan",
+             "rows": [[f.title,
+                       _verdicts.tag(_verdicts.verdict_of(f))
+                       + " - tidak dihitung sebagai temuan",
                        f"{f.confidence:.0%}"] for f in s.unconfirmed]
                       or [["Tidak ada", "TIDAK DITEMUKAN", "-"]]},
             {"no": "08", "title": "METODOLOGI, CAKUPAN, BATASAN", "kind": "generic", "blocks": [
@@ -445,14 +472,15 @@ def _build_blocks(opts: ScanOptions, s: ScanSummary, w: WorldModel, audit: Audit
     top = ", ".join(f"{v} { _SEV_ID[k].lower() }" for k, v in counts.items() if v)
     if total:
         b.append(("body", f"Pengujian menemukan {total} temuan terkonfirmasi ({top}) "
-                          f"dan {len(s.unconfirmed)} observasi yang belum terkonfirmasi. "
+                          f"dan {len(s.unconfirmed)} observasi berstatus LEAD (verdict "
+                          "ladder level 0-2; dilabel jelas, bukan klaim). "
                           "Setiap temuan disertai bukti yang dapat direproduksi beserta langkah "
                           "perbaikannya. Observasi yang belum terkonfirmasi tidak dihitung sebagai "
                           "temuan dan dilaporkan terpisah pada bagian akhir."))
     else:
         b.append(("body", f"Dalam cakupan yang diuji, tidak ditemukan temuan terkonfirmasi. "
-                          f"Terdapat {len(s.unconfirmed)} observasi yang belum memenuhi standar bukti "
-                          "untuk dikonfirmasi dan dilaporkan terpisah."))
+                          f"Terdapat {len(s.unconfirmed)} observasi berstatus LEAD (level 0-2) yang "
+                          "belum memenuhi standar bukti untuk dikonfirmasi dan dilaporkan terpisah."))
     b.append(("kv", f"Mode pengujian: {s.mode}. Otorisasi: {s.auth_id or 'tidak ada (read-only)'}."))
     b.append(("kv", f"Langkah dijalankan: {s.steps_executed}. Aksi yang ditolak gate: {s.refused_actions}. "
                     f"Request terkirim: {w.request_count}. Durasi: {s.elapsed_s} detik."))
@@ -545,9 +573,10 @@ def _build_blocks(opts: ScanOptions, s: ScanSummary, w: WorldModel, audit: Audit
     if not s.confirmed:
         b.append(("body", "Tidak ada temuan terkonfirmasi dalam cakupan ini."))
     else:
-        b.append(("mono", f"{'Tingkat':9} {'CWE':10} Judul"))
+        b.append(("mono", f"{'Tingkat':9} {'CWE':10} {'Verdict':32} Judul"))
         for f in s.confirmed:
-            b.append(("mono", f"{_SEV_ID[f.severity]:9} {f.cwe or '-':10} {f.title}"))
+            b.append(("mono", f"{_SEV_ID[f.severity]:9} {f.cwe or '-':10} "
+                              f"{_verdicts.tag(_verdicts.verdict_of(f)):32} {f.title}"))
     b.append(("kv", ""))
 
     b.append(("h1", "5. Detail Temuan"))
@@ -562,6 +591,8 @@ def _build_blocks(opts: ScanOptions, s: ScanSummary, w: WorldModel, audit: Audit
             b.append(("kv", f"- Tool: {f.tool} | CWE: {f.cwe or '-'} | "
                             f"Confidence: {f.confidence:.0%} | Skill: {f.source_skill or '-'} | "
                             f"Estimasi CVSS v3.1: {_CVSS_BAND[f.severity]}"))
+            b.append(("kv", f"- Verdict: {_verdicts.tag(_verdicts.verdict_of(f))} "
+                            f"(standar temuan klien: level >= {_verdicts.MIN_REPORT_LEVEL})"))
             if f.target_url:
                 b.append(("kv", f"- Lokasi: {f.target_url}" + (f" (parameter: {f.param})" if f.param else "")))
             if f.file_path:
@@ -583,10 +614,13 @@ def _build_blocks(opts: ScanOptions, s: ScanSummary, w: WorldModel, audit: Audit
 
     if s.unconfirmed:
         b.append(("h1", "6. Observasi Belum Terkonfirmasi"))
-        b.append(("body", "Observasi berikut tidak memenuhi standar bukti untuk disebut temuan. "
+        b.append(("body", "Observasi berikut berstatus LEAD (verdict ladder level 0-2): "
+                          "tidak memenuhi standar bukti untuk disebut temuan. "
                           "Mereka dicantumkan demi transparansi dan tidak dihitung pada ringkasan."))
         for f in s.unconfirmed:
-            b.append(("bullet", f"[{_SEV_ID[f.severity]}] {f.title} (confidence {f.confidence:.0%})"))
+            b.append(("bullet", f"[{_SEV_ID[f.severity]}] {f.title} - "
+                                f"{_verdicts.tag(_verdicts.verdict_of(f))} "
+                                f"(confidence {f.confidence:.0%})"))
         b.append(("kv", ""))
 
     b.append(("h1", "7. Batasan Pengujian"))

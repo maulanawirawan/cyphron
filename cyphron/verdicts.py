@@ -81,6 +81,21 @@ def label(level: int) -> str:
     return NAMES.get(level, f"L{level}")
 
 
+def tag(level: int) -> str:
+    """Label pendek SATU SUMBER untuk semua permukaan laporan
+    (PDF/MD/DOCX/JSON): 'L1 SUSPECTED - LEAD',
+    'L3 DETERMINISTICALLY VERIFIED', 'L-x REJECTED'.
+
+    Verdict enforcement lanjutan (22-09): label level tidak lagi hanya di
+    chip per-temuan PDF detail — reporting memusatkan tag ini di meta cover,
+    callout, matriks verdict, tabel observasi, ringkasan, dan JSON."""
+    if level == REJECTED:
+        return "L-x REJECTED"
+    name = NAMES.get(level, str(level)).replace("_", " ")
+    lead = " - LEAD" if level < MIN_REPORT_LEVEL else ""
+    return f"L{level} {name}{lead}"
+
+
 def is_lead(finding) -> bool:
     """LEAD = level 0-2 (indikasi; WAJIB dilabel, bukan klaim)."""
     return 0 <= verdict_of(finding) < MIN_REPORT_LEVEL
