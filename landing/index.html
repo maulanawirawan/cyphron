@@ -200,28 +200,36 @@
   <h2>Tingkatan berdasarkan kemampuan — bukan sisa jatah.</h2>
   <p class="lead">Tanpa sistem kredit. Tanpa "kredit habis = berhenti". Tier membuka kemampuan.</p>
   <div class="tiers">
-    <div class="tier"><h3>Pentest Basic</h3><div class="price">Gratis<small> / uji</small></div>
-      <ul><li>Scan black-box seluruh engine</li><li>Laporan PDF + bukti + PoC</li>
-      <li class="no">Fix packs</li><li class="no">Verifikasi delta</li><li>1 target, retensi 7 hari</li></ul>
-      <a class="btn btn-outline" href="#waitlist">Mulai</a></div>
-    <div class="tier hot"><div class="tag">PALING POPULER</div><h3>Pentest + Penambalan</h3>
-      <div class="price">Hubungi<small></small></div>
-      <ul><li>Semua di Basic</li><li>Fix packs per temuan</li><li>Verifikasi delta (bukti nambal)</li>
-      <li>Grey-box 1 akun uji</li><li>Rescan terjadwal + riwayat</li></ul>
-      <a class="btn btn-solid" href="#waitlist">Pilih Tier 2</a></div>
-    <div class="tier"><h3>Capacity & Continuous</h3><div class="price">Custom</div>
-      <ul><li>Semua di Tier 2</li><li>Perf engine manual + kapasitas</li>
-      <li>White-box SAST + SCA repositori</li><li>3 target + monitoring</li></ul>
-      <a class="btn btn-outline" href="#waitlist">Diskusi</a></div>
-    <div class="tier"><h3>Full God Mode</h3><div class="price">Custom</div>
-      <ul><li>Semua di Tier 3</li><li>Grey-box multi-peran (IDOR/tenant)</li>
-      <li>Attack-chain analysis</li><li>On-prem runner + CI/CD</li></ul>
-      <a class="btn btn-outline" href="#waitlist">Diskusi</a></div>
+    <div class="tier"><h3>TRIAL</h3><div class="price">Gratis<small></small></div>
+      <ul><li>30 token — cek permukaan pasif</li><li>Laporan hasil dipangkas (redacted)</li>
+      <li>1 scan / 24 jam, 7 hari</li><li class="no">Fix packs / PoC lengkap</li></ul>
+      <a class="btn btn-outline" href="/register">Coba Sekarang</a></div>
+    <div class="tier"><h3>Basic</h3><div class="price">Rp299rb<small>/bln</small></div>
+      <ul><li>150 token/bln · 1 target</li><li>Laporan PDF penuh + bukti + PoC</li>
+      <li class="no">Fix packs</li><li>Retensi 90 hari</li></ul>
+      <a class="btn btn-outline" href="/register">Mulai Basic</a></div>
+    <div class="tier hot"><div class="tag">PALING POPULER</div><h3>Pro</h3>
+      <div class="price">Rp799rb<small>/bln</small></div>
+      <ul><li>600 token/bln · 2 target</li><li>Fix packs per temuan</li>
+      <li>Verifikasi delta (bukti nambal)</li><li>Grey-box 1 akun uji</li></ul>
+      <a class="btn btn-solid" href="/register">Pilih Pro</a></div>
+    <div class="tier"><h3>Business</h3><div class="price">Rp1,9jt<small>/bln</small></div>
+      <ul><li>2.000 token/bln · 3 target</li><li>Perf engine + kapasitas</li>
+      <li>White-box SAST + SCA repositori</li><li>Monitoring + riwayat delta</li></ul>
+      <a class="btn btn-outline" href="/register">Pilih Business</a></div>
+    <div class="tier"><h3>God Mode</h3><div class="price">Rp4,9jt<small>/bln</small></div>
+      <ul><li>5.000 token/bln (fair-use)</li><li>Grey-box multi-peran (IDOR/tenant)</li>
+      <li>Attack-chain analysis</li><li>On-prem runner + API/CI-CD</li></ul>
+      <a class="btn btn-outline" href="/register">Hubungi Kami</a></div>
   </div>
+  <p class="lead" style="font-size:13px;margin-top:10px">1 token = 1 eksekusi tool
+  (pasif 1 · aktif 2 · load 3 · eksploit 4). Mode mengalikan: read-only ×1,
+  active ×1.5, offensive ×2. Top-up: 1.000 token = Rp500.000. Trial = 1x per
+  perangkat. Rincian: <a href="/PRICING-LISENSI.md">dokumen harga</a>.</p>
   <div class="compare"><table>
     <tr><th>Kenapa Cyphron</th><th>Artinya buat kamu</th></tr>
     <tr><td>Seluruh engine + knowledge base NVD/EDB offline</td><td>Tidak bergantung tool luar</td></tr>
-    <tr><td>Tanpa kredit & tanpa token</td><td>Scan sepuasnya, biaya tetap</td></tr>
+    <tr><td>Token transparan (bukan kredit gelap)</td><td>1 token = 1 eksekusi tool — kuota jelas di dashboard</td></tr>
     <tr><td>Verdict ladder + verifier bukti-basis</td><td>LEAD dan temuan terkonfirmasi tidak pernah dicampur</td></tr>
     <tr><td>Data tidak keluar dari mesin</td><td>Privasi penuh, jalan offline</td></tr>
     <tr><td>Fix packs + verify delta</td><td>Perbaikan terbukti, bukan janji</td></tr>

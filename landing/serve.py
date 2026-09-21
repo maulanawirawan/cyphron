@@ -85,6 +85,19 @@ def _scans_today(email: str) -> int:
     return n
 
 
+_LOGIN_FAILS: dict[str, list[float]] = {}  # kunci email -> timestamp gagal
+LOGIN_WINDOW_S = 900     # 15 menit
+LOGIN_MAX_FAILS = 5
+
+
+def _login_blocked(email: str) -> tuple[bool, int]:
+    """Anti brute-force: >=5 gagal dalam 15 menit = tolak sementara."""
+    now = time.time()
+    fails = [t for t in _LOGIN_FAILS.get(email, []) if now - t < LOGIN_WINDOW_S]
+    _LOGIN_FAILS[email] = fails
+    return len(fails) >= LOGIN_MAX_FAILS, LOGIN_MAX_FAILS - len(fails)
+
+
 def _load_accounts():
     if ACCOUNTS.exists():
         return json.loads(ACCOUNTS.read_text())
@@ -281,6 +294,8 @@ class Handler(BaseHTTPRequestHandler):
         email, pw = fields.get("email", ""), fields.get("password", "")
         if not email or not pw or len(pw) < 8:
             return self._send(400, "email & password (min 8 karakter) wajib")
+        if action != "register" and _login_blocked(email):
+            return self._send(429, "terlalu banyak percobaan gagal — coba lagi 15 menit")
         acc = _load_accounts()
         if action == "register":
             if email in acc:
@@ -297,11 +312,13 @@ class Handler(BaseHTTPRequestHandler):
         # login
         rec = acc.get(email)
         if rec and _hash(rec["salt"], pw) == rec["hash"]:
+            _LOGIN_FAILS.pop(email, None)
             tok = secrets.token_urlsafe(32)
             s = _load_sessions()
             s[tok] = {"email": email, "exp": time.time() + SESSION_TTL_S}
             _save_sessions(s)
             return self._send(200, '{"ok":true}', cookie=f"cyphron_session={tok}; HttpOnly; SameSite=Lax; Path=/")
+        _LOGIN_FAILS.setdefault(email, []).append(time.time())
         return self._send(401, "kredensial salah")
 
 

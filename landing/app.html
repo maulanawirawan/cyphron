@@ -34,9 +34,10 @@ a.dl{display:inline-block;margin:8px 6px 0;padding:10px 20px;background:var(--a)
 <div class="box" id="login">
   <div class="logo"><h1>CYPHRON<b>.</b> Console</h1></div>
   <p style="color:var(--m);font-size:13px;margin:6px 0 16px">Masuk atau daftar — trial gratis langsung bisa jalan.</p>
-  <label>Email</label><input id="u" value="pentest@pentester.com">
-  <label>Password (min 8 karakter)</label><input id="p" type="password" value="pentester123">
+  <label>Email</label><input id="u" placeholder="kamu@email.com" autocomplete="email">
+  <label>Password (min 8 karakter)</label><input id="p" type="password" placeholder="min. 8 karakter" autocomplete="current-password">
   <button onclick="auth()">MASUK / DAFTAR</button>
+  <p style="color:var(--m);font-size:12px;margin-top:8px">Belum punya akun? Isi email + password lalu klik sekali — akun dibuat otomatis.</p>
   <p style="color:var(--m);font-size:11px;margin-top:14px">Gate tier tetap ditegakkan di engine (kode), bukan di halaman ini.</p>
 </div>
 
