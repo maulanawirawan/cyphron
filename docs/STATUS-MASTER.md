@@ -134,13 +134,10 @@ dedupe lintas-bucket deterministik.
 Skanner AST (definisi top-level dengan NOL referensi repo-wide). Kebijakan:
 TIDAK dihapus sembarangan — dipilah:
 
-### A. DISCONNECTED — fitur ada tapi belum tersambung alur (keputusan user):
-- `tierpack2.build2()`, `tierpack3.build3()` — generator pack 2/3 tidak pernah
-  dipanggil CLI (yang ekspos cuma `tierpack.build` + `build_bounty`).
-  → Opsi: tambah argumen CLI `--pack 2|3` ATAU hapus.
-- `god_report.build_with_quality_gate()` — gerbang kualitas GOD dibuat (batch
-  U) tapi CLI `god-report` masih panggil `build()` tanpa gate.
-  → Opsi: switch CLI ke build_with_quality_gate (perilaku laporan berubah).
+### A. DISCONNECTED — SELESAI DISAMBUNG 22-09-2026 (23b29c1):
+- `tierpack2.build2()` / `tierpack3.build3()` → `cyphron tiers --build --pack 2|3`
+- `god_report.build_with_quality_gate()` → default `cyphron god-report`
+  (--no-quality-gate untuk lewati).
 
 ### B. API SENGAJA (keep — dipakai di luar repo / server / masa depan):
 - `verification.confirm_classic/confirm_timing` — protokol 3-gate, API stabil
@@ -161,7 +158,9 @@ TIDAK dihapus sembarangan — dipilah:
 
 ## 10. ANTRIAN AKTUAL (belum, urutan saran)
 
-1. **[KEPUTUSAN USER]** Sambungkan atau hapus item 9.A (tierpack2/3 + quality gate).
+1. [x] **SELESAI 22-09-2026 (23b29c1)**: fitur disconnected tersambung —
+   `god-report` default pakai gerbang kualitas anti-slop (--no-quality-gate
+   utk lewati); `tiers --build --pack 2|3` tersambung ke build2/build3.
 2. **Verdict enforcement lanjutan**: pusatkan label LEAD di laporan (saat ini
    bucket sudah benar; label per-temuan ladder tampil di PDF detail).
 3. **V2 objects/identities/trust-boundaries sebagai node graaf** (butuh desain).
