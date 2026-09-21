@@ -75,37 +75,25 @@ def external_sources_used(executed_tools) -> list[str]:
 
 
 
-def _attack_chains(confirmed) -> list[dict]:
-    """Attack-Chain Reasoner v1 (deterministik): rantai disusun HANYA dari
-    temuan terkonfirmasi; tiap link adalah temuan sungguhan, rantai adalah
-    reasoning kombinasi dampaknya."""
-    t = " ".join(f.title.lower() for f in confirmed)
-    has = lambda kw: kw.lower() in t
-    chains = []
-    if has("spf") and has("dmarc") and has("lockout"):
-        chains.append({
-            "name": "PATH-1: PHISHING -> PASSWORD GUESS -> ACCOUNT TAKEOVER",
-            "steps": ["Email spoofing atas domain target (SPF + DMARC hilang)",
-                      "Kirim phishing halaman-login palsu ke karyawan/klien",
-                      "Korban menyerahkan kredensial; login tanpa lockout/rate-limit",
-                      "Tebakan password lanjutan tak terbatas -> kompromi akun"],
-            "confidence": 0.75})
-    if has("/admin/") and has("lockout"):
-        chains.append({
-            "name": "PATH-2: ADMIN SURFACE -> UNTHROTTLED BRUTE FORCE",
-            "steps": ["Halaman admin terjangkau tanpa autentikasi (kandidat terkonfirmasi)",
-                      "Tidak ada lockout/rate-limit setelah percobaan gagal berulang",
-                      "Brute-force kredensial admin tanpa hambatan",
-                      "Akses panel administrasi (impact: kontrol penuh aplikasi)"],
-            "confidence": 0.65})
-    if has("content-security-policy") and has("xss"):
-        chains.append({
-            "name": "PATH-3: XSS TANPA PENAHAN CSP",
-            "steps": ["Reflected XSS terkonfirmasi pada parameter",
-                      "CSP tidak ada/tidak menahan eksekusi inline",
-                      "Eksekusi skrip di browser korban (session/aksi dicuri)"],
-            "confidence": 0.8})
-    return chains
+def _render_rule_chains(s) -> list[dict]:
+    """Rantai dari SATU sumber: chaining.compose (rule-based, dihitung
+    orchestrator, tersimpan di summary.attack_chains). Dulu reporting memakai
+    composer legacy berbasis substring judul + confidence hardcoded — dua
+    composer divergen; kini hanya rule-based yang dilaporkan. Langkah (id
+    temuan) di-resolve ke judul supaya bisa dibaca klien."""
+    title_of = {f.id: f.title for f in
+                list(s.confirmed) + list(s.unconfirmed)}
+    out = []
+    for c in (s.attack_chains or []):
+        out.append({
+            "name": c.get("name", c.get("chain_id", "?")),
+            "rule_id": c.get("rule_id", ""),
+            "steps": [title_of.get(sid, sid) for sid in (c.get("steps") or [])],
+            "severity": c.get("combined_severity", "info"),
+            "rationale": c.get("rationale", ""),
+        })
+    return out
+
 
 def write_reports(out_dir: Path, opts: ScanOptions, summary: ScanSummary,
                   world: WorldModel, audit: AuditLog,
@@ -146,6 +134,7 @@ def write_reports(out_dir: Path, opts: ScanOptions, summary: ScanSummary,
     json_path.write_text(json.dumps({
         "target": opts.target, "mode": summary.mode, "authorization": summary.auth_id,
         "generated_at": datetime.now(timezone.utc).isoformat(),
+        "attack_chains": summary.attack_chains,
         **redact_meta,
         "external_sources_accessed": external_sources_used(
             sorted({e["tool"] for e in audit.entries if e["kind"] == "tool-run"})),
@@ -234,7 +223,7 @@ def _build_doc(opts: ScanOptions, s: ScanSummary, w: WorldModel, audit: AuditLog
         verdict_rows.append(["-", "SUMBER DATA PIHAK KETIGA diakses (transparansi): "
                              + "; ".join(ext_sources),
                              "DIKETAHUI", "INFO", "-"])
-    chains = _attack_chains(s.confirmed)
+    chains = _render_rule_chains(s)
     finding_tools = {f.tool for f in s.confirmed}
     done: dict[str, dict] = {}
     for e in audit.entries:
@@ -352,10 +341,10 @@ def _build_doc(opts: ScanOptions, s: ScanSummary, w: WorldModel, audit: AuditLog
                       for ev in w.replan_events]
               or [["Tidak ada re-plan pada run ini", "-", "-"]]},
             {"no": "04b", "title": "RANTAI SERANGAN (ATTACK PATHS)", "kind": "table",
-             "head": ["Attack path", "Langkah rantai", "Confidence"],
+             "head": ["Attack path", "Langkah rantai", "Severity gabungan"],
              "widths": [2.2, 5.4, 1.0],
              "rows": [[c["name"], chr(10).join("-> " + s for s in c["steps"]),
-                       f"{c['confidence']:.0%}"] for c in chains]
+                       c["severity"].upper()] for c in chains]
                       or [["Tidak ada rantai lintas-temuan pada run ini", "-", "-"]]},
             {"no": "04c", "title": "PATH GRAPH (SAMPAI SINI LEWAT APA)",
              "kind": "graph", "paths": graph_paths},
@@ -372,10 +361,10 @@ def _build_doc(opts: ScanOptions, s: ScanSummary, w: WorldModel, audit: AuditLog
                  "poc": f.poc, "rec": f.recommendation}
                 for f in s.confirmed]},
             {"no": "05", "title": "RANTAI SERANGAN (ATTACK PATHS)", "kind": "table",
-             "head": ["Attack path", "Langkah rantai (tiap link = temuan terkonfirmasi)", "Confidence"],
+             "head": ["Attack path", "Langkah rantai (tiap link = temuan terkonfirmasi)", "Severity gabungan"],
              "widths": [2.2, 5.4, 1.0],
              "rows": [[c["name"], " -> ".join(c["steps"]),
-                       f"{c['confidence']:.0%}"] for c in chains]
+                       c["severity"].upper()] for c in chains]
                       or [["Tidak ada rantai lintas-temuan pada run ini", "-", "-"]]},
             {"no": "06", "title": "MATRIKS PENGUJIAN BERSIH", "kind": "table",
              "head": ["Engine", "Eksekusi", "Verdict"],
@@ -539,13 +528,16 @@ def _build_blocks(opts: ScanOptions, s: ScanSummary, w: WorldModel, audit: Audit
         b.append(("bullet", sk))
     b.append(("kv", ""))
 
-    chains = _attack_chains(s.confirmed)
+    chains = _render_rule_chains(s)
     if chains:
         b.append(("h1", "3b. Rantai Serangan (Attack Paths)"))
-        b.append(("body", "Reasoning kombinasi: tiap link adalah temuan terkonfirmasi "
-                          "pada run ini; gabungannya membuka jalur serangan end-to-end."))
+        b.append(("body", "Rantai rule-based dari temuan terkonfirmasi (chaining.compose): "
+                          "eskalasi severity maksimal satu tingkat; tiap link adalah temuan "
+                          "dengan bukti, bukan spekulasi."))
         for c in chains:
-            b.append(("sepmedium", f"{c['name']} (confidence {c['confidence']:.0%})"))
+            b.append(("sepmedium", f"{c['name']} (severity gabungan: {c['severity'].upper()})"))
+            if c["rationale"]:
+                b.append(("body", c["rationale"]))
             for stp in c["steps"]:
                 b.append(("bullet", stp))
         b.append(("kv", ""))

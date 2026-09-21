@@ -104,7 +104,10 @@ class TestHintsAndReport(unittest.TestCase):
             self.assertIn("AUTH-1", md)
             self.assertIn("SQL injection", md)
             self.assertIn("pembersihan", md.lower())
-            self.assertIn("dir_probe", report["executed_engines"])
+            # kontrak baru: coverage hanya engine dengan tool-done ok —
+            # dir_probe punya tool-run TANPA tool-done => tidak dihitung
+            self.assertNotIn("dir_probe", report["executed_engines"])
+            self.assertIn("sqli_probe", report["executed_engines"])
             # coverage matrix mencakup fase dari engine yang dieksekusi
             self.assertIn("sqli_probe", report["matrix"]["coverage"]["INITIAL_ACCESS"])
 

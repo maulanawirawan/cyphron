@@ -247,10 +247,16 @@ def run_scan(opts: ScanOptions, verbose: bool = True) -> ScanRun:
     confirmed, unconfirmed = finalize(candidates)
     confirmed = dedupe(confirmed)
     unconfirmed = dedupe(unconfirmed)
+    # fingerprint tidak memuat status → kandidat ber-id sama bisa hidup di dua
+    # bucket; confirmed MENANG (deterministik) supaya verdict quorum tak
+    # tertimpa salinan unconfirmed dan laporan tidak dobel
+    confirmed_ids = {f.id for f in confirmed}
+    unconfirmed = [f for f in unconfirmed if f.id not in confirmed_ids]
 
     # Intelligence Fabric: quorum verdicts (provenance ke evidence ledger)
     # + attack chain composition (impact gabungan, bukan per-temuan).
     verdicts = _quorum.adjudicate(confirmed + unconfirmed)
+    # id unik di kedua bucket (dedupe silang di atas) → pemetaan deterministik
     verdict_by_id = {v.finding_id: v for v in verdicts}
     for f in confirmed + unconfirmed:
         v = verdict_by_id.get(f.id)

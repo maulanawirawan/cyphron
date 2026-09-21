@@ -517,9 +517,13 @@ def engagement_report(scan_dir: Path) -> dict:
     confirmed = data.get("confirmed", [])
     unconfirmed = data.get("unconfirmed", [])
     world = data.get("world", {})
-    executed = sorted({
-        e.get("tool") for e in _read_audit(scan_dir)
-        if e.get("kind") == "tool-run" and e.get("tool")})
+    audit_entries = _read_audit(scan_dir)
+    # coverage = engine yang benar-benar SELESAI dieksekusi tanpa error —
+    # tool-run ditulis SEBELUM eksekusi (tool error ikut terhitung "jalan")
+    done_ok = {e.get("tool") for e in audit_entries
+               if e.get("kind") == "tool-done" and e.get("ok")
+               and not e.get("error") and e.get("tool")}
+    executed = sorted(done_ok)
     matrix = coverage_matrix(executed)
     hints = detection_hints(confirmed + unconfirmed)
     md: list[str] = [

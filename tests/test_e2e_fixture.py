@@ -121,7 +121,10 @@ class TestEndToEnd(unittest.TestCase):
         tools_active = [e for e in run.audit.entries
                         if e["kind"] == "tool-run" and e["tool"] in ("sqli_probe", "xss_probe", "dir_probe")]
         self.assertEqual(tools_active, [], "no active tool may run without authorization")
-        titles = [f.title for f in s.confirmed]
+        # kontrak verdict ladder: temuan ber-evidence HEADER (CSP missing) kini
+        # LEAD (unconfirmed), bukan "confirmed" — audit pasif tetap dilaporkan
+        titles = ([f.title for f in s.confirmed]
+                  + [f.title for f in s.unconfirmed])
         self.assertTrue(any("Content-Security-Policy" in t for t in titles),
                         "passive header audit must still run and report")
         ok, note = run.audit.verify()

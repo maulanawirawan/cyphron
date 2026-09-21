@@ -44,12 +44,21 @@ MIN_REPORT_LEVEL = 3
 
 
 def verdict_of(finding) -> int:
-    """Tentukan level tangga dari status + evidence_chain sebuah Finding."""
+    """Tentukan level tangga dari status + bukti sebuah Finding.
+
+    Sumber kind: evidence_chain (hasil attach_evidence) ATAU field
+    evidence_kind di konstruktor — dulu hanya chain yang dibaca sehingga
+    engine yang membuat Finding dengan evidence_kind="request-response"
+    tanpa attach_evidence dinilai REPRODUCED padahal buktinya deterministik.
+    """
     status = (getattr(finding, "status", "") or "").lower()
     if status == "false-positive":
         return REJECTED
     chain = list(getattr(finding, "evidence_chain", None) or [])
     kinds = {str(e.get("kind", "")).lower() for e in chain if isinstance(e, dict)}
+    field_kind = str(getattr(finding, "evidence_kind", "") or "").lower()
+    if field_kind:
+        kinds.add(field_kind)
     if _BLIND_KIND in kinds:
         return BLIND_VALIDATED
     if _IMPACT_KIND in kinds:
@@ -58,7 +67,7 @@ def verdict_of(finding) -> int:
         if kinds & _DETERMINISTIC_KINDS:
             return DETERMINISTICALLY_VERIFIED
         return REPRODUCED
-    if chain:
+    if chain or field_kind:
         return SUSPECTED
     return OBSERVED
 

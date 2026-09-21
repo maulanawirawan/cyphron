@@ -38,9 +38,14 @@ def run_scenario(sc: dict) -> dict:
     samples: list[tuple[float, int, int]] = []  # (t_rel, status, elapsed_ms)
     t_start = time.monotonic()
 
-    def worker(idx: int):
+    def worker(idx: int, active: threading.Event):
         i = idx
         while not stop.is_set():
+            if not active.is_set():
+                # VU di-pause oleh ramp-down: parkir (bukan mati), bangun
+                # cepat saat ramp-up mengaktifkan lagi atau stop diset
+                stop.wait(0.2)
+                continue
             url = urls[i % len(urls)]
             i += 1
             try:
@@ -59,27 +64,37 @@ def run_scenario(sc: dict) -> dict:
         return http_engine.http_get(url, timeout=timeout, method=method,
                                     data=data, headers=headers)
 
-    workers = [threading.Thread(target=worker, args=(i,)) for i in range(vus)]
+    ramp = list(sc.get("ramp") or [])  # e.g. [{"after_s": 10, "vus": 5}, ...]
+    max_vus = max([vus] + [int(s.get("vus", vus)) for s in ramp])
+    # pre-spawn VU MAKSIMUM: ramp-up = aktifkan event, ramp-down = parkirkan
+    # (dulu stop.set() mematikan SEMUA worker — ramp-down jadi beban nol dan
+    # ramp-up tidak mungkin)
+    events = [threading.Event() for _ in range(max_vus)]
+    for e in events[:vus]:
+        e.set()
+    workers = [threading.Thread(target=worker, args=(i, events[i]),
+                                daemon=True)
+               for i in range(max_vus)]
     for t in workers:
         t.start()
-    # ramp support: kill extra VUs progressively if ramp specified
-    ramp = sc.get("ramp") or []  # e.g. [{"after_s": 10, "vus": 5}, ...]
-    ramp_thread = None
+
+    def apply_ramp():
+        for step in ramp:
+            if stop.wait(float(step.get("after_s", 0))):
+                return  # scan selesai — jangan lanjut menunggu ramp sisanya
+            target = max(0, min(int(step.get("vus", vus)), max_vus))
+            for e in events[:target]:
+                e.set()
+            for e in events[target:]:
+                e.clear()
+
+    ramp_thread = threading.Thread(target=apply_ramp, daemon=True)
     if ramp:
-        def apply_ramp():
-            for step in ramp:
-                time.sleep(float(step.get("after_s", 0)))
-                target = int(step.get("vus", vus))
-                if target < len(workers):
-                    stop.set()
-                # v1: ramp-down only via stop; ramp-up beyond initial VUs requires
-                # pre-spawning max VUs — document in scenario help
-        ramp_thread = threading.Thread(target=apply_ramp)
         ramp_thread.start()
-    time.sleep(duration_s)
+    stop.wait(duration_s)   # bangun segera kalau ada yang set stop
     stop.set()
     for t in workers:
-        t.join()
+        t.join(timeout=2.0)
     wall = time.monotonic() - t_start
 
     statuses = [s for _t, s, _e in samples]

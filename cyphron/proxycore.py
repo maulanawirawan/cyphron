@@ -18,6 +18,7 @@ import json
 import socket
 import threading
 import time
+import urllib.error
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -28,6 +29,8 @@ from .guardrails.authorization import AuthorizationGate
 from .tools.base import redact
 
 DEFAULT_LIMIT = 25
+_BODY_CAP = 200_000  # batas baca body dari origin (proxy bertingkat)
+_PREVIEW = 2000
 
 
 class History:
@@ -54,7 +57,13 @@ class History:
 
 def forward_request(method: str, url: str, headers: dict, body: bytes | None,
                     timeout: float = 10.0) -> dict:
-    """Forward satu request (http biasa) dan kembalikan ringkasannya."""
+    """Forward satu request (http biasa) dan kembalikan ringkasannya.
+
+    HTTP >= 400 dari origin adalah JAWABAN SAH (bukan error jaringan) —
+    diteruskan apa adanya; hanya kegagalan transport yang jadi status -1.
+    `body` = bytes utuh (sampai cap) untuk diteruskan ke klien;
+    `body_preview` = potongan untuk history.
+    """
     req = Request(url, data=body, method=method,
                   headers={k: v for k, v in headers.items()
                            if k.lower() not in ("host", "proxy-connection",
@@ -62,37 +71,60 @@ def forward_request(method: str, url: str, headers: dict, body: bytes | None,
     started = time.monotonic()
     try:
         with urlopen(req, timeout=timeout) as resp:
-            payload = resp.read(200_000)
-            return {"status": resp.status, "headers":
-                    dict(resp.headers), "body_preview":
-                    payload[:2000].decode("utf-8", "replace")}
+            payload = resp.read(_BODY_CAP)
+            return {"status": resp.status, "headers": dict(resp.headers),
+                    "body": payload,
+                    "truncated": len(payload) >= _BODY_CAP,
+                    "body_preview": payload[:_PREVIEW].decode("utf-8", "replace")}
+    except urllib.error.HTTPError as http_err:
+        # respons error asli dari origin: pertahankan status/headers/body
+        try:
+            payload = http_err.read(_BODY_CAP)
+        except Exception:
+            payload = b""
+        return {"status": http_err.code, "headers": dict(http_err.headers or {}),
+                "body": payload, "truncated": len(payload) >= _BODY_CAP,
+                "body_preview": payload[:_PREVIEW].decode("utf-8", "replace")}
     except Exception as exc:
         return {"status": -1, "error": f"{type(exc).__name__}",
                 "elapsed": round(time.monotonic() - started, 3)}
 
 
 class InterceptQueue:
-    """Antrian request tertahan (intercept mode), berbatas."""
+    """Antrian request tertahan (intercept mode), berbatas.
+
+    - rid dari counter monotonik + lock (dua hold() konkuren tak mungkin
+      mendapat rid sama / Event tertimpa);
+    - item DIHAPUS saat didecide — antrian benar-benar kosong setelah
+      operator memutuskan semua (bukan macet selamanya setelah cap);
+    - keputusan tetap tersimpan untuk wait() yang datang terlambat.
+    """
 
     def __init__(self, cap: int = 8):
         self.cap = cap
+        self._lock = threading.Lock()
+        self._counter = 0
         self._items: list[dict] = []
         self._events: dict[str, threading.Event] = {}
         self._decisions: dict[str, str] = {}
 
     def hold(self, item: dict) -> str:
-        rid = f"r{len(self._items) + 1}"
-        item["id"] = rid
-        if len(self._items) >= self.cap:
-            self._decisions[rid] = "drop"  # antrian penuh: auto-drop
+        with self._lock:
+            self._counter += 1
+            rid = f"r{self._counter}"
+            item["id"] = rid
+            if len(self._items) >= self.cap:
+                self._decisions[rid] = "drop"  # antrian penuh: auto-drop
+                return rid
+            self._items.append(item)
+            self._events[rid] = threading.Event()
             return rid
-        self._items.append(item)
-        self._events[rid] = threading.Event()
-        return rid
 
     def decide(self, rid: str, decision: str) -> None:
-        self._decisions[rid] = decision
-        ev = self._events.get(rid)
+        with self._lock:
+            self._decisions[rid] = decision
+            self._items = [it for it in self._items if it.get("id") != rid]
+            ev = self._events.get(rid)
         if ev:
             ev.set()
 
@@ -101,7 +133,8 @@ class InterceptQueue:
         return self._decisions.get(rid, "drop")
 
     def pending(self) -> list[dict]:
-        return list(self._items)
+        with self._lock:
+            return [dict(it) for it in self._items]
 
 
 class ProxyHandler(BaseHTTPRequestHandler):
@@ -130,13 +163,17 @@ class ProxyHandler(BaseHTTPRequestHandler):
 
     def do_CONNECT(self):  # noqa: N802 (http.server naming)
         host = self.path.split(":", 1)[0]
-        row = {"kind": "connect", "host": host,
-               "decision": "passthrough (no-decrypt)"}
+        # tanpa gate = tak ada scope untuk dicek (konsisten dengan _in_scope);
+        # hanya gate eksplisit yang bisa menolak
+        allowed = True
         if self.gate is not None:
-            d = self.gate.evaluate_host(host, 443)
-            row["decision"] = "allowed" if d.allowed else "refused"
+            allowed = self.gate.evaluate_host(host, 443).allowed
+        row = {"kind": "connect", "host": host,
+               "decision": ("allowed" if allowed
+                            else "refused") if self.gate is not None
+               else "passthrough (no-decrypt)"}
         self.history.add(row)
-        if row["decision"] != "allowed":
+        if self.gate is not None and not allowed:
             self.send_error(403, "out of scope")
             return
         # passthrough tunnel: koneksi kedua sisi diteruskan buta
@@ -154,7 +191,14 @@ class ProxyHandler(BaseHTTPRequestHandler):
                 pass
 
     def _proxy_one(self):
-        length = int(self.headers.get("Content-Length") or 0)
+        try:
+            length = int(self.headers.get("Content-Length") or 0)
+        except ValueError:
+            self.send_error(400, "bad Content-Length")
+            return
+        if self.headers.get("Transfer-Encoding", "").lower() == "chunked":
+            self.send_error(411, "chunked request body not supported")
+            return
         body = self.rfile.read(length) if length else None
         url = self.path
         if not url.startswith("http"):
@@ -178,6 +222,8 @@ class ProxyHandler(BaseHTTPRequestHandler):
         resp = forward_request(self.command, url, dict(self.headers), body)
         row["status"] = resp.get("status")
         row["response_preview"] = redact(resp.get("body_preview", ""))[:500]
+        if resp.get("truncated"):
+            row["response_truncated"] = True  # jejak jujur di history
         self.history.add(row)
         if resp.get("status") in (None, -1):
             self.send_error(502)
@@ -187,7 +233,11 @@ class ProxyHandler(BaseHTTPRequestHandler):
             if k.lower() not in ("transfer-encoding", "content-length",
                                  "connection"):
                 self.send_header(k, v)
-        payload = (resp.get("body_preview") or "").encode("utf-8", "replace")
+        # kirim BODY UTUH yang dibaca dari origin (bukan preview 2KB);
+        # Content-Length selalu cocok dengan yang dikirim — framing valid
+        payload = resp.get("body") or b""
+        if resp.get("truncated"):
+            self.send_header("X-Cyphron-Proxy-Truncated", "true")
         self.send_header("Content-Length", str(len(payload)))
         self.end_headers()
         self.wfile.write(payload)
