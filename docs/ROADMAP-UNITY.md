@@ -1,5 +1,7 @@
 # ROADMAP-UNITY — Cyphron satu kesatuan utuh: brain, graph, verdict, bukti [TUNTAS]
 
+> **[DIKONSOLIDASIKAN 21-09-2026] Status terkini seluruh item ada di [STATUS-MASTER.md](STATUS-MASTER.md) — dokumen ini jadi arsip rincian.**
+
 > Status: EKSEKUSI TUNTAS 18 Sep 2026 — batch U1-U10 selesai dengan suite
 > hijau per batch. Dibuat 14 Sep, difinalisasi 16 Sep dengan mapping jujur
 > ke kode existing.

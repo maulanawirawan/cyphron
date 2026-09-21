@@ -1,5 +1,7 @@
 # Cyphron Core — ROADMAP penyempurnaan timeline
 
+> **[DIKONSOLIDASIKAN 21-09-2026] Status terkini seluruh item ada di [STATUS-MASTER.md](STATUS-MASTER.md) — dokumen ini jadi arsip rincian.**
+
 > Menggantikan fase-fase lama yang bertentangan dengan arah "standalone / dari scratch".
 > Kondisi awal v0.1: runtime jalan end-to-end dengan 7 engine sendiri, gate kode, verifier, audit, laporan.
 

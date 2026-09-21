@@ -1,5 +1,7 @@
 # ROADMAP-GODTIER-KNOWLEDGE — integrasi KB dunia (Nuclei + NVD/CVE + Exploit-DB)
 
+> **[DIKONSOLIDASIKAN 21-09-2026] Status terkini seluruh item ada di [STATUS-MASTER.md](STATUS-MASTER.md) — dokumen ini jadi arsip rincian.**
+
 > Dibuat 14 Sep 2026 atas permintaan user (misi "GOD-TIER" — HANDOFF-SESSION-
 > 20260914.md bagian 2). Prinsip: KB = **senjata katalog** — semua matcher
 > PASIF secara default; eksekusi template hanya untuk subset aman + scope

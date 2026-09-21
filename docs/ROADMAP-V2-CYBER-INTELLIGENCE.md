@@ -1,5 +1,7 @@
 # CYPHRON V2 — CYBER INTELLIGENCE ROADMAP
 
+> **[DIKONSOLIDASIKAN 21-09-2026] Status terkini seluruh item ada di [STATUS-MASTER.md](STATUS-MASTER.md) — dokumen ini jadi arsip rincian.**
+
 > Status: 2026-09-07. Sumber: diskusi strategis user + GPT (analisis cyphron-reports)
 > + OpenAI Daybreak/Codex Security/Defense Factory sebagai referensi arsitektur.
 > Prinsip: **skill count bukan moat. Yang menjadi moat: World Model + Planner adaptif +

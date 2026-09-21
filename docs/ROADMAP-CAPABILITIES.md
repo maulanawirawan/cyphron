@@ -1,5 +1,7 @@
 # CYPHRON — CAPABILITY ROADMAP (lean, field-driven)
 
+> **[DIKONSOLIDASIKAN 21-09-2026] Status terkini seluruh item ada di [STATUS-MASTER.md](STATUS-MASTER.md) — dokumen ini jadi arsip rincian.**
+
 > Prinsip: kemampuan ditambah hanya jika ada pelajaran lapangan yang
 > membutuhkannya. Stdlib-only, deterministik, zero-FP by construction.
 > Dokumen ini sengaja pendek — roadmap panjang = utang, bukan aset.

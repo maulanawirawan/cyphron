@@ -1,5 +1,7 @@
 # GAP-MATRIX — Pemetaan Kapabilitas vs Referensi Komunitas 2026
 
+> **[DIKONSOLIDASIKAN 21-09-2026] Status terkini seluruh item ada di [STATUS-MASTER.md](STATUS-MASTER.md) — dokumen ini jadi arsip rincian.**
+
 > Hasil studi B7: 818 skill keamanan komunitas (46 subdomain) dicocokkan
 > dengan registry Cyphron (74 skill `.cyphron` + ~145 engine terdaftar).
 > Status per subdomain: **ADA** (skill + engine/motor nyata), **PARSIAL**
