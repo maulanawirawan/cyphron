@@ -99,6 +99,8 @@ def main(argv: list[str] | None = None) -> int:
     p_god.add_argument("--kb-dir", help="folder data KB (default: cyphron/kb/data)")
     p_god.add_argument("--out", help="file markdown tujuan (default: <from>/GOD-REPORT.md)")
     p_god.add_argument("--top", type=int, default=15, help="jumlah CVE top di tabel")
+    p_god.add_argument("--no-quality-gate", action="store_true",
+                       help="lewatkan gerbang kualitas anti-slop pada laporan")
     p_god.add_argument("--tech", action="append", default=[],
                        help="tambahan fingerprint manual (bisa diulang)")
 
@@ -257,6 +259,8 @@ def main(argv: list[str] | None = None) -> int:
     p_tiers = sub.add_parser("tiers", help="tier pack: 100 skills dalam 4 tingkat severity")
     p_tiers.add_argument("--build", action="store_true", help="generate file skill ke .kimchi/skills-tiers/")
     p_tiers.add_argument("--build-bounty", action="store_true", help="generate Bug Bounty pack (harvest 2026-09-06)")
+    p_tiers.add_argument("--pack", choices=["1", "2", "3"],
+                         help="pilih generator pack utk --build (default 1; 2/3 = varian lanjutan)")
     p_tiers.add_argument("--list", action="store_true", help="tampilkan semua skill per tier")
     p_tiers.add_argument("--show", help="tampilkan detail satu skill (mis. critical-01)")
     p_tiers.add_argument("--kimchi", help="path to .kimchi pack (default: auto)")
@@ -383,9 +387,15 @@ def main(argv: list[str] | None = None) -> int:
                 print(f"[bounty pack] {out['total']} skill ({out['live']} LIVE) -> {out['root']}")
                 return 0
             from .config import default_kimchi_dir
-            from . import tierpack
             kd = Path(args.kimchi) if args.kimchi else default_kimchi_dir()
-            result = tierpack.build(kd)
+            pack = getattr(args, "pack", None) or "1"
+            if pack == "2":
+                from .tierpack2 import build2 as run_pack
+            elif pack == "3":
+                from .tierpack3 import build3 as run_pack
+            else:
+                from .tierpack import build as run_pack
+            result = run_pack(kd)
             stats = result["stats"]
             if args.list or args.show:
                 text = (kd / "skills-tiers" / "INDEX.md").read_text(encoding="utf-8")
@@ -470,12 +480,23 @@ def main(argv: list[str] | None = None) -> int:
                 print(f"[cyphron] god-report: findings.json tidak terbaca: {exc}")
                 return 1
             texts = collect_technologies(data, args.tech)
-            md, stats = build(data.get("target", "?"),
-                              data.get("confirmed", []), texts,
-                              kb_dir=Path(args.kb_dir) if args.kb_dir else None,
-                              top=args.top)
             out = Path(args.out) if args.out else src / "GOD-REPORT.md"
-            write_report(md, out)
+            if args.no_quality_gate:
+                md, stats = build(data.get("target", "?"),
+                                  data.get("confirmed", []), texts,
+                                  kb_dir=Path(args.kb_dir) if args.kb_dir else None,
+                                  top=args.top)
+                write_report(md, out)
+            else:
+                # default: laporan GOD wajib lulus gerbang kualitas anti-slop
+                from .god_report import build_with_quality_gate
+                _, stats = build_with_quality_gate(
+                    data.get("target", "?"), data.get("confirmed", []), texts,
+                    out, kb_dir=Path(args.kb_dir) if args.kb_dir else None,
+                    top=args.top)
+                gate = stats.get("gate", {})
+                print(f"[cyphron] gerbang kualitas: {gate.get('verdict')} "
+                      f"(skor {gate.get('score')})")
             print(f"[cyphron] god-report: {stats['versioned']}/{stats['products']} "
                   f"produk berversi, {stats['cve_rows']} CVE lead, "
                   f"{stats['edb_products']} produk ber-exploit publik")
