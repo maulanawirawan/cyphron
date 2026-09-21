@@ -5,16 +5,16 @@
 > PLAN-EXPLOIT-40-TUNTAS, PLAN-FULLPOWER-B1-B5-TUNTAS, PLAN-KB-GODTIER-TUNTAS,
 > PLAN-UNITY-U1-U10-TUNTAS, PRINSIP-CAPABILITY-LEAN, GAP-MATRIX,
 > AUDIT-2026-09-19 — peta lengkap di INDEX.md).
-> Sumber kebenaran status = kode + suite (683 tests, hijau per 2026-09-21) +
+> Sumber kebenaran status = kode + suite (691 tests, hijau per 2026-09-22) +
 > git log (commit timestamp).
 
-## 0. Snapshot produk hari ini (2026-09-21)
+## 0. Snapshot produk hari ini (2026-09-22)
 
 | Komponen | Kondisi |
 |---|---|
 | Engine registry | **145 engine** terdaftar (semua tier-mapped, fail-closed) |
 | Skill registry | 87 skill `.cyphron` + tier packs + KB (nuclei/NVD/EDB lokal) |
-| Suite | **683 tests OK** (2 skipped) |
+| Suite | **691 tests OK** (2 skipped) |
 | Lisensi | tier basic/pro/business/god + HMAC sig + device binding + token |
 | Trial | 30 token, report redacted, 7 hari, 1x/device |
 | Web | landing + wizard minimal-klik (job runner, unduh PDF) |
@@ -161,8 +161,15 @@ TIDAK dihapus sembarangan — dipilah:
 1. [x] **SELESAI 22-09-2026 (23b29c1)**: fitur disconnected tersambung —
    `god-report` default pakai gerbang kualitas anti-slop (--no-quality-gate
    utk lewati); `tiers --build --pack 2|3` tersambung ke build2/build3.
-2. **Verdict enforcement lanjutan**: pusatkan label LEAD di laporan (saat ini
-   bucket sudah benar; label per-temuan ladder tampil di PDF detail).
+2. [x] **SELESAI 22-09-2026 (013176d)**: verdict enforcement
+   lanjutan — label LEAD/ladder terpusat di SEMUA permukaan laporan, bukan
+   cuma chip per-temuan PDF detail: meta cover (`Observasi (LEAD L0-L2)`
+   + breakdown), callout JAMINAN VERDICT, ringkasan eksekutif, matriks
+   verdict ("ADA (terkonfirmasi) - L3…"), tabel observasi per-level
+   (termasuk `L-x REJECTED` untuk FP), ringkasan + detail + observasi
+   (MD/DOCX), dan findings.json (field baru `verdict` + `verdict_tag`).
+   Satu sumber label: `verdicts.tag()`. Suite 691 hijau (8 test baru:
+   `tests/test_verdict_lead_center.py`).
 3. **V2 objects/identities/trust-boundaries sebagai node graaf** (butuh desain).
 4. **detection generation** penuh (Sigma/SIEM rule + fixture test).
 5. **Skill atomik R2 + ferments CLI** (R5).

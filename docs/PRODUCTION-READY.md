@@ -2,7 +2,7 @@
 
 > Dibuat 2026-09-22. Urutan = urutan eksekusi yang disarankan. Simbol:
 > [x] selesai · [~] sebagian · [ ] belum. Prinsip: engine sudah produksi-grade
-> (suite 683 hijau, gate kode-enforced); yang menuntun ke produksi adalah
+> (suite 691 hijau, gate kode-enforced); yang menuntun ke produksi adalah
 > INFRA + BILLING + LEGAL di sekelilingnya.
 
 ## A. Selesai (tidak perlu disentuh)
