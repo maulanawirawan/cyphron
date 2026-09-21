@@ -17,13 +17,16 @@ Jalankan:  python serve.py            (localhost:8080)
 Daftar:    buka /register  atau POST register dari halaman login.
 """
 import hashlib, json, os, secrets, subprocess, sys, threading, time, urllib.parse
-from http.server import BaseHTTPRequestHandler, HTTPServer
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 ROOT = Path(__file__).parent
 REPO = ROOT.parent
 ACCOUNTS = ROOT / "accounts.json"
 JOBS = ROOT / "jobs"
+SESSIONS = ROOT / "sessions.json"   # {token: {"email":..., "exp": epoch}}
+SESSION_TTL_S = 12 * 3600
+MAX_BODY = 1_000_000                # cap body request (1 MB)
 BLOCK = (".py", ".cyphron", ".git", ".env", ".json", ".yaml", "__", "cyphron/")
 
 # mode wizard -> profil dast + kebutuhan otorisasi + lisensi otomatis
@@ -35,6 +38,51 @@ MODES = {
     "full":     {"profile": "full", "auth_required": True, "kind": "standard",
                  "tier": None, "days": 30, "token_limit": None},
 }
+
+
+def _load_sessions() -> dict:
+    if SESSIONS.exists():
+        try:
+            return json.loads(SESSIONS.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            return {}
+    return {}
+
+
+def _save_sessions(s):
+    SESSIONS.write_text(json.dumps(s, indent=2), encoding="utf-8")
+
+
+def _session_email(token: str | None) -> str | None:
+    """Validasi token terhadap store + TTL — dulu cookie random cuma dipercaya
+    begitu saja (siapa pun yang menebak/memegang token masuk tanpa batas)."""
+    if not token:
+        return None
+    s = _load_sessions()
+    rec = s.get(token)
+    if not rec or rec.get("exp", 0) < time.time():
+        if rec:
+            s.pop(token, None)
+            _save_sessions(s)
+        return None
+    return rec.get("email")
+
+
+def _scans_today(email: str) -> int:
+    """Jumlah scan milik satu email pada hari UTC ini (dari job.json)."""
+    today = time.strftime("%Y-%m-%d", time.gmtime())
+    n = 0
+    if JOBS.is_dir():
+        for j in JOBS.iterdir():
+            meta = j / "job.json"
+            if meta.is_file():
+                try:
+                    m = json.loads(meta.read_text(encoding="utf-8"))
+                    if m.get("user") == email and m.get("day") == today:
+                        n += 1
+                except (OSError, ValueError):
+                    pass
+    return n
 
 
 def _load_accounts():
@@ -126,12 +174,10 @@ class Handler(BaseHTTPRequestHandler):
         return any(b in low for b in BLOCK) or ".." in path
 
     def _session_email(self):
-        # cookie bernilai token sesi; kita pakai nilainya sebagai identitas
-        # demo — di produksi: session store server-side.
         cookie = self.headers.get("Cookie", "")
-        if "cyphron_session=" not in cookie:
-            return None
-        return cookie.split("cyphron_session=", 1)[1].split(";", 1)[0]
+        token = (cookie.split("cyphron_session=", 1)[1].split(";", 1)[0]
+                 if "cyphron_session=" in cookie else None)
+        return _session_email(token)
 
     def do_GET(self):
         path, _, _q = self.path.partition("?")
@@ -174,6 +220,8 @@ class Handler(BaseHTTPRequestHandler):
         if self._blocked(self.path):
             return self._send(404, "not found")
         length = int(self.headers.get("Content-Length", 0))
+        if length > MAX_BODY:
+            return self._send(413, "body terlalu besar")
         raw = self.rfile.read(length).decode()
         fields = dict(p.split("=", 1) for p in raw.split("&") if "=" in p)
         fields = {k: urllib.parse.unquote_plus(v) for k, v in fields.items()}
@@ -195,9 +243,20 @@ class Handler(BaseHTTPRequestHandler):
             auth_text = (fields.get("auth_doc") or "").strip()
             if m["auth_required"] and not auth_text:
                 return self._send(400, '{"error":"mode ini butuh dokumen otorisasi"}')
+            # kuota scan harian per akun (PLANS.scans_per_day) — anti-abuse
+            # trial spam; dulu dideklarasikan tapi tidak pernah ditegakkan
+            from cyphron.pricing import PLANS
+            tier = m["tier"] or _load_accounts().get(email, {}).get("tier", "basic")
+            quota = (PLANS.get(tier) or PLANS["basic"]).get("scans_per_day", 4)
+            if _scans_today(email) >= quota:
+                return self._send(429, json.dumps({
+                    "error": f"kuota scan harian habis ({quota}/hari pada paket {tier})"}))
             jid = secrets.token_urlsafe(12)
             job = Job(jid)
             job.append(f"[job] user={email}")
+            (job.dir / "job.json").write_text(json.dumps({
+                "user": email, "day": time.strftime("%Y-%m-%d", time.gmtime()),
+                "mode": mode, "ts": time.time()}), encoding="utf-8")
             meta = {"target": target, "mode": mode, "profile": m["profile"]}
             if auth_text:
                 try:
@@ -208,7 +267,6 @@ class Handler(BaseHTTPRequestHandler):
                 auth_path.write_text(auth_text, encoding="utf-8")
                 meta["auth_path"] = str(auth_path)
             # lisensi: trial di-issue otomatis; tier lain dari akun
-            tier = m["tier"] or _load_accounts().get(email, {}).get("tier", "basic")
             sys.path.insert(0, str(REPO))
             from cyphron.licensing import issue_license
             lic_path = job.dir / "license.json"
@@ -231,12 +289,18 @@ class Handler(BaseHTTPRequestHandler):
             acc[email] = {"salt": salt, "hash": _hash(salt, pw), "tier": fields.get("tier", "basic")}
             _save_accounts(acc)
             tok = secrets.token_urlsafe(32)
+            s = _load_sessions()
+            s[tok] = {"email": email, "exp": time.time() + SESSION_TTL_S}
+            _save_sessions(s)
             return self._send(200, '{"ok":true,"msg":"terdaftar & masuk"}',
                               cookie=f"cyphron_session={tok}; HttpOnly; SameSite=Lax; Path=/")
         # login
         rec = acc.get(email)
         if rec and _hash(rec["salt"], pw) == rec["hash"]:
             tok = secrets.token_urlsafe(32)
+            s = _load_sessions()
+            s[tok] = {"email": email, "exp": time.time() + SESSION_TTL_S}
+            _save_sessions(s)
             return self._send(200, '{"ok":true}', cookie=f"cyphron_session={tok}; HttpOnly; SameSite=Lax; Path=/")
         return self._send(401, "kredensial salah")
 
@@ -244,4 +308,4 @@ class Handler(BaseHTTPRequestHandler):
 if __name__ == "__main__":
     port = int(sys.argv[1]) if len(sys.argv) > 1 else 8080
     print(f"[cyphron] aman di http://127.0.0.1:{port} (register/login: Hash SHA-256, source code TIDAK dilayani)")
-    HTTPServer(("127.0.0.1", port), Handler).serve_forever()
+    ThreadingHTTPServer(("127.0.0.1", port), Handler).serve_forever()
