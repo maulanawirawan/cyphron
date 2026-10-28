@@ -1,0 +1,130 @@
+{
+ "note": "Watchlist kurasi operator — CVE kritis KELUAR dari KEV yang tetap wajib dipantau cve-matcher (lead product-level maks L1, tanpa klaim versi). Sumber: riset Black October 2026 (work/study/black-october-2026-intel.md). Entri tanpa cve/product/tokens/source_url ditolak fail-closed oleh matcher.",
+ "seeds": [
+  {
+   "cve": "CVE-2026-110264",
+   "vendor": "GitLab",
+   "product": "GitLab CE/EE self-managed",
+   "tokens": [
+    "gitlab"
+   ],
+   "note": "RCE unauthenticated CVSS 10.0 (integer overflow kompilasi regex, ada sejak GitLab 7.0/2014); per 2026-10-25 belum masuk KEV; fix 18.11.13/19.0.10/19.1.9/19.2.9/19.3.6/19.4.3/19.5.1",
+   "source_url": "https://docs.gitlab.com/releases/patches/patch-release-gitlab-19-5-1-released",
+   "added": "2026-10-26"
+  },
+  {
+   "cve": "CVE-2026-109618",
+   "vendor": "PHP Group",
+   "product": "PHP (php2shell)",
+   "tokens": [
+    "php"
+   ],
+   "note": "php2shell RCE unauth CVSS 9.2 (OOM memory corruption); percobaan eksploitasi sejak 2026-10-17, 4 hari sebelum patch; belum masuk KEV per 2026-10-25 (sudah tercakup KB operator multi-branch)",
+   "source_url": "https://www.cisa.gov/news-events/alerts/2026/10/21/critical-vulnerabilities-php-require-immediate-patching",
+   "added": "2026-10-26"
+  },
+  {
+   "cve": "CVE-2026-109619",
+   "vendor": "PHP Group",
+   "product": "PHP (php2shell)",
+   "tokens": [
+    "php"
+   ],
+   "note": "php2shell RCE unauth CVSS 9.2 (stale request state); belum masuk KEV per 2026-10-25 (sudah tercakup KB operator multi-branch)",
+   "source_url": "https://www.cisa.gov/news-events/alerts/2026/10/21/critical-vulnerabilities-php-require-immediate-patching",
+   "added": "2026-10-26"
+  },
+  {
+   "cve": "CVE-2026-111497",
+   "vendor": "OpenJS Foundation",
+   "product": "Node.js Brotli decoder",
+   "tokens": [
+    "node.js",
+    "nodejs"
+   ],
+   "note": "Out-of-bounds write -> RCE via data terkompresi crafted; kena 22.x/24.x/26.x (fix 22.23.4/24.22.1/26.12.1); penemu: OpenAI Codex Security; belum masuk KEV",
+   "source_url": "https://cybernews.com/security/php-node-js-vulnerabilities-patch-exploit",
+   "added": "2026-10-26"
+  },
+  {
+   "cve": "CVE-2026-91403",
+   "vendor": "Oracle",
+   "product": "Java SE JSSE + GraalVM",
+   "tokens": [
+    "graalvm"
+   ],
+   "note": "Kompromi unauthenticated via multiple protocols CVSS 9.1; advisory out-of-cycle Oracle (distrust 16 intermediate CA eMudhra); belum masuk KEV — KB operator kini menutup branch 11/17/21/25/27 (fix terverifikasi OpenJDK advisory 2026-10-21); Java 8 = 8u521",
+   "source_url": "https://www.oracle.com/security-alerts/alert-cve-2026-91403.html",
+   "added": "2026-10-26"
+  },
+  {
+   "cve": "CVE-2026-102764",
+   "vendor": "BeyondTrust",
+   "product": "Remote Support / PRA",
+   "tokens": [
+    "beyondtrust",
+    "bomgar"
+   ],
+   "note": "Auth bypass zero-day aktif dieksploitasi CVSS 9.3 (BT26-05, aktor dugaan China-nexus ARMORY CASTLE); SaaS dipatch 2026-10-09, on-prem patch sendiri; nomor versi fix belum terverifikasi -> TANPA entri KB (no fabrication)",
+   "source_url": "https://www.beyondtrust.com/trust-center/security-advisories/bt26-05",
+   "added": "2026-10-26"
+  },
+  {
+   "cve": "CVE-2026-85706",
+   "vendor": "GitLab",
+   "product": "GitLab CE/EE self-managed",
+   "tokens": [
+    "gitlab"
+   ],
+   "note": "Path traversal CVSS 10.0 dilaporkan aktif dieksploitasi (September 2026); pendamping CVE-2026-110264 di batch patch yang sama",
+   "source_url": "https://docs.gitlab.com/releases/patches/patch-release-gitlab-19-5-1-released",
+   "added": "2026-10-26"
+  },
+  {
+   "cve": "CVE-2026-85097",
+   "vendor": "Bricksforge",
+   "product": "Bricksforge (WordPress plugin)",
+   "tokens": [
+    "bricksforge"
+   ],
+   "note": "CVSS 10.0 unauth upload+eksekusi PHP via temporaryFileUploads URL bypass (GIF/PHP polyglot); versi <=3.1.8.9 fixed 3.1.8.10; eksploitasi terlihat 2026-10-07; detail headline-level (THN) — verifikasi advisory vendor",
+   "source_url": "https://thehackernews.com/2026/10/attackers-exploit-cvss-100-bricksforge.html",
+   "added": "2026-10-28"
+  },
+  {
+   "cve": "CVE-2026-48356",
+   "vendor": "Adobe",
+   "product": "Commerce (Magento)",
+   "tokens": [
+    "magento",
+    "adobe commerce"
+   ],
+   "note": "Arbitrary file upload -> RCE; ditambahkan ke CISA KEV 2026-10-27; headline kampanye 'PolyShell' (detail body 403 — belum terverifikasi penuh) — lead product-level, verifikasi versi manual",
+   "source_url": "https://www.cisa.gov/known-exploited-vulnerabilities-catalog",
+   "added": "2026-10-28"
+  },
+  {
+   "cve": "CVE-2026-101767",
+   "vendor": "Oracle",
+   "product": "E-Business Suite",
+   "tokens": [
+    "e-business suite",
+    "oracle ebs"
+   ],
+   "note": "CVSS 9.8 unauth SQLi->RCE di Thin Client Framework servlet; patch CPU Okt 2026; probing eksploitasi terlihat 2026-10-27 (belum KEV di repo ini) — lead product-level",
+   "source_url": "https://thehackernews.com/2026/10/hackers-target-critical-oracle-e.html",
+   "added": "2026-10-28"
+  },
+  {
+   "cve": "CVE-2026-96652",
+   "vendor": "Plex",
+   "product": "Media Server",
+   "tokens": [
+    "plex media server"
+   ],
+   "note": "Rantai Plex2Shell (CVE-2026-96652/96654/96655/96656: SSRF, token theft, file write) -> miner + proxy backdoor; KEV 2026-10-20; entri ini wakil rantai — verifikasi permit/versi manual",
+   "source_url": "https://thehackernews.com/2026/10/hackers-exploit-plex2shell-flaws-to.html",
+   "added": "2026-10-28"
+  }
+ ]
+}

@@ -1,0 +1,4 @@
+{
+ "note": "Alias nama paket -> product CPE NVD, HANYA mapping terverifikasi (advisory vendor / advisory OSV yang eksplisit). Kosong = tanpa penebakan: paket yang tidak punya padanan dihitung 'unmapped' (bukan 'aman'). Format entri: {\"ecosystem\": \"pypi|npm\", \"package\": \"nama-paket\", \"product\": \"product-cpe\"}. Alias TIDAK menghasilkan klaim baru — hanya membuka pencocokan rentang yang sudah ada.",
+ "entries": []
+}

@@ -1,0 +1,52 @@
+{
+  "ok": true,
+  "data": {
+    "source": "stdin-arg",
+    "safety_class": "read-only",
+    "result": {
+      "original_len": 93,
+      "layers": [
+        {
+          "depth": 1,
+          "method": "jwt",
+          "preview": "{\"header\": {\"alg\": \"none\"}, \"payload\": {\"user\": \"labadmin\", \"role\": \"admin\", \"exp\": 1916239023}, \"signature\": \"c2ln\", \"_note\": \"TIDAK diverifikasi — hanya didekode (analisis)\"}"
+        }
+      ],
+      "final": "{\"header\": {\"alg\": \"none\"}, \"payload\": {\"user\": \"labadmin\", \"role\": \"admin\", \"exp\": 1916239023}, \"signature\": \"c2ln\", \"_note\": \"TIDAK diverifikasi — hanya didekode (analisis)\"}",
+      "depth_reached": 1,
+      "max_depth": 8
+    }
+  },
+  "findings": [
+    {
+      "tool": "deep-decode",
+      "title": "Decoded 1 layer(s) from stdin-arg",
+      "severity": "info",
+      "description": "Analisis dekode/deobfuscasi berlapis (read-only). Lapisan & hasil akhir tersimpan sebagai bukti.",
+      "recommendation": "",
+      "cwe": null,
+      "target_url": null,
+      "file_path": null,
+      "line_start": null,
+      "line_end": null,
+      "param": null,
+      "request": null,
+      "response": "[{\"depth\": 1, \"method\": \"jwt\", \"preview\": \"{\\\"header\\\": {\\\"alg\\\": \\\"none\\\"}, \\\"payload\\\": {\\\"user\\\": \\\"labadmin\\\", \\\"role\\\": \\\"admin\\\", \\\"exp\\\": 1916239023}, \\\"signature\\\": \\\"c2ln\\\", \\\"_note\\\": \\\"TIDAK diverifikasi \\u2014 hanya didekode (analisis)\\\"}\"}]",
+      "poc": null,
+      "confidence": 1.0,
+      "status": "confirmed",
+      "evidence_kind": "arithmetic",
+      "finding_class": "posture",
+      "id": "bf0698aac7ae3458",
+      "verdict": 0,
+      "verdict_tag": "L0 OBSERVED - LEAD",
+      "reportable": false,
+      "lab_only": false,
+      "category": "DEBUG",
+      "safety_class": "read-only",
+      "depth_reached": 1,
+      "final_preview": "{\"header\": {\"alg\": \"none\"}, \"payload\": {\"user\": \"labadmin\", \"role\": \"admin\", \"exp\": 1916239023}, \"signature\": \"c2ln\", \"_note\": \"TIDAK diverifikasi — hanya didekode (analisis)\"}"
+    }
+  ],
+  "requests": 0
+}

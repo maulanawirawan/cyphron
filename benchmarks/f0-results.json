@@ -1,0 +1,71 @@
+{
+  "date": "2026-10-06",
+  "note": "Docker daemon MATI di mesin ini; benchmark kontainer (ZAP/postgres/redis) tidak bisa dijalankan — hanya footprint + cold-start lokal.",
+  "node_modules_ref": {
+    "bytes": 684578872,
+    "files": 54788,
+    "measure_s": 12.6
+  },
+  "playwright_cache": {
+    "bytes": 1487664908,
+    "files": 1215,
+    "measure_s": 0.2
+  },
+  "web_dev_cold_start": {
+    "ready_s": null,
+    "method": "bun x vite dev --port 5219 --strictPort; poll GET http://localhost sampai HTTP 200 (termasuk compile on-demand GET pertama); kill tree",
+    "killed": true,
+    "note": "port tidak menjawab dalam 150s — periksa manual;  kemungkinan TanStack Start dev (nitro) butuh waktu lebih atau gagal start"
+  },
+  "worker_cold_start": {
+    "first_output_at_s": 9.809,
+    "first_output": "◇ injected env (61) from ..\\..\\.env // tip: ⌘ override existing { override: true }",
+    "still_running_without_infra": true,
+    "method": "bun src/index.ts tanpa redis/pg; ukur baris pertama lalu kill"
+  },
+  "sidecar_pyinstaller": {
+    "bytes": 10653839,
+    "startup_version": {
+      "runs": [
+        0.8716,
+        0.5897,
+        0.6216,
+        0.6212,
+        0.6206
+      ],
+      "median_s": 0.6212
+    }
+  },
+  "baseline": {
+    "python_c": {
+      "runs": [
+        0.0405,
+        0.0363,
+        0.0362,
+        0.0369,
+        0.0371,
+        0.0383,
+        0.0353,
+        0.0408,
+        0.0412,
+        0.0418
+      ],
+      "median_s": 0.0377
+    },
+    "bun_eval": {
+      "runs": [
+        0.0701,
+        0.0687,
+        0.0749,
+        0.0673,
+        0.0685,
+        0.0626,
+        0.0627,
+        0.0682,
+        0.0593,
+        0.0624
+      ],
+      "median_s": 0.0678
+    }
+  }
+}

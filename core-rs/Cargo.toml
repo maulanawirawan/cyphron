@@ -1,0 +1,20 @@
+[package]
+name = "cyphron"
+version = "0.1.0"
+edition = "2021"
+description = "Cyphron core — engine runner + findings contract (working title)"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "time"] }
+async-nats = "0.43"
+futures-util = "0.3"
+
+[profile.release]
+opt-level = "z"
+lto = true
+strip = true
+codegen-units = 1
+panic = "abort"

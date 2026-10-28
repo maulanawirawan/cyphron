@@ -1,0 +1,32 @@
+{
+  "note": "Blocklist paket/ecosystem beracun — kurasi operator, SEMUA entri wajib sumber publik terverifikasi (laporan vendor/vendor resmi). Dipakai tools/supplychain_check.py (NOL request). Entri tanpa ecosystem/package/versions/source_url ditolak fail-closed.",
+  "entries": [
+    {
+      "ecosystem": "pypi",
+      "package": "litellm",
+      "versions": ["1.82.7", "1.82.8"],
+      "campaign": "PyPI poisoned release (2026)",
+      "note": "Rilis PyPI beracun; jangan instal; gunakan versi bersih di atasnya",
+      "source_url": "https://docs.litellm.ai/blog/security-incident-oct-21-2026",
+      "added": "2026-10-26"
+    },
+    {
+      "ecosystem": "pypi",
+      "package": "litellm",
+      "versions": ["1.107.0"],
+      "campaign": "TeamPCP — release pipeline compromise (21 Okt 2026)",
+      "note": "v1.107.0 DIKOMPROMIKAN di PyPI + Docker Hub: malware pencuri kredensial + loader RCE; master key bocor -> token GitHub dicuri -> pipa release dibajak",
+      "source_url": "https://docs.litellm.ai/blog/security-incident-oct-21-2026",
+      "added": "2026-10-26"
+    },
+    {
+      "ecosystem": "npm",
+      "package": "@tensorlake/tensorlake",
+      "versions": ["0.5.144"],
+      "campaign": "Tensorlake npm worm (9 Okt 2026)",
+      "note": "SDK 0.5.144 ber-worm self-spreading: mencuri kredensial npm/GitHub/cloud + 'hostage token' (mesin di-wipe bila token dicabut); dibangun dari infrastruktur proyek sendiri. Cek juga nama tanpa scope 'tensorlake'",
+      "source_url": "https://www.stepsecurity.io/blog/tensorlake-npm-compromised-hostage-token-worm",
+      "added": "2026-10-26"
+    }
+  ]
+}

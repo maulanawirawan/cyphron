@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+core-rs/target/
+.tmp/
+*.pdf
+findings/
+auth/

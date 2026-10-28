@@ -1,0 +1,11 @@
+# [F22] Seed list untuk program-discovery — SATU DOMAIN PER BARIS.
+#
+# File ini IKUT di-release (export OSS) — JANGAN pernah menaruh domain
+# target rahasia di sini. Pemakaian:
+#   - rilis/default : biarkan kosong (tool no-op, 0 request — fail-closed);
+#   - operator lokal: isi seed milikmu sendiri ATAU jalankan tool dengan
+#     --seeds <file-lokal> yang tidak ikut export.
+#
+# contoh format:
+# example.com
+# example.org

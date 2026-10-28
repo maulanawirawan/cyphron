@@ -1,0 +1,56 @@
+{
+  "program": "contoh VDP sintetis (outcomes@example.com)",
+  "recorded_at_epoch": 1791324000,
+  "outcomes": [
+    {
+      "report_id": "SYNTH-0001",
+      "title": "Verbose Laravel Debug Error Page Exposed in Production on app.example.com",
+      "target": "app.example.com",
+      "finding_class": "debug-page-exposure",
+      "outcome": "ACCEPTED_FIXING",
+      "reason": "diterima: In Review -> Fixing",
+      "lesson": "kelas misconfig/behavioral dengan bukti langsung = diterima"
+    },
+    {
+      "report_id": "SYNTH-0002",
+      "title": "No Login Rate Limiting or Account Lockout on app.example.com",
+      "target": "app.example.com",
+      "finding_class": "rate-limit-missing",
+      "outcome": "ACCEPTED_FIXING",
+      "reason": "diterima: In Review -> Fixing",
+      "lesson": "behavioral + terukur = diterima; kelas ini layak jadi skill resmi"
+    },
+    {
+      "report_id": "SYNTH-0003",
+      "title": "Email Spoofing Surface - DMARC p=none on example.com",
+      "target": "example.com",
+      "finding_class": "email-posture",
+      "outcome": "REJECTED_DUPLICATE",
+      "reason": "duplikat laporan sebelumnya (SPF/DMARC policies domain ini)",
+      "lesson": "temuan email-posture di org besar = RISIKO DUPLIKAT TINGGI; wajib novelty-check sebelum lapor"
+    },
+    {
+      "report_id": "SYNTH-0004",
+      "title": "WordPress REST API User Enumeration on finance.example.com",
+      "target": "finance.example.com",
+      "finding_class": "wp-user-enumeration",
+      "outcome": "REJECTED_DUPLICATE",
+      "reason": "sudah dilaporkan sebelumnya (duplikat)",
+      "lesson": "kelas enumeration populer di domain besar juga rawan duplikat"
+    },
+    {
+      "report_id": "SYNTH-0005",
+      "title": "Unauthenticated SSRF via XML-RPC Pingback + system.multicall Amplification on event.example.com",
+      "target": "event.example.com",
+      "finding_class": "ssrf-amplification",
+      "outcome": "REJECTED_IMPACT",
+      "reason": "dampak tidak jelas; program minta skenario eksploitasi high-impact yang jelas",
+      "lesson": "SSRF/amplification TANPA bukti dampak terukur (internal reachability, faktor amplifikasi, metadata) = ditolak; impact narrative WAJIB"
+    }
+  ],
+  "score": {
+    "accepted_fixing": 2,
+    "rejected_duplicate": 2,
+    "rejected_impact": 1
+  }
+}

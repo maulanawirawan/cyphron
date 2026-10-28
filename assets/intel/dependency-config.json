@@ -1,0 +1,5 @@
+{
+ "note": "Konfigurasi default audit dependensi. osv_default=false = lokal-first: TIDAK ada request keluar tanpa --osv (nama+versi paket tidak dikirim ke jaringan). Set true bila operator mengizinkan query OSV.dev otomatis. osv_cache_ttl_hours = umur cache per (ecosystem,name,version).",
+ "osv_default": false,
+ "osv_cache_ttl_hours": 24
+}
