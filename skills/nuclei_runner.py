@@ -7,7 +7,10 @@ metrik presisi tetap milik kita (lapisan yang template tidak punya).
 
 Pemetaan (zero-FP):
   - hanya baris matcher-status=true yang jadi temuan
-  - match nuclei = bukti request-response deterministik -> verdict L3
+  - match nuclei = KANDIDAT (status unconfirmed, L1 LEAD) — bukan L3.
+    Template komunitas kualitasnya bervariasi (matcher kata di halaman
+    publik bisa salah sasaran); "Proof, not claims" = mesin pihak ketiga
+    tidak boleh menaikkan verdict. Verifikasi independen yang menaikkan.
   - severity template dipetakan langsung; metadata template (id, tags,
     url, matched-at, curl-command) dibawa sebagai bukti & extension
 
@@ -61,8 +64,10 @@ def stage_kev_templates(tpl_dir: Path, kev_path: Path,
     return staged, len(cves)
 
 
-def parse_jsonl(raw: str) -> list[dict]:
-    """Baris JSONL valid saja; baris rusak dikumpulkan (bukan dibuang senyap)."""
+def parse_jsonl(raw: str) -> tuple[list[dict], list[str]]:
+    """Baris JSONL valid + daftar baris rusak (bukan dibuang senyap).
+    Audit 2026-10: hasil parsial tidak boleh menyamar sebagai scan
+    lengkap — status parse masuk metadata run (complete/partial)."""
     rows, bad = [], []
     for line in raw.splitlines():
         line = line.strip()
@@ -70,11 +75,11 @@ def parse_jsonl(raw: str) -> list[dict]:
             continue
         try:
             rows.append(json.loads(line))
-        except json.JSONDecodeError as e:
+        except json.JSONDecodeError:
             bad.append(line[:120])
     if bad:
         print(f"WARN: {len(bad)} baris JSONL tidak valid dilewati", file=sys.stderr)
-    return rows
+    return rows, bad
 
 
 def to_findings(rows: list[dict]) -> list[dict]:
@@ -99,10 +104,10 @@ def to_findings(rows: list[dict]) -> list[dict]:
             response=json.dumps({"matched-at": matched,
                                  "extracted": r.get("extracted-results")})[:400],
             poc=r.get("curl-command"),
-            evidence_kind="request-response",   # default verdict -> L3
+            evidence_kind="request-response",   # kandidat: L1 (gerbang bukti)
             finding_class="weakness",
-            confidence=0.9,
-            status="confirmed",
+            confidence=0.6,
+            status="unconfirmed",
             lab_only=True,
             extra={
                 "category": "NUCLEI",
@@ -188,7 +193,7 @@ def main() -> int:
               f"{(proc.stderr or '')[-400:]}", file=sys.stderr)
         return 1
 
-    rows = parse_jsonl(proc.stdout)
+    rows, bad_lines = parse_jsonl(proc.stdout)
     findings = to_findings(rows)
     write_findings(args.out, findings, {
         "target": args.target,
@@ -198,12 +203,16 @@ def main() -> int:
         "method": "nuclei-jsonl",
         "requests": 0,  # skeleton: jumlah request nuclei belum dilacak; kuartet metrik menyusul
         "requests_untracked": True,
+        # audit 2026-10: scan parsial tidak menyamar jadi lengkap
+        "parse_status": "partial" if bad_lines else "complete",
+        "parse_bad_lines": bad_lines,
         "safety_class": "active-probe",
         "lab": bool(args.lab or os.environ.get("LAB") == "1"),
         **kev_note,
     })
     print(f"nuclei-runner: {len(findings)} temuan "
-          f"({len(rows)} baris jsonl) -> {args.out}")
+          f"({len(rows)} baris jsonl, parse {bad_lines and 'PARTIAL: ' or ''}"
+          f"{len(bad_lines)} baris rusak) -> {args.out}")
     return 0
 
 

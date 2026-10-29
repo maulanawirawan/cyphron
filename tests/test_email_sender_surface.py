@@ -313,10 +313,17 @@ class ContractTest(unittest.TestCase):
         self.assertEqual(verdict_tag(0), "L0 OBSERVED - LEAD")
         self.assertEqual(verdict_tag(1), "L1 SUSPECTED - LEAD")
         self.assertEqual(verdict_tag(3), "L3 DETERMINISTICALLY VERIFIED")
+        # gerbang bukti: status default "unconfirmed" maksimal L1 walau
+        # evidence_kind kuat — L3 butuh status confirmed + bukti nyata
         f = make_finding(tool="t", title="x", severity="info", description="d",
                          evidence_kind="request-response")
-        self.assertEqual(f["verdict"], 3)  # default dari bentuk bukti
-        self.assertTrue(f["reportable"])
+        self.assertEqual(f["verdict"], 1)
+        self.assertFalse(f["reportable"])
+        f3 = make_finding(tool="t", title="x", severity="info", description="d",
+                          evidence_kind="request-response", status="confirmed",
+                          request="GET / HTTP/1.1", response="HTTP/1.1 200")
+        self.assertEqual(f3["verdict"], 3)
+        self.assertTrue(f3["reportable"])
 
     def test_invalid_severity_rejected(self):
         from findings import make_finding

@@ -109,14 +109,14 @@ class TestFpEmail(unittest.TestCase):
 
 class TestFpNuclei(unittest.TestCase):
     def test_fp5_matcher_false_not_finding(self):
-        rows = nr.parse_jsonl(
+        rows, _ = nr.parse_jsonl(
             '{"template-id":"x","info":{"name":"X","severity":"high"},'
             '"matcher-status":false}\n')
         self.assertEqual(nr.to_findings(rows), [])
 
     def test_fp15_matcher_false_string_and_empty(self):
         # Fp15: varian matcher-status sebagai string "false" dan JSONL kosong
-        rows = nr.parse_jsonl(
+        rows, _ = nr.parse_jsonl(
             '{"template-id":"y","info":{"name":"Y","severity":"medium"},'
             '"matcher-status":false}\n'
             '{"template-id":"z","info":{"name":"Z","severity":"low"},'
@@ -127,8 +127,8 @@ class TestFpNuclei(unittest.TestCase):
         # z tanpa matcher-status tapi ada matched-at => bisa jadi finding, tapi y harus tidak
         self.assertTrue(all("y" not in f.get("title","").lower() for f in findings))
         # JSONL kosong => 0 finding
-        self.assertEqual(nr.to_findings(nr.parse_jsonl("")), [])
-        self.assertEqual(nr.to_findings(nr.parse_jsonl("\n\n")), [])
+        self.assertEqual(nr.to_findings(nr.parse_jsonl("")[0]), [])
+        self.assertEqual(nr.to_findings(nr.parse_jsonl("\n\n")[0]), [])
 
 
 class TestFpFao(unittest.TestCase):

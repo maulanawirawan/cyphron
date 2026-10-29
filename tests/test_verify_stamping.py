@@ -25,13 +25,13 @@ class EvidenceHashTest(unittest.TestCase):
                "response": "HTTP/1.1 200 OK", "poc": ""}
         basis = "GET / HTTP/1.1|HTTP/1.1 200 OK|"
         self.assertEqual(vf.evidence_hash(row),
-                         hashlib.sha256(basis.encode()).hexdigest()[:16])
-        self.assertEqual(len(vf.evidence_hash(row)), 16)
+                         hashlib.sha256(basis.encode()).hexdigest())
+        self.assertEqual(len(vf.evidence_hash(row)), 64)
 
     def test_non_string_value_compact_json_like_rust(self):
         row = {"response": {"a": 1, "b": "x"}}
         expected = hashlib.sha256(
-            b'|{"a":1,"b":"x"}|').hexdigest()[:16]
+            b'|{"a":1,"b":"x"}|').hexdigest()
         self.assertEqual(vf.evidence_hash(row), expected)
 
     def test_hash_changes_with_evidence(self):
@@ -44,7 +44,7 @@ class StampEvidenceTest(unittest.TestCase):
     def _row(self, **over):
         row = {"tool": "t", "title": "x", "response": "resp-1",
                "request": "", "poc": "",
-               "evidence_hash": hashlib.sha256(b"|resp-1|").hexdigest()[:16]}
+               "evidence_hash": hashlib.sha256(b"|resp-1|").hexdigest()}
         row.update(over)
         return row
 

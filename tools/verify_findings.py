@@ -34,10 +34,11 @@ CLOUDFLARE_DOH = "https://cloudflare-dns.com/dns-query?name={name}&type={rtype}"
 
 
 def evidence_hash(f: dict) -> str:
-    """Replikasi Python dari fao.rs::evidence_hash — sha256
-    (request|response|poc)[:16] dengan normalisasi whitespace. Dipakai
+    """Replikasi Python dari fao.rs::evidence_hash — sha256 penuh (64 hex)
+    atas (request|response|poc) dengan normalisasi whitespace. Dipakai
     untuk stamping integritas findings mode evidence (bukan sumber
-    kedua independen — bukti disegel, bukan diuji ulang)."""
+    kedua independen — bukti disegel, bukan diuji ulang).
+    Audit 2026-10: dulu dipotong [:16]; sekarang digest penuh, sync fao.rs."""
     import hashlib
 
     def norm(k: str) -> str:
@@ -50,7 +51,7 @@ def evidence_hash(f: dict) -> str:
         return " ".join(s.split())
 
     basis = f"{norm('request')}|{norm('response')}|{norm('poc')}"
-    return hashlib.sha256(basis.encode()).hexdigest()[:16]
+    return hashlib.sha256(basis.encode()).hexdigest()  # 64 hex, sync fao.rs
 
 
 def stamp_evidence(findings: list[dict], evidence_file: str | None) -> tuple[list[dict], dict]:

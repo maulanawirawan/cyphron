@@ -19,9 +19,9 @@ use crate::contract::Finding;
 use sha2::{Digest, Sha256};
 use std::collections::{HashMap, HashSet};
 
-fn hex16(bytes: &[u8]) -> String {
-    let mut out = String::with_capacity(16);
-    for b in bytes.iter().take(8) {
+fn hex_full(bytes: &[u8]) -> String {
+    let mut out = String::with_capacity(bytes.len() * 2);
+    for b in bytes.iter() {
         out.push_str(&format!("{b:02x}"));
     }
     out
@@ -43,7 +43,9 @@ pub fn evidence_hash(f: &Finding) -> String {
         s.split_whitespace().collect::<Vec<_>>().join(" ")
     };
     let basis = format!("{}|{}|{}", norm("request"), norm("response"), norm("poc"));
-    hex16(&Sha256::digest(basis.as_bytes()))
+    // Audit 2026-10: dulu dipotong 16 hex — integritas jangka panjang
+    // pakai digest SHA-256 penuh (64 hex).
+    hex_full(&Sha256::digest(basis.as_bytes()))
 }
 
 fn key_of(f: &Finding) -> String {
@@ -482,7 +484,7 @@ mod tests {
         let h1 = evidence_hash(&r);
         let h2 = evidence_hash(&r);
         assert_eq!(h1, h2);
-        assert_eq!(h1.len(), 16);
+        assert_eq!(h1.len(), 64); // audit 2026-10: digest SHA-256 penuh
         r.extra.insert("response".into(), serde_json::json!("HTTP/1.1 200"));
         assert_ne!(evidence_hash(&r), h1, "bukti berubah -> hash berubah");
     }

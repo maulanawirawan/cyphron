@@ -12,6 +12,16 @@ reports status="unconfirmed" (L1 LEAD). Skills NEVER guess — fail-closed.
 Hardening F-BOW: validasi ketat severity/status/confidence/cwe/verdict
 sinkron dengan core-rs/src/contract.rs (byte-identik). Tidak ada klaim
 tanpa bukti — fail-closed di setiap hop.
+
+Gerbang bukti (Evidence Gate — sync contract.rs):
+  - status "unconfirmed" TIDAK BOLEH membawa verdict >= MIN_REPORT_LEVEL
+    (L3+) — klaim belum terkonfirmasi maksimal LEAD (L1).
+  - status "false-positive" wajib verdict -1.
+  - verdict >= 3 (reportable) WAJIB membawa bukti nyata: minimal satu
+    dari request/response/poc non-kosong. Metadata atau evidence_kind
+    saja TIDAK menaikkan verdict — yang naik adalah bukti.
+  - make_finding menolak kombinasi inkonsisten saat konstruksi, bukan
+    hanya saat validasi (fail-closed di kedua sisi).
 """
 
 from __future__ import annotations
@@ -52,6 +62,11 @@ def verdict_tag(level: int) -> str:
     return f"L{level} {name}{lead}"
 
 
+def _has_core_evidence(f: dict) -> bool:
+    """Bukti nyata di field inti: request/response/poc (sync contract.rs)."""
+    return any(str(f.get(k) or "").strip() for k in ("request", "response", "poc"))
+
+
 def validate_finding(f: dict) -> list[str]:
     """Validasi satu baris finding terhadap kontrak — return daftar error (kosong = valid)."""
     errs: list[str] = []
@@ -59,13 +74,15 @@ def validate_finding(f: dict) -> list[str]:
         errs.append(f"invalid severity: {f.get('severity')}")
     if f.get("status") not in VALID_STATUSES:
         errs.append(f"invalid status: {f.get('status')}")
-    # confidence: Python permissive via float() accepts numeric string "0.5" (Rust strictly rejects non-number — drift medium, acceptable)
-    try:
-        conf = float(f.get("confidence", 0.5))
-        if not (0.0 <= conf <= 1.0):
-            errs.append(f"confidence out of range 0.0..1.0: {conf}")
-    except (TypeError, ValueError):
-        errs.append(f"confidence not numeric: {f.get('confidence')}")
+    # confidence: HARUS angka (bool ditolak) — sinkron dengan serde f64 di
+    # contract.rs yang menolak string "0.5" saat parse. Dulu Python menerima
+    # string numerik = drift dua-bahasa (lolos Python, gagal di Rust).
+    conf_raw = f.get("confidence", 0.5)
+    if isinstance(conf_raw, bool) or not isinstance(conf_raw, (int, float)):
+        errs.append(f"confidence not numeric: {conf_raw!r}")
+    else:
+        if not (0.0 <= float(conf_raw) <= 1.0):
+            errs.append(f"confidence out of range 0.0..1.0: {conf_raw}")
     cwe = f.get("cwe")
     if cwe and not _is_valid_cwe(cwe):
         errs.append(f"invalid cwe format: {cwe}")
@@ -79,6 +96,19 @@ def validate_finding(f: dict) -> list[str]:
         expect_rep = int(v) >= MIN_REPORT_LEVEL
         if bool(f.get("reportable")) != expect_rep:
             errs.append(f"reportable mismatch: verdict {v} => {expect_rep}")
+        # Gerbang bukti (sync contract.rs Finding::validate):
+        if f.get("status") == "unconfirmed" and int(v) >= MIN_REPORT_LEVEL:
+            errs.append(
+                f"unconfirmed finding cannot carry verdict {v} "
+                f"(>= L{MIN_REPORT_LEVEL}) — klaim belum terkonfirmasi maksimal L1"
+            )
+        if f.get("status") == "false-positive" and int(v) != -1:
+            errs.append(f"false-positive must carry verdict -1, got {v}")
+        if f.get("status") == "confirmed" and expect_rep and not _has_core_evidence(f):
+            errs.append(
+                f"confirmed verdict {v} without evidence: request/response/poc "
+                "semuanya kosong — L3 wajib bukti nyata"
+            )
     # id deterministik sha256(tool|title|target_url|file_path|param)[:16] — strict single hash, no alt_id
     tool = f.get("tool", "")
     title = f.get("title", "")
@@ -137,16 +167,43 @@ def make_finding(
         raise ValueError(f"invalid cwe format: {cwe} (expected CWE-NNN)")
     if verdict is not None and verdict not in VALID_VERDICTS:
         raise ValueError(f"verdict out of range L-x..L5: {verdict}")
+    # Gerbang status-verdict saat konstruksi (fail-closed dua sisi, sync
+    # contract.rs): kombinasi inkonsisten ditolak, bukan dibiarkan lolos
+    # sampai validate_finding.
     if verdict is None:
         if status == "false-positive":
             verdict = -1
-        elif evidence_kind in ("request-response", "probe-pair", "oob",
-                               "arithmetic", "differential"):
+        elif status == "confirmed" and evidence_kind in (
+            "request-response", "probe-pair", "oob", "arithmetic", "differential"
+        ):
             verdict = 3
         elif evidence_kind:
             verdict = 1
         else:
             verdict = 0
+    else:
+        if status == "false-positive" and verdict != -1:
+            raise ValueError(
+                f"false-positive must carry verdict -1, got {verdict}"
+            )
+        if status == "unconfirmed" and verdict > 1:
+            raise ValueError(
+                f"unconfirmed finding cannot carry verdict {verdict} "
+                "(>= L2) — klaim belum terkonfirmasi maksimal L1 "
+                "(naikkan status ke 'confirmed' dengan bukti nyata, "
+                "atau turunkan verdict; fail-closed)"
+            )
+        if status == "confirmed" and verdict == -1:
+            raise ValueError("confirmed finding cannot carry verdict -1 (REJECTED)")
+    if status == "confirmed" and verdict >= MIN_REPORT_LEVEL and not (
+        str(request or "").strip()
+        or str(response or "").strip()
+        or str(poc or "").strip()
+    ):
+        raise ValueError(
+            f"confirmed verdict {verdict} tanpa bukti: request/response/poc "
+            "semuanya kosong — L3 wajib bukti nyata (fail-closed)"
+        )
     basis = "|".join([tool, title, target_url or "", file_path or "", param or ""])
     out = {
         "tool": tool,
