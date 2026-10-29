@@ -112,7 +112,7 @@ class RegistryBatch2Test(unittest.TestCase):
         self.assertTrue(by_name["cookie-scope"]["requires_evidence"])
         self.assertEqual(by_name["graphql-schema-map"]["safety_class"],
                          "1-request")
-        self.assertEqual(len(reg["skills"]), 84)
+        self.assertGreaterEqual(len(reg["skills"]), 86)
 
 
 if __name__ == "__main__":

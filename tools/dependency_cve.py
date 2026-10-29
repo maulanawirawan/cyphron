@@ -17,8 +17,8 @@ sampai titik akhir):
      per ekosistem (PyPI/npm) + cache TTL 24 jam. Gagal jaringan =
      dilewati dengan catatan (BUKAN klaim bersih).
 
-Masukan: requirements.txt, package-lock.json, CycloneDX JSON, SPDX
-JSON. NOL request kecuali --osv. Tanpa klaim di luar rentang eksplisit.
+Masukan: requirements.txt, package-lock.json, pnpm-lock.yaml,
+CycloneDX JSON, SPDX JSON. NOL request kecuali --osv. Tanpa klaim di luar rentang eksplisit.
 
 Pemakaian:
   python tools/dependency_cve.py --file requirements.txt
@@ -169,6 +169,48 @@ def parse_spdx(doc: dict) -> list[dict]:
     return out
 
 
+def parse_pnpm_lock(text: str) -> list[dict]:
+    """pnpm-lock.yaml (v6/v9) -> [{ecosystem, name, version, line}].
+    Parser garis tanpa dependensi YAML: cukup blok `packages:` di level
+    root, entri berbentuk `  'name@version':` (nama boleh ber-scope @a/b).
+    Suffix peer `(x@y)` dan protokol file:/link: dibuang — bukan paket
+    registry yang bisa diaudit OSV. Kolom `snapshots:` TIDAK di-parse
+    (duplikat dari packages)."""
+    rows: list[dict] = []
+    seen: set[tuple[str, str]] = set()
+    in_packages = False
+    for lineno, raw in enumerate(text.splitlines(), 1):
+        if not raw.strip() or raw.lstrip().startswith("#"):
+            continue
+        if not raw.startswith(" "):  # kembali ke level root
+            in_packages = raw.rstrip() == "packages:"
+            continue
+        if not in_packages:
+            continue
+        indent = len(raw) - len(raw.lstrip(" "))
+        if indent != 2:
+            continue  # baris detail (resolution dll) bukan entri paket
+        key = raw.strip()
+        if not key.endswith(":"):
+            continue
+        key = key.rstrip(":").strip().strip("'").strip('"')
+        if key.startswith(("file:", "link:")):
+            continue
+        # buang suffix peer/opsional: foo@1.2.3(bar@2.0.0) -> foo@1.2.3
+        key = key.split("(", 1)[0]
+        if "@" not in key:
+            continue
+        name, _, version = key.rpartition("@")
+        if not name or not version or not version[0].isdigit():
+            continue
+        if (name, version) in seen:
+            continue
+        seen.add((name, version))
+        rows.append({"ecosystem": "npm", "name": name,
+                     "version": version, "line": lineno})
+    return rows
+
+
 def detect_format(path: Path, text: str) -> str:
     """Tebak format dari nama file lalu isi (JSON sniffing)."""
     name = path.name.lower()
@@ -178,6 +220,8 @@ def detect_format(path: Path, text: str) -> str:
         return "spdx"
     if name == "package-lock.json":
         return "package-lock"
+    if name == "pnpm-lock.yaml":
+        return "pnpm-lock"
     if name.startswith("requirements") or name.endswith(".txt"):
         return "requirements"
     try:
@@ -743,6 +787,8 @@ def main() -> int:
             deps = parse_requirements(text)
         elif fmt == "package-lock":
             deps = parse_package_lock(json.loads(text))
+        elif fmt == "pnpm-lock":
+            deps = parse_pnpm_lock(text)
         elif fmt == "cyclonedx":
             deps = parse_cyclonedx(json.loads(text))
         elif fmt == "spdx":

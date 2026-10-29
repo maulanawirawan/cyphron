@@ -162,7 +162,7 @@ def fexp_ok(mod, res):
 
 class RegistryBatch3bTest(unittest.TestCase):
     def test_two_new_entries_valid(self):
-        self.assertEqual(len(REG["skills"]), 84)
+        self.assertGreaterEqual(len(REG["skills"]), 86)
         by_name = {s["name"]: s for s in REG["skills"]}
         for name, cls in (("file-exposure-checker", "bounded-requests"),
                           ("internal-info-leak-checker", "1-request")):

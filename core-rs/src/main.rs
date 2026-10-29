@@ -207,7 +207,7 @@ fn cmd_queue(args: &[String]) {
     let mut subject = "scans.q".to_string();
     let mut p = orchestrator::ScanParams {
         mode: "tier0".into(),
-        target: None, domain: None, evidence: None,
+        target: None, domain: None, evidence: None, source: None,
         out_dir: PathBuf::from(format!("findings/queued/manual-{}",
             std::time::SystemTime::now()
                 .duration_since(std::time::UNIX_EPOCH)

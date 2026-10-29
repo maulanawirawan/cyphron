@@ -143,10 +143,10 @@ pub fn validate_registry(reg: &Registry) -> Result<(), String> {
         }
         // needs enum (longgar tapi validasi nilai umum)
         match s.needs.as_str() {
-            "none" | "domain" | "target" => {},
+            "none" | "domain" | "target" | "source" => {},
             other => {
                 return Err(format!(
-                    "registry skill '{}': unknown needs '{}' (allowed: none|domain|target) — fail-closed",
+                    "registry skill '{}': unknown needs '{}' (allowed: none|domain|target|source) — fail-closed",
                     s.name, other
                 ));
             }
@@ -183,6 +183,9 @@ pub struct ScanParams {
     pub target: Option<String>,
     pub domain: Option<String>,
     pub evidence: Option<String>,
+    /// F70 — path sumber LOKAL untuk skill review kode/konfigurasi
+    /// (repo-secret-scan, infra-config-audit): 0 request jaringan.
+    pub source: Option<String>,
     pub out_dir: PathBuf,
     pub registry: PathBuf,
     pub report: bool,
@@ -322,6 +325,7 @@ pub fn select_skills<'a>(reg: &'a Registry, p: &ScanParams,
             "none" => selected.push(s),
             "domain" if p.domain.is_some() => selected.push(s),
             "target" if p.target.is_some() => selected.push(s),
+            "source" if p.source.is_some() => selected.push(s),
             _ => {}
         }
     }
@@ -475,6 +479,7 @@ pub fn run_scan(p: &ScanParams) -> Result<ScanResult, String> {
                 a.replace("@TARGET@", p.target.as_deref().unwrap_or(""))
                     .replace("@DOMAIN@", p.domain.as_deref().unwrap_or(""))
                     .replace("@EVIDENCE@", p.evidence.as_deref().unwrap_or(""))
+                    .replace("@SOURCE@", p.source.as_deref().unwrap_or(""))
                     .replace("@OUT@", &out_path.to_string_lossy().to_string())
             })
             .collect();
@@ -665,6 +670,7 @@ pub fn cmd_scan(args: &[String]) -> i32 {
         target: None,
         domain: None,
         evidence: None,
+        source: None,
         out_dir: PathBuf::from("findings/scan"),
         registry: PathBuf::from("skills/registry.json"),
         report: false,
@@ -841,12 +847,12 @@ mod tests {
                 SkillSpec { name: "creds".into(), cmd: vec!["python".into()], safety_class: "credential-bearing".into(), needs: "none".into(), requires_evidence: false, lab_only: false },
             ],
         };
-        let p = ScanParams { mode: "tier0".into(), target: None, domain: None, evidence: None, out_dir: PathBuf::from("x"), registry: PathBuf::from("x"), report: false, dry_run: false, max_requests: DEFAULT_MAX_REQUESTS, ua: None, proxy: None, proxies_file: None };
+        let p = ScanParams { mode: "tier0".into(), target: None, domain: None, evidence: None, source: None, out_dir: PathBuf::from("x"), registry: PathBuf::from("x"), report: false, dry_run: false, max_requests: DEFAULT_MAX_REQUESTS, ua: None, proxy: None, proxies_file: None };
         let allowed = allowed_safety_classes(&p.mode).unwrap();
         let sel = select_skills(&reg, &p, &allowed);
         assert_eq!(sel.len(), 1);
         assert_eq!(sel[0].name, "safe");
-        let p_lab = ScanParams { mode: "lab".into(), target: None, domain: None, evidence: None, out_dir: PathBuf::from("x"), registry: PathBuf::from("x"), report: false, dry_run: false, max_requests: DEFAULT_MAX_REQUESTS, ua: None, proxy: None, proxies_file: None };
+        let p_lab = ScanParams { mode: "lab".into(), target: None, domain: None, evidence: None, source: None, out_dir: PathBuf::from("x"), registry: PathBuf::from("x"), report: false, dry_run: false, max_requests: DEFAULT_MAX_REQUESTS, ua: None, proxy: None, proxies_file: None };
         let allowed_lab = allowed_safety_classes(&p_lab.mode).unwrap();
         let sel_lab = select_skills(&reg, &p_lab, &allowed_lab);
         assert_eq!(sel_lab.len(), 3);
@@ -888,6 +894,7 @@ open(sys.argv[1],"w").write(json.dumps({"ok":True,"data":{},"findings":rows}))
             target: None,
             domain: None,
             evidence: None,
+            source: None,
             out_dir: tmp.join("out"),
             registry: reg_path,
             report: false,
@@ -919,6 +926,41 @@ open(sys.argv[1],"w").write(json.dumps({"ok":True,"data":{},"findings":rows}))
     }
 
     #[test]
+    fn source_skills_selected_only_with_source_param() {
+        // F70: skill needs=source hanya terpilih bila --source diset
+        let reg = Registry {
+            version: 1,
+            skills: vec![
+                SkillSpec { name: "cfg".into(), cmd: vec!["python".into()], safety_class: "read-only".into(), needs: "source".into(), requires_evidence: false, lab_only: false },
+                SkillSpec { name: "web".into(), cmd: vec!["python".into()], safety_class: "read-only".into(), needs: "target".into(), requires_evidence: false, lab_only: false },
+            ],
+        };
+        let base = |source: Option<String>| ScanParams {
+            mode: "tier0".into(), target: None, domain: None, evidence: None,
+            source,
+            out_dir: PathBuf::from("x"), registry: PathBuf::from("x"),
+            report: false, dry_run: false, max_requests: DEFAULT_MAX_REQUESTS,
+            ua: None, proxy: None, proxies_file: None,
+        };
+        let allowed = allowed_safety_classes("tier0").unwrap();
+        assert!(select_skills(&reg, &base(None), &allowed).is_empty(),
+                "tanpa --source tidak ada skill source yang terpilih");
+        let sel = select_skills(&reg, &base(Some("src".into())), &allowed);
+        assert_eq!(sel.len(), 1);
+        assert_eq!(sel[0].name, "cfg");
+    }
+
+    #[test]
+    fn registry_rejects_source_need_without_param_is_selection_only() {
+        // needs=source adalah nilai sah di registry (validasi registry lolos)
+        let reg = Registry {
+            version: 1,
+            skills: vec![SkillSpec { name: "cfg".into(), cmd: vec!["python".into(), "skills/x.py".into()], safety_class: "read-only".into(), needs: "source".into(), requires_evidence: false, lab_only: false }],
+        };
+        assert!(validate_registry(&reg).is_ok());
+    }
+
+    #[test]
     fn scan_fails_closed_on_budget_overflow() {
         // audit 2026-10: dulu overflow hanya di-WARN dan scan lanjut —
         // sekarang pelanggaran budget menghentikan run (fail-closed)
@@ -941,7 +983,7 @@ json.dump({"ok":True,"data":{},"requests":50,
         )
         .unwrap();
         let p = ScanParams {
-            mode: "tier0".into(), target: None, domain: None, evidence: None,
+            mode: "tier0".into(), target: None, domain: None, evidence: None, source: None,
             out_dir: tmp.join("out"), registry: reg_path, report: false,
             dry_run: false, max_requests: 10, ua: None, proxy: None, proxies_file: None,
         };
@@ -973,7 +1015,7 @@ json.dump({"ok":True,"data":{"requests_untracked":True},"requests":0,
         )
         .unwrap();
         let p = ScanParams {
-            mode: "tier0".into(), target: None, domain: None, evidence: None,
+            mode: "tier0".into(), target: None, domain: None, evidence: None, source: None,
             out_dir: tmp.join("out"), registry: reg_path, report: false,
             dry_run: false, max_requests: DEFAULT_MAX_REQUESTS, ua: None, proxy: None, proxies_file: None,
         };
@@ -1001,7 +1043,7 @@ json.dump({"ok":True,"data":{},"findings":[{"tool":"t","title":"x",
         .unwrap();
         let p = ScanParams {
             mode: "tier0".into(),
-            target: None, domain: None, evidence: None,
+            target: None, domain: None, evidence: None, source: None,
             out_dir: tmp.join("out"), registry: reg_path, report: false, dry_run: false, max_requests: DEFAULT_MAX_REQUESTS, ua: None, proxy: None, proxies_file: None,
         };
         assert!(run_scan(&p).is_err(), "kontrak rusak harus menghentikan scan");
@@ -1034,7 +1076,7 @@ json.dump({"ok":True,"data":{},"findings":[{"tool":"t","title":"ok",
         .unwrap();
         let base = |mode: &str| ScanParams {
             mode: mode.into(),
-            target: None, domain: None, evidence: None,
+            target: None, domain: None, evidence: None, source: None,
             out_dir: tmp.join(format!("out-{mode}")),
             registry: reg_path.clone(), report: false, dry_run: false, max_requests: DEFAULT_MAX_REQUESTS, ua: None, proxy: None, proxies_file: None,
         };
@@ -1060,7 +1102,7 @@ json.dump({"ok":True,"data":{},"findings":[{"tool":"t","title":"ok",
             ]}).to_string(),
         ).unwrap();
         let p = ScanParams {
-            mode: "tier0".into(), target: None, domain: None, evidence: None,
+            mode: "tier0".into(), target: None, domain: None, evidence: None, source: None,
             out_dir: tmp.join("out"), registry: reg_path, report: false, dry_run: true, max_requests: DEFAULT_MAX_REQUESTS, ua: None, proxy: None, proxies_file: None,
         };
         let r = run_scan(&p).expect("dry-run harus sukses tanpa eksekusi");
@@ -1105,7 +1147,7 @@ json.dump({"ok":True,"data":{"requests":2},"findings":[{"tool":"t","title":"ok",
             ]}).to_string(),
         ).unwrap();
         let p = ScanParams {
-            mode: "tier0".into(), target: None, domain: None, evidence: None,
+            mode: "tier0".into(), target: None, domain: None, evidence: None, source: None,
             out_dir: tmp.join("out"), registry: reg_path, report: false, dry_run: false, max_requests: DEFAULT_MAX_REQUESTS, ua: None, proxy: None, proxies_file: None,
         };
         let r = run_scan(&p).expect("scan harus sukses");
@@ -1148,7 +1190,7 @@ json.dump({"ok":True,"data":{"ua":os.environ.get("CYPHRON_UA","(none)"),
             ]}).to_string(),
         ).unwrap();
         let p = ScanParams {
-            mode: "tier0".into(), target: None, domain: None, evidence: None,
+            mode: "tier0".into(), target: None, domain: None, evidence: None, source: None,
             out_dir: tmp.join("out"), registry: reg_path, report: false,
             dry_run: false, max_requests: DEFAULT_MAX_REQUESTS,
             ua: Some("browser".into()),
@@ -1208,7 +1250,7 @@ http://user:secret@10.0.0.1:9001
 http://10.0.0.2:9002
 ").unwrap();
         let p = ScanParams {
-            mode: "tier0".into(), target: None, domain: None, evidence: None,
+            mode: "tier0".into(), target: None, domain: None, evidence: None, source: None,
             out_dir: tmp.join("out"), registry: reg_path, report: false,
             dry_run: false, max_requests: DEFAULT_MAX_REQUESTS,
             ua: None, proxy: None,
@@ -1254,7 +1296,7 @@ garbage-tanpa-skema
         assert!(load_proxy_pool(empty.to_str().unwrap()).is_err());
         // --proxy + --proxies bersamaan -> error (konflik egress)
         let p = ScanParams {
-            mode: "tier0".into(), target: None, domain: None, evidence: None,
+            mode: "tier0".into(), target: None, domain: None, evidence: None, source: None,
             out_dir: PathBuf::from("x"), registry: PathBuf::from("x"),
             report: false, dry_run: false, max_requests: DEFAULT_MAX_REQUESTS,
             ua: None, proxy: Some("http://a:1".into()),
@@ -1268,7 +1310,7 @@ garbage-tanpa-skema
     #[test]
     fn budget_zero_fails_closed() {
         let p = ScanParams {
-            mode: "tier0".into(), target: None, domain: None, evidence: None,
+            mode: "tier0".into(), target: None, domain: None, evidence: None, source: None,
             out_dir: PathBuf::from("x"), registry: PathBuf::from("x"),
             report: false, dry_run: false, max_requests: 0, ua: None, proxy: None, proxies_file: None,
         };
@@ -1300,7 +1342,7 @@ json.dump({"ok":True,"data":{"requests":1},"requests":1,"findings":[{"tool":"t",
             ]}).to_string(),
         ).unwrap();
         let p = ScanParams {
-            mode: "tier0".into(), target: None, domain: None, evidence: None,
+            mode: "tier0".into(), target: None, domain: None, evidence: None, source: None,
             out_dir: tmp.join("out"), registry: reg_path, report: false,
             dry_run: false, max_requests: 1, ua: None, proxy: None, proxies_file: None,
         };
@@ -1330,7 +1372,7 @@ json.dump({"ok":True,"data":{"requests":1},"requests":1,"findings":[{"tool":"t",
             ]}).to_string(),
         ).unwrap();
         let p = ScanParams {
-            mode: "tier0".into(), target: None, domain: None, evidence: None,
+            mode: "tier0".into(), target: None, domain: None, evidence: None, source: None,
             out_dir: tmp.join("out"), registry: reg_path, report: false,
             dry_run: false, max_requests: 1, ua: None, proxy: None, proxies_file: None,
         };
