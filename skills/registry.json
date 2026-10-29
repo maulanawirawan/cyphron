@@ -1315,6 +1315,34 @@
    "safety_class": "bounded-requests",
    "needs": "target",
    "desc": "agent-instruction-exposure — file instruksi agen AI ter-expose bounded 5 GET (/AGENTS.md,/CLAUDE.md,/.cursorrules,/.mcp.json,/.windsurfrules): signature ketat + anti-fallback SPA; AGENTS/CLAUDE/MCP = L2 CWE-538; tanpa marker = AMAN"
+  },
+  {
+   "name": "repo-secret-scan",
+   "cmd": [
+    "python",
+    "skills/repo_secret_scan.py",
+    "--source",
+    "@SOURCE@",
+    "--out",
+    "@OUT@"
+   ],
+   "safety_class": "read-only",
+   "needs": "source",
+   "desc": "Deteksi rahasia ter-hardcode di source lokal (masking nilai, 0 request)"
+  },
+  {
+   "name": "infra-config-audit",
+   "cmd": [
+    "python",
+    "skills/infra_config_audit.py",
+    "--source",
+    "@SOURCE@",
+    "--out",
+    "@OUT@"
+   ],
+   "safety_class": "read-only",
+   "needs": "source",
+   "desc": "Audit konfigurasi deploy lokal: compose ports/privileged, nginx headers/TLS, env example"
   }
  ]
 }

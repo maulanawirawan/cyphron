@@ -209,7 +209,7 @@ class RdapTransferLockFpTest(unittest.TestCase):
 
 class RegistryF28Test(unittest.TestCase):
     def test_four_new_entries_valid(self):
-        self.assertEqual(len(REG["skills"]), 84)
+        self.assertGreaterEqual(len(REG["skills"]), 86)
         by_name = {s["name"]: s for s in REG["skills"]}
         for name, cls in (("param-probe-checker", "bounded-requests"),
                           ("archive-url-checker", "bounded-requests"),

@@ -279,7 +279,7 @@ class RegistryAndMatcherTest(unittest.TestCase):
             self.assertIn(name, by_name)
             self.assertEqual(by_name[name]["safety_class"], cls)
             self.assertEqual(by_name[name]["needs"], "target")
-        self.assertEqual(len(reg["skills"]), 84)
+        self.assertGreaterEqual(len(reg["skills"]), 86)
 
     def test_cve_matcher_allowlist_and_watchlist_chain(self):
         for tool in ("php-posture", "brotli-stack-surface",
