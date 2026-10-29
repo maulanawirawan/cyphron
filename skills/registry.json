@@ -1343,6 +1343,34 @@
    "safety_class": "read-only",
    "needs": "source",
    "desc": "Audit konfigurasi deploy lokal: compose ports/privileged, nginx headers/TLS, env example"
+  },
+  {
+   "name": "rdap-enrichment",
+   "cmd": [
+    "python",
+    "skills/rdap_enrichment.py",
+    "--domain",
+    "@DOMAIN@",
+    "--out",
+    "@OUT@"
+   ],
+   "safety_class": "read-only",
+   "needs": "domain",
+   "desc": "Postur domain + drift antar-run: ganti registrar/NS, hold, expiry (<30 hari)"
+  },
+  {
+   "name": "typosquat-watch",
+   "cmd": [
+    "python",
+    "skills/typosquat_watch.py",
+    "--domain",
+    "@DOMAIN@",
+    "--out",
+    "@OUT@"
+   ],
+   "safety_class": "read-only",
+   "needs": "domain",
+   "desc": "CT drift: sertifikat baru dengan nama tak dikenal pada domain seed + generator permutasi kembar (1 request)"
   }
  ]
 }

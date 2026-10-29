@@ -1,7 +1,11 @@
 // Dashboard cyphron — tanpa build step, tanpa dependency.
 // Audit 2026-10: data scan dirender via textContent + DOM terstruktur —
 // nama path dari findings tidak boleh ditafsirkan sebagai markup.
-fetch('/api/runs').then(r=>r.json()).then(rows=>{
+// F2: auth header-only - token diambil dari sessionStorage (diisi
+// operator), tidak pernah lewat query string.
+const AUTH = sessionStorage.getItem('cyphron_token') || '';
+fetch('/api/runs', {headers: AUTH ? {'Authorization': AUTH} : {}})
+  .then(r=>r.json()).then(rows=>{
   const b=document.querySelector('#t tbody');
   for(const r of rows){
     const tr=document.createElement('tr');

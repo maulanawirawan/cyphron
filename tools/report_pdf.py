@@ -41,9 +41,13 @@ def _resolve_typst() -> str | None:
     env = os.environ.get("CYPHRON_TYPST")
     if env and Path(env).exists():
         return env
-    vendored = ROOT / "tools" / "bin" / "typst-x86_64-pc-windows-msvc" / "typst.exe"
-    if vendored.exists():
-        return str(vendored)
+    # vendored hanya untuk Windows — di linux, typst.exe yang ter-COPY ke
+    # image tak bisa jalan (subprocess gagal sunyi exit 1); pakai PATH.
+    if sys.platform == "win32":
+        vendored = (ROOT / "tools" / "bin"
+                    / "typst-x86_64-pc-windows-msvc" / "typst.exe")
+        if vendored.exists():
+            return str(vendored)
     return shutil.which("typst")
 
 
