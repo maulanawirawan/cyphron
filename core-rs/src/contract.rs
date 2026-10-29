@@ -150,6 +150,34 @@ impl Finding {
                 self.verdict
             ));
         }
+        // Gerbang bukti (sync core/findings.py validate_finding):
+        // request/response/poc hidup di extra (flatten) karena kontrak
+        // python menyuntiknya sebagai field inti dict.
+        if self.status == "unconfirmed" && self.verdict >= MIN_REPORT_LEVEL {
+            return Err(format!(
+                "unconfirmed finding cannot carry verdict {} (>= L{MIN_REPORT_LEVEL}) — klaim belum terkonfirmasi maksimal L1",
+                self.verdict
+            ));
+        }
+        if self.status == "false-positive" && self.verdict != -1 {
+            return Err(format!(
+                "false-positive must carry verdict -1, got {}",
+                self.verdict
+            ));
+        }
+        if self.status == "confirmed"
+            && expect_reportable
+            && !has_core_evidence(
+                self.extra.get("request"),
+                self.extra.get("response"),
+                self.extra.get("poc"),
+            )
+        {
+            return Err(format!(
+                "confirmed verdict {} without evidence: request/response/poc semuanya kosong — L3 wajib bukti nyata",
+                self.verdict
+            ));
+        }
         Ok(())
     }
 }
@@ -161,6 +189,20 @@ fn is_valid_cwe(s: &str) -> bool {
     }
     let num = &s[4..];
     !num.is_empty() && num.chars().all(|c| c.is_ascii_digit()) && num.len() <= 5
+}
+
+/// Bukti nyata = minimal satu dari request/response/poc non-kosong
+/// (strip dulu — whitespace bukan bukti). Sync `_has_core_evidence` python.
+fn has_core_evidence(
+    request: Option<&serde_json::Value>,
+    response: Option<&serde_json::Value>,
+    poc: Option<&serde_json::Value>,
+) -> bool {
+    [request, response, poc].into_iter().any(|v| {
+        v.and_then(|x| x.as_str())
+            .map(|s| !s.trim().is_empty())
+            .unwrap_or(false)
+    })
 }
 
 /// id = sha256(tool|title|target_url|file_path|param)[:16] — identik
@@ -202,4 +244,90 @@ pub struct FindingsDoc {
     pub findings: Vec<Finding>,
     #[serde(default)]
     pub requests: u32,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Finding valid L0 confirmed (posture) — basis mutasi untuk uji gerbang.
+    fn valid_finding(status: &str, verdict: i8) -> Finding {
+        Finding {
+            tool: "t".into(),
+            title: "uji".into(),
+            severity: "high".into(),
+            description: "d".into(),
+            recommendation: String::new(),
+            cwe: None,
+            target_url: Some("http://x".into()),
+            evidence_kind: Some("request-response".into()),
+            finding_class: Some("weakness".into()),
+            confidence: 0.9,
+            status: status.into(),
+            verdict,
+            verdict_tag: verdict_tag(verdict),
+            id: finding_id("t", "uji", Some("http://x"), None, None),
+            reportable: verdict >= MIN_REPORT_LEVEL,
+            lab_only: false,
+            file_path: None,
+            param: None,
+            extra: serde_json::Map::new(),
+        }
+    }
+
+    #[test]
+    fn evidence_gate_rejects_unconfirmed_l3() {
+        let mut f = valid_finding("unconfirmed", 3);
+        let err = f.validate().unwrap_err();
+        assert!(err.contains("unconfirmed"), "got: {err}");
+    }
+
+    #[test]
+    fn evidence_gate_rejects_l3_without_evidence() {
+        let f = valid_finding("confirmed", 3);
+        let err = f.validate().unwrap_err();
+        assert!(err.contains("without evidence"), "got: {err}");
+    }
+
+    #[test]
+    fn evidence_gate_allows_l3_with_evidence() {
+        let mut f = valid_finding("confirmed", 3);
+        f.extra.insert(
+            "response".into(),
+            serde_json::json!("HTTP/1.1 200 OK"),
+        );
+        f.validate().expect("L3 dengan bukti harus valid");
+    }
+
+    #[test]
+    fn evidence_gate_whitespace_is_not_evidence() {
+        let mut f = valid_finding("confirmed", 3);
+        f.extra.insert("request".into(), serde_json::json!("   "));
+        let err = f.validate().unwrap_err();
+        assert!(err.contains("without evidence"), "got: {err}");
+    }
+
+    #[test]
+    fn false_positive_requires_minus_one() {
+        let f = valid_finding("false-positive", 3);
+        let err = f.validate().unwrap_err();
+        assert!(err.contains("false-positive"), "got: {err}");
+        let f2 = valid_finding("false-positive", -1);
+        f2.validate().expect("false-positive L-x valid");
+    }
+
+    #[test]
+    fn confirmed_l0_without_evidence_is_valid() {
+        let f = valid_finding("confirmed", 0);
+        f.validate().expect("posture L0 tanpa bukti valid");
+    }
+
+    #[test]
+    fn serde_rejects_string_confidence() {
+        // sinkron python: confidence harus angka, string "0.9" = parse error
+        let raw = r#"{"tool":"t","title":"x","severity":"high","verdict":0,
+            "verdict_tag":"L0 OBSERVED - LEAD","id":"x","confidence":"0.9"}"#;
+        let res: Result<Finding, _> = serde_json::from_str(raw);
+        assert!(res.is_err(), "confidence string harus gagal parse (sync)");
+    }
 }

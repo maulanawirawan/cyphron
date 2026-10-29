@@ -514,13 +514,33 @@ pub fn run_scan(p: &ScanParams) -> Result<ScanResult, String> {
             None => data_requests,
         };
         requests = requests.saturating_add(skill_requests);
+        // Hard-fail (audit 2026-10): dulu overflow hanya dicatat lalu scan
+        // lanjut — "hard cap" di dokumentasi tidak sesuai perilaku. Sekarang
+        // pelanggaran budget = pelanggaran kontrak: run berhenti fail-closed.
+        // (Penegakan di lapisan jaringan untuk proses eksternal = roadmap
+        // native-engine; ini gerbang akuntansi yang tegas.)
         if requests > p.max_requests {
-            // Skill membakar lebih banyak request daripada estimasi —
-            // dicatat sebagai audit; skill berikutnya otomatis di-skip.
-            eprintln!(
-                "budget terlampaui oleh {}: {} > {} (audit)",
+            return Err(format!(
+                "budget-request terlampaui oleh '{}': {} > {} — scan dihentikan (fail-closed)",
                 s.name, requests, p.max_requests
-            );
+            ));
+        }
+        // Skill yang TIDAK melacak request-nya sendiri tidak bisa ditagih
+        // budget-nya — di tier0 itu lubang kebocoran: ditolak, bukan
+        // diasumsikan nol. (nuclei_runner dll = kelas lab, bukan tier0.)
+        if p.mode == "tier0" {
+            let untracked = doc
+                .get("data")
+                .and_then(|d| d.get("requests_untracked"))
+                .and_then(|v| v.as_bool())
+                .unwrap_or(false)
+                || doc.get("requests_untracked").and_then(|v| v.as_bool()).unwrap_or(false);
+            if untracked {
+                return Err(format!(
+                    "skill '{}' tidak melacak jumlah request-nya (requests_untracked) — tier0 menolak budget yang tak bisa ditegakkan (fail-closed)",
+                    s.name
+                ));
+            }
         }
         per_skill_sources.push(serde_json::json!({
             "skill": s.name,
@@ -591,15 +611,10 @@ pub fn run_scan(p: &ScanParams) -> Result<ScanResult, String> {
         // Untuk menjaga kompatibilitas, pastikan juga runner helper tidak menimpa:
         let _ = write_merged; // suppress unused warning jika future use
     }
-    // run-manifest: sha256 semua artefak run (rantai bukti tingkat run)
-    let mut manifest_files: Vec<PathBuf> = vec![merged_path.clone()];
-    manifest_files.extend(out_dir.read_dir().into_iter().flatten().flatten()
-        .map(|e| e.path())
-        .filter(|p| p.extension().map(|x| x == "json").unwrap_or(false)
-            && p.file_name().map(|n| n != "run-manifest.json").unwrap_or(true)));
-    fao::write_run_manifest(out_dir, &manifest_files)?;
-
     // (opsional) laporan PDF via generator Typst — python via fallback chain
+    // Audit 2026-10: PDF dibuat SEBELUM manifest supaya report.pdf ikut
+    // tercakup rantai bukti run (dulu manifest ditulis lebih dulu — PDF
+    // terbaru tidak terdaftar).
     let mut pdf_path = None;
     if p.report {
         let out_pdf = out_dir.join("report.pdf");
@@ -618,6 +633,17 @@ pub fn run_scan(p: &ScanParams) -> Result<ScanResult, String> {
             return Err(format!("generator laporan gagal ({} exit {:?}) — fail-closed", py, status.code()));
         }
     }
+
+    // run-manifest: sha256 semua artefak run (rantai bukti tingkat run)
+    let mut manifest_files: Vec<PathBuf> = vec![merged_path.clone()];
+    if let Some(pdf) = &pdf_path {
+        manifest_files.push(pdf.clone());
+    }
+    manifest_files.extend(out_dir.read_dir().into_iter().flatten().flatten()
+        .map(|e| e.path())
+        .filter(|p| p.extension().map(|x| x == "json").unwrap_or(false)
+            && p.file_name().map(|n| n != "run-manifest.json").unwrap_or(true)));
+    fao::write_run_manifest(out_dir, &manifest_files)?;
 
     let reportable = all_findings.iter().filter(|f| f.reportable).count();
     Ok(ScanResult {
@@ -889,6 +915,70 @@ open(sys.argv[1],"w").write(json.dumps({"ok":True,"data":{},"findings":rows}))
         assert_eq!(sources.len(), 2);
         assert!(sources[0].get("requests").is_some());
         assert!(sources[0].get("skill").is_some());
+        let _ = std::fs::remove_dir_all(&tmp);
+    }
+
+    #[test]
+    fn scan_fails_closed_on_budget_overflow() {
+        // audit 2026-10: dulu overflow hanya di-WARN dan scan lanjut —
+        // sekarang pelanggaran budget menghentikan run (fail-closed)
+        let tmp = std::env::temp_dir().join(format!("cyphron_bof_{}", std::process::id()));
+        std::fs::create_dir_all(&tmp).unwrap();
+        let reg_path = tmp.join("registry.json");
+        let script = r#"import json,sys,hashlib
+h=hashlib.sha256(f"t|ok|x.id||".encode()).hexdigest()[:16]
+json.dump({"ok":True,"data":{},"requests":50,
+  "findings":[{"tool":"t","title":"ok","severity":"info","description":"d",
+  "target_url":"x.id","evidence_kind":"dns","finding_class":"posture",
+  "confidence":1.0,"status":"confirmed","verdict":0,
+  "verdict_tag":"L0 OBSERVED - LEAD","id":h,"reportable":False}]}, open(sys.argv[1],"w"))
+"#;
+        std::fs::write(
+            &reg_path,
+            serde_json::json!({"version": 1, "skills": [{
+                "name": "boros", "cmd": ["python", "-c", script, "@OUT@"],
+                "safety_class": "bounded-requests", "needs": "none"}]}).to_string(),
+        )
+        .unwrap();
+        let p = ScanParams {
+            mode: "tier0".into(), target: None, domain: None, evidence: None,
+            out_dir: tmp.join("out"), registry: reg_path, report: false,
+            dry_run: false, max_requests: 10, ua: None, proxy: None, proxies_file: None,
+        };
+        let err = run_scan(&p).expect_err("overflow harus menggagalkan run");
+        assert!(err.contains("budget-request terlampaui"), "got: {err}");
+        let _ = std::fs::remove_dir_all(&tmp);
+    }
+
+    #[test]
+    fn tier0_rejects_untracked_request_skills() {
+        // audit 2026-10: skill yang tidak melacak request-nya sendiri
+        // = budget tak bisa ditegakkan — tier0 menolak (fail-closed)
+        let tmp = std::env::temp_dir().join(format!("cyphron_untracked_{}", std::process::id()));
+        std::fs::create_dir_all(&tmp).unwrap();
+        let reg_path = tmp.join("registry.json");
+        let script = r#"import json,sys,hashlib
+h=hashlib.sha256(f"t|ok|x.id||".encode()).hexdigest()[:16]
+json.dump({"ok":True,"data":{"requests_untracked":True},"requests":0,
+  "findings":[{"tool":"t","title":"ok","severity":"info","description":"d",
+  "target_url":"x.id","evidence_kind":"dns","finding_class":"posture",
+  "confidence":1.0,"status":"confirmed","verdict":0,
+  "verdict_tag":"L0 OBSERVED - LEAD","id":h,"reportable":False}]}, open(sys.argv[1],"w"))
+"#;
+        std::fs::write(
+            &reg_path,
+            serde_json::json!({"version": 1, "skills": [{
+                "name": "gelap", "cmd": ["python", "-c", script, "@OUT@"],
+                "safety_class": "read-only", "needs": "none"}]}).to_string(),
+        )
+        .unwrap();
+        let p = ScanParams {
+            mode: "tier0".into(), target: None, domain: None, evidence: None,
+            out_dir: tmp.join("out"), registry: reg_path, report: false,
+            dry_run: false, max_requests: DEFAULT_MAX_REQUESTS, ua: None, proxy: None, proxies_file: None,
+        };
+        let err = run_scan(&p).expect_err("untracked requests harus ditolak di tier0");
+        assert!(err.contains("requests_untracked"), "got: {err}");
         let _ = std::fs::remove_dir_all(&tmp);
     }
 

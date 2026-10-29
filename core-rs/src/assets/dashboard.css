@@ -1,0 +1,7 @@
+body{font-family:system-ui,sans-serif;margin:2.5rem;background:#0f172a;color:#e2e8f0}
+h1{font-weight:700;font-size:1.4rem} small{color:#94a3b8}
+table{border-collapse:collapse;width:100%;margin-top:1rem}
+th,td{padding:.55rem .8rem;border-bottom:1px solid #1e293b;text-align:left;font-size:.9rem}
+th{color:#94a3b8;font-weight:600} tr:hover{background:#1e293b}
+.pill{padding:.1rem .6rem;border-radius:999px;font-size:.75rem;background:#334155}
+a{color:#7dd3fc;text-decoration:none} a:hover{text-decoration:underline}

@@ -87,10 +87,33 @@ impl Auth {
     }
 }
 
+/// Redaksi kredensial di query string SEBELUM masuk audit log (audit
+/// 2026-10: token via ?token= tercatat apa adanya). Redaksi diterapkan
+/// di sink — satu titik menutup semua pemanggil, termasuk jalur 401.
+fn redact_credentials(target: &str) -> String {
+    let Some((path, query)) = target.split_once('?') else {
+        return target.to_string();
+    };
+    let redacted: Vec<String> = query
+        .split('&')
+        .map(|kv| {
+            if kv.split_once('=').map(|(k, _)| k == "token").unwrap_or(false) {
+                "token=[REDACTED]".to_string()
+            } else {
+                kv.to_string()
+            }
+        })
+        .collect();
+    format!("{path}?{}", redacted.join("&"))
+}
+
 /// Audit log: JSONL append — setiap request tercatat (ts, ip, operator,
-/// path, status). Rantai jejak untuk enterprise.
+/// path, status). Rantai jejak untuk enterprise. Kredensial di-redaksi
+/// sebelum ditulis (token tidak pernah masuk log).
 fn audit_write(path: Option<&Path>, ip: &str, method: &str, target: &str,
                status: &str, operator: &str) {
+    let target = redact_credentials(target);
+    let target = target.as_str();
     let Some(p) = path else { return };
     if let Some(parent) = p.parent() {
         let _ = std::fs::create_dir_all(parent);
@@ -181,39 +204,26 @@ pub fn resolve_under(dir: &Path, rel: &str) -> Option<PathBuf> {
     if canon.starts_with(&base) { Some(canon) } else { None }
 }
 
+/// Audit 2026-10: JS + CSS dashboard pindah ke aset eksternal yang disaji-
+/// kan server sendiri — CSP `script-src 'self'` tidak memblokir dashboard
+/// sendiri lagi (dulu inline script diblokir `default-src 'none'`).
+const DASHBOARD_CSS: &str = include_str!("assets/dashboard.css");
+const DASHBOARD_JS: &str = include_str!("assets/dashboard.js");
+
 const DASHBOARD: &str = r#"<!doctype html><html lang="id"><head><meta charset="utf-8">
 <title>Cyphron — Dashboard</title>
-<style>
-body{font-family:system-ui,sans-serif;margin:2.5rem;background:#0f172a;color:#e2e8f0}
-h1{font-weight:700;font-size:1.4rem} small{color:#94a3b8}
-table{border-collapse:collapse;width:100%;margin-top:1rem}
-th,td{padding:.55rem .8rem;border-bottom:1px solid #1e293b;text-align:left;font-size:.9rem}
-th{color:#94a3b8;font-weight:600} tr:hover{background:#1e293b}
-.pill{padding:.1rem .6rem;border-radius:999px;font-size:.75rem;background:#334155}
-a{color:#7dd3fc;text-decoration:none} a:hover{text-decoration:underline}
-</style></head><body>
+<link rel="stylesheet" href="/assets/dashboard.css">
+</head><body>
 <h1>Cyphron <small>(working title)</small> — Dashboard</h1>
 <small>Baca findings.json satu pintu · LOCAL-ONLY · bind 127.0.0.1</small>
 <table id="t"><thead><tr><th>Run</th><th>Temuan</th><th>Reportable L3+</th><th>Request</th><th>Laporan</th></tr></thead><tbody></tbody></table>
-<script>
-fetch('/api/runs').then(r=>r.json()).then(rows=>{
-  const b=document.querySelector('#t tbody');
-  for(const r of rows){
-    const tr=document.createElement('tr');
-    tr.innerHTML=`<td>${r.rel}</td><td>${r.total}</td>
-      <td><span class="pill">${r.reportable}</span></td><td>${r.requests}</td>
-      <td><a href="/report?path=${encodeURIComponent(r.pdf||'')}">PDF</a> ·
-          <a href="/api/run?path=${encodeURIComponent(r.rel)}">JSON</a></td>`;
-    b.appendChild(tr);
-  }
-  if(!rows.length) b.innerHTML='<tr><td colspan=5>belum ada findings.json di direktori ini</td></tr>';
-});
-</script></body></html>"#;
+<script src="/assets/dashboard.js"></script>
+</body></html>"#;
 
 fn http_response(status: &str, ctype: &str, body: Vec<u8>) -> Vec<u8> {
     let head = format!(
         "HTTP/1.1 {status}\r\nContent-Type: {ctype}\r\nContent-Length: {}\r\n\
-         Cache-Control: no-store\r\nX-Content-Type-Options: nosniff\r\nX-Frame-Options: DENY\r\nContent-Security-Policy: default-src 'none'\r\nReferrer-Policy: no-referrer\r\nConnection: close\r\n\r\n",
+         Cache-Control: no-store\r\nX-Content-Type-Options: nosniff\r\nX-Frame-Options: DENY\r\nContent-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'self'; base-uri 'none'; frame-ancestors 'none'\r\nReferrer-Policy: no-referrer\r\nConnection: close\r\n\r\n",
         body.len()
     );
     let mut out = head.into_bytes();
@@ -309,6 +319,14 @@ fn handle_with_token(mut stream: TcpStream, dir: &Path,
     let resp = match (path, qpath) {
         ("/", _) => http_response("200 OK", "text/html; charset=utf-8",
                                   DASHBOARD.as_bytes().to_vec()),
+        ("/assets/dashboard.css", _) => http_response(
+            "200 OK", "text/css; charset=utf-8",
+            DASHBOARD_CSS.as_bytes().to_vec(),
+        ),
+        ("/assets/dashboard.js", _) => http_response(
+            "200 OK", "text/javascript; charset=utf-8",
+            DASHBOARD_JS.as_bytes().to_vec(),
+        ),
         ("/api/runs", _) => {
             let runs: Vec<serde_json::Value> = list_runs(dir)
                 .iter()
@@ -388,6 +406,38 @@ pub fn serve_loop(dir: &Path, port: u16, auth: Option<Auth>,
 mod tests {
     use super::*;
     use std::io::Write as _;
+
+    #[test]
+    fn audit_log_never_contains_token() {
+        // audit 2026-10: token via ?token= tidak boleh masuk audit log
+        let tmp = std::env::temp_dir().join(format!("cyphron_audit_{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&tmp);
+        std::fs::create_dir_all(&tmp).unwrap();
+        let p = tmp.join("audit.jsonl");
+        audit_write(Some(&p), "127.0.0.1:1", "GET",
+                    "/api/runs?token=rahasia123&x=1", "200", "owner");
+        audit_write(Some(&p), "127.0.0.1:2", "GET",
+                    "/api/run?token=rahasia123", "401", "invalid-token");
+        let content = std::fs::read_to_string(&p).unwrap();
+        assert!(!content.contains("rahasia123"), "token bocor ke log: {content}");
+        assert!(content.contains("token=%5BREDACTED%5D") || content.contains("token=[REDACTED]"),
+                "redaksi harus tercatat eksplisit: {content}");
+        let _ = std::fs::remove_dir_all(&tmp);
+    }
+
+    #[test]
+    fn dashboard_serves_external_assets_not_inline_js() {
+        // CSP script-src 'self' + aset eksternal: markup dashboard tanpa
+        // inline script; aset disaji sendiri di /assets/*
+        assert!(!DASHBOARD.contains("<script>"), "inline script masih ada");
+        assert!(DASHBOARD.contains("/assets/dashboard.js"));
+        assert!(DASHBOARD_JS.contains("textContent"), "DOM harus via textContent");
+        assert!(!DASHBOARD_JS.contains("innerHTML"), "innerHTML dilarang");
+        assert!(http_response("200 OK", "application/json", b"{}".to_vec())
+            .windows(b"script-src 'self'".len())
+            .any(|w| w == b"script-src 'self'"),
+            "CSP harus mengizinkan aset self");
+    }
 
     #[test]
     fn auth_file_loads_tokens_and_rejects_empty() {

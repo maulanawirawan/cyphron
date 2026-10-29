@@ -94,26 +94,29 @@ class NucleiRunnerTest(unittest.TestCase):
     )
 
     def test_parse_jsonl_skips_bad_lines(self):
-        rows = nr.parse_jsonl(self.FIXTURE)
+        rows, bad = nr.parse_jsonl(self.FIXTURE)
         self.assertEqual(len(rows), 3)  # 3 json valid, 1 sampah dilewati
+        self.assertEqual(len(bad), 1)   # baris rusak dilaporkan, bukan senyap
 
     def test_matcher_false_not_finding(self):
-        rows = nr.parse_jsonl(self.FIXTURE)
+        rows, _ = nr.parse_jsonl(self.FIXTURE)
         findings = nr.to_findings(rows)
         self.assertEqual(len(findings), 2)  # baris no-match tidak jadi temuan
         by_id = {f["template_id"]: f for f in findings}
         self.assertNotIn("no-match", by_id)
-        # L3 deterministik + reportable
-        self.assertEqual(by_id["CVE-2024-1234"]["verdict"], 3)
-        self.assertTrue(by_id["CVE-2024-1234"]["reportable"])
+        # match nuclei = KANDIDAT (L1, unconfirmed) — bukan L3: mesin pihak
+        # ketiga tidak menaikkan verdict, verifikasi independen yang naik
+        self.assertEqual(by_id["CVE-2024-1234"]["verdict"], 1)
+        self.assertFalse(by_id["CVE-2024-1234"]["reportable"])
+        self.assertEqual(by_id["CVE-2024-1234"]["status"], "unconfirmed")
         self.assertEqual(by_id["CVE-2024-1234"]["severity"], "critical")
         self.assertEqual(by_id["CVE-2024-1234"]["evidence_kind"],
                          "request-response")
         self.assertEqual(by_id["panel-x"]["severity"], "info")
-        self.assertEqual(by_id["panel-x"]["verdict"], 3)  # tetap L3, tapi info
+        self.assertEqual(by_id["panel-x"]["verdict"], 1)
 
     def test_write_findings_contract_shape(self):
-        rows = nr.parse_jsonl(self.FIXTURE)
+        rows, _ = nr.parse_jsonl(self.FIXTURE)
         findings = nr.to_findings(rows)
         with tempfile.TemporaryDirectory() as td:
             p = Path(td) / "f.json"
