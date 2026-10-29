@@ -323,6 +323,73 @@ mod tests {
     }
 
     #[test]
+    fn fixtures_cross_language_with_python() {
+        // F2 — satu sumber kebenaran dengan tests/test_contract_fixtures.py
+        #[derive(serde::Deserialize)]
+        struct Fixture {
+            name: String,
+            finding: serde_json::Value,
+            expect_valid: bool,
+            #[serde(default)]
+            reject_because: String,
+        }
+        #[derive(serde::Deserialize)]
+        struct FixtureDoc {
+            valid: Vec<Fixture>,
+            invalid: Vec<Fixture>,
+        }
+        let doc: FixtureDoc = serde_json::from_str(
+            include_str!("../tests/contract_fixtures.json"),
+        )
+        .expect("fixture kontrak harus JSON valid");
+
+        let resolve_id = |v: &serde_json::Value| -> serde_json::Value {
+            let mut out = v.clone();
+            if out.get("id").and_then(|x| x.as_str()) == Some("AUTO_ID") {
+                let basis = format!(
+                    "{}|{}|{}|{}|{}",
+                    out.get("tool").and_then(|x| x.as_str()).unwrap_or(""),
+                    out.get("title").and_then(|x| x.as_str()).unwrap_or(""),
+                    out.get("target_url").and_then(|x| x.as_str()).unwrap_or(""),
+                    out.get("file_path").and_then(|x| x.as_str()).unwrap_or(""),
+                    out.get("param").and_then(|x| x.as_str()).unwrap_or(""),
+                );
+                out["id"] = serde_json::json!(finding_id(
+                    out.get("tool").and_then(|x| x.as_str()).unwrap_or(""),
+                    out.get("title").and_then(|x| x.as_str()).unwrap_or(""),
+                    out.get("target_url").and_then(|x| x.as_str()),
+                    out.get("file_path").and_then(|x| x.as_str()),
+                    out.get("param").and_then(|x| x.as_str()),
+                ));
+                let _ = basis;
+            }
+            out
+        };
+
+        for f in &doc.valid {
+            let payload = resolve_id(&f.finding);
+            let finding: Finding = serde_json::from_value(payload)
+                .unwrap_or_else(|e| panic!("{} parse gagal: {e}", f.name));
+            finding
+                .validate()
+                .unwrap_or_else(|e| panic!("{} harus valid: {e}", f.name));
+        }
+        for f in &doc.invalid {
+            let payload = resolve_id(&f.finding);
+            let parsed: Result<Finding, _> = serde_json::from_value(payload);
+            let rejected = match parsed {
+                Err(_) => true,
+                Ok(finding) => finding.validate().is_err(),
+            };
+            assert!(
+                rejected,
+                "{} harus DITOLAK Rust ({})",
+                f.name, f.reject_because
+            );
+        }
+    }
+
+    #[test]
     fn serde_rejects_string_confidence() {
         // sinkron python: confidence harus angka, string "0.9" = parse error
         let raw = r#"{"tool":"t","title":"x","severity":"high","verdict":0,

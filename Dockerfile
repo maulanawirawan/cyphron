@@ -23,7 +23,7 @@ FROM python:3.12-slim@sha256:aa943ce411423c7582288f18707ff66eddcbaeb510502d747a7
 ARG TYPST_VERSION=0.13.1
 RUN useradd -m appuser
 WORKDIR /app
-RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates curl \
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates curl xz-utils \
     && rm -rf /var/lib/apt/lists/* \
     && pip install --no-cache-dir "pymupdf==1.24.14" \
     && curl -fsSL "https://github.com/typst/typst/releases/download/v${TYPST_VERSION}/typst-x86_64-unknown-linux-musl.tar.xz" \

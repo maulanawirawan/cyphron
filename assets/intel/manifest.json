@@ -1,17 +1,17 @@
 {
   "components": {
     "nuclei-templates": {
-      "version": "6143fa35504d",
-      "commit_date": "2026-10-28T08:09:21Z",
-      "template_count": 14186,
-      "synced_at": 1793197412.4287076,
-      "delta_from_prev": 31
+      "version": "59e4c9f98846",
+      "commit_date": "2026-10-29T16:59:36Z",
+      "template_count": 14198,
+      "synced_at": 1793298631.3124795,
+      "delta_from_prev": 12
     },
     "kev": {
-      "version": "2026-10-27T19:00:02.2307Z",
-      "entry_count": 1760,
-      "synced_at": 1793196896.9080167,
-      "delta_from_prev": 0
+      "version": "2026-10-28T19:00:04.8077Z",
+      "entry_count": 1762,
+      "synced_at": 1793298632.7543077,
+      "delta_from_prev": 2
     },
     "cwe": {
       "version": "Thu, 30 Apr 2026 09:05:48 GMT",
@@ -20,22 +20,20 @@
       "delta_from_prev": 0
     },
     "watchlist": {
-      "version": "window-20261028",
-      "entry_count": 94,
+      "version": "window-20261029",
+      "entry_count": 62,
       "seed_count": 11,
-      "nvd_count": 83,
+      "nvd_count": 51,
       "window_days": 14,
-      "synced_at": 1793196899.69061,
-      "delta_from_prev": 0
+      "synced_at": 1793298635.37804,
+      "delta_from_prev": -32
     },
     "nvd-ranges": {
-      "version": "nvd-20261028-bf",
-      "entry_count": 9832,
-      "synced_at": 1793205515.2435129,
-      "delta_from_prev": 2870,
-      "window_days": null,
-      "backfill_days": 240,
-      "oldest_covered": "2026-03-02T16:32:32.000",
+      "version": "nvd-20261029",
+      "entry_count": 9972,
+      "synced_at": 1793298686.9959464,
+      "delta_from_prev": 140,
+      "window_days": 3,
       "api_key": false
     }
   },
@@ -212,6 +210,40 @@
       "window_days": null,
       "backfill_days": 240,
       "oldest_covered": "2026-03-02T16:32:32.000",
+      "api_key": false
+    },
+    {
+      "component": "nuclei-templates",
+      "at": 1793298631.3124795,
+      "version": "59e4c9f98846",
+      "commit_date": "2026-10-29T16:59:36Z",
+      "template_count": 14198,
+      "delta_from_prev": 12
+    },
+    {
+      "component": "kev",
+      "at": 1793298632.7648127,
+      "version": "2026-10-28T19:00:04.8077Z",
+      "entry_count": 1762,
+      "delta_from_prev": 2
+    },
+    {
+      "component": "watchlist",
+      "at": 1793298635.37804,
+      "version": "window-20261029",
+      "entry_count": 62,
+      "seed_count": 11,
+      "nvd_count": 51,
+      "window_days": 14,
+      "delta_from_prev": -32
+    },
+    {
+      "component": "nvd-ranges",
+      "at": 1793298686.9959464,
+      "version": "nvd-20261029",
+      "entry_count": 9972,
+      "delta_from_prev": 140,
+      "window_days": 3,
       "api_key": false
     }
   ]

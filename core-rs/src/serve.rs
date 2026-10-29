@@ -257,9 +257,8 @@ fn handle_with_token(mut stream: TcpStream, dir: &Path,
         let (k, v) = kv.split_once('=')?;
         (k == "path").then(|| v.to_string())
     });
-    let qtoken = query
-        .split('&')
-        .find_map(|kv| kv.split_once('=').filter(|(k, _)| *k == "token").map(|(_, v)| v.to_string()));
+    // F2 — audit 2026-10: token via query param DIHAPUS (riwayat browser,
+    // log proxy perantara, referer). Auth hanya via Authorization header.
     let header_token = req
         .lines()
         .find(|l| l.to_ascii_lowercase().starts_with("authorization:"))
@@ -291,7 +290,7 @@ fn handle_with_token(mut stream: TcpStream, dir: &Path,
         return;
     }
     if let Some(auth) = auth {
-        let supplied = qtoken.as_deref().or(header_token.as_deref());
+        let supplied = header_token.as_deref();
         match supplied.and_then(|t| auth.map.get(t)) {
             Some((op, role)) => {
                 operator = op.clone();
@@ -542,17 +541,28 @@ mod tests {
         let mut buf = String::new();
         s.read_to_string(&mut buf).unwrap();
         assert!(buf.starts_with("HTTP/1.1 401"), "tanpa token harus 401: {buf}");
-        // token via query -> 200
+        // F2: token via query DITOLAK walau benar (header-only)
         let mut s = TcpStream::connect(("127.0.0.1", port)).unwrap();
         s.write_all(b"GET /api/runs?token=rahasia123 HTTP/1.1\r\nHost: x\r\n\r\n")
             .unwrap();
         let mut buf = String::new();
         s.read_to_string(&mut buf).unwrap();
-        assert!(buf.starts_with("HTTP/1.1 200"), "token benar harus 200: {buf}");
-        // token salah -> 401
+        assert!(buf.starts_with("HTTP/1.1 401"), "token query harus 401: {buf}");
+        // token via Authorization header -> 200
         let mut s = TcpStream::connect(("127.0.0.1", port)).unwrap();
-        s.write_all(b"GET /api/runs?token=salah HTTP/1.1\r\nHost: x\r\n\r\n")
-            .unwrap();
+        s.write_all(
+            b"GET /api/runs HTTP/1.1\r\nHost: x\r\nAuthorization: rahasia123\r\n\r\n",
+        )
+        .unwrap();
+        let mut buf = String::new();
+        s.read_to_string(&mut buf).unwrap();
+        assert!(buf.starts_with("HTTP/1.1 200"), "token header harus 200: {buf}");
+        // token salah via header -> 401
+        let mut s = TcpStream::connect(("127.0.0.1", port)).unwrap();
+        s.write_all(
+            b"GET /api/runs HTTP/1.1\r\nHost: x\r\nAuthorization: salah\r\n\r\n",
+        )
+        .unwrap();
         let mut buf = String::new();
         s.read_to_string(&mut buf).unwrap();
         assert!(buf.starts_with("HTTP/1.1 401"), "token salah harus 401");

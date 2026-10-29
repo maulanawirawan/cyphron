@@ -1,0 +1,185 @@
+{
+  "comment": "F2 — fixture kontrak lintas bahasa: payload yang sama divalidasi Python (tests/test_contract_fixtures.py) dan Rust (core-rs/src/contract.rs #[cfg(test)] fixtures_cross_language). Satu sumber kebenaran; file ini TIDAK boleh berubah tanpa mengubah kedua validator.",
+  "valid": [
+    {
+      "name": "lead-unconfirmed-header",
+      "finding": {
+        "tool": "t",
+        "title": "uji",
+        "severity": "low",
+        "description": "d",
+        "evidence_kind": "header",
+        "confidence": 0.5,
+        "status": "unconfirmed",
+        "verdict": 1,
+        "verdict_tag": "L1 SUSPECTED - LEAD",
+        "id": "AUTO_ID",
+        "reportable": false
+      },
+      "expect_valid": true
+    },
+    {
+      "name": "confirmed-l3-with-evidence",
+      "finding": {
+        "tool": "t",
+        "title": "uji",
+        "severity": "high",
+        "description": "d",
+        "target_url": "http://x",
+        "evidence_kind": "request-response",
+        "confidence": 0.9,
+        "status": "confirmed",
+        "verdict": 3,
+        "verdict_tag": "L3 DETERMINISTICALLY VERIFIED",
+        "id": "AUTO_ID",
+        "reportable": true,
+        "request": "GET / HTTP/1.1",
+        "response": "HTTP/1.1 200 OK"
+      },
+      "expect_valid": true
+    },
+    {
+      "name": "confirmed-l0-posture-tanpa-bukti",
+      "finding": {
+        "tool": "t",
+        "title": "uji",
+        "severity": "info",
+        "description": "d",
+        "evidence_kind": "header",
+        "confidence": 1.0,
+        "status": "confirmed",
+        "verdict": 0,
+        "verdict_tag": "L0 OBSERVED - LEAD",
+        "id": "AUTO_ID",
+        "reportable": false
+      },
+      "expect_valid": true
+    },
+    {
+      "name": "false-positive-minus-satu",
+      "finding": {
+        "tool": "t",
+        "title": "uji",
+        "severity": "info",
+        "description": "d",
+        "confidence": 0.5,
+        "status": "false-positive",
+        "verdict": -1,
+        "verdict_tag": "L-x REJECTED",
+        "id": "AUTO_ID",
+        "reportable": false
+      },
+      "expect_valid": true
+    }
+  ],
+  "invalid": [
+    {
+      "name": "unconfirmed-l3-terlarang",
+      "finding": {
+        "tool": "t",
+        "title": "uji",
+        "severity": "high",
+        "description": "d",
+        "evidence_kind": "request-response",
+        "confidence": 0.9,
+        "status": "unconfirmed",
+        "verdict": 3,
+        "verdict_tag": "L3 DETERMINISTICALLY VERIFIED",
+        "id": "AUTO_ID",
+        "reportable": true,
+        "request": "GET / HTTP/1.1",
+        "response": "HTTP/1.1 200 OK"
+      },
+      "expect_valid": false,
+      "reject_because": "gerbang status-verdict"
+    },
+    {
+      "name": "l3-tanpa-bukti-terlarang",
+      "finding": {
+        "tool": "t",
+        "title": "uji",
+        "severity": "critical",
+        "description": "d",
+        "evidence_kind": "request-response",
+        "confidence": 0.9,
+        "status": "confirmed",
+        "verdict": 3,
+        "verdict_tag": "L3 DETERMINISTICALLY VERIFIED",
+        "id": "AUTO_ID",
+        "reportable": true
+      },
+      "expect_valid": false,
+      "reject_because": "gerbang bukti (request/response/poc kosong)"
+    },
+    {
+      "name": "bukti-whitespace-bukan-bukti",
+      "finding": {
+        "tool": "t",
+        "title": "uji",
+        "severity": "critical",
+        "description": "d",
+        "evidence_kind": "request-response",
+        "confidence": 0.9,
+        "status": "confirmed",
+        "verdict": 3,
+        "verdict_tag": "L3 DETERMINISTICALLY VERIFIED",
+        "id": "AUTO_ID",
+        "reportable": true,
+        "request": "   "
+      },
+      "expect_valid": false,
+      "reject_because": "whitespace bukan bukti"
+    },
+    {
+      "name": "false-positive-verdict-salah",
+      "finding": {
+        "tool": "t",
+        "title": "uji",
+        "severity": "info",
+        "description": "d",
+        "confidence": 0.5,
+        "status": "false-positive",
+        "verdict": 1,
+        "verdict_tag": "L1 SUSPECTED - LEAD",
+        "id": "AUTO_ID",
+        "reportable": false
+      },
+      "expect_valid": false,
+      "reject_because": "false-positive wajib -1"
+    },
+    {
+      "name": "confidence-string-ditolak",
+      "finding": {
+        "tool": "t",
+        "title": "uji",
+        "severity": "high",
+        "description": "d",
+        "confidence": "0.9",
+        "status": "unconfirmed",
+        "verdict": 1,
+        "verdict_tag": "L1 SUSPECTED - LEAD",
+        "id": "AUTO_ID",
+        "reportable": false
+      },
+      "expect_valid": false,
+      "reject_because": "confidence wajib angka (serde f64 + python isinstance)"
+    },
+    {
+      "name": "reportable-tidak-sesuai-verdict",
+      "finding": {
+        "tool": "t",
+        "title": "uji",
+        "severity": "low",
+        "description": "d",
+        "confidence": 0.5,
+        "status": "unconfirmed",
+        "verdict": 1,
+        "verdict_tag": "L1 SUSPECTED - LEAD",
+        "id": "AUTO_ID",
+        "reportable": true
+      },
+      "expect_valid": false,
+      "reject_because": "reportable mismatch"
+    }
+  ]
+}

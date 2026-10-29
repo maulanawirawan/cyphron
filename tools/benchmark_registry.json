@@ -1,0 +1,270 @@
+{
+  "version": 1,
+  "skills": [
+    {
+      "name": "analytics-tracker-surface",
+      "cmd": [
+        "python",
+        "skills/analytics_tracker_surface.py",
+        "--url",
+        "@TARGET@",
+        "--from-raw",
+        "@EVIDENCE@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "read-only",
+      "needs": "target",
+      "desc": "analytics-tracker-surface — defensif read-only",
+      "requires_evidence": true
+    },
+    {
+      "name": "api-docs-surface",
+      "cmd": [
+        "python",
+        "skills/api_docs_surface.py",
+        "--url",
+        "@TARGET@",
+        "--from-raw",
+        "@EVIDENCE@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "read-only",
+      "needs": "target",
+      "desc": "api-docs-surface — defensif read-only",
+      "requires_evidence": true
+    },
+    {
+      "name": "cdn-detector",
+      "cmd": [
+        "python",
+        "skills/cdn_detector.py",
+        "--url",
+        "@TARGET@",
+        "--from-raw",
+        "@EVIDENCE@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "read-only",
+      "needs": "target",
+      "desc": "cdn-detector — defensif read-only",
+      "requires_evidence": true
+    },
+    {
+      "name": "clickjacking-protection-checker",
+      "cmd": [
+        "python",
+        "skills/clickjacking_protection_checker.py",
+        "--url",
+        "@TARGET@",
+        "--from-raw",
+        "@EVIDENCE@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "read-only",
+      "needs": "target",
+      "desc": "clickjacking-protection-checker — defensif read-only",
+      "requires_evidence": true
+    },
+    {
+      "name": "cookie-flags-aggregate",
+      "cmd": [
+        "python",
+        "skills/cookie_flags_aggregate.py",
+        "--url",
+        "@TARGET@",
+        "--from-raw",
+        "@EVIDENCE@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "read-only",
+      "needs": "target",
+      "desc": "cookie-flags-aggregate — defensif read-only",
+      "requires_evidence": true
+    },
+    {
+      "name": "cors-checker",
+      "cmd": [
+        "python",
+        "skills/cors_checker.py",
+        "--url",
+        "@TARGET@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "1-request",
+      "needs": "target",
+      "desc": "cors-checker — SATU GET dengan Origin asing; refleksi+kredensial = lead CWE-942; wildcard = terbatas; flag opsional --origin-suffix (+1 request, opt-in manual) menguji trust wildcard-subdomain (refleksi+kredensial = L2)"
+    },
+    {
+      "name": "debug-page-detector",
+      "cmd": [
+        "python",
+        "skills/debug_page_detector.py",
+        "--url",
+        "@TARGET@",
+        "--from-raw",
+        "@EVIDENCE@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "read-only",
+      "needs": "target",
+      "desc": "debug-page-detector — defensif read-only",
+      "requires_evidence": true
+    },
+    {
+      "name": "directory-listing-detector",
+      "cmd": [
+        "python",
+        "skills/directory_listing_detector.py",
+        "--url",
+        "@TARGET@",
+        "--from-raw",
+        "@EVIDENCE@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "read-only",
+      "needs": "target",
+      "desc": "directory-listing-detector — defensif read-only",
+      "requires_evidence": true
+    },
+    {
+      "name": "http-security-headers",
+      "cmd": [
+        "python",
+        "skills/http_security_headers.py",
+        "--url",
+        "@TARGET@",
+        "--from-raw",
+        "@EVIDENCE@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "read-only",
+      "needs": "target",
+      "requires_evidence": true,
+      "desc": "Kanonik keluarga header: presence 6 header keamanan (HSTS/CSP/XFO/XCTO/Referrer/Permissions) + sub-check bocor versi Server/X-Powered-By dari bukti tersimpan — 0 request"
+    },
+    {
+      "name": "http2-support-checker",
+      "cmd": [
+        "python",
+        "skills/http2_support_checker.py",
+        "--url",
+        "@TARGET@",
+        "--from-raw",
+        "@EVIDENCE@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "read-only",
+      "needs": "target",
+      "desc": "http2-support-checker — defensif read-only",
+      "requires_evidence": true
+    },
+    {
+      "name": "robots-txt-surface",
+      "cmd": [
+        "python",
+        "skills/robots_txt_surface.py",
+        "--url",
+        "@TARGET@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "1-request",
+      "needs": "target",
+      "desc": "robots-txt-surface — defensif 1-request"
+    },
+    {
+      "name": "server-version-disclosure",
+      "cmd": [
+        "python",
+        "skills/server_version_disclosure.py",
+        "--url",
+        "@TARGET@",
+        "--from-raw",
+        "@EVIDENCE@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "read-only",
+      "needs": "target",
+      "desc": "server-version-disclosure — defensif read-only",
+      "requires_evidence": true
+    },
+    {
+      "name": "swagger-ui-surface",
+      "cmd": [
+        "python",
+        "skills/swagger_ui_surface.py",
+        "--url",
+        "@TARGET@",
+        "--from-raw",
+        "@EVIDENCE@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "read-only",
+      "needs": "target",
+      "desc": "swagger-ui-surface — defensif read-only",
+      "requires_evidence": true
+    },
+    {
+      "name": "tech-fingerprint",
+      "cmd": [
+        "python",
+        "skills/tech_fingerprint.py",
+        "--url",
+        "@TARGET@",
+        "--from-raw",
+        "@EVIDENCE@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "read-only",
+      "needs": "target",
+      "requires_evidence": true,
+      "lab_only": false,
+      "desc": "Fingerprint teknologi dari HTML evidence: WordPress/Joomla/Drupal/Zimbra/Nextcloud/Outlook — 0 request (SURFACE)"
+    },
+    {
+      "name": "waf-fingerprint",
+      "cmd": [
+        "python",
+        "skills/waf_fingerprint.py",
+        "--url",
+        "@TARGET@",
+        "--from-raw",
+        "@EVIDENCE@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "read-only",
+      "needs": "target",
+      "desc": "waf-fingerprint — defensif read-only",
+      "requires_evidence": true
+    },
+    {
+      "name": "error-oracle",
+      "cmd": [
+        "python",
+        "skills/error_oracle.py",
+        "--url",
+        "@TARGET@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "1-request",
+      "needs": "target",
+      "desc": "error-oracle — SATU GET path canary acak; signature ketat error DB / stack trace / debug framework di error page = L2/L1 (CWE-209); 404 generik = AMAN; 403/429 = tanpa klaim",
+      "requires_evidence": false
+    }
+  ]
+}
