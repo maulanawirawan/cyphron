@@ -41,6 +41,39 @@ def _resolve_inside(programs_dir: Path, path: Path) -> Path | None:
     return resolved
 
 
+def load_path(path: str | Path, root: Path | None = None) -> dict | None:
+    """Muat satu file threat model dari path langsung (untuk laporan).
+    Fail-closed sama seperti load_for_program: bounded 64 KB, decode
+    aman, hash; file tidak ada → None. Path di luar programs/ DIBOLEH-
+    KAN di sini karena sumbernya operator sendiri (--threat-model)."""
+    root = (Path(root) if root else ROOT).resolve()
+    resolved = (Path(path) if Path(path).is_absolute() else root / path).resolve()
+    if not resolved.is_file():
+        return None
+    try:
+        raw = resolved.read_bytes()
+    except OSError as exc:
+        return {"rejected": f"tidak terbaca: {exc}", "path": str(resolved)}
+    if len(raw) > MAX_BYTES:
+        return {"rejected": f"ukuran {len(raw)} > {MAX_BYTES} byte — ditolak",
+                "path": str(resolved)}
+    text = raw.decode("utf-8", errors="replace")
+    title = (H1_RE.search(text) or [None, ""])[1].strip() if H1_RE.search(text) else ""
+    sections = [h.strip() for h in H2_RE.findall(text)]
+    try:
+        shown = str(resolved.relative_to(root))
+    except ValueError:
+        shown = str(resolved)
+    return {
+        "path": shown,
+        "sha256": hashlib.sha256(raw).hexdigest()[:16],
+        "bytes": len(raw),
+        "title": title or resolved.stem,
+        "sections": sections[:12],
+        "text": text,
+    }
+
+
 def load_for_program(program: dict, programs_dir: Path | None = None,
                      root: Path | None = None) -> dict | None:
     """Muat threat model untuk satu entri programs/index.json.

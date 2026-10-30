@@ -33,6 +33,7 @@ sys.path.insert(0, str(ROOT / "core"))
 sys.path.insert(0, str(ROOT / "tools"))
 from findings import MIN_REPORT_LEVEL  # noqa: E402
 import triage_advisor  # noqa: E402  (F24 learning loop)
+import threat_model  # noqa: E402  (F74 konteks per program)
 
 def _resolve_typst() -> str | None:
     """Cari executable typst: env CYPHRON_TYPST -> binary vendored
@@ -280,7 +281,7 @@ def row_ids(rows: list[dict]) -> dict[str, dict]:
     return out
 
 
-def build_data(docs: list[dict], compare: Path | None, title: str, subtitle: str, date_str: str | None = None, class_history: list[dict] | None = None, egress: dict | None = None) -> dict:
+def build_data(docs: list[dict], compare: Path | None, title: str, subtitle: str, date_str: str | None = None, class_history: list[dict] | None = None, egress: dict | None = None, threat_model: dict | None = None) -> dict:
     rows: list[dict] = []
     sources: list[str] = []
     sources_acc: list[dict] = []
@@ -447,6 +448,12 @@ def build_data(docs: list[dict], compare: Path | None, title: str, subtitle: str
         "top_leads": top_leads,
         "coverage": coverage,
         "egress": egress,
+        "threat_model": (
+            {"title": threat_model.get("title", ""),
+             "sections": threat_model.get("sections", []),
+             "path": threat_model.get("path", ""),
+             "sha256": threat_model.get("sha256", "")}
+            if threat_model and not threat_model.get("rejected") else None),
         "executive_summary": summary,
         "ladder": LADDER,
         "categories": categories,
@@ -472,6 +479,9 @@ def main() -> int:
                          "kesehatan jalur keluar ditampilkan di ringkasan")
     ap.add_argument("--compare", default=None,
                     help="findings.json run sebelumnya (retest delta)")
+    ap.add_argument("--threat-model", default=None,
+                    help="threat_model.md program (opsional) — konteks "
+                         "triage operator dirender di laporan")
     ap.add_argument("--out", required=True)
     ap.add_argument("--title", default="Laporan Security Assessment")
     ap.add_argument("--subtitle", default="Ringkasan kategorial berbasis bukti (verdict ladder)")
@@ -516,8 +526,21 @@ def main() -> int:
         else:
             print(f"peringatan: egress state tidak ada: {_ep}",
                   file=sys.stderr)
+    # [F74] threat model program (opsional — riset oss-scanner): konteks
+    # triage operator di laporan; verdict ladder TIDAK berubah.
+    tm_meta = None
+    if args.threat_model:
+        tm_meta = threat_model.load_path(args.threat_model)
+        if tm_meta is None:
+            print(f"peringatan: threat model tidak ada: {args.threat_model}",
+                  file=sys.stderr)
+        elif tm_meta.get("rejected"):
+            print(f"peringatan: threat model ditolak: {tm_meta['rejected']}",
+                  file=sys.stderr)
+            tm_meta = None
     data = build_data(docs, compare, args.title, args.subtitle,
-                      date_str=args.date, egress=egress_state, class_history=class_history)
+                      date_str=args.date, egress=egress_state, class_history=class_history,
+                      threat_model=tm_meta)
 
     build_dir = Path(tempfile.mkdtemp(prefix="cyphron-report_"))
     try:
