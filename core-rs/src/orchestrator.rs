@@ -684,6 +684,8 @@ pub fn cmd_scan(args: &[String]) -> i32 {
             "--target" => { p.target = args.get(i+1).cloned(); i += 2; }
             "--domain" => { p.domain = args.get(i+1).cloned(); i += 2; }
             "--evidence" => { p.evidence = args.get(i+1).cloned(); i += 2; }
+            // F70 — review sumber lokal (needs=source); tanpa target
+            "--source" => { p.source = args.get(i+1).cloned(); i += 2; }
             "--out" => { p.out_dir = PathBuf::from(args.get(i+1).map(String::as_str).unwrap_or("findings/scan")); i += 2; }
             "--registry" => { p.registry = PathBuf::from(args.get(i+1).map(String::as_str).unwrap_or("skills/registry.json")); i += 2; }
             "--report" => { p.report = true; i += 1; }
