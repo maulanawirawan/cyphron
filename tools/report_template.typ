@@ -117,6 +117,19 @@
   ]
 ]
 
+#if data.threat_model != none [
+  #block(width: 100%, fill: luma(245), inset: 8pt, radius: 3pt)[
+    #text(size: 9pt, weight: "bold")[Threat model program (konteks pemilik)]
+    #text(size: 9pt)[
+      #data.threat_model.title
+      #if data.threat_model.sections.len() > 0 [
+        — bagian: #for s in data.threat_model.sections [#s · ]
+      ]
+      (Sumber: #data.threat_model.path, sha256 #data.threat_model.sha256.        Konteks triage dari pemilik program — tidak mengubah klasifikasi        temuan di laporan ini.)
+    ]
+  ]
+]
+
 = Metodologi & Verdict Ladder
 
 Setiap temuan diberi tingkat bukti (verdict ladder). Hanya L3+

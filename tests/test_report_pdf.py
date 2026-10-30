@@ -317,6 +317,48 @@ class RenderTest(unittest.TestCase):
             self.assertIn("Family quorum: ×3", txt)
             self.assertIn("banner-posture", txt)
 
+    def test_threat_model_render(self):
+        """F74: --threat-model opsional — konteks pemilik muncul di PDF;
+        tanpa flag → tidak ada blok (dan file hilang = peringatan, bukan
+        error)."""
+        import fitz
+        with tempfile.TemporaryDirectory() as td:
+            tmf = Path(td) / "threat_model.md"
+            tmf.write_text(
+                "# Threat model: Lab Uji\n\n"
+                "## Where untrusted input enters\nHTTP API.\n\n"
+                "## How you rate severity\nDoS medium.\n",
+                encoding="utf-8")
+            f = ROOT / "tests/fixtures/report-fixture.json"
+
+            old_argv = sys.argv
+            try:
+                out = Path(td) / "r.pdf"
+                sys.argv = ["report_pdf.py", "--findings", str(f),
+                            "--out", str(out), "--title", "TM Uji",
+                            "--threat-model", str(tmf)]
+                self.assertEqual(rp.main(), 0)
+                doc = fitz.open(str(out))
+                full = " ".join("".join(pg.get_text() for pg in doc).split())
+                doc.close()
+                # teks PDF dibungkus typst — bandingkan setelah normalisasi
+                self.assertIn("Threat model program", full)
+                self.assertIn("Threat model: Lab Uji", full)
+                self.assertIn("How you rate severity", full)
+                self.assertIn("tidak mengubah klasifikasi", full)
+
+                # tanpa flag → blok tidak dirender
+                out2 = Path(td) / "r2.pdf"
+                sys.argv = ["report_pdf.py", "--findings", str(f),
+                            "--out", str(out2), "--title", "TM Tanpa"]
+                self.assertEqual(rp.main(), 0)
+                doc2 = fitz.open(str(out2))
+                full2 = " ".join("".join(pg.get_text() for pg in doc2).split())
+                doc2.close()
+                self.assertNotIn("Threat model program", full2)
+            finally:
+                sys.argv = old_argv
+
     def test_delta_render(self):
         with tempfile.TemporaryDirectory() as td:
             def mkdoc(name, ids):
