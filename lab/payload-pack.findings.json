@@ -1,0 +1,39 @@
+{
+  "ok": true,
+  "data": {
+    "run": "payload-lab",
+    "requests": 0,
+    "safety_class": "lab-only"
+  },
+  "findings": [
+    {
+      "tool": "payload-lab",
+      "title": "Payload pack built: 34 payloads, 7 classes, chains=['url', 'base64', 'double-url', 'base64+url']",
+      "severity": "info",
+      "description": "Paket payload generik tersusun OFFLINE (nol trafik). Dipakai di lab berotorisasi; setiap payload ber-ID deterministik (seeded) sehingga verifikasi reproducible.",
+      "recommendation": "",
+      "cwe": null,
+      "target_url": null,
+      "file_path": null,
+      "line_start": null,
+      "line_end": null,
+      "param": null,
+      "request": null,
+      "response": null,
+      "poc": null,
+      "confidence": 1.0,
+      "status": "confirmed",
+      "evidence_kind": "arithmetic",
+      "finding_class": "posture",
+      "id": "20369cd2666f3e45",
+      "verdict": 0,
+      "verdict_tag": "L0 OBSERVED - LEAD",
+      "reportable": false,
+      "lab_only": false,
+      "category": "LAB",
+      "safety_class": "lab-only",
+      "seed": "lab-1"
+    }
+  ],
+  "requests": 0
+}

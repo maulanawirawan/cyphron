@@ -112,6 +112,12 @@ class RegistryBatch2Test(unittest.TestCase):
         self.assertTrue(by_name["cookie-scope"]["requires_evidence"])
         self.assertEqual(by_name["graphql-schema-map"]["safety_class"],
                          "1-request")
+        rlv = by_name["rate-limit-validator"]
+        self.assertEqual(rlv["safety_class"], "active-probe")
+        self.assertTrue(rlv.get("lab_only"),
+                        "tier0 tidak boleh menjalankan login-probe")
+        self.assertIn("--lab", rlv["cmd"],
+                      "default registry wajib lab-only fail-closed")
         self.assertGreaterEqual(len(reg["skills"]), 86)
 
 
