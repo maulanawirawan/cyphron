@@ -1,17 +1,17 @@
 {
   "components": {
     "nuclei-templates": {
-      "version": "59e4c9f98846",
-      "commit_date": "2026-10-29T16:59:36Z",
+      "version": "5cfe87d58464",
+      "commit_date": "2026-10-30T03:13:01Z",
       "template_count": 14198,
-      "synced_at": 1793298631.3124795,
-      "delta_from_prev": 12
+      "synced_at": 1793385014.3069205,
+      "delta_from_prev": 0
     },
     "kev": {
-      "version": "2026-10-28T19:00:04.8077Z",
-      "entry_count": 1762,
-      "synced_at": 1793298632.7543077,
-      "delta_from_prev": 2
+      "version": "2026-10-30T17:02:45.3665Z",
+      "entry_count": 1766,
+      "synced_at": 1793385015.1681554,
+      "delta_from_prev": 4
     },
     "cwe": {
       "version": "Thu, 30 Apr 2026 09:05:48 GMT",
@@ -20,19 +20,19 @@
       "delta_from_prev": 0
     },
     "watchlist": {
-      "version": "window-20261029",
-      "entry_count": 62,
+      "version": "window-20261030",
+      "entry_count": 60,
       "seed_count": 11,
-      "nvd_count": 51,
+      "nvd_count": 49,
       "window_days": 14,
-      "synced_at": 1793298635.37804,
-      "delta_from_prev": -32
+      "synced_at": 1793385017.7162504,
+      "delta_from_prev": -2
     },
     "nvd-ranges": {
-      "version": "nvd-20261029",
-      "entry_count": 9972,
-      "synced_at": 1793298686.9959464,
-      "delta_from_prev": 140,
+      "version": "nvd-20261030",
+      "entry_count": 10121,
+      "synced_at": 1793385046.6360831,
+      "delta_from_prev": 149,
       "window_days": 3,
       "api_key": false
     }
@@ -243,6 +243,40 @@
       "version": "nvd-20261029",
       "entry_count": 9972,
       "delta_from_prev": 140,
+      "window_days": 3,
+      "api_key": false
+    },
+    {
+      "component": "nuclei-templates",
+      "at": 1793385014.3069205,
+      "version": "5cfe87d58464",
+      "commit_date": "2026-10-30T03:13:01Z",
+      "template_count": 14198,
+      "delta_from_prev": 0
+    },
+    {
+      "component": "kev",
+      "at": 1793385015.1681554,
+      "version": "2026-10-30T17:02:45.3665Z",
+      "entry_count": 1766,
+      "delta_from_prev": 4
+    },
+    {
+      "component": "watchlist",
+      "at": 1793385017.7162504,
+      "version": "window-20261030",
+      "entry_count": 60,
+      "seed_count": 11,
+      "nvd_count": 49,
+      "window_days": 14,
+      "delta_from_prev": -2
+    },
+    {
+      "component": "nvd-ranges",
+      "at": 1793385046.6360831,
+      "version": "nvd-20261030",
+      "entry_count": 10121,
+      "delta_from_prev": 149,
       "window_days": 3,
       "api_key": false
     }

@@ -43,6 +43,7 @@ from atomic import atomic_write_text  # noqa: E402
 import program_sweep as ps  # noqa: E402  (reuse load_last_findings/diff pola)
 import cve_matcher  # noqa: E402  (F45 lapisan pengetahuan)
 import cwe_check  # noqa: E402  (F45 audit referensi CWE)
+import threat_model  # noqa: E402  (F74 konteks per program — riset oss-scanner)
 
 
 class ConfigError(ValueError):
@@ -284,6 +285,22 @@ def main_with_args(argv: list[str] | None = None) -> int:
         budget = p.get("budget", args.max_requests)
         out_dir = state_dir(pid)
         summary: dict = {"id": pid, "domain": domain}
+        # [F74] threat model per program (opsional — riset oss-scanner):
+        # konteks triage operator di meta summary; TIDAK mengubah
+        # findings/verdict (classification tetap dari bukti).
+        try:
+            tmm = threat_model.load_for_program(p)
+        except Exception as exc:
+            summary["threat_model"] = f"error: {exc!r}"[:120]
+        else:
+            if tmm is None:
+                summary["threat_model"] = "none"
+            elif tmm.get("rejected"):
+                summary["threat_model"] = tmm["rejected"]
+            else:
+                summary["threat_model"] = {
+                    "path": tmm["path"], "sha256": tmm["sha256"],
+                    "title": tmm["title"], "sections": tmm["sections"]}
         if budget is not None and budget <= 0:
             # budget 0 = skip DENGAN baris audit (bukan senyap)
             summary.update({"scanned": False, "skipped": "budget=0"})
