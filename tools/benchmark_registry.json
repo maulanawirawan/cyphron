@@ -36,23 +36,6 @@
       "requires_evidence": true
     },
     {
-      "name": "cdn-detector",
-      "cmd": [
-        "python",
-        "skills/cdn_detector.py",
-        "--url",
-        "@TARGET@",
-        "--from-raw",
-        "@EVIDENCE@",
-        "--out",
-        "@OUT@"
-      ],
-      "safety_class": "read-only",
-      "needs": "target",
-      "desc": "cdn-detector — defensif read-only",
-      "requires_evidence": true
-    },
-    {
       "name": "clickjacking-protection-checker",
       "cmd": [
         "python",
@@ -174,13 +157,13 @@
         "python",
         "skills/robots_txt_surface.py",
         "--url",
-        "@TARGET@",
+        "@TARGET@/robots.txt",
         "--out",
         "@OUT@"
       ],
       "safety_class": "1-request",
       "needs": "target",
-      "desc": "robots-txt-surface — defensif 1-request"
+      "desc": "robots-txt-surface — 1 GET ke /robots.txt (resource penuh; @TARGET@ polos = root, bukan resource robots)"
     },
     {
       "name": "server-version-disclosure",
@@ -235,23 +218,6 @@
       "desc": "Fingerprint teknologi dari HTML evidence: WordPress/Joomla/Drupal/Zimbra/Nextcloud/Outlook — 0 request (SURFACE)"
     },
     {
-      "name": "waf-fingerprint",
-      "cmd": [
-        "python",
-        "skills/waf_fingerprint.py",
-        "--url",
-        "@TARGET@",
-        "--from-raw",
-        "@EVIDENCE@",
-        "--out",
-        "@OUT@"
-      ],
-      "safety_class": "read-only",
-      "needs": "target",
-      "desc": "waf-fingerprint — defensif read-only",
-      "requires_evidence": true
-    },
-    {
       "name": "error-oracle",
       "cmd": [
         "python",
@@ -266,5 +232,6 @@
       "desc": "error-oracle — SATU GET path canary acak; signature ketat error DB / stack trace / debug framework di error page = L2/L1 (CWE-209); 404 generik = AMAN; 403/429 = tanpa klaim",
       "requires_evidence": false
     }
-  ]
+  ],
+  "note": "mini benchmark registry: 11 skill ground-truth + 3 noise (analytics-tracker-surface, http2-support-checker, tech-fingerprint). cdn-detector + waf-fingerprint dikeluarkan 2026-10-30: verdict by-absence (header CDN/WAF tidak ada = lead) selalu menyala di lab tanpa CDN — bukan pengukur akurasi deteksi kondisi ditanam."
 }

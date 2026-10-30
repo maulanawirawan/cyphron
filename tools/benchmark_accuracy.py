@@ -2,11 +2,30 @@
 Benchmark: mengukur precision/recall/false-positive-rate terhadap
 ground truth yang diketahui kebenarannya (aplikasi uji lokal).
 
-Dua run, satu kode target (tools/benchmark_target.py):
-  vulnerable : 10 kondisi keamanan ditanam -> scanner HARUS menemukannya
-               (recall + precision)
-  hardened   : kondisi sama diperbaiki   -> scanner HARUS diam
-               (false-positive-rate; semua temuan di sini = FP)
+Tiga run, satu kode target (tools/benchmark_target.py):
+  vulnerable        : 11 kondisi keamanan ditanam -> scanner HARUS
+                      menemukannya (recall + precision)
+  hardened          : kondisi sama diperbaiki   -> scanner HARUS diam
+                      (false-positive-rate; semua temuan di sini = FP)
+  vulnerable-repeat : ulang vulnerable -> reproducibility
+
+Pipeline per run (perbaikan sesi benchmark-full-run 2026-10-30):
+  1. server uji diangkat (serve_forever di thread daemon — server yang
+     tidak menjalankan serve_forever tidak pernah melayani koneksi dan
+     shutdown()-nya deadlock; pelajaran run lama yang "Fetch failed");
+  2. FASE CAPTURE: 5 GET read-only (root + /files/ + /debug + /swagger +
+     /api-docs) — body digabung jadi SATU file evidence (penanda section
+     TANPA slash supaya tidak memicu signature skill) + headers root
+     disimpan sibling `.headers` (format yang dibaca load_headers skill);
+     fetch root gagal = run DIBATALKAN (fail-closed, tanpa metrik);
+  3. DUA scan per mode, hasil digabung di sisi harness:
+     a. scan bukti `cyphron scan --evidence <capture>` — 11 skill
+        requires_evidence konsumsi capture (kebijakan binary: skill
+        1-request di-skip saat --evidence, mode bukti nol-request);
+     b. scan live tanpa --evidence — 3 skill 1-request fetch sendiri
+        (cors-checker, robots-txt-surface, error-oracle);
+  4. metrik dihitung dari gabungan findings kedua scan (run dir dibersihkan
+     dulu — file skill sisa run lama tidak boleh terhitung).
 
 Aturan hitung (dokumentasi disengaja — metrik harus bisa direplikasi):
   - deteksi = baris findings dengan verdict >= 1 (L0 inventory tidak
@@ -14,25 +33,42 @@ Aturan hitung (dokumentasi disengaja — metrik harus bisa direplikasi):
   - match = level tool (satu kondisi ditanam dipetakan ke satu skill)
   - FP = deteksi yang tool-nya di luar daftar harapan
   - reproducibility = dua run vulnerable; sama jika himpunan
-    (tool, title) identik
+    (tool, title) identik SETELAH URL target (port ephemeral berubah
+    antar-run) dinormalisasi menjadi <TARGET>
+
+Registry mini (tools/benchmark_registry.json) = 11 skill ground-truth +
+3 skill noise (analytics-tracker-surface, http2-support-checker,
+tech-fingerprint — semuanya diam pada fixture). DUA skill noise lama
+DIKELUARKAN dengan alasan terdokumentasi: cdn-detector dan
+waf-fingerprint memberi verdict 1 BY-ABSENCE (header CDN/WAF tidak ada
+= lead) — pada lab lokal tanpa CDN keduanya selalu menyala di KEDUA
+mode, sehingga bukan pengukur akurasi deteksi kondisi ditanam melainkan
+desain posture-lead; nilai mereka dinilai terpisah dari benchmark ini.
 
 Pemakaian:
-  python tools/benchmark_accuracy.py --run        # scan dua mode + metrik
-  python tools/benchmark_accuracy.py --report f.json   # metrik saja dari hasil tersimpan
+  python tools/benchmark_accuracy.py --run        # benchmark penuh + metrik
+  python tools/benchmark_accuracy.py --report f.json   # metrik dari hasil tersimpan
 """
 from __future__ import annotations
 
 import argparse
 import json
+import shutil
 import subprocess
 import sys
 import tempfile
+import threading
 import time
+import urllib.error
+import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
 from benchmark_target import serve  # noqa: E402
+
+UA = "Mozilla/5.0 (compatible; cyphron-benchmark/1.0)"
+FETCH_TIMEOUT = 15.0
 
 # kondisi ditanam -> skill yang diharapkan menemukannya (vulnerable mode)
 GROUND_TRUTH = [
@@ -50,11 +86,22 @@ GROUND_TRUTH = [
 ]
 EXPECTED_TOOLS = {t for t, _ in GROUND_TRUTH}
 
+# path probe capture (TANPA root) — konvensi permukaan umum, bounded 4;
+# nama section di penanda TANPA slash agar tidak memicu signature skill
+PROBE_PATHS = ["/files/", "/debug", "/swagger", "/api-docs"]
+
 
 def detections(findings_doc: dict) -> list[dict]:
     """Baris findings.json yang termasuk 'deteksi' (verdict >= 1)."""
     return [f for f in findings_doc.get("findings", [])
             if f.get("verdict", 0) >= 1]
+
+
+def _norm(tool: str, title: str, target: str) -> tuple[str, str]:
+    """Normalisasi (tool, title): URL target (port ephemeral berubah
+    antar-run) diganti <TARGET> supaya perbandingan reproducibility
+    mengukur konsistensi deteksi, bukan konsistensi port."""
+    return (tool, title.replace(target, "<TARGET>"))
 
 
 def metrics(expected_tools: set[str], rows: list[dict]) -> dict:
@@ -76,58 +123,142 @@ def metrics(expected_tools: set[str], rows: list[dict]) -> dict:
     }
 
 
+def _serve_alive(mode: str):
+    """Angkat server uji dan JANGankan: serve_forever di thread daemon.
+    Tanpa ini koneksi hanya menumpuk di backlog (tak pernah di-accept —
+    penyebab 'Fetch failed' run lama) dan shutdown() deadlock."""
+    httpd, port = serve(mode)
+    t = threading.Thread(target=httpd.serve_forever,
+                         kwargs={"poll_interval": 0.05}, daemon=True)
+    t.start()
+    return httpd, port
+
+
+def _fetch(url: str) -> tuple[int, str, dict]:
+    req = urllib.request.Request(url, headers={"User-Agent": UA})
+    try:
+        with urllib.request.urlopen(req, timeout=FETCH_TIMEOUT) as r:
+            return r.status, r.read(1_000_000).decode("utf-8",
+                                                      errors="replace"), dict(r.headers)
+    except urllib.error.HTTPError as e:
+        return e.code, e.read(1_000_000).decode("utf-8",
+                                                errors="replace"), dict(e.headers)
+
+
+def _capture_evidence(base: str, capture_dir: Path) -> dict:
+    """Fase capture: root (body + headers) + probe path ter-bounded.
+    Body digabung ke SATU file (skill menerima satu @EVIDENCE@);
+    penanda section tanpa slash. Fail-closed: root gagal = raise."""
+    capture_dir.mkdir(parents=True, exist_ok=True)
+    code, root_body, headers = _fetch(base + "/")
+    if code != 200:
+        raise RuntimeError(f"capture root {base}/ gagal: HTTP {code} "
+                           f"(server uji tidak sehat — run dibatalkan, "
+                           f"tanpa metrik)")
+    sections = [f"<!-- cyphron-evidence section=0 name=root -->\n{root_body}"]
+    for i, p in enumerate(PROBE_PATHS, start=1):
+        code_p, body_p, _ = _fetch(base + p)
+        name = p.strip("/").replace("/", "-") or f"probe{i}"
+        sections.append(f"<!-- cyphron-evidence section={i} "
+                        f"name={name} status={code_p} -->\n{body_p}")
+    page = capture_dir / "page.html"
+    page.write_text("\n".join(sections), encoding="utf-8")
+    # sibling headers — format yang dibaca load_headers skill: JSON dict
+    Path(str(page) + ".headers").write_text(
+        json.dumps(headers, ensure_ascii=False, indent=1), encoding="utf-8")
+    return {"page": str(page), "root_status": code,
+            "probes": PROBE_PATHS, "requests": 1 + len(PROBE_PATHS)}
+
+
 def _run_scan(binary: str, target: str, out_dir: Path, mode: str,
-              registry: str | None = None) -> dict:
-    out = out_dir / f"scan-{mode}.json"
+              evidence: Path | None, registry: str | None = None,
+              suffix: str = "") -> dict:
+    """Satu scan. evidence=None = scan live (skill 1-request jalan,
+    skill requires_evidence di-skip binary); evidence terisi = scan bukti
+    (kebijakan binary: skill 1-request di-skip saat --evidence — mode
+    bukti nol-request). Benchmark butuh KEDUANYA, digabung pemanggil."""
+    out = out_dir / f"run-{mode}{suffix}"
+    # run dir bersih — file skill sisa run lama tidak boleh terbaca
+    # sebagai hasil run baru (kontaminasi metrik)
+    shutil.rmtree(out, ignore_errors=True)
     cmd = [binary, "scan", "--mode", "tier0", "--target", target,
-           "--out", str(out_dir / f"run-{mode}")]
+           "--out", str(out)]
+    if evidence is not None:
+        cmd += ["--evidence", str(evidence)]
     if registry:
-        # registry mini terdokumentasi: 11 skill ground-truth + 5 skill
-        # noise (FP probe) — bukan inventaris penuh 92 skill
         cmd += ["--registry", registry]
     proc = subprocess.run(cmd, capture_output=True, text=True,
                           timeout=600, cwd=str(ROOT))
     if proc.returncode != 0:
-        raise RuntimeError(f"scan {mode} exit {proc.returncode}: "
+        raise RuntimeError(f"scan {mode}{suffix} exit {proc.returncode}: "
                            f"{proc.stderr[-400:]}")
-    merged = out_dir / "run-{0}".format(mode) / "findings.json"
+    merged = out / "findings.json"
+    if not merged.exists():
+        raise RuntimeError(f"scan {mode}{suffix}: findings.json tidak "
+                           f"tercipta (fail-closed — tanpa metrik)")
     return json.loads(merged.read_text(encoding="utf-8"))
+
+
+def _scan_both(binary: str, target: str, out_dir: Path, mode: str,
+               capture_page: Path, registry: str | None) -> tuple[list, list]:
+    """Scan bukti (12 skill evidence) + scan live (3 skill 1-request),
+    kembalikan (semua baris findings gabungan, baris deteksi gabungan).
+    Skill 1-request saat --evidence di-skip binary (kebijakan mode
+    bukti nol-request) — dipisah scan, digabung di sisi harness."""
+    doc_e = _run_scan(binary, target, out_dir, mode, capture_page, registry)
+    doc_l = _run_scan(binary, target, out_dir, mode, None, registry,
+                      suffix="-live")
+    rows = (doc_e.get("findings", []) + doc_l.get("findings", []))
+    return rows, [r for r in rows if r.get("verdict", 0) >= 1]
 
 
 def run_benchmark(binary: str, out_dir: Path,
                   registry: str | None = None) -> dict:
     out_dir.mkdir(parents=True, exist_ok=True)
     result: dict = {"started_at": time.time(), "registry": registry,
+                    "harness": "benchmark_accuracy/2 (capture+serve_forever)",
                     "runs": {}}
+    norm_sets: dict[str, set] = {}
+    targets: dict[str, str] = {}
 
     for mode in ("vulnerable", "hardened"):
-        httpd, port = serve(mode)
+        httpd, port = _serve_alive(mode)
         try:
-            doc = _run_scan(binary, f"http://127.0.0.1:{port}", out_dir, mode,
-                            registry)
+            base = f"http://127.0.0.1:{port}"
+            cap = _capture_evidence(base, out_dir / f"capture-{mode}")
+            rows, det = _scan_both(binary, base, out_dir, mode,
+                                   Path(cap["page"]), registry)
         finally:
             httpd.shutdown()
-        rows = detections(doc)
+            httpd.server_close()
+        targets[mode] = base
+        # request per mode: 5 capture + 3 live (cors/robots/error-oracle)
+        result["runs"][mode] = {"capture": cap, "requests_total": 8}
         expected = EXPECTED_TOOLS if mode == "vulnerable" else set()
-        result["runs"][mode] = metrics(expected, rows)
-        result["runs"][mode]["raw_titles"] = [
-            f"{r.get('tool')}: {r.get('title', '')[:90]}" for r in rows]
+        m = metrics(expected, det)
+        m["raw_titles"] = [f"{r.get('tool')}: {r.get('title', '')[:90]}"
+                           for r in det]
+        result["runs"][mode].update(m)
+        norm_sets[mode] = {_norm(r.get("tool", "?"), r.get("title", ""), base)
+                           for r in det}
 
-    # reproducibility: vulnerable diulang, himpunan (tool, title) harus sama
-    httpd, port = serve("vulnerable")
+    # reproducibility: vulnerable diulang, himpunan (tool, title-norm) sama
+    httpd, port = _serve_alive("vulnerable")
     try:
-        doc2 = _run_scan(binary, f"http://127.0.0.1:{port}", out_dir,
-                         "vulnerable-repeat", registry)
+        base2 = f"http://127.0.0.1:{port}"
+        cap2 = _capture_evidence(base2, out_dir / "capture-vulnerable-repeat")
+        _, det2 = _scan_both(binary, base2, out_dir, "vulnerable-repeat",
+                             Path(cap2["page"]), registry)
     finally:
         httpd.shutdown()
-    set1 = {(r.get("tool"), r.get("title")) for r in detections(doc2)}
-    set2 = {(t, title) for t, title in
-            ((r.get("tool"), r["title"]) for r in
-             json.loads((out_dir / "run-vulnerable" / "findings.json")
-                        .read_text(encoding="utf-8"))["findings"]
-            if r.get("verdict", 0) >= 1)}
-    result["reproducible"] = set1 == set2
+        httpd.server_close()
+    targets["vulnerable-repeat"] = base2
+    norm_sets["vulnerable-repeat"] = {
+        _norm(r.get("tool", "?"), r.get("title", ""), base2) for r in det2}
+    result["reproducible"] = (norm_sets["vulnerable"]
+                              == norm_sets["vulnerable-repeat"])
     result["verdict"] = _verdict(result)
+    result["finished_at"] = time.time()
     (out_dir / "accuracy.json").write_text(
         json.dumps(result, indent=2, ensure_ascii=False), encoding="utf-8")
     return result
@@ -148,7 +279,8 @@ def print_report(result: dict) -> None:
         r = result["runs"][mode]
         print(f"[{mode}] deteksi={r['detections']} TP={r['tp']} "
               f"FP={r['fp_count']} FN={len(r['fn'])} "
-              f"precision={r['precision']} recall={r['recall']}")
+              f"precision={r['precision']} recall={r['recall']} "
+              f"(requests={r.get('requests_total', '?')})")
         if r["fn"]:
             print("  FN (tidak ditemukan):", ", ".join(r["fn"]))
         if r["fp_tools"]:
@@ -168,7 +300,7 @@ def main() -> int:
                     help="cetak metrik dari accuracy.json tanpa scan")
     ap.add_argument("--registry", default=str(ROOT / "tools"
                                               / "benchmark_registry.json"),
-                    help="registry untuk scan benchmark (default: mini 16 skill)")
+                    help="registry untuk scan benchmark (default: mini 14 skill)")
     args = ap.parse_args()
     if args.report:
         print_report(json.loads(Path(args.report).read_text(encoding="utf-8")))

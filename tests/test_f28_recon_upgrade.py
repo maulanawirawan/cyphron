@@ -182,6 +182,22 @@ class SmugglingClueTest(unittest.TestCase):
         self.assertEqual(meta["clues"], [])
 
 
+class RateLimitCliTest(unittest.TestCase):
+    def test_cli_smoke_local_fail_fast(self):
+        import subprocess
+        import tempfile
+        out = Path(tempfile.mkdtemp()) / "rl.json"
+        r = subprocess.run(
+            [sys.executable, str(ROOT / "skills" / "rate_limit_validator.py"),
+             "--url", "http://127.0.0.1:1/login", "--attempts", "1",
+             "--lab", "--out", str(out)],
+            capture_output=True, text=True, timeout=60, cwd=str(ROOT))
+        self.assertEqual(r.returncode, 0, r.stderr)
+        doc = json.loads(out.read_text(encoding="utf-8"))
+        self.assertTrue(doc["ok"])
+        self.assertIn("requests", json.dumps(doc["data"]))
+
+
 class RdapTransferLockFpTest(unittest.TestCase):
     """FP regression 2026-10-18: PIR menulis status dengan spasi —
     skill pernah salah klaim 'NOT locked' untuk domain TERKUNCI."""

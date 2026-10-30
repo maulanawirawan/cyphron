@@ -1,1376 +1,1454 @@
 {
- "version": 1,
- "note": "Katalog skill produk (working title: cyphron). Placeholder: @TARGET@ (URL), @DOMAIN@ (domain), @OUT@ (path findings.json), @EVIDENCE@ (bukti mentah tersimpan). safety_class menentukan gerbang orchestrator: mode tier0 hanya menjalankan read-only + 1-request. [OSS edition: active-probe/exploit entries removed]",
- "skills": [
-  {
-   "name": "analytics-tracker-surface",
-   "cmd": [
-    "python",
-    "skills/analytics_tracker_surface.py",
-    "--url",
-    "@TARGET@",
-    "--from-raw",
-    "@EVIDENCE@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "read-only",
-   "needs": "target",
-   "desc": "analytics-tracker-surface — defensif read-only",
-   "requires_evidence": true
-  },
-  {
-   "name": "api-docs-surface",
-   "cmd": [
-    "python",
-    "skills/api_docs_surface.py",
-    "--url",
-    "@TARGET@",
-    "--from-raw",
-    "@EVIDENCE@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "read-only",
-   "needs": "target",
-   "desc": "api-docs-surface — defensif read-only",
-   "requires_evidence": true
-  },
-  {
-   "name": "banner-posture",
-   "cmd": [
-    "python",
-    "skills/banner_posture.py",
-    "--url",
-    "@TARGET@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "1-request",
-   "needs": "target",
-   "desc": "Banner/header halaman utama â€” tepat satu GET (setara kunjungan browser)"
-  },
-  {
-   "name": "banner-posture-evidence",
-   "cmd": [
-    "python",
-    "skills/banner_posture.py",
-    "--url",
-    "@TARGET@",
-    "--from-raw",
-    "@EVIDENCE@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "read-only",
-   "needs": "target",
-   "requires_evidence": true,
-   "desc": "Banner posture dari bukti tersimpan â€” nol request (mode re-run)"
-  },
-  {
-   "name": "cache-control-posture",
-   "cmd": [
-    "python",
-    "skills/cache_control_posture.py",
-    "--url",
-    "@TARGET@",
-    "--from-raw",
-    "@EVIDENCE@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "read-only",
-   "needs": "target",
-   "desc": "cache-control-posture — defensif read-only",
-   "requires_evidence": true
-  },
-  {
-   "name": "cdn-detector",
-   "cmd": [
-    "python",
-    "skills/cdn_detector.py",
-    "--url",
-    "@TARGET@",
-    "--from-raw",
-    "@EVIDENCE@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "read-only",
-   "needs": "target",
-   "desc": "cdn-detector — defensif read-only",
-   "requires_evidence": true
-  },
-  {
-   "name": "clickjacking-protection-checker",
-   "cmd": [
-    "python",
-    "skills/clickjacking_protection_checker.py",
-    "--url",
-    "@TARGET@",
-    "--from-raw",
-    "@EVIDENCE@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "read-only",
-   "needs": "target",
-   "desc": "clickjacking-protection-checker — defensif read-only",
-   "requires_evidence": true
-  },
-  {
-   "name": "cookie-flags-aggregate",
-   "cmd": [
-    "python",
-    "skills/cookie_flags_aggregate.py",
-    "--url",
-    "@TARGET@",
-    "--from-raw",
-    "@EVIDENCE@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "read-only",
-   "needs": "target",
-   "desc": "cookie-flags-aggregate — defensif read-only",
-   "requires_evidence": true
-  },
-  {
-   "name": "cors-checker",
-   "cmd": [
-    "python",
-    "skills/cors_checker.py",
-    "--url",
-    "@TARGET@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "1-request",
-   "needs": "target",
-   "desc": "cors-checker — SATU GET dengan Origin asing; refleksi+kredensial = lead CWE-942; wildcard = terbatas; flag opsional --origin-suffix (+1 request, opt-in manual) menguji trust wildcard-subdomain (refleksi+kredensial = L2)"
-  },
-  {
-   "name": "csp-analyzer",
-   "cmd": [
-    "python",
-    "skills/csp_analyzer.py",
-    "--url",
-    "@TARGET@",
-    "--from-raw",
-    "@EVIDENCE@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "read-only",
-   "needs": "target",
-   "requires_evidence": true,
-   "lab_only": false,
-   "desc": "Analisis Content-Security-Policy dari bukti header tersimpan — 0 request (CWE-693)"
-  },
-  {
-   "name": "ct-inventory",
-   "cmd": [
-    "python",
-    "skills/ct_inventory.py",
-    "--domain",
-    "@DOMAIN@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "read-only",
-   "needs": "domain",
-   "desc": "Inventaris permukaan dari Certificate Transparency log publik"
-  },
-  {
-   "name": "debug-page-detector",
-   "cmd": [
-    "python",
-    "skills/debug_page_detector.py",
-    "--url",
-    "@TARGET@",
-    "--from-raw",
-    "@EVIDENCE@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "read-only",
-   "needs": "target",
-   "desc": "debug-page-detector — defensif read-only",
-   "requires_evidence": true
-  },
-  {
-   "name": "directory-listing-detector",
-   "cmd": [
-    "python",
-    "skills/directory_listing_detector.py",
-    "--url",
-    "@TARGET@",
-    "--from-raw",
-    "@EVIDENCE@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "read-only",
-   "needs": "target",
-   "desc": "directory-listing-detector — defensif read-only",
-   "requires_evidence": true
-  },
-  {
-   "name": "email-sender-surface",
-   "cmd": [
-    "python",
-    "skills/email_sender_surface.py",
-    "--domain",
-    "@DOMAIN@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "1-request",
-   "needs": "domain",
-   "desc": "Kanonik keluarga email: SPF/DMARC/DKIM + sub-check ketat SPF, MTA-STS (1 GET), DNSSEC, CAA — DoH murni kecuali 1 GET MTA-STS (--no-mta-sts untuk nol request)"
-  },
-  {
-   "name": "form-csrf-checker",
-   "cmd": [
-    "python",
-    "skills/form_csrf_checker.py",
-    "--url",
-    "@TARGET@",
-    "--from-raw",
-    "@EVIDENCE@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "read-only",
-   "needs": "target",
-   "desc": "form-csrf-checker — defensif read-only",
-   "requires_evidence": true
-  },
-  {
-   "name": "graphql-surface-detector",
-   "cmd": [
-    "python",
-    "skills/graphql_surface_detector.py",
-    "--url",
-    "@TARGET@",
-    "--from-raw",
-    "@EVIDENCE@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "read-only",
-   "needs": "target",
-   "desc": "graphql-surface-detector — defensif read-only",
-   "requires_evidence": true
-  },
-  {
-   "name": "hsts-preload-checker",
-   "cmd": [
-    "python",
-    "skills/hsts_preload_checker.py",
-    "--url",
-    "@TARGET@",
-    "--from-raw",
-    "@EVIDENCE@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "read-only",
-   "needs": "target",
-   "desc": "hsts-preload-checker — defensif read-only",
-   "requires_evidence": true
-  },
-  {
-   "name": "http-method-allow-checker",
-   "cmd": [
-    "python",
-    "skills/http_method_allow_checker.py",
-    "--url",
-    "@TARGET@",
-    "--from-raw",
-    "@EVIDENCE@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "read-only",
-   "needs": "target",
-   "desc": "http-method-allow-checker — defensif read-only",
-   "requires_evidence": true
-  },
-  {
-   "name": "http-security-headers",
-   "cmd": [
-    "python",
-    "skills/http_security_headers.py",
-    "--url",
-    "@TARGET@",
-    "--from-raw",
-    "@EVIDENCE@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "read-only",
-   "needs": "target",
-   "requires_evidence": true,
-   "desc": "Kanonik keluarga header: presence 6 header keamanan (HSTS/CSP/XFO/XCTO/Referrer/Permissions) + sub-check bocor versi Server/X-Powered-By dari bukti tersimpan — 0 request"
-  },
-  {
-   "name": "http2-support-checker",
-   "cmd": [
-    "python",
-    "skills/http2_support_checker.py",
-    "--url",
-    "@TARGET@",
-    "--from-raw",
-    "@EVIDENCE@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "read-only",
-   "needs": "target",
-   "desc": "http2-support-checker — defensif read-only",
-   "requires_evidence": true
-  },
-  {
-   "name": "js-endpoints",
-   "cmd": [
-    "python",
-    "skills/js_endpoints.py",
-    "--url",
-    "@TARGET@",
-    "--from-raw",
-    "@EVIDENCE@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "read-only",
-   "needs": "target",
-   "requires_evidence": true,
-   "desc": "Permukaan aplikasi dari bukti HTML: script, endpoint API, form, secret-like"
-  },
-  {
-   "name": "js-library-version-checker",
-   "cmd": [
-    "python",
-    "skills/js_library_version_checker.py",
-    "--url",
-    "@TARGET@",
-    "--from-raw",
-    "@EVIDENCE@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "read-only",
-   "needs": "target",
-   "desc": "js-library-version-checker — defensif read-only",
-   "requires_evidence": true
-  },
-  {
-   "name": "js-secret-scanner-v2",
-   "cmd": [
-    "python",
-    "skills/js_secret_scanner_v2.py",
-    "--url",
-    "@TARGET@",
-    "--from-raw",
-    "@EVIDENCE@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "read-only",
-   "needs": "target",
-   "desc": "js-secret-scanner-v2 — defensif read-only",
-   "requires_evidence": true
-  },
-  {
-   "name": "mixed-content-detector",
-   "cmd": [
-    "python",
-    "skills/mixed_content_detector.py",
-    "--url",
-    "@TARGET@",
-    "--from-raw",
-    "@EVIDENCE@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "read-only",
-   "needs": "target",
-   "desc": "mixed-content-detector — defensif read-only",
-   "requires_evidence": true
-  },
-  {
-   "name": "open-graph-leak-checker",
-   "cmd": [
-    "python",
-    "skills/open_graph_leak_checker.py",
-    "--url",
-    "@TARGET@",
-    "--from-raw",
-    "@EVIDENCE@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "read-only",
-   "needs": "target",
-   "desc": "open-graph-leak-checker — defensif read-only",
-   "requires_evidence": true
-  },
-  {
-   "name": "open-redirect-surface",
-   "cmd": [
-    "python",
-    "skills/open_redirect_surface.py",
-    "--url",
-    "@TARGET@",
-    "--from-raw",
-    "@EVIDENCE@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "read-only",
-   "needs": "target",
-   "desc": "open-redirect-surface — defensif read-only",
-   "requires_evidence": true
-  },
-  {
-   "name": "password-autocomplete-checker",
-   "cmd": [
-    "python",
-    "skills/password_autocomplete_checker.py",
-    "--url",
-    "@TARGET@",
-    "--from-raw",
-    "@EVIDENCE@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "read-only",
-   "needs": "target",
-   "desc": "password-autocomplete-checker — defensif read-only",
-   "requires_evidence": true
-  },
-  {
-   "name": "port-banner-consistency-checker",
-   "cmd": [
-    "python",
-    "skills/port_banner_consistency_checker.py",
-    "--url",
-    "@TARGET@",
-    "--from-raw",
-    "@EVIDENCE@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "read-only",
-   "needs": "target",
-   "desc": "port-banner-consistency-checker — defensif read-only",
-   "requires_evidence": true
-  },
-  {
-   "name": "rdap-whois",
-   "cmd": [
-    "python",
-    "skills/rdap_whois.py",
-    "--domain",
-    "@DOMAIN@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "read-only",
-   "needs": "domain",
-   "desc": "Postur domain via RDAP: kedaluwarsa, transfer lock, nameserver"
-  },
-  {
-   "name": "redirect-chain",
-   "cmd": [
-    "python",
-    "skills/redirect_chain.py",
-    "--url",
-    "@TARGET@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "bounded-requests",
-   "needs": "target",
-   "desc": "Rantai redirect: downgrade https, loop, lintas-domain (maks 5 hop)"
-  },
-  {
-   "name": "robots-txt-surface",
-   "cmd": [
-    "python",
-    "skills/robots_txt_surface.py",
-    "--url",
-    "@TARGET@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "1-request",
-   "needs": "target",
-   "desc": "robots-txt-surface — defensif 1-request"
-  },
-  {
-   "name": "security-txt",
-   "cmd": [
-    "python",
-    "skills/security_txt.py",
-    "--domain",
-    "@DOMAIN@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "1-request",
-   "needs": "domain",
-   "desc": "Discovery kanal disclosure resmi (RFC 9116) â€” pintu cari program tanpa register"
-  },
-  {
-   "name": "server-version-disclosure",
-   "cmd": [
-    "python",
-    "skills/server_version_disclosure.py",
-    "--url",
-    "@TARGET@",
-    "--from-raw",
-    "@EVIDENCE@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "read-only",
-   "needs": "target",
-   "desc": "server-version-disclosure — defensif read-only",
-   "requires_evidence": true
-  },
-  {
-   "name": "sitemap-disclosure-checker",
-   "cmd": [
-    "python",
-    "skills/sitemap_disclosure_checker.py",
-    "--url",
-    "@TARGET@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "1-request",
-   "needs": "target",
-   "desc": "sitemap-disclosure-checker — defensif 1-request"
-  },
-  {
-   "name": "sourcemap-exposure-checker",
-   "cmd": [
-    "python",
-    "skills/sourcemap_exposure_checker.py",
-    "--url",
-    "@TARGET@",
-    "--from-raw",
-    "@EVIDENCE@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "read-only",
-   "needs": "target",
-   "desc": "sourcemap-exposure-checker — defensif read-only",
-   "requires_evidence": true
-  },
-  {
-   "name": "sri-checker",
-   "cmd": [
-    "python",
-    "skills/sri_checker.py",
-    "--url",
-    "@TARGET@",
-    "--from-raw",
-    "@EVIDENCE@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "read-only",
-   "needs": "target",
-   "desc": "sri-checker — defensif read-only",
-   "requires_evidence": true
-  },
-  {
-   "name": "ssl-tls-analyzer",
-   "cmd": [
-    "python",
-    "skills/ssl_tls_analyzer.py",
-    "--host",
-    "@DOMAIN@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "1-request",
-   "needs": "domain",
-   "desc": "Sertifikat & protokol TLS: kedaluwarsa, self-signed, protokol lemah"
-  },
-  {
-   "name": "subdomain-enum-surface",
-   "cmd": [
-    "python",
-    "skills/subdomain_enum_surface.py",
-    "--domain",
-    "@DOMAIN@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "read-only",
-   "needs": "domain",
-   "desc": "subdomain-enum-surface — defensif read-only"
-  },
-  {
-   "name": "swagger-ui-surface",
-   "cmd": [
-    "python",
-    "skills/swagger_ui_surface.py",
-    "--url",
-    "@TARGET@",
-    "--from-raw",
-    "@EVIDENCE@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "read-only",
-   "needs": "target",
-   "desc": "swagger-ui-surface — defensif read-only",
-   "requires_evidence": true
-  },
-  {
-   "name": "takeover-cname-hygiene",
-   "cmd": [
-    "python",
-    "skills/takeover_cname_hygiene.py",
-    "--domain",
-    "@DOMAIN@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "read-only",
-   "needs": "domain",
-   "desc": "takeover-cname-hygiene — defensif read-only"
-  },
-  {
-   "name": "tech-fingerprint",
-   "cmd": [
-    "python",
-    "skills/tech_fingerprint.py",
-    "--url",
-    "@TARGET@",
-    "--from-raw",
-    "@EVIDENCE@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "read-only",
-   "needs": "target",
-   "requires_evidence": true,
-   "lab_only": false,
-   "desc": "Fingerprint teknologi dari HTML evidence: WordPress/Joomla/Drupal/Zimbra/Nextcloud/Outlook — 0 request (SURFACE)"
-  },
-  {
-   "name": "third-party-script-risk",
-   "cmd": [
-    "python",
-    "skills/third_party_script_risk.py",
-    "--url",
-    "@TARGET@",
-    "--from-raw",
-    "@EVIDENCE@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "read-only",
-   "needs": "target",
-   "desc": "third-party-script-risk — defensif read-only",
-   "requires_evidence": true
-  },
-  {
-   "name": "tls-cipher-suites-checker",
-   "cmd": [
-    "python",
-    "skills/tls_cipher_suites_checker.py",
-    "--domain",
-    "@DOMAIN@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "1-request",
-   "needs": "domain",
-   "desc": "tls-cipher-suites-checker — defensif 1-request"
-  },
-  {
-   "name": "waf-fingerprint",
-   "cmd": [
-    "python",
-    "skills/waf_fingerprint.py",
-    "--url",
-    "@TARGET@",
-    "--from-raw",
-    "@EVIDENCE@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "read-only",
-   "needs": "target",
-   "desc": "waf-fingerprint — defensif read-only",
-   "requires_evidence": true
-  },
-  {
-   "name": "wayback-history",
-   "cmd": [
-    "python",
-    "skills/wayback_history.py",
-    "--domain",
-    "@DOMAIN@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "1-request",
-   "needs": "domain",
-   "desc": "wayback-history — defensif read-only"
-  },
-  {
-   "name": "well-known-exposure-checker",
-   "cmd": [
-    "python",
-    "skills/well_known_exposure_checker.py",
-    "--url",
-    "@TARGET@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "1-request",
-   "needs": "target",
-   "desc": "well-known-exposure-checker — defensif 1-request"
-  },
-  {
-   "name": "wordpress-rest-surface",
-   "cmd": [
-    "python",
-    "skills/wordpress_rest_surface.py",
-    "--url",
-    "@TARGET@",
-    "--from-raw",
-    "@EVIDENCE@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "read-only",
-   "needs": "target",
-   "desc": "wordpress-rest-surface — defensif read-only",
-   "requires_evidence": true
-  },
-  {
-   "name": "xss-protection-header-checker",
-   "cmd": [
-    "python",
-    "skills/xss_protection_header_checker.py",
-    "--url",
-    "@TARGET@",
-    "--from-raw",
-    "@EVIDENCE@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "read-only",
-   "needs": "target",
-   "desc": "xss-protection-header-checker — defensif read-only",
-   "requires_evidence": true
-  },
-  {
-   "name": "egress-fingerprint-check",
-   "cmd": [
-    "python",
-    "skills/egress_fingerprint_check.py",
-    "--target",
-    "@TARGET@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "1-request",
-   "needs": "none",
-   "desc": "egress-fingerprint-check — self-check identitas jaringan (0 request; 1 bila target echo)",
-   "requires_evidence": false
-  },
-  {
-   "name": "program-discovery",
-   "cmd": [
-    "python",
-    "tools/program_discovery.py",
-    "--seeds",
-    "skills/discovery-seeds.txt",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "bounded-requests",
-   "needs": "none",
-   "desc": "program-discovery — kandidat program bounty/VDP BARU dari sumber publik (security.txt seed / daftar GitHub raw / aggregator, maks 2 GET per domain); kandidat disimpan ke findings/discovery/ untuk dibedah manual; verdict maksimal L1 (bukan klaim kerentanan)",
-   "requires_evidence": false
-  },
-  {
-   "name": "cookie-scope",
-   "cmd": [
-    "python",
-    "skills/cookie_scope.py",
-    "--url",
-    "@TARGET@",
-    "--from-raw",
-    "@EVIDENCE@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "read-only",
-   "needs": "target",
-   "desc": "cookie-scope — audit lingkup cookie dari evidence: Domain eksplisit lintas subdomain + Path=/ pada nama sensitif (CWE-1004); 0 request",
-   "requires_evidence": true
-  },
-  {
-   "name": "graphql-schema-map",
-   "cmd": [
-    "python",
-    "skills/graphql_schema_map.py",
-    "--url",
-    "@TARGET@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "1-request",
-   "needs": "target",
-   "desc": "graphql-schema-map — SATU POST introspection: peta tipe/field GraphQL bila introspection terbuka (CWE-200); fail-closed tanpa schema",
-   "requires_evidence": false
-  },
-  {
-   "name": "file-exposure-checker",
-   "cmd": [
-    "python",
-    "skills/file_exposure_checker.py",
-    "--url",
-    "@TARGET@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "bounded-requests",
-   "needs": "target",
-   "desc": "file-exposure-checker — 5 GET path kandidat SCM/backup (git/config, .env, svn wc.db, .DS_Store, backup.zip); ZERO-FP via verifikasi signature isi, bukan halaman generik (CWE-538); port dir_probe legacy",
-   "requires_evidence": false
-  },
-  {
-   "name": "internal-info-leak-checker",
-   "cmd": [
-    "python",
-    "skills/internal_info_leak_checker.py",
-    "--url",
-    "@TARGET@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "1-request",
-   "needs": "target",
-   "desc": "internal-info-leak-checker — SATU GET; IP privat RFC1918 di respons NON-HTML (konteks HTML dilewati anti-FP), bukti dipotong rendah-profil (CWE-200); port deep_probe legacy",
-   "requires_evidence": false
-  },
-  {
-   "name": "param-probe-checker",
-   "cmd": [
-    "python",
-    "skills/param_probe_checker.py",
-    "--url",
-    "@TARGET@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "bounded-requests",
-   "needs": "target",
-   "desc": "param-probe-checker — penemuan param tersembunyi ala Arjun versi bounded: baseline + kontrol random + maks 12 kandidat = 14 request; zero-FP via kontrol ganda; refleksi = L2, perubahan perilaku = L1 (CWE-471)",
-   "requires_evidence": false
-  },
-  {
-   "name": "archive-url-checker",
-   "cmd": [
-    "python",
-    "skills/archive_url_checker.py",
-    "--domain",
-    "@DOMAIN@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "bounded-requests",
-   "needs": "domain",
-   "desc": "archive-url-checker — padanan waymore/gau: CDX Wayback pasif (1 GET, limit 300) + klasifikasi pola string (api/admin/config/backup/debug) + live re-check maks 5 URL sensitif; port archive_diff legacy",
-   "requires_evidence": false
-  },
-  {
-   "name": "takeover-fingerprint-checker",
-   "cmd": [
-    "python",
-    "skills/takeover_fingerprint_checker.py",
-    "--domain",
-    "@DOMAIN@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "bounded-requests",
-   "needs": "domain",
-   "desc": "takeover-fingerprint-checker — verifikasi fingerprint layanan tak-diklaim pada CNAME dangling (konsep Subzy, maks 2 request); L2 kandidat takeover, wajib verifikasi manual (CWE-350)",
-   "requires_evidence": false
-  },
-  {
-   "name": "smuggling-clue-checker",
-   "cmd": [
-    "python",
-    "skills/smuggling_clue_checker.py",
-    "--url",
-    "@TARGET@",
-    "--from-raw",
-    "@EVIDENCE@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "read-only",
-   "needs": "target",
-   "desc": "smuggling-clue-checker — clue desync PASIF dari keputusan header (CL duplikat / CL+TE / TE non-chunked, konsep smuggler); NOL payload desync dikirim (CWE-444)",
-   "requires_evidence": true
-  },
-  {
-   "name": "console-exposure-checker",
-   "cmd": [
-    "python",
-    "skills/console_exposure_checker.py",
-    "--url",
-    "@TARGET@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "bounded-requests",
-   "needs": "target",
-   "desc": "console-exposure-checker — 5 path konsol framework (Spring actuator, Telescope, Symfony profiler, Solr) dengan signature isi; halaman login generik tidak dihitung (postur)",
-   "requires_evidence": false
-  },
-  {
-   "name": "xmlrpc-surface",
-   "cmd": [
-    "python",
-    "skills/xmlrpc_surface.py",
-    "--url",
-    "@TARGET@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "1-request",
-   "needs": "target",
-   "desc": "xmlrpc-surface — SATU POST system.listMethods; respons XML = antarmuka hidup (L2 lead: pingback SSRF/credential probing klasik) (CWE-200)",
-   "requires_evidence": false
-  },
-  {
-   "name": "header-reflection-matrix",
-   "cmd": [
-    "python",
-    "skills/header_reflection_matrix.py",
-    "--url",
-    "@TARGET@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "bounded-requests",
-   "needs": "target",
-   "desc": "header-reflection-matrix — baseline + 4 header proxy canary (XFF/X-Forwarded-Host/X-Original-URL/X-Rewrite-URL); respons berubah + canary terlihat = L2 lead bypass ACL (CWE-348); port header_reflection legacy",
-   "requires_evidence": false
-  },
-  {
-   "name": "error-oracle",
-   "cmd": [
-    "python",
-    "skills/error_oracle.py",
-    "--url",
-    "@TARGET@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "1-request",
-   "needs": "target",
-   "desc": "error-oracle — SATU GET path canary acak; signature ketat error DB / stack trace / debug framework di error page = L2/L1 (CWE-209); 404 generik = AMAN; 403/429 = tanpa klaim",
-   "requires_evidence": false
-  },
-  {
-   "name": "dns-axfr-check",
-   "cmd": [
-    "python",
-    "skills/dns_axfr_check.py",
-    "--domain",
-    "@DOMAIN@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "bounded-requests",
-   "needs": "domain",
-   "desc": "dns-axfr-check — zone transfer (AXFR RFC 5936) pada NS domain; transfer valid SOA..SOA = L2 lead wajib verifikasi manual (CWE-200); maks 2 koneksi TCP/53",
-   "requires_evidence": false
-  },
-  {
-   "name": "spf-dmarc-posture",
-   "cmd": [
-    "python",
-    "skills/spf_dmarc_posture.py",
-    "--domain",
-    "@DOMAIN@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "read-only",
-   "needs": "domain",
-   "desc": "spf-dmarc-posture — postur anti-spoofing email via 2 query TXT pasif; SPF hilang / DMARC hilang / p=none = L1 lead faktual (postur konfigurasi)",
-   "requires_evidence": false
-  },
-  {
-   "name": "api-version-surface",
-   "cmd": [
-    "python",
-    "skills/api_version_surface.py",
-    "--url",
-    "@TARGET@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "bounded-requests",
-   "needs": "target",
-   "desc": "api-version-surface — inventaris versi API hidup (maks 4 GET: /api + v1..v3); versi lama hidup = lead L1 inventaris, bukan klaim kerentanan",
-   "requires_evidence": false
-  },
-  {
-   "name": "cloud-bucket-exposure",
-   "cmd": [
-    "python",
-    "skills/cloud_bucket_exposure.py",
-    "--domain",
-    "@DOMAIN@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "bounded-requests",
-   "needs": "domain",
-   "desc": "cloud-bucket-exposure — bucket nama-turunan-domain yang terbuka listing publik (maks 4 GET); L1 lead, kepemilikan TIDAK terverifikasi — wajib verifikasi manual (CWE-732)",
-   "requires_evidence": false
-  },
-  {
-   "name": "github-leak-check",
-   "cmd": [
-    "python",
-    "skills/github_leak_check.py",
-    "--domain",
-    "@DOMAIN@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "bounded-requests",
-   "needs": "domain",
-   "desc": "github-leak-check — OPT-IN ketat (env CYPHRON_GH_TOKEN; tanpa itu dilewati nol request): kode publik merujuk domain + indikator secret = L1 lead verifikasi manual, konten file tidak diambil (CWE-798)",
-   "requires_evidence": false
-  },
-  {
-   "name": "favicon-fingerprint",
-   "cmd": [
-    "python",
-    "skills/favicon_fingerprint.py",
-    "--url",
-    "@TARGET@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "1-request",
-   "needs": "target",
-   "desc": "favicon-fingerprint — SATU GET /favicon.ico; hash MurmurHash3 x86_32 atas body base64 (konvensi layanan favicon-hash eksternal, implementasi stdlib clean-room terverifikasi vektor); L1 inventaris, bukan klaim kerentanan",
-   "requires_evidence": false
-  },
-  {
-   "name": "antibot-posture",
-   "cmd": [
-    "python",
-    "skills/antibot_posture.py",
-    "--url",
-    "@TARGET@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "bounded-requests",
-   "needs": "target",
-   "desc": "antibot-posture — posisi pertahanan anti-bot dilihat seperti bot (maks 3 GET): vendor edge terdeteksi (cloudflare/datadome/akamai/imperva/kasada/aws-waf/recaptcha/turnstile/hcaptcha), header rate-limit, determinisme 2 GET identik; lead maks L1 (CWE-770/330)",
-   "requires_evidence": false
-  },
-  {
-   "name": "tls-heartbeat-overread",
-   "cmd": [
-    "python",
-    "skills/tls_heartbeat_overread.py",
-    "--url",
-    "@TARGET@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "active-probe",
-   "needs": "target",
-   "desc": "tls-heartbeat-overread — deteksi dini memory-disclosure kelas Heartbleed (CVE-2014-0160, CWE-125) NON-DESTRUKTIF: 1 heartbeat probe (refined: --port utk layanan TLS legacy/IoT non-443), overread = lead L3; konten memori yang bocor TIDAK disimpan (zero data retention)",
-   "requires_evidence": false
-  },
-  {
-   "name": "llm-endpoint-surface",
-   "cmd": [
-    "python",
-    "skills/llm_endpoint_surface.py",
-    "--url",
-    "@TARGET@",
-    "--from-raw",
-    "@EVIDENCE@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "read-only",
-   "needs": "target",
-   "desc": "llm-endpoint-surface — permukaan AI/LLM dari bukti HTML/JS (NOL request): path API generasi / nama model / framework AI eksplisit = L1 inventaris; kata generik tidak dihitung (anti-FP); tanpa marker = AMAN",
-   "requires_evidence": true
-  },
-  {
-   "name": "litellm-posture",
-   "cmd": [
-    "python",
-    "skills/litellm_posture.py",
-    "--url",
-    "@TARGET@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "bounded-requests",
-   "needs": "target",
-   "desc": "litellm-posture — deteksi proxy LiteLLM dari target (maks 3 GET): token eksplisit 'litellm' = L1 lead + versi eksplisit sbg fakta utk cve-matcher (KB CVE-2026-42208 + KEV BerriAI::LiteLLM); tanpa marker = AMAN",
-   "requires_evidence": false
-  },
-  {
-   "name": "wp-posture",
-   "cmd": [
-    "python",
-    "skills/wp_posture.py",
-    "--url",
-    "@TARGET@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "bounded-requests",
-   "needs": "target",
-   "desc": "wp-posture — postur instalasi WordPress dari target (maks 6 GET, tanpa bruteforce): enumerasi user via REST (200+slug guest = L3 reportable), versi di meta generator (L1 + fakta cve-matcher), xmlrpc hidup (L1), wp-login (L1), wp-config backup/debug.log ter-expose (L2); bukan WP = AMAN",
-   "requires_evidence": false
-  },
-  {
-   "name": "gitlab-posture",
-   "cmd": [
-    "python",
-    "skills/gitlab_posture.py",
-    "--url",
-    "@TARGET@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "bounded-requests",
-   "needs": "target",
-   "desc": "gitlab-posture — deteksi instance GitLab self-managed dari target (maks 3 GET /users/sign_in,/help,/explore): token eksplisit 'gitlab' = L1 lead + versi eksplisit sbg fakta utk cve-matcher (KB CVE-2026-110264 multi-branch + watchlist); tanpa marker = AMAN; gagal jaringan = tanpa klaim AMAN",
-   "requires_evidence": false
-  },
-  {
-   "name": "beyondtrust-posture",
-   "cmd": [
-    "python",
-    "skills/beyondtrust_posture.py",
-    "--url",
-    "@TARGET@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "bounded-requests",
-   "needs": "target",
-   "desc": "beyondtrust-posture — deteksi appliance BeyondTrust/Bomgar Remote Support/PRA dari target (maks 3 GET /login,/appliance/login,/): signature ketat token 'beyondtrust'/'bomgar' = L1 lead + fakta versi utk cve-matcher (alias KEV + watchlist CVE-2026-102764); frasa generik 'remote support' TIDAK dihitung; tanpa marker = AMAN",
-   "requires_evidence": false
-  },
-  {
-   "name": "mcp-exposure",
-   "cmd": [
-    "python",
-    "skills/mcp_exposure.py",
-    "--url",
-    "@TARGET@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "bounded-requests",
-   "needs": "target",
-   "desc": "mcp-exposure — deteksi server MCP terbuka dari target (maks 3 GET /sse,/mcp,/messages; TANPA POST initialize): token 'mcp' word-boundary / frasa 'model context protocol' / shape transport (SSE endpoint-event, JSON-RPC error di /mcp, header Mcp-*) = L1 lead; tanpa marker = AMAN; latar: CSA 200rb instance + NSA CSI",
-   "requires_evidence": false
-  },
-  {
-   "name": "ollama-posture",
-   "cmd": [
-    "python",
-    "skills/ollama_posture.py",
-    "--url",
-    "@TARGET@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "bounded-requests",
-   "needs": "target",
-   "desc": "ollama-posture — deteksi API Ollama terbuka dari target (maks 2 GET /api/version,/api/tags): token 'ollama' ATAU shape eksklusif /api/tags (models+name+digest) = L1 lead + versi eksplisit sbg fakta utk cve-matcher (KB CVE-2024-37032 Probllama fix 0.1.34); nama model tidak dimuat (hanya jumlah); tanpa marker = AMAN",
-   "requires_evidence": false
-  },
-  {
-   "name": "vllm-posture",
-   "cmd": [
-    "python",
-    "skills/vllm_posture.py",
-    "--url",
-    "@TARGET@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "bounded-requests",
-   "needs": "target",
-   "desc": "vllm-posture — deteksi server vLLM terbuka (maks 3 GET /metrics,/version,/v1/models): token 'vllm' (termasuk metrik 'vllm:*') = L1 lead + versi eksplisit sbg fakta utk cve-matcher; shape generik OpenAI TIDAK dihitung (anti-FP antar-gateway); /metrics terbuka = info-leak; tanpa marker = AMAN",
-   "requires_evidence": false
-  },
-  {
-   "name": "openwebui-posture",
-   "cmd": [
-    "python",
-    "skills/openwebui_posture.py",
-    "--url",
-    "@TARGET@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "bounded-requests",
-   "needs": "target",
-   "desc": "openwebui-posture — deteksi Open WebUI terbuka (maks 3 GET /api/config,/api/version,/health): token 'open-webui' = L1 lead + versi sbg fakta utk cve-matcher; shape version generik TIDAK dihitung; tanpa marker = AMAN",
-   "requires_evidence": false
-  },
-  {
-   "name": "php-posture",
-   "cmd": [
-    "python",
-    "skills/php_posture.py",
-    "--url",
-    "@TARGET@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "bounded-requests",
-   "needs": "target",
-   "desc": "php-posture — postur runtime PHP (F66a): marker PHP dari X-Powered-By/Server/PHPSESSID/error body, easter-egg expose_php (GIF89a), phpinfo.php/info.php; versi eksplisit = fakta cve-matcher (KB php2shell 4.0.0..8.5.12); bounded 4 GET, zero-FP signature ketat"
-  },
-  {
-   "name": "brotli-stack-surface",
-   "cmd": [
-    "python",
-    "skills/brotli_stack_surface.py",
-    "--url",
-    "@TARGET@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "1-request",
-   "needs": "target",
-   "desc": "brotli-stack-surface — SATU GET Accept-Encoding br: Content-Encoding br = Brotli aktif (L0); marker Express/connect.sid/__NEXT_DATA__/Kestrel/ASP.NET = L1 stack Node.js (watchlist CVE-2026-111497); tanpa marker = AMAN"
-  },
-  {
-   "name": "wp-plugin-surface",
-   "cmd": [
-    "python",
-    "skills/wp_plugin_surface.py",
-    "--url",
-    "@TARGET@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "bounded-requests",
-   "needs": "target",
-   "desc": "wp-plugin-surface — permukaan plugin WordPress bounded 6 GET: readme.txt publik 5 plugin kandidat (bricksforge/elementor/woocommerce/contact-form-7/wordpress-seo) -> versi 'Stable tag' sbg fakta cve-matcher + watchlist CVE-2026-85097; bukan WP = AMAN"
-  },
-  {
-   "name": "magento-surface",
-   "cmd": [
-    "python",
-    "skills/magento_surface.py",
-    "--url",
-    "@TARGET@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "bounded-requests",
-   "needs": "target",
-   "desc": "magento-surface — deteksi Adobe Commerce/Magento bounded 3 GET (/magento_version,/customer/account/login/,/downloader/): signature Magento/X.Y.Z = fakta versi + lead L1 (KEV CVE-2026-48356, verify manual); tanpa marker = AMAN"
-  },
-  {
-   "name": "agent-instruction-exposure",
-   "cmd": [
-    "python",
-    "skills/agent_instruction_exposure.py",
-    "--url",
-    "@TARGET@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "bounded-requests",
-   "needs": "target",
-   "desc": "agent-instruction-exposure — file instruksi agen AI ter-expose bounded 5 GET (/AGENTS.md,/CLAUDE.md,/.cursorrules,/.mcp.json,/.windsurfrules): signature ketat + anti-fallback SPA; AGENTS/CLAUDE/MCP = L2 CWE-538; tanpa marker = AMAN"
-  },
-  {
-   "name": "repo-secret-scan",
-   "cmd": [
-    "python",
-    "skills/repo_secret_scan.py",
-    "--source",
-    "@SOURCE@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "read-only",
-   "needs": "source",
-   "desc": "Deteksi rahasia ter-hardcode di source lokal (masking nilai, 0 request)"
-  },
-  {
-   "name": "infra-config-audit",
-   "cmd": [
-    "python",
-    "skills/infra_config_audit.py",
-    "--source",
-    "@SOURCE@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "read-only",
-   "needs": "source",
-   "desc": "Audit konfigurasi deploy lokal: compose ports/privileged, nginx headers/TLS, env example"
-  },
-  {
-   "name": "rdap-enrichment",
-   "cmd": [
-    "python",
-    "skills/rdap_enrichment.py",
-    "--domain",
-    "@DOMAIN@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "read-only",
-   "needs": "domain",
-   "desc": "Postur domain + drift antar-run: ganti registrar/NS, hold, expiry (<30 hari)"
-  },
-  {
-   "name": "typosquat-watch",
-   "cmd": [
-    "python",
-    "skills/typosquat_watch.py",
-    "--domain",
-    "@DOMAIN@",
-    "--out",
-    "@OUT@"
-   ],
-   "safety_class": "read-only",
-   "needs": "domain",
-   "desc": "CT drift: sertifikat baru dengan nama tak dikenal pada domain seed + generator permutasi kembar (1 request)"
-  }
- ]
+  "version": 1,
+  "note": "Katalog skill produk (working title: cyphron). Placeholder: @TARGET@ (URL), @DOMAIN@ (domain), @OUT@ (path findings.json), @EVIDENCE@ (bukti mentah tersimpan). safety_class menentukan gerbang orchestrator: mode tier0 hanya menjalankan read-only + 1-request.",
+  "skills": [
+    {
+      "name": "analytics-tracker-surface",
+      "cmd": [
+        "python",
+        "skills/analytics_tracker_surface.py",
+        "--url",
+        "@TARGET@",
+        "--from-raw",
+        "@EVIDENCE@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "read-only",
+      "needs": "target",
+      "desc": "analytics-tracker-surface — defensif read-only",
+      "requires_evidence": true
+    },
+    {
+      "name": "api-docs-surface",
+      "cmd": [
+        "python",
+        "skills/api_docs_surface.py",
+        "--url",
+        "@TARGET@",
+        "--from-raw",
+        "@EVIDENCE@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "read-only",
+      "needs": "target",
+      "desc": "api-docs-surface — defensif read-only",
+      "requires_evidence": true
+    },
+    {
+      "name": "banner-posture",
+      "cmd": [
+        "python",
+        "skills/banner_posture.py",
+        "--url",
+        "@TARGET@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "1-request",
+      "needs": "target",
+      "desc": "Banner/header halaman utama â€” tepat satu GET (setara kunjungan browser)"
+    },
+    {
+      "name": "banner-posture-evidence",
+      "cmd": [
+        "python",
+        "skills/banner_posture.py",
+        "--url",
+        "@TARGET@",
+        "--from-raw",
+        "@EVIDENCE@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "read-only",
+      "needs": "target",
+      "requires_evidence": true,
+      "desc": "Banner posture dari bukti tersimpan â€” nol request (mode re-run)"
+    },
+    {
+      "name": "cache-control-posture",
+      "cmd": [
+        "python",
+        "skills/cache_control_posture.py",
+        "--url",
+        "@TARGET@",
+        "--from-raw",
+        "@EVIDENCE@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "read-only",
+      "needs": "target",
+      "desc": "cache-control-posture — defensif read-only",
+      "requires_evidence": true
+    },
+    {
+      "name": "cdn-detector",
+      "cmd": [
+        "python",
+        "skills/cdn_detector.py",
+        "--url",
+        "@TARGET@",
+        "--from-raw",
+        "@EVIDENCE@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "read-only",
+      "needs": "target",
+      "desc": "cdn-detector — defensif read-only",
+      "requires_evidence": true
+    },
+    {
+      "name": "clickjacking-protection-checker",
+      "cmd": [
+        "python",
+        "skills/clickjacking_protection_checker.py",
+        "--url",
+        "@TARGET@",
+        "--from-raw",
+        "@EVIDENCE@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "read-only",
+      "needs": "target",
+      "desc": "clickjacking-protection-checker — defensif read-only",
+      "requires_evidence": true
+    },
+    {
+      "name": "cookie-flags-aggregate",
+      "cmd": [
+        "python",
+        "skills/cookie_flags_aggregate.py",
+        "--url",
+        "@TARGET@",
+        "--from-raw",
+        "@EVIDENCE@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "read-only",
+      "needs": "target",
+      "desc": "cookie-flags-aggregate — defensif read-only",
+      "requires_evidence": true
+    },
+    {
+      "name": "cors-checker",
+      "cmd": [
+        "python",
+        "skills/cors_checker.py",
+        "--url",
+        "@TARGET@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "1-request",
+      "needs": "target",
+      "desc": "cors-checker — SATU GET dengan Origin asing; refleksi+kredensial = lead CWE-942; wildcard = terbatas; flag opsional --origin-suffix (+1 request, opt-in manual) menguji trust wildcard-subdomain (refleksi+kredensial = L2)"
+    },
+    {
+      "name": "csp-analyzer",
+      "cmd": [
+        "python",
+        "skills/csp_analyzer.py",
+        "--url",
+        "@TARGET@",
+        "--from-raw",
+        "@EVIDENCE@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "read-only",
+      "needs": "target",
+      "requires_evidence": true,
+      "lab_only": false,
+      "desc": "Analisis Content-Security-Policy dari bukti header tersimpan — 0 request (CWE-693)"
+    },
+    {
+      "name": "ct-inventory",
+      "cmd": [
+        "python",
+        "skills/ct_inventory.py",
+        "--domain",
+        "@DOMAIN@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "read-only",
+      "needs": "domain",
+      "desc": "Inventaris permukaan dari Certificate Transparency log publik"
+    },
+    {
+      "name": "debug-page-detector",
+      "cmd": [
+        "python",
+        "skills/debug_page_detector.py",
+        "--url",
+        "@TARGET@",
+        "--from-raw",
+        "@EVIDENCE@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "read-only",
+      "needs": "target",
+      "desc": "debug-page-detector — defensif read-only",
+      "requires_evidence": true
+    },
+    {
+      "name": "directory-listing-detector",
+      "cmd": [
+        "python",
+        "skills/directory_listing_detector.py",
+        "--url",
+        "@TARGET@",
+        "--from-raw",
+        "@EVIDENCE@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "read-only",
+      "needs": "target",
+      "desc": "directory-listing-detector — defensif read-only",
+      "requires_evidence": true
+    },
+    {
+      "name": "email-sender-surface",
+      "cmd": [
+        "python",
+        "skills/email_sender_surface.py",
+        "--domain",
+        "@DOMAIN@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "1-request",
+      "needs": "domain",
+      "desc": "Kanonik keluarga email: SPF/DMARC/DKIM + sub-check ketat SPF, MTA-STS (1 GET), DNSSEC, CAA — DoH murni kecuali 1 GET MTA-STS (--no-mta-sts untuk nol request)"
+    },
+    {
+      "name": "form-csrf-checker",
+      "cmd": [
+        "python",
+        "skills/form_csrf_checker.py",
+        "--url",
+        "@TARGET@",
+        "--from-raw",
+        "@EVIDENCE@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "read-only",
+      "needs": "target",
+      "desc": "form-csrf-checker — defensif read-only",
+      "requires_evidence": true
+    },
+    {
+      "name": "graphql-surface-detector",
+      "cmd": [
+        "python",
+        "skills/graphql_surface_detector.py",
+        "--url",
+        "@TARGET@",
+        "--from-raw",
+        "@EVIDENCE@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "read-only",
+      "needs": "target",
+      "desc": "graphql-surface-detector — defensif read-only",
+      "requires_evidence": true
+    },
+    {
+      "name": "hsts-preload-checker",
+      "cmd": [
+        "python",
+        "skills/hsts_preload_checker.py",
+        "--url",
+        "@TARGET@",
+        "--from-raw",
+        "@EVIDENCE@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "read-only",
+      "needs": "target",
+      "desc": "hsts-preload-checker — defensif read-only",
+      "requires_evidence": true
+    },
+    {
+      "name": "http-method-allow-checker",
+      "cmd": [
+        "python",
+        "skills/http_method_allow_checker.py",
+        "--url",
+        "@TARGET@",
+        "--from-raw",
+        "@EVIDENCE@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "read-only",
+      "needs": "target",
+      "desc": "http-method-allow-checker — defensif read-only",
+      "requires_evidence": true
+    },
+    {
+      "name": "http-security-headers",
+      "cmd": [
+        "python",
+        "skills/http_security_headers.py",
+        "--url",
+        "@TARGET@",
+        "--from-raw",
+        "@EVIDENCE@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "read-only",
+      "needs": "target",
+      "requires_evidence": true,
+      "desc": "Kanonik keluarga header: presence 6 header keamanan (HSTS/CSP/XFO/XCTO/Referrer/Permissions) + sub-check bocor versi Server/X-Powered-By dari bukti tersimpan — 0 request"
+    },
+    {
+      "name": "http2-support-checker",
+      "cmd": [
+        "python",
+        "skills/http2_support_checker.py",
+        "--url",
+        "@TARGET@",
+        "--from-raw",
+        "@EVIDENCE@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "read-only",
+      "needs": "target",
+      "desc": "http2-support-checker — defensif read-only",
+      "requires_evidence": true
+    },
+    {
+      "name": "js-endpoints",
+      "cmd": [
+        "python",
+        "skills/js_endpoints.py",
+        "--url",
+        "@TARGET@",
+        "--from-raw",
+        "@EVIDENCE@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "read-only",
+      "needs": "target",
+      "requires_evidence": true,
+      "desc": "Permukaan aplikasi dari bukti HTML: script, endpoint API, form, secret-like"
+    },
+    {
+      "name": "js-library-version-checker",
+      "cmd": [
+        "python",
+        "skills/js_library_version_checker.py",
+        "--url",
+        "@TARGET@",
+        "--from-raw",
+        "@EVIDENCE@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "read-only",
+      "needs": "target",
+      "desc": "js-library-version-checker — defensif read-only",
+      "requires_evidence": true
+    },
+    {
+      "name": "js-secret-scanner-v2",
+      "cmd": [
+        "python",
+        "skills/js_secret_scanner_v2.py",
+        "--url",
+        "@TARGET@",
+        "--from-raw",
+        "@EVIDENCE@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "read-only",
+      "needs": "target",
+      "desc": "js-secret-scanner-v2 — defensif read-only",
+      "requires_evidence": true
+    },
+    {
+      "name": "mixed-content-detector",
+      "cmd": [
+        "python",
+        "skills/mixed_content_detector.py",
+        "--url",
+        "@TARGET@",
+        "--from-raw",
+        "@EVIDENCE@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "read-only",
+      "needs": "target",
+      "desc": "mixed-content-detector — defensif read-only",
+      "requires_evidence": true
+    },
+    {
+      "name": "nuclei-templates-scan",
+      "cmd": [
+        "python",
+        "skills/nuclei_runner.py",
+        "--target",
+        "@TARGET@",
+        "--templates",
+        "assets/intel/nuclei-templates",
+        "--severity",
+        "critical,high",
+        "--nuclei",
+        "tools/bin/nuclei/nuclei.exe",
+        "--out",
+        "@OUT@",
+        "--lab"
+      ],
+      "safety_class": "active-probe",
+      "needs": "target",
+      "lab_only": true,
+      "desc": "Scan corpus template komunitas (14k+, hasil intel-sync; filter severity critical+high) â€” active-probe, HANYA mode lab dengan target milik sendiri"
+    },
+    {
+      "name": "open-graph-leak-checker",
+      "cmd": [
+        "python",
+        "skills/open_graph_leak_checker.py",
+        "--url",
+        "@TARGET@",
+        "--from-raw",
+        "@EVIDENCE@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "read-only",
+      "needs": "target",
+      "desc": "open-graph-leak-checker — defensif read-only",
+      "requires_evidence": true
+    },
+    {
+      "name": "open-redirect-surface",
+      "cmd": [
+        "python",
+        "skills/open_redirect_surface.py",
+        "--url",
+        "@TARGET@",
+        "--from-raw",
+        "@EVIDENCE@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "read-only",
+      "needs": "target",
+      "desc": "open-redirect-surface — defensif read-only",
+      "requires_evidence": true
+    },
+    {
+      "name": "password-autocomplete-checker",
+      "cmd": [
+        "python",
+        "skills/password_autocomplete_checker.py",
+        "--url",
+        "@TARGET@",
+        "--from-raw",
+        "@EVIDENCE@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "read-only",
+      "needs": "target",
+      "desc": "password-autocomplete-checker — defensif read-only",
+      "requires_evidence": true
+    },
+    {
+      "name": "port-banner-consistency-checker",
+      "cmd": [
+        "python",
+        "skills/port_banner_consistency_checker.py",
+        "--url",
+        "@TARGET@",
+        "--from-raw",
+        "@EVIDENCE@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "read-only",
+      "needs": "target",
+      "desc": "port-banner-consistency-checker — defensif read-only",
+      "requires_evidence": true
+    },
+    {
+      "name": "rdap-whois",
+      "cmd": [
+        "python",
+        "skills/rdap_whois.py",
+        "--domain",
+        "@DOMAIN@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "read-only",
+      "needs": "domain",
+      "desc": "Postur domain via RDAP: kedaluwarsa, transfer lock, nameserver"
+    },
+    {
+      "name": "redirect-chain",
+      "cmd": [
+        "python",
+        "skills/redirect_chain.py",
+        "--url",
+        "@TARGET@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "bounded-requests",
+      "needs": "target",
+      "desc": "Rantai redirect: downgrade https, loop, lintas-domain (maks 5 hop)"
+    },
+    {
+      "name": "robots-txt-surface",
+      "cmd": [
+        "python",
+        "skills/robots_txt_surface.py",
+        "--url",
+        "@TARGET@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "1-request",
+      "needs": "target",
+      "desc": "robots-txt-surface — defensif 1-request"
+    },
+    {
+      "name": "security-txt",
+      "cmd": [
+        "python",
+        "skills/security_txt.py",
+        "--domain",
+        "@DOMAIN@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "1-request",
+      "needs": "domain",
+      "desc": "Discovery kanal disclosure resmi (RFC 9116) â€” pintu cari program tanpa register"
+    },
+    {
+      "name": "server-version-disclosure",
+      "cmd": [
+        "python",
+        "skills/server_version_disclosure.py",
+        "--url",
+        "@TARGET@",
+        "--from-raw",
+        "@EVIDENCE@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "read-only",
+      "needs": "target",
+      "desc": "server-version-disclosure — defensif read-only",
+      "requires_evidence": true
+    },
+    {
+      "name": "sitemap-disclosure-checker",
+      "cmd": [
+        "python",
+        "skills/sitemap_disclosure_checker.py",
+        "--url",
+        "@TARGET@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "1-request",
+      "needs": "target",
+      "desc": "sitemap-disclosure-checker — defensif 1-request"
+    },
+    {
+      "name": "sourcemap-exposure-checker",
+      "cmd": [
+        "python",
+        "skills/sourcemap_exposure_checker.py",
+        "--url",
+        "@TARGET@",
+        "--from-raw",
+        "@EVIDENCE@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "read-only",
+      "needs": "target",
+      "desc": "sourcemap-exposure-checker — defensif read-only",
+      "requires_evidence": true
+    },
+    {
+      "name": "sri-checker",
+      "cmd": [
+        "python",
+        "skills/sri_checker.py",
+        "--url",
+        "@TARGET@",
+        "--from-raw",
+        "@EVIDENCE@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "read-only",
+      "needs": "target",
+      "desc": "sri-checker — defensif read-only",
+      "requires_evidence": true
+    },
+    {
+      "name": "ssl-tls-analyzer",
+      "cmd": [
+        "python",
+        "skills/ssl_tls_analyzer.py",
+        "--host",
+        "@DOMAIN@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "1-request",
+      "needs": "domain",
+      "desc": "Sertifikat & protokol TLS: kedaluwarsa, self-signed, protokol lemah"
+    },
+    {
+      "name": "subdomain-enum-surface",
+      "cmd": [
+        "python",
+        "skills/subdomain_enum_surface.py",
+        "--domain",
+        "@DOMAIN@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "read-only",
+      "needs": "domain",
+      "desc": "subdomain-enum-surface — defensif read-only"
+    },
+    {
+      "name": "swagger-ui-surface",
+      "cmd": [
+        "python",
+        "skills/swagger_ui_surface.py",
+        "--url",
+        "@TARGET@",
+        "--from-raw",
+        "@EVIDENCE@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "read-only",
+      "needs": "target",
+      "desc": "swagger-ui-surface — defensif read-only",
+      "requires_evidence": true
+    },
+    {
+      "name": "takeover-cname-hygiene",
+      "cmd": [
+        "python",
+        "skills/takeover_cname_hygiene.py",
+        "--domain",
+        "@DOMAIN@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "read-only",
+      "needs": "domain",
+      "desc": "takeover-cname-hygiene — defensif read-only"
+    },
+    {
+      "name": "tech-fingerprint",
+      "cmd": [
+        "python",
+        "skills/tech_fingerprint.py",
+        "--url",
+        "@TARGET@",
+        "--from-raw",
+        "@EVIDENCE@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "read-only",
+      "needs": "target",
+      "requires_evidence": true,
+      "lab_only": false,
+      "desc": "Fingerprint teknologi dari HTML evidence: WordPress/Joomla/Drupal/Zimbra/Nextcloud/Outlook — 0 request (SURFACE)"
+    },
+    {
+      "name": "third-party-script-risk",
+      "cmd": [
+        "python",
+        "skills/third_party_script_risk.py",
+        "--url",
+        "@TARGET@",
+        "--from-raw",
+        "@EVIDENCE@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "read-only",
+      "needs": "target",
+      "desc": "third-party-script-risk — defensif read-only",
+      "requires_evidence": true
+    },
+    {
+      "name": "tls-cipher-suites-checker",
+      "cmd": [
+        "python",
+        "skills/tls_cipher_suites_checker.py",
+        "--domain",
+        "@DOMAIN@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "1-request",
+      "needs": "domain",
+      "desc": "tls-cipher-suites-checker — defensif 1-request"
+    },
+    {
+      "name": "waf-fingerprint",
+      "cmd": [
+        "python",
+        "skills/waf_fingerprint.py",
+        "--url",
+        "@TARGET@",
+        "--from-raw",
+        "@EVIDENCE@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "read-only",
+      "needs": "target",
+      "desc": "waf-fingerprint — defensif read-only",
+      "requires_evidence": true
+    },
+    {
+      "name": "wayback-history",
+      "cmd": [
+        "python",
+        "skills/wayback_history.py",
+        "--domain",
+        "@DOMAIN@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "1-request",
+      "needs": "domain",
+      "desc": "wayback-history — defensif read-only"
+    },
+    {
+      "name": "well-known-exposure-checker",
+      "cmd": [
+        "python",
+        "skills/well_known_exposure_checker.py",
+        "--url",
+        "@TARGET@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "1-request",
+      "needs": "target",
+      "desc": "well-known-exposure-checker — defensif 1-request"
+    },
+    {
+      "name": "wordpress-rest-surface",
+      "cmd": [
+        "python",
+        "skills/wordpress_rest_surface.py",
+        "--url",
+        "@TARGET@",
+        "--from-raw",
+        "@EVIDENCE@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "read-only",
+      "needs": "target",
+      "desc": "wordpress-rest-surface — defensif read-only",
+      "requires_evidence": true
+    },
+    {
+      "name": "xss-protection-header-checker",
+      "cmd": [
+        "python",
+        "skills/xss_protection_header_checker.py",
+        "--url",
+        "@TARGET@",
+        "--from-raw",
+        "@EVIDENCE@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "read-only",
+      "needs": "target",
+      "desc": "xss-protection-header-checker — defensif read-only",
+      "requires_evidence": true
+    },
+    {
+      "name": "egress-fingerprint-check",
+      "cmd": [
+        "python",
+        "skills/egress_fingerprint_check.py",
+        "--target",
+        "@TARGET@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "1-request",
+      "needs": "none",
+      "desc": "egress-fingerprint-check — self-check identitas jaringan (0 request; 1 bila target echo)",
+      "requires_evidence": false
+    },
+    {
+      "name": "program-discovery",
+      "cmd": [
+        "python",
+        "tools/program_discovery.py",
+        "--seeds",
+        "skills/discovery-seeds.txt",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "bounded-requests",
+      "needs": "none",
+      "desc": "program-discovery — kandidat program bounty/VDP BARU dari sumber publik (security.txt seed / daftar GitHub raw / aggregator, maks 2 GET per domain); kandidat disimpan ke findings/discovery/ untuk dibedah manual; verdict maksimal L1 (bukan klaim kerentanan)",
+      "requires_evidence": false
+    },
+    {
+      "name": "exploit-engine",
+      "cmd": [
+        "python",
+        "tools/exploit_engine.py",
+        "--config",
+        "exploit-lab.json",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "state-changing",
+      "needs": "none",
+      "lab_only": true,
+      "desc": "exploit-engine — tier eksploitasi aktif LAB-ONLY (docs/EXPLOIT-TIER.md): gate fail-closed, target wajib exploit_allowed, tangga agresi proof/mutate/destructive, never-list teknik terlarang; tidak pernah tereksekusi di tier0",
+      "requires_evidence": false
+    },
+    {
+      "name": "cookie-scope",
+      "cmd": [
+        "python",
+        "skills/cookie_scope.py",
+        "--url",
+        "@TARGET@",
+        "--from-raw",
+        "@EVIDENCE@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "read-only",
+      "needs": "target",
+      "desc": "cookie-scope — audit lingkup cookie dari evidence: Domain eksplisit lintas subdomain + Path=/ pada nama sensitif (CWE-1004); 0 request",
+      "requires_evidence": true
+    },
+    {
+      "name": "graphql-schema-map",
+      "cmd": [
+        "python",
+        "skills/graphql_schema_map.py",
+        "--url",
+        "@TARGET@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "1-request",
+      "needs": "target",
+      "desc": "graphql-schema-map — SATU POST introspection: peta tipe/field GraphQL bila introspection terbuka (CWE-200); fail-closed tanpa schema",
+      "requires_evidence": false
+    },
+    {
+      "name": "rate-limit-validator",
+      "cmd": [
+        "python",
+        "skills/rate_limit_validator.py",
+        "--url",
+        "@TARGET@",
+        "--field",
+        "username",
+        "--field",
+        "password",
+        "--out",
+        "@OUT@",
+        "--lab"
+      ],
+      "safety_class": "active-probe",
+      "needs": "target",
+      "desc": "rate-limit-validator — mengukur (bukan menyerang): maks 15 percobaan login kredensial-dummy ke SATU endpoint; ACTIVE-PROBE lab-only (tier0 tidak pernah menjalankan); flag --lab di cmd = double fail-closed (CWE-307)",
+      "requires_evidence": false,
+      "lab_only": true
+    },
+    {
+      "name": "file-exposure-checker",
+      "cmd": [
+        "python",
+        "skills/file_exposure_checker.py",
+        "--url",
+        "@TARGET@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "bounded-requests",
+      "needs": "target",
+      "desc": "file-exposure-checker — 5 GET path kandidat SCM/backup (git/config, .env, svn wc.db, .DS_Store, backup.zip); ZERO-FP via verifikasi signature isi, bukan halaman generik (CWE-538); port dir_probe legacy",
+      "requires_evidence": false
+    },
+    {
+      "name": "internal-info-leak-checker",
+      "cmd": [
+        "python",
+        "skills/internal_info_leak_checker.py",
+        "--url",
+        "@TARGET@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "1-request",
+      "needs": "target",
+      "desc": "internal-info-leak-checker — SATU GET; IP privat RFC1918 di respons NON-HTML (konteks HTML dilewati anti-FP), bukti dipotong rendah-profil (CWE-200); port deep_probe legacy",
+      "requires_evidence": false
+    },
+    {
+      "name": "xss-reflect-check",
+      "cmd": [
+        "python",
+        "skills/xss_reflect_check.py",
+        "--url",
+        "@TARGET@",
+        "--param",
+        "q",
+        "--scope-ack",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "active-probe",
+      "needs": "target",
+      "desc": "xss-reflect-check — padanan dalfox versi marker benign: 1 request/param (maks 8), refleksi MENTAH di konteks HTML = L2 lead (zero-FP); ACTIVE-PROBE lab-only (tier0 tidak pernah menjalankan); --scope-ack wajib (CWE-79)",
+      "requires_evidence": false,
+      "lab_only": true
+    },
+    {
+      "name": "param-probe-checker",
+      "cmd": [
+        "python",
+        "skills/param_probe_checker.py",
+        "--url",
+        "@TARGET@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "bounded-requests",
+      "needs": "target",
+      "desc": "param-probe-checker — penemuan param tersembunyi ala Arjun versi bounded: baseline + kontrol random + maks 12 kandidat = 14 request; zero-FP via kontrol ganda; refleksi = L2, perubahan perilaku = L1 (CWE-471)",
+      "requires_evidence": false
+    },
+    {
+      "name": "archive-url-checker",
+      "cmd": [
+        "python",
+        "skills/archive_url_checker.py",
+        "--domain",
+        "@DOMAIN@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "bounded-requests",
+      "needs": "domain",
+      "desc": "archive-url-checker — padanan waymore/gau: CDX Wayback pasif (1 GET, limit 300) + klasifikasi pola string (api/admin/config/backup/debug) + live re-check maks 5 URL sensitif; port archive_diff legacy",
+      "requires_evidence": false
+    },
+    {
+      "name": "takeover-fingerprint-checker",
+      "cmd": [
+        "python",
+        "skills/takeover_fingerprint_checker.py",
+        "--domain",
+        "@DOMAIN@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "bounded-requests",
+      "needs": "domain",
+      "desc": "takeover-fingerprint-checker — verifikasi fingerprint layanan tak-diklaim pada CNAME dangling (konsep Subzy, maks 2 request); L2 kandidat takeover, wajib verifikasi manual (CWE-350)",
+      "requires_evidence": false
+    },
+    {
+      "name": "smuggling-clue-checker",
+      "cmd": [
+        "python",
+        "skills/smuggling_clue_checker.py",
+        "--url",
+        "@TARGET@",
+        "--from-raw",
+        "@EVIDENCE@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "read-only",
+      "needs": "target",
+      "desc": "smuggling-clue-checker — clue desync PASIF dari keputusan header (CL duplikat / CL+TE / TE non-chunked, konsep smuggler); NOL payload desync dikirim (CWE-444)",
+      "requires_evidence": true
+    },
+    {
+      "name": "console-exposure-checker",
+      "cmd": [
+        "python",
+        "skills/console_exposure_checker.py",
+        "--url",
+        "@TARGET@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "bounded-requests",
+      "needs": "target",
+      "desc": "console-exposure-checker — 5 path konsol framework (Spring actuator, Telescope, Symfony profiler, Solr) dengan signature isi; halaman login generik tidak dihitung (postur)",
+      "requires_evidence": false
+    },
+    {
+      "name": "xmlrpc-surface",
+      "cmd": [
+        "python",
+        "skills/xmlrpc_surface.py",
+        "--url",
+        "@TARGET@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "1-request",
+      "needs": "target",
+      "desc": "xmlrpc-surface — SATU POST system.listMethods; respons XML = antarmuka hidup (L2 lead: pingback SSRF/credential probing klasik) (CWE-200)",
+      "requires_evidence": false
+    },
+    {
+      "name": "header-reflection-matrix",
+      "cmd": [
+        "python",
+        "skills/header_reflection_matrix.py",
+        "--url",
+        "@TARGET@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "bounded-requests",
+      "needs": "target",
+      "desc": "header-reflection-matrix — baseline + 4 header proxy canary (XFF/X-Forwarded-Host/X-Original-URL/X-Rewrite-URL); respons berubah + canary terlihat = L2 lead bypass ACL (CWE-348); port header_reflection legacy",
+      "requires_evidence": false
+    },
+    {
+      "name": "error-oracle",
+      "cmd": [
+        "python",
+        "skills/error_oracle.py",
+        "--url",
+        "@TARGET@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "1-request",
+      "needs": "target",
+      "desc": "error-oracle — SATU GET path canary acak; signature ketat error DB / stack trace / debug framework di error page = L2/L1 (CWE-209); 404 generik = AMAN; 403/429 = tanpa klaim",
+      "requires_evidence": false
+    },
+    {
+      "name": "dns-axfr-check",
+      "cmd": [
+        "python",
+        "skills/dns_axfr_check.py",
+        "--domain",
+        "@DOMAIN@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "bounded-requests",
+      "needs": "domain",
+      "desc": "dns-axfr-check — zone transfer (AXFR RFC 5936) pada NS domain; transfer valid SOA..SOA = L2 lead wajib verifikasi manual (CWE-200); maks 2 koneksi TCP/53",
+      "requires_evidence": false
+    },
+    {
+      "name": "spf-dmarc-posture",
+      "cmd": [
+        "python",
+        "skills/spf_dmarc_posture.py",
+        "--domain",
+        "@DOMAIN@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "read-only",
+      "needs": "domain",
+      "desc": "spf-dmarc-posture — postur anti-spoofing email via 2 query TXT pasif; SPF hilang / DMARC hilang / p=none = L1 lead faktual (postur konfigurasi)",
+      "requires_evidence": false
+    },
+    {
+      "name": "api-version-surface",
+      "cmd": [
+        "python",
+        "skills/api_version_surface.py",
+        "--url",
+        "@TARGET@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "bounded-requests",
+      "needs": "target",
+      "desc": "api-version-surface — inventaris versi API hidup (maks 4 GET: /api + v1..v3); versi lama hidup = lead L1 inventaris, bukan klaim kerentanan",
+      "requires_evidence": false
+    },
+    {
+      "name": "cloud-bucket-exposure",
+      "cmd": [
+        "python",
+        "skills/cloud_bucket_exposure.py",
+        "--domain",
+        "@DOMAIN@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "bounded-requests",
+      "needs": "domain",
+      "desc": "cloud-bucket-exposure — bucket nama-turunan-domain yang terbuka listing publik (maks 4 GET); L1 lead, kepemilikan TIDAK terverifikasi — wajib verifikasi manual (CWE-732)",
+      "requires_evidence": false
+    },
+    {
+      "name": "github-leak-check",
+      "cmd": [
+        "python",
+        "skills/github_leak_check.py",
+        "--domain",
+        "@DOMAIN@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "bounded-requests",
+      "needs": "domain",
+      "desc": "github-leak-check — OPT-IN ketat (env CYPHRON_GH_TOKEN; tanpa itu dilewati nol request): kode publik merujuk domain + indikator secret = L1 lead verifikasi manual, konten file tidak diambil (CWE-798)",
+      "requires_evidence": false
+    },
+    {
+      "name": "favicon-fingerprint",
+      "cmd": [
+        "python",
+        "skills/favicon_fingerprint.py",
+        "--url",
+        "@TARGET@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "1-request",
+      "needs": "target",
+      "desc": "favicon-fingerprint — SATU GET /favicon.ico; hash MurmurHash3 x86_32 atas body base64 (konvensi layanan favicon-hash eksternal, implementasi stdlib clean-room terverifikasi vektor); L1 inventaris, bukan klaim kerentanan",
+      "requires_evidence": false
+    },
+    {
+      "name": "antibot-posture",
+      "cmd": [
+        "python",
+        "skills/antibot_posture.py",
+        "--url",
+        "@TARGET@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "bounded-requests",
+      "needs": "target",
+      "desc": "antibot-posture — posisi pertahanan anti-bot dilihat seperti bot (maks 3 GET): vendor edge terdeteksi (cloudflare/datadome/akamai/imperva/kasada/aws-waf/recaptcha/turnstile/hcaptcha), header rate-limit, determinisme 2 GET identik; lead maks L1 (CWE-770/330)",
+      "requires_evidence": false
+    },
+    {
+      "name": "tls-heartbeat-overread",
+      "cmd": [
+        "python",
+        "skills/tls_heartbeat_overread.py",
+        "--url",
+        "@TARGET@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "active-probe",
+      "needs": "target",
+      "desc": "tls-heartbeat-overread — deteksi dini memory-disclosure kelas Heartbleed (CVE-2014-0160, CWE-125) NON-DESTRUKTIF: 1 heartbeat probe (refined: --port utk layanan TLS legacy/IoT non-443), overread = lead L3; konten memori yang bocor TIDAK disimpan (zero data retention)",
+      "requires_evidence": false
+    },
+    {
+      "name": "llm-endpoint-surface",
+      "cmd": [
+        "python",
+        "skills/llm_endpoint_surface.py",
+        "--url",
+        "@TARGET@",
+        "--from-raw",
+        "@EVIDENCE@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "read-only",
+      "needs": "target",
+      "desc": "llm-endpoint-surface — permukaan AI/LLM dari bukti HTML/JS (NOL request): path API generasi / nama model / framework AI eksplisit = L1 inventaris; kata generik tidak dihitung (anti-FP); tanpa marker = AMAN",
+      "requires_evidence": true
+    },
+    {
+      "name": "litellm-posture",
+      "cmd": [
+        "python",
+        "skills/litellm_posture.py",
+        "--url",
+        "@TARGET@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "bounded-requests",
+      "needs": "target",
+      "desc": "litellm-posture — deteksi proxy LiteLLM dari target (maks 3 GET): token eksplisit 'litellm' = L1 lead + versi eksplisit sbg fakta utk cve-matcher (KB CVE-2026-42208 + KEV BerriAI::LiteLLM); tanpa marker = AMAN",
+      "requires_evidence": false
+    },
+    {
+      "name": "wp-posture",
+      "cmd": [
+        "python",
+        "skills/wp_posture.py",
+        "--url",
+        "@TARGET@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "bounded-requests",
+      "needs": "target",
+      "desc": "wp-posture — postur instalasi WordPress dari target (maks 6 GET, tanpa bruteforce): enumerasi user via REST (200+slug guest = L3 reportable), versi di meta generator (L1 + fakta cve-matcher), xmlrpc hidup (L1), wp-login (L1), wp-config backup/debug.log ter-expose (L2); bukan WP = AMAN",
+      "requires_evidence": false
+    },
+    {
+      "name": "gitlab-posture",
+      "cmd": [
+        "python",
+        "skills/gitlab_posture.py",
+        "--url",
+        "@TARGET@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "bounded-requests",
+      "needs": "target",
+      "desc": "gitlab-posture — deteksi instance GitLab self-managed dari target (maks 3 GET /users/sign_in,/help,/explore): token eksplisit 'gitlab' = L1 lead + versi eksplisit sbg fakta utk cve-matcher (KB CVE-2026-110264 multi-branch + watchlist); tanpa marker = AMAN; gagal jaringan = tanpa klaim AMAN",
+      "requires_evidence": false
+    },
+    {
+      "name": "beyondtrust-posture",
+      "cmd": [
+        "python",
+        "skills/beyondtrust_posture.py",
+        "--url",
+        "@TARGET@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "bounded-requests",
+      "needs": "target",
+      "desc": "beyondtrust-posture — deteksi appliance BeyondTrust/Bomgar Remote Support/PRA dari target (maks 3 GET /login,/appliance/login,/): signature ketat token 'beyondtrust'/'bomgar' = L1 lead + fakta versi utk cve-matcher (alias KEV + watchlist CVE-2026-102764); frasa generik 'remote support' TIDAK dihitung; tanpa marker = AMAN",
+      "requires_evidence": false
+    },
+    {
+      "name": "mcp-exposure",
+      "cmd": [
+        "python",
+        "skills/mcp_exposure.py",
+        "--url",
+        "@TARGET@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "bounded-requests",
+      "needs": "target",
+      "desc": "mcp-exposure — deteksi server MCP terbuka dari target (maks 3 GET /sse,/mcp,/messages; TANPA POST initialize): token 'mcp' word-boundary / frasa 'model context protocol' / shape transport (SSE endpoint-event, JSON-RPC error di /mcp, header Mcp-*) = L1 lead; tanpa marker = AMAN; latar: CSA 200rb instance + NSA CSI",
+      "requires_evidence": false
+    },
+    {
+      "name": "ollama-posture",
+      "cmd": [
+        "python",
+        "skills/ollama_posture.py",
+        "--url",
+        "@TARGET@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "bounded-requests",
+      "needs": "target",
+      "desc": "ollama-posture — deteksi API Ollama terbuka dari target (maks 2 GET /api/version,/api/tags): token 'ollama' ATAU shape eksklusif /api/tags (models+name+digest) = L1 lead + versi eksplisit sbg fakta utk cve-matcher (KB CVE-2024-37032 Probllama fix 0.1.34); nama model tidak dimuat (hanya jumlah); tanpa marker = AMAN",
+      "requires_evidence": false
+    },
+    {
+      "name": "vllm-posture",
+      "cmd": [
+        "python",
+        "skills/vllm_posture.py",
+        "--url",
+        "@TARGET@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "bounded-requests",
+      "needs": "target",
+      "desc": "vllm-posture — deteksi server vLLM terbuka (maks 3 GET /metrics,/version,/v1/models): token 'vllm' (termasuk metrik 'vllm:*') = L1 lead + versi eksplisit sbg fakta utk cve-matcher; shape generik OpenAI TIDAK dihitung (anti-FP antar-gateway); /metrics terbuka = info-leak; tanpa marker = AMAN",
+      "requires_evidence": false
+    },
+    {
+      "name": "openwebui-posture",
+      "cmd": [
+        "python",
+        "skills/openwebui_posture.py",
+        "--url",
+        "@TARGET@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "bounded-requests",
+      "needs": "target",
+      "desc": "openwebui-posture — deteksi Open WebUI terbuka (maks 3 GET /api/config,/api/version,/health): token 'open-webui' = L1 lead + versi sbg fakta utk cve-matcher; shape version generik TIDAK dihitung; tanpa marker = AMAN",
+      "requires_evidence": false
+    },
+    {
+      "name": "php-posture",
+      "cmd": [
+        "python",
+        "skills/php_posture.py",
+        "--url",
+        "@TARGET@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "bounded-requests",
+      "needs": "target",
+      "desc": "php-posture — postur runtime PHP (F66a): marker PHP dari X-Powered-By/Server/PHPSESSID/error body, easter-egg expose_php (GIF89a), phpinfo.php/info.php; versi eksplisit = fakta cve-matcher (KB php2shell 4.0.0..8.5.12); bounded 4 GET, zero-FP signature ketat"
+    },
+    {
+      "name": "brotli-stack-surface",
+      "cmd": [
+        "python",
+        "skills/brotli_stack_surface.py",
+        "--url",
+        "@TARGET@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "1-request",
+      "needs": "target",
+      "desc": "brotli-stack-surface — SATU GET Accept-Encoding br: Content-Encoding br = Brotli aktif (L0); marker Express/connect.sid/__NEXT_DATA__/Kestrel/ASP.NET = L1 stack Node.js (watchlist CVE-2026-111497); tanpa marker = AMAN"
+    },
+    {
+      "name": "wp-plugin-surface",
+      "cmd": [
+        "python",
+        "skills/wp_plugin_surface.py",
+        "--url",
+        "@TARGET@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "bounded-requests",
+      "needs": "target",
+      "desc": "wp-plugin-surface — permukaan plugin WordPress bounded 6 GET: readme.txt publik 5 plugin kandidat (bricksforge/elementor/woocommerce/contact-form-7/wordpress-seo) -> versi 'Stable tag' sbg fakta cve-matcher + watchlist CVE-2026-85097; bukan WP = AMAN"
+    },
+    {
+      "name": "magento-surface",
+      "cmd": [
+        "python",
+        "skills/magento_surface.py",
+        "--url",
+        "@TARGET@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "bounded-requests",
+      "needs": "target",
+      "desc": "magento-surface — deteksi Adobe Commerce/Magento bounded 3 GET (/magento_version,/customer/account/login/,/downloader/): signature Magento/X.Y.Z = fakta versi + lead L1 (KEV CVE-2026-48356, verify manual); tanpa marker = AMAN"
+    },
+    {
+      "name": "agent-instruction-exposure",
+      "cmd": [
+        "python",
+        "skills/agent_instruction_exposure.py",
+        "--url",
+        "@TARGET@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "bounded-requests",
+      "needs": "target",
+      "desc": "agent-instruction-exposure — file instruksi agen AI ter-expose bounded 5 GET (/AGENTS.md,/CLAUDE.md,/.cursorrules,/.mcp.json,/.windsurfrules): signature ketat + anti-fallback SPA; AGENTS/CLAUDE/MCP = L2 CWE-538; tanpa marker = AMAN"
+    },
+    {
+      "name": "repo-secret-scan",
+      "cmd": [
+        "python",
+        "skills/repo_secret_scan.py",
+        "--source",
+        "@SOURCE@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "read-only",
+      "needs": "source",
+      "desc": "Deteksi rahasia ter-hardcode di source lokal (masking nilai, 0 request)"
+    },
+    {
+      "name": "infra-config-audit",
+      "cmd": [
+        "python",
+        "skills/infra_config_audit.py",
+        "--source",
+        "@SOURCE@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "read-only",
+      "needs": "source",
+      "desc": "Audit konfigurasi deploy lokal: compose ports/privileged, nginx headers/TLS, env example"
+    },
+    {
+      "name": "rdap-enrichment",
+      "cmd": [
+        "python",
+        "skills/rdap_enrichment.py",
+        "--domain",
+        "@DOMAIN@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "read-only",
+      "needs": "domain",
+      "desc": "Postur domain + drift antar-run: ganti registrar/NS, hold, expiry (<30 hari)"
+    },
+    {
+      "name": "typosquat-watch",
+      "cmd": [
+        "python",
+        "skills/typosquat_watch.py",
+        "--domain",
+        "@DOMAIN@",
+        "--out",
+        "@OUT@"
+      ],
+      "safety_class": "read-only",
+      "needs": "domain",
+      "desc": "CT drift: sertifikat baru dengan nama tak dikenal pada domain seed + generator permutasi kembar (1 request)"
+    }
+  ]
 }

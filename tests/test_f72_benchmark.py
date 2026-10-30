@@ -126,5 +126,48 @@ class TargetServerTest(unittest.TestCase):
             httpd.shutdown()
 
 
+class RobotsFetchHttpErrorTest(unittest.TestCase):
+    """Regresi benchmark 2026-10-30: HTTPError 404 dari urlopen dulu
+    tertangkap except Exception -> status None -> "Fetch failed" verdict 1
+    (noise). 4xx harus balik status asli (dapat dinilai: No resource =
+    AMAN); 5xx tetap fail-closed (None)."""
+
+    def test_httperror_4xx_status_asli_5xx_fail_closed(self):
+        import io
+        import importlib
+        import urllib.error
+        import urllib.request as ureq
+
+        sys.path.insert(0, str(ROOT / "skills"))
+        sys.path.insert(0, str(ROOT / "core"))
+        rbt = importlib.import_module("robots_txt_surface")
+        orig = ureq.urlopen
+        try:
+            def raise404(req, timeout=None):
+                raise urllib.error.HTTPError(
+                    req.full_url, 404, "Not Found",
+                    {"Content-Type": "text/plain"}, io.BytesIO(b""))
+
+            def raise500(req, timeout=None):
+                raise urllib.error.HTTPError(
+                    req.full_url, 500, "Server Error",
+                    {"Content-Type": "text/plain"}, io.BytesIO(b"err"))
+
+            ureq.urlopen = raise404
+            r404 = rbt.fetch("http://127.0.0.1:1/robots.txt")
+            self.assertEqual(r404["status"], 404)  # bukan None -> No resource
+
+            ureq.urlopen = raise500
+            r500 = rbt.fetch("http://127.0.0.1:1/robots.txt")
+            self.assertIsNone(r500["status"])  # server error = tidak dinilai
+
+            # end-to-end via audit: 404 harus verdict 0 (AMAN)
+            rows, _ = rbt.audit("http://t/robots.txt",
+                                {"status": 404, "headers": {}, "body": ""})
+            self.assertEqual(rows[0]["verdict"], 0)
+        finally:
+            ureq.urlopen = orig
+
+
 if __name__ == "__main__":
     unittest.main()
