@@ -295,6 +295,77 @@ class DirectoryListingTest(unittest.TestCase):
         self.assertEqual(one(rows, "No directory listing")["verdict"], 0)
 
 
+class DirectoryListingStrictTest(unittest.TestCase):
+    """F75 — signature ketat + verify reproduced (strategi D)."""
+
+    APACHE = ('<html><head><title>Index of /files</title></head><body>'
+              '<h1>Directory listing</h1>'
+              '<ul><li><a href="../">Parent Directory</a></li>'
+              '<li><a href="a.sql">a.sql</a></li></ul></body></html>')
+
+    def test_strict_listing_labels(self):
+        # label pertama sesuai urutan _STRICT_TEXTS (title duluan)
+        self.assertEqual(dld.strict_listing(self.APACHE),
+                         "title-index-of")
+        # apache tanpa title index-of: label parent-directory
+        html = ('<html><head><title>files</title></head><body>'
+                '<ul><li><a href="../">Parent Directory</a></li>'
+                '<li><a href="a.sql">a.sql</a></li></ul></body></html>')
+        self.assertEqual(dld.strict_listing(html), "parent-directory")
+        # title index-of juga strict (anchor + title)
+        html = ('<html><title>Index of /b</title><body>'
+                '<a href="../">../</a></body></html>')
+        self.assertEqual(dld.strict_listing(html), "title-index-of")
+
+    def test_loose_teks_tanpa_anchor_tidak_strict(self):
+        # artikel soal nginx: teks "Index of /" TANPA anchor ../ = bukan
+        # signature ketat (anti-FP)
+        html = ("<html><title>Index of / di nginx</title>"
+                "<body>ulasan</body></html>")
+        self.assertIsNone(dld.strict_listing(html))
+        rows, meta = dld.audit(URL, html)
+        self.assertEqual(meta["strict"], None)
+        self.assertEqual(meta["matched"], True)  # tetap lead L1
+
+    def test_anchor_tanpa_teks_khas_tidak_strict(self):
+        html = '<html><body><a href="../">naik</a></body></html>'
+        self.assertIsNone(dld.strict_listing(html))
+
+    def test_verify_reproduced_naik_l3(self):
+        rows, meta = dld.audit(URL, self.APACHE)
+        self.assertEqual(rows[0]["verdict"], 1)
+        res = {"status": 200, "body": self.APACHE}
+        rows, meta = dld.apply_verify(rows, meta, URL + "/files/", res)
+        self.assertEqual(meta["verify"]["outcome"], "reproduced")
+        lead = rows[0]
+        self.assertEqual(lead["verdict"], 3)
+        self.assertIn("GET " + URL + "/files/", lead["request"])
+        self.assertIn("capture-2", lead["response"])
+        self.assertTrue(lead["extra"]["verify"]["reproduced"])
+
+    def test_verify_tidak_cocok_tetap_l1(self):
+        rows, meta = dld.audit(URL, self.APACHE)
+        res = {"status": 403, "body": "forbidden"}
+        rows, meta = dld.apply_verify(rows, meta, URL + "/files/", res)
+        self.assertEqual(meta["verify"]["outcome"], "not-reproduced")
+        self.assertEqual(rows[0]["verdict"], 1)
+        self.assertIn("TIDAK menampilkan", rows[0]["description"])
+
+    def test_verify_error_jaringan_tetap_l1(self):
+        rows, meta = dld.audit(URL, self.APACHE)
+        res = {"status": None, "body": "", "error": "URLError"}
+        rows, meta = dld.apply_verify(rows, meta, URL + "/files/", res)
+        self.assertEqual(meta["verify"]["outcome"], "error")
+        self.assertEqual(rows[0]["verdict"], 1)
+
+    def test_verify_tanpa_lead_noop(self):
+        rows, meta = dld.audit(URL, "<html>bersih</html>")
+        res = {"status": 200, "body": self.APACHE}
+        rows, meta = dld.apply_verify(rows, meta, URL, res)
+        self.assertEqual(meta["verify"]["outcome"], "no-lead")
+        self.assertEqual(rows[0]["verdict"], 0)
+
+
 class FormCsrfTest(unittest.TestCase):
     def test_golden_form_without_csrf_is_lead(self):
         html = '<form action="/login" method="post"><input name="u"></form>'

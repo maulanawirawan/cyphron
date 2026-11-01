@@ -177,6 +177,19 @@ positive ke nol pada laporan akhir.
         #text(weight: "bold")[#f.plain_why]
       ]
 
+      // [F75 LANGKAH N] lead PERLU DICEK selalu bawa langkah verifikasi
+      // manual spesifik (URL/setting persis + kriteria lulus/gagal)
+      #if f.manual_steps.len() > 0 [
+        #block(fill: rgb("f8fafc"), stroke: 0.5pt + rgb("cbd5e1"), radius: 3pt, inset: 6pt, width: 100%)[
+          #text(size: 8.5pt, weight: "bold")[Cara verifikasi manual — 3 langkah:]
+          #v(2pt)
+          #for s in f.manual_steps [
+            #text(size: 8.5pt)[#s]
+            #v(1pt)
+          ]
+        ]
+      ]
+
       #if f.recommendation != "" [
         #text(size: 9pt)[*Rekomendasi:* #f.recommendation]
       ]

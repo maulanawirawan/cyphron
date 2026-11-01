@@ -83,6 +83,8 @@ GROUND_TRUTH = [
     ("swagger-ui-surface", "swagger terbuka"),
     ("api-docs-surface", "api-docs terbuka"),
     ("error-oracle", "pesan error database tercermin"),
+    ("antibot-posture",
+     "tanpa header rate-limit + N-trial 3 GET tanpa 429 (L2 reproduced)"),
 ]
 EXPECTED_TOOLS = {t for t, _ in GROUND_TRUTH}
 
@@ -209,7 +211,8 @@ def _scan_both(binary: str, target: str, out_dir: Path, mode: str,
     doc_l = _run_scan(binary, target, out_dir, mode, None, registry,
                       suffix="-live")
     rows = (doc_e.get("findings", []) + doc_l.get("findings", []))
-    return rows, [r for r in rows if r.get("verdict", 0) >= 1]
+    req = (doc_e.get("requests", 0) + doc_l.get("requests", 0))
+    return rows, [r for r in rows if r.get("verdict", 0) >= 1], req
 
 
 def run_benchmark(binary: str, out_dir: Path,
@@ -226,14 +229,16 @@ def run_benchmark(binary: str, out_dir: Path,
         try:
             base = f"http://127.0.0.1:{port}"
             cap = _capture_evidence(base, out_dir / f"capture-{mode}")
-            rows, det = _scan_both(binary, base, out_dir, mode,
-                                   Path(cap["page"]), registry)
+            rows, det, req_total = _scan_both(
+                binary, base, out_dir, mode, Path(cap["page"]), registry)
         finally:
             httpd.shutdown()
             httpd.server_close()
         targets[mode] = base
-        # request per mode: 5 capture + 3 live (cors/robots/error-oracle)
-        result["runs"][mode] = {"capture": cap, "requests_total": 8}
+        # request per mode: 5 capture + live (3 skill 1-request + antibot
+        # N-trial = 2+3 dgn --no-login) — diambil dari meta run nyata
+        result["runs"][mode] = {"capture": cap,
+                                "requests_total": 5 + req_total}
         expected = EXPECTED_TOOLS if mode == "vulnerable" else set()
         m = metrics(expected, det)
         m["raw_titles"] = [f"{r.get('tool')}: {r.get('title', '')[:90]}"
@@ -247,8 +252,9 @@ def run_benchmark(binary: str, out_dir: Path,
     try:
         base2 = f"http://127.0.0.1:{port}"
         cap2 = _capture_evidence(base2, out_dir / "capture-vulnerable-repeat")
-        _, det2 = _scan_both(binary, base2, out_dir, "vulnerable-repeat",
-                             Path(cap2["page"]), registry)
+        _, det2, _req2 = _scan_both(binary, base2, out_dir,
+                                    "vulnerable-repeat",
+                                    Path(cap2["page"]), registry)
     finally:
         httpd.shutdown()
         httpd.server_close()

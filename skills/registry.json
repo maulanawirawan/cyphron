@@ -33,7 +33,7 @@
       ],
       "safety_class": "read-only",
       "needs": "target",
-      "desc": "api-docs-surface — defensif read-only",
+      "desc": "api-docs-surface — read-only dari evidence (signature ketat: OpenAPI/Swagger JSON atau DOM #swagger-ui+bundle). Flag opt-in --verify --verify-url <u> = 1 GET ulang: signature sama = L3 reproduced 2x; gagal/tidak cocok = tetap L1 + catatan (fail-closed)",
       "requires_evidence": true
     },
     {
@@ -212,7 +212,7 @@
       ],
       "safety_class": "read-only",
       "needs": "target",
-      "desc": "directory-listing-detector — defensif read-only",
+      "desc": "directory-listing-detector — read-only dari evidence (signature ketat: anchor ../ + teks autoindex). Flag opt-in --verify --verify-url <u> = 1 GET ulang: signature struktural sama = L3 reproduced 2x (CWE-548); gagal/tidak cocok = tetap L1 + catatan (fail-closed)",
       "requires_evidence": true
     },
     {
@@ -1169,7 +1169,7 @@
       ],
       "safety_class": "bounded-requests",
       "needs": "target",
-      "desc": "antibot-posture — posisi pertahanan anti-bot dilihat seperti bot (maks 3 GET): vendor edge terdeteksi (cloudflare/datadome/akamai/imperva/kasada/aws-waf/recaptcha/turnstile/hcaptcha), header rate-limit, determinisme 2 GET identik; lead maks L1 (CWE-770/330)",
+      "desc": "antibot-posture — posisi pertahanan anti-bot dilihat seperti bot (maks 3 GET): vendor edge terdeteksi (cloudflare/datadome/akamai/imperva/kasada/aws-waf/recaptcha/turnstile/hcaptcha), header rate-limit, determinisme 2 GET identik; lead maks L1 (CWE-770/330). Flag opt-in --ntrial N (3..10) menambah N GET berurutan = throttling terukur: tanpa 429/retry-after pada semua trial = L2 reproduced (kode+timing tersimpan); 429/retry-after teramati = pertahanan terbukti (AMAN); inkonklusif = kembali L1 (fail-closed)",
       "requires_evidence": false
     },
     {

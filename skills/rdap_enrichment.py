@@ -207,7 +207,8 @@ def audit(domain: str) -> tuple[list[dict], dict]:
     meta = {"ok": True, "domain": domain, "requests": 1,
             "safety_class": "read-only",
             "baseline": old is None,
-            "drift_findings": sum(1 for r in rows if r["extra"].get("drift")),
+            # make_finding me-flatten extra ke top-level (kontrak findings.json)
+            "drift_findings": sum(1 for r in rows if r.get("drift")),
             "snapshot": snap}
     return rows, meta
 

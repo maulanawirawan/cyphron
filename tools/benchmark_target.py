@@ -35,11 +35,13 @@ bind 127.0.0.1, port ephemeral.
 from __future__ import annotations
 
 import argparse
+import secrets
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 FILES_PAGE = """<html><head><title>Index of /files</title></head><body>
 <h1>Directory listing</h1>
-<ul><li><a href="backup-2025.sql">backup-2025.sql</a></li>
+<ul><li><a href="../">Parent Directory</a></li>
+<li><a href="backup-2025.sql">backup-2025.sql</a></li>
 <li><a href="notes.txt">notes.txt</a></li></ul></body></html>"""
 
 DEBUG_PAGE = """<html><body><h1>Debug</h1>
@@ -63,7 +65,8 @@ SEARCH_ERROR = """<html><body><h1>500</h1>
 
 SWAGGER_PAGE = """<html><head><title>Swagger UI</title></head>
 <body><div id="swagger-ui"></div>
-<script src="/openapi.json"></script></body></html>"""
+<script src="swagger-ui-bundle.js"></script>
+<script>SwaggerUIBundle({url: "/openapi.json"})</script></body></html>"""
 
 API_DOCS_PAGE = """<html><head><title>API Documentation</title></head>
 <body><h1>API Reference</h1><ul><li>GET /api/v1/contacts</li>
@@ -94,6 +97,10 @@ class Handler(BaseHTTPRequestHandler):
                 "X-Frame-Options": "DENY",
                 "Referrer-Policy": "no-referrer",
                 "Permissions-Policy": "geolocation=(), camera=(), microphone=()",
+                # kondisi antibot-posture hardened: pertahanan rate-limit
+                # TERLIHAT (header standar) — edge yang dikelola
+                "X-RateLimit-Limit": "100",
+                "X-RateLimit-Remaining": "99",
             }
         return {}
 
@@ -139,10 +146,18 @@ class Handler(BaseHTTPRequestHandler):
             self._send(200, "<html><body><h1>Benchmark</h1></body></html>",
                        extra=extra)
         elif path == "/" and self.mode == "hardened":
-            self._send(200, "<html><body><h1>Benchmark</h1></body></html>",
-                       extra={"Set-Cookie":
-                              "session=abc123; Path=/; Secure; HttpOnly; "
-                              "SameSite=Strict"})
+            # nonce per-request (F75): respons hardened TIDAK
+            # deterministik-by-absence — realistis untuk edge yang
+            # dikelola (varian anti-replay), mencegah lead determinisme
+            # palsu di mode hardened (zero-FP benchmark)
+            nonce = secrets.token_hex(8)
+            self._send(
+                200,
+                "<html><body><h1>Benchmark</h1>"
+                f"<!-- nonce:{nonce} --></body></html>",
+                extra={"Set-Cookie":
+                       "session=abc123; Path=/; Secure; HttpOnly; "
+                       "SameSite=Strict"})
         elif path == "/files/" and self.mode == "vulnerable":
             self._send(200, FILES_PAGE)
         elif path.startswith("/files/"):

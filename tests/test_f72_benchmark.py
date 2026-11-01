@@ -101,6 +101,8 @@ class TargetServerTest(unittest.TestCase):
             code, body, headers = fetch(f"http://127.0.0.1:{port}/")
             self.assertNotIn("Content-Security-Policy", headers)
             self.assertIn("session=", headers.get("Set-Cookie", ""))
+            # F75 kondisi antibot vulnerable: TANPA header rate-limit
+            self.assertNotIn("X-RateLimit-Limit", headers)
             code, body, _ = fetch(f"http://127.0.0.1:{port}/files/")
             self.assertIn("Directory listing", body)
             code, body, _ = fetch(f"http://127.0.0.1:{port}/debug")
@@ -118,6 +120,12 @@ class TargetServerTest(unittest.TestCase):
             self.assertEqual(headers.get("Content-Security-Policy"),
                              "default-src 'self'")
             self.assertIn("Secure", headers.get("Set-Cookie", ""))
+            # F75 kondisi antibot hardened: pertahanan terlihat + respons
+            # TIDAK deterministik antar-request (nonce anti-replay)
+            self.assertEqual(headers.get("X-RateLimit-Limit"), "100")
+            code2, body2, _ = fetch(f"http://127.0.0.1:{port}/")
+            self.assertNotEqual(body, body2,
+                                "hardened root wajib bervariasi (nonce)")
             code, _, _ = fetch(f"http://127.0.0.1:{port}/debug")
             self.assertEqual(code, 404)
             code, body, _ = fetch(f"http://127.0.0.1:{port}/robots.txt")

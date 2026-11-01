@@ -21,6 +21,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -129,10 +130,214 @@ def plain_fields(r: dict) -> dict:
             "plain_why": PLAIN_WHY[key]}
 
 
+# ---------------------------------------------------------------------------
+# [F75 LANGKAH N] Langkah verifikasi manual spesifik untuk lead postur
+# murni (absensi/presence = fakta, TIDAK bisa naik L2/L3). Kunci = pola
+# judul; tiap entri wajib memuat URL/setting persis + kriteria lulus/
+# gagal. Fallback generik menjamin SETIAP lead dapat langkah — tanpa
+# mengubah verdict sedikit pun (ini kualitas laporan, bukan upgrade bukti).
+# ---------------------------------------------------------------------------
+_MANUAL_HEADER_HINTS = {
+    "strict-transport-security": "HSTS",
+    "x-frame-options": "X-Frame-Options",
+    "x-content-type-options": "X-Content-Type-Options",
+    "content-security-policy": "Content-Security-Policy",
+    "referrer-policy": "Referrer-Policy",
+    "permissions-policy": "Permissions-Policy",
+}
+
+# alias lowercase judul -> kunci header (mis. "No HSTS on https host")
+_MANUAL_ALIASES = {
+    "strict-transport-security": "strict-transport-security",
+    "hsts": "strict-transport-security",
+    "x-frame-options": "x-frame-options",
+    "xfo": "x-frame-options",
+    "x-content-type-options": "x-content-type-options",
+    "nosniff": "x-content-type-options",
+    "content-security-policy": "content-security-policy",
+    "csp": "content-security-policy",
+    "referrer-policy": "referrer-policy",
+    "permissions-policy": "permissions-policy",
+}
+
+
+def _manual_steps_for(header: str, target: str) -> list[str] | None:
+    """Langkah generik per header keamanan (kriteria lulus/gagal jelas)."""
+    hint = _MANUAL_HEADER_HINTS.get(header.lower())
+    if not hint:
+        return None
+    t = target or "<URL target>"
+    if hint == "HSTS":
+        return [
+            f"Jalankan `curl -sI {t}` (atau DevTools → Network → "
+            "Response Headers).",
+            "Cari header `Strict-Transport-Security`.",
+            "Lulus: header ada (mis. `max-age=31536000; includeSubDomains`). "
+            "Gagal: tidak ada — aktifkan HSTS di panel server/CDN.",
+        ]
+    if hint == "X-Frame-Options":
+        return [
+            f"Jalankan `curl -sI {t}`.",
+            "Cari `X-Frame-Options` (atau CSP `frame-ancestors`).",
+            "Lulus: `DENY`/`SAMEORIGIN` (atau frame-ancestors 'none'). "
+            "Gagal: tidak ada — tambahkan header di server/CDN.",
+        ]
+    if hint == "X-Content-Type-Options":
+        return [
+            f"Jalankan `curl -sI {t}`.",
+            "Cari `X-Content-Type-Options`.",
+            "Lulus: nilainya `nosniff`. Gagal: tidak ada — tambahkan "
+            "header di server/CDN.",
+        ]
+    if hint == "Content-Security-Policy":
+        return [
+            f"Jalankan `curl -sI {t}` dan baca nilai `Content-Security-Policy`.",
+            "Nilai `upgrade-insecure-requests` saja TIDAK membatasi "
+            "sumber skrip — cek apakah ada `default-src`/`script-src` ketat.",
+            "Lulus: ada kebijakan ketat tanpa `unsafe-inline`. Gagal: "
+            "absen/kosong — susun CSP ketat lalu uji mode Report-Only dulu.",
+        ]
+    return [
+        f"Jalankan `curl -sI {t}`.",
+        f"Cari header `{hint}`.",
+        f"Lulus: header terpasang. Gagal: tidak ada — tambahkan `{hint}` "
+        "di konfigurasi server/CDN.",
+    ]
+
+
+def manual_verification(r: dict) -> list[str]:
+    """Tiga langkah verifikasi manual utk lead (PERLU DICEK) — deterministik
+    dari metadata baris; TIDAK mengubah verdict. Non-lead = kosong."""
+    if plain_status(r) != "check":
+        return []
+    title = (r.get("title") or "")
+    tl = title.lower()
+    target = r.get("target_url") or r.get("target") or ""
+    steps: list[str] | None = None
+
+    # 1) header keamanan absen (banner-posture / http-security-headers)
+    # greedy `.*` = kolom TERAKHIR (judul memuat URL dgn `https:` di
+    # dalamnya — jebakan non-greedy, tertangkap test)
+    m = re.search(r"security header absent .*:\s*(.+)$", tl)
+    if m:
+        steps = _manual_steps_for(m.group(1).strip(), target)
+    if steps is None:
+        for alias, key in _MANUAL_ALIASES.items():
+            if alias in tl:
+                steps = _manual_steps_for(key, target)
+                break
+    # 2) kelas DNS/email posture
+    if steps is None and "spf" in tl:
+        host = target.split("//")[-1].strip("/") or "<domain>"
+        steps = [
+            f"Jalankan `nslookup -type=TXT {host}` (atau `dig TXT {host} "
+            "+short`).",
+            "Cari record TXT berawalan `v=spf1`.",
+            "Lulus: ada `v=spf1` (idealnya diakhiri `-all`). Gagal: tidak "
+            "ada — tambahkan record SPF di DNS (daftarkan semua pengirim "
+            "resmi: web host + layanan email).",
+        ]
+    if steps is None and "dmarc" in tl:
+        host = target.split("//")[-1].strip("/") or "<domain>"
+        steps = [
+            f"Jalankan `nslookup -type=TXT _dmarc.{host}`.",
+            "Cari record `v=DMARC1` dan nilai `p=`.",
+            "Lulus: `p=quarantine` atau `p=reject`. Gagal: tidak ada atau "
+            "`p=none` — tambahkan/perketat record DMARC (mulai `p=none` "
+            "dgn `rua=`, naikkan bertahap).",
+        ]
+    if steps is None and "mta-sts" in tl:
+        host = target.split("//")[-1].strip("/") or "<domain>"
+        steps = [
+            f"Jalankan `nslookup -type=TXT _mta-sts.{host}`.",
+            f"Buka `https://mta-sts.{host}/.well-known/mta-sts.txt`.",
+            "Lulus: TXT policy id DAN file policy ada. Gagal: salah satu "
+            "kosong — terapkan MTA-STS (mode `testing` dulu, lalu "
+            "`enforce`).",
+        ]
+    if steps is None and re.search(r"\bcaa\b", tl):
+        host = target.split("//")[-1].strip("/") or "<domain>"
+        steps = [
+            f"Jalankan `nslookup -type=CAA {host}`.",
+            "Cari record `0 issue \"...\"` / `issuewild`.",
+            "Lulus: CAA membatasi CA penerbit sertifikat. Gagal: tidak "
+            "ada — tambahkan record CAA di DNS.",
+        ]
+    # 3) kelas aplikasi (WordPress dsb.)
+    if steps is None and ("xml-rpc" in tl or "xmlrpc" in tl):
+        x = (target.rstrip("/") or "<URL target>")
+        if not x.endswith("/xmlrpc.php"):
+            x = x + "/xmlrpc.php"
+        steps = [
+            f"Buka `{x}` di browser (tanpa kredensial).",
+            "Amati kode/status respons (405 = endpoint hidup tapi method "
+            "GET ditolak; 200 = hidup; 403/404 = diblokir).",
+            "Lulus (tutup): 403/404/blokir edge. Gagal (terbuka): 200/405 "
+            "— matikan/batasi XML-RPC (filter `xmlrpc_enabled`, blokir "
+            "path di server, atau aturan WAF).",
+        ]
+    if steps is None and "login" in tl and "wordpress" in tl:
+        x = (target.rstrip("/") or "<URL target>")
+        if not x.endswith("/wp-login.php"):
+            x = x + "/wp-login.php"
+        steps = [
+            f"Buka `{x}` di browser (tanpa kredensial).",
+            "Amati apakah form login dirender bebas.",
+            "Lulus: dibatasi (403/proteksi password/CAPTCHA). Gagal: form "
+            "terbuka — tambah limit percobaan login, 2FA, dan proteksi "
+            "per-IP (plugin keamanan/WAF).",
+        ]
+    if steps is None and ("security.txt" in tl
+                          and ("no " in tl or "tidak" in tl)):
+        host = target.split("//")[-1].strip("/") or "<domain>"
+        steps = [
+            f"Buka `https://{host}/.well-known/security.txt` (fallback "
+            f"`https://{host}/security.txt`).",
+            "Cek status + field `Contact:` dan `Expires:`.",
+            "Lulus: 200 dgn field lengkap (RFC 9116). Gagal: 404 — "
+            "publikasikan security.txt agar peneliti tahu kanal lapor.",
+        ]
+    # 4) kelas throttling/antibot
+    if steps is None and ("rate-limit" in tl or "throttling" in tl):
+        t = target or "<URL target>"
+        steps = [
+            f"Dari satu mesin uji, kirim ~10 GET berurutan cepat ke `{t}` "
+            "(loop curl / alat load kecil — TANPA kredensial).",
+            "Amati kode respons + header `retry-after`/`x-ratelimit-*`.",
+            "Lulus: 429/46x atau header rate-limit muncul. Gagal: semua "
+            "2xx tanpa header — aktifkan rate limit per-IP/identitas di "
+            "edge (WAF/CDN/panel hosting).",
+        ]
+    if steps is None and "deterministic" in tl:
+        t = target or "<URL target>"
+        steps = [
+            f"Muat `{t}` dua kali di jendela privat; bandingkan sumber "
+            "halaman (Ctrl+U).",
+            "Cari nonce/token/varian per-request di HTML atau cookie "
+            "per-sesi.",
+            "Lulus: ada varian per-request. Gagal: byte-identik — "
+            "suntikkan nonce/per-request variance dan kaitkan token ke "
+            "sesi.",
+        ]
+    # 5) fallback generik — SETIAP lead wajib dapat langkah
+    if steps is None:
+        rec = (r.get("recommendation") or "").strip()
+        desc = (r.get("description") or "").strip()
+        steps = [
+            f"Buka `{target or '<URL target pada baris ini>'}` dan amati "
+            "perilaku yang disebut temuan.",
+            f"Periksa manual sesuai rekomendasi: {rec or desc[:160]}.",
+            "Lulus: kondisi yang disebut tidak lagi teramati. Gagal: "
+            "masih teramati — terapkan rekomendasi lalu pindai ulang.",
+        ]
+    return [f"{i}. {s}" for i, s in enumerate(steps, 1)]
+
+
 def plain_bottom_line(counts: dict) -> str:
     parts = [f"dari {sum(counts.values())} temuan",
              f"{counts['proven']} TERBUKTI",
-             f"{counts['check']} masih PERLU DICEK manusia",
+             (f"{counts['check']} masih PERLU DICEK manusia "
+              "(masing-masing dilengkapi 3 langkah verifikasi manual)"),
              f"{counts['clean']} BERSIH"]
     if counts["unassessed"]:
         parts.append(f"{counts['unassessed']} TIDAK BISA DINILAI "
@@ -339,6 +544,9 @@ def build_data(docs: list[dict], compare: Path | None, title: str, subtitle: str
             "family_quorum": r.get("family_quorum"),
             "family_sources": r.get("family_sources") or [],
             **plain_fields(r),
+            # [F75 LANGKAH N] lead (PERLU DICEK) selalu bawa 3 langkah
+            # verifikasi manual spesifik; proven/clean = kosong
+            "manual_steps": manual_verification(r),
         } for r in fs],
     } for c, fs in cats.items()]
     unconfirmed = [{

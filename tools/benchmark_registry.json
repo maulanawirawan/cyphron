@@ -231,6 +231,24 @@
       "needs": "target",
       "desc": "error-oracle — SATU GET path canary acak; signature ketat error DB / stack trace / debug framework di error page = L2/L1 (CWE-209); 404 generik = AMAN; 403/429 = tanpa klaim",
       "requires_evidence": false
+    },
+    {
+      "name": "antibot-posture",
+      "cmd": [
+        "python",
+        "skills/antibot_posture.py",
+        "--url",
+        "@TARGET@",
+        "--out",
+        "@OUT@",
+        "--no-login",
+        "--ntrial",
+        "3"
+      ],
+      "safety_class": "bounded-requests",
+      "needs": "target",
+      "desc": "antibot-posture — postur anti-bot (kondisi benchmark: tanpa rate-limit header + N-trial 3 GET tanpa 429 = L2 reproduced; hardened: header X-RateLimit terpasang = AMAN). --no-login agar total request = 5 (estimasi kelas bounded-requests tetap jujur); --ntrial penuh (3..10) tersedia manual",
+      "requires_evidence": false
     }
   ],
   "note": "mini benchmark registry: 11 skill ground-truth + 3 noise (analytics-tracker-surface, http2-support-checker, tech-fingerprint). cdn-detector + waf-fingerprint dikeluarkan 2026-10-30: verdict by-absence (header CDN/WAF tidak ada = lead) selalu menyala di lab tanpa CDN — bukan pengukur akurasi deteksi kondisi ditanam."
