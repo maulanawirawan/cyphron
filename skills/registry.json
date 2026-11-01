@@ -527,9 +527,9 @@
         "--out",
         "@OUT@"
       ],
-      "safety_class": "1-request",
+      "safety_class": "bounded-requests",
       "needs": "target",
-      "desc": "robots-txt-surface — defensif 1-request"
+      "desc": "robots-txt-surface — maks 2 GET (kelas bounded-requests): 1 GET robots.txt + 1 GET canary differensial HANYA bila 200 (path sengaja-tak-ada). Canary body identik = wildcard-200 terbukti: resource HTML tetap tidak-dapat-dinilai (bukti deterministik), resource non-HTML DITOLAK L-x (FP-eliminated). Canary 4xx = resource spesifik (lead diperkuat). 4xx resource = AMAN; 5xx/gagal = fail-closed. --no-canary = kembali 1 GET"
     },
     {
       "name": "security-txt",
@@ -572,9 +572,9 @@
         "--out",
         "@OUT@"
       ],
-      "safety_class": "1-request",
+      "safety_class": "bounded-requests",
       "needs": "target",
-      "desc": "sitemap-disclosure-checker — defensif 1-request"
+      "desc": "sitemap-disclosure-checker — maks 2 GET (kelas bounded-requests): 1 GET sitemap.xml + 1 GET canary differensial HANYA bila 200. Canary body identik = wildcard-200 terbukti: HTML tetap tidak-dapat-dinilai (bukti deterministik), non-HTML DITOLAK L-x (FP-eliminated). Canary 4xx = resource spesifik. 4xx resource = AMAN; 5xx/gagal = fail-closed. --no-canary = kembali 1 GET"
     },
     {
       "name": "sourcemap-exposure-checker",
@@ -759,9 +759,9 @@
         "--out",
         "@OUT@"
       ],
-      "safety_class": "1-request",
+      "safety_class": "bounded-requests",
       "needs": "target",
-      "desc": "well-known-exposure-checker — defensif 1-request"
+      "desc": "well-known-exposure-checker — maks 2 GET (kelas bounded-requests): 1 GET /.well-known/security.txt + 1 GET canary differensial HANYA bila 200. Canary body identik = wildcard-200 terbukti: HTML tetap tidak-dapat-dinilai (bukti deterministik), non-HTML DITOLAK L-x (FP-eliminated). Canary 4xx = resource spesifik. 4xx resource = AMAN; 5xx/gagal = fail-closed. --no-canary = kembali 1 GET"
     },
     {
       "name": "wordpress-rest-surface",

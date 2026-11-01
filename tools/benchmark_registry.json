@@ -161,9 +161,9 @@
         "--out",
         "@OUT@"
       ],
-      "safety_class": "1-request",
+      "safety_class": "bounded-requests",
       "needs": "target",
-      "desc": "robots-txt-surface — 1 GET ke /robots.txt (resource penuh; @TARGET@ polos = root, bukan resource robots)"
+      "desc": "robots-txt-surface — kondisi benchmark: vulnerable robots non-HTML (canary -> 500 = inkonklusif, lead tetap); hardened robots 404 (canary tidak dijalankan) = AMAN. Kelas bounded-requests (maks 2 GET)"
     },
     {
       "name": "server-version-disclosure",
