@@ -379,7 +379,7 @@
       ],
       "safety_class": "read-only",
       "needs": "target",
-      "desc": "js-secret-scanner-v2 — defensif read-only",
+      "desc": "js-secret-scanner-v2 — read-only dari evidence (pola api-key/secret/token + komentar HTML = lead L1 CWE-798). NILAI kredensial DI-MASK di bukti (<masked:N-char> — temuan tidak membawa kredensial mentah). Flag opt-in --verify (+1 GET refetch sumber): pola sama = L2 REPRODUCED (bukti masked); refetch tanpa pola/gagal = tetap L1 (fail-closed)",
       "requires_evidence": true
     },
     {
@@ -777,7 +777,7 @@
       ],
       "safety_class": "read-only",
       "needs": "target",
-      "desc": "wordpress-rest-surface — defensif read-only",
+      "desc": "wordpress-rest-surface — read-only dari evidence (referensi wp-json/rest_route = lead L1). Flag opt-in --verify (+1 GET ke REST root dari evidence): JSON routes+namespaces berisi wp/v2 = L3 (index REST WP asli terbaca; daftar path route TIDAK disimpan — zero-retention); 401/403 = terlindungi (tetap L1); bukan shape WP = tidak direproduksi (fail-closed)",
       "requires_evidence": true
     },
     {
