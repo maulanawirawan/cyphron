@@ -590,7 +590,7 @@
       ],
       "safety_class": "read-only",
       "needs": "target",
-      "desc": "sourcemap-exposure-checker — defensif read-only",
+      "desc": "sourcemap-exposure-checker — read-only dari evidence (referensi .map = lead L1). Flag opt-in --verify (+1 GET ke URL map dari evidence): map JSON valid (version+sources) = L2; sourcesContent tidak kosong = L3 CWE-540 (source asli pra-minify terbaca — isi TIDAK disimpan, zero-retention); gagal/bukan map = tetap L1 (fail-closed)",
       "requires_evidence": true
     },
     {
@@ -1124,7 +1124,7 @@
       ],
       "safety_class": "bounded-requests",
       "needs": "domain",
-      "desc": "cloud-bucket-exposure — bucket nama-turunan-domain yang terbuka listing publik (maks 4 GET); L1 lead, kepemilikan TIDAK terverifikasi — wajib verifikasi manual (CWE-732)",
+      "desc": "cloud-bucket-exposure — bucket nama-turunan-domain yang terbuka listing publik (maks 5 GET = 4 probe + 1 re-GET verifikasi hanya bila listable): signature ListBucketResult sama = L2 REPRODUCED (bukti capture-1/2 tersimpan); L3 tidak diberikan — atribusi kepemilikan TIDAK terverifikasi dari nama (caveat selalu menempel, CWE-732); verifikasi tidak cocok = tetap L1",
       "requires_evidence": false
     },
     {
