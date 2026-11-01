@@ -318,7 +318,10 @@ def main_with_args(argv: list[str] | None = None) -> int:
             argv_scan += ["--max-requests", str(budget)]
         t0 = time.perf_counter()
         try:
-            r = run_cmd(argv_scan)
+            # 900s: cakupan skill makin penuh (est jujur F76) + target
+            # lambat (apache.org) bisa lewat dari 600s — kasus nyata
+            # nightrun 2026-11-01 (12/13 sehat, apache TimeoutExpired)
+            r = run_cmd(argv_scan, timeout=900)
         except Exception as exc:
             summary.update({"scanned": False, "error": repr(exc)[:200]})
             hard_fail = True

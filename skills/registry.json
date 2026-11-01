@@ -179,7 +179,8 @@
       ],
       "safety_class": "read-only",
       "needs": "domain",
-      "desc": "Inventaris permukaan dari Certificate Transparency log publik"
+      "desc": "Inventaris permukaan dari Certificate Transparency log publik",
+      "est_requests": 3
     },
     {
       "name": "debug-page-detector",
@@ -501,7 +502,8 @@
       ],
       "safety_class": "read-only",
       "needs": "domain",
-      "desc": "Postur domain via RDAP: kedaluwarsa, transfer lock, nameserver"
+      "desc": "Postur domain via RDAP: kedaluwarsa, transfer lock, nameserver",
+      "est_requests": 2
     },
     {
       "name": "redirect-chain",
@@ -543,7 +545,8 @@
       ],
       "safety_class": "1-request",
       "needs": "domain",
-      "desc": "Discovery kanal disclosure resmi (RFC 9116) â€” pintu cari program tanpa register"
+      "desc": "Discovery kanal disclosure resmi (RFC 9116) â€” pintu cari program tanpa register",
+      "est_requests": 2
     },
     {
       "name": "server-version-disclosure",
@@ -956,6 +959,7 @@
         "@OUT@"
       ],
       "safety_class": "bounded-requests",
+      "est_requests": 14,
       "needs": "target",
       "desc": "param-probe-checker — penemuan param tersembunyi ala Arjun versi bounded: baseline + kontrol random + maks 12 kandidat = 14 request; zero-FP via kontrol ganda; refleksi = L2, perubahan perilaku = L1 (CWE-471)",
       "requires_evidence": false
@@ -1095,7 +1099,8 @@
       "safety_class": "read-only",
       "needs": "domain",
       "desc": "spf-dmarc-posture — postur anti-spoofing email via 2 query TXT pasif; SPF hilang / DMARC hilang / p=none = L1 lead faktual (postur konfigurasi)",
-      "requires_evidence": false
+      "requires_evidence": false,
+      "est_requests": 2
     },
     {
       "name": "api-version-surface",
@@ -1232,7 +1237,8 @@
       "safety_class": "bounded-requests",
       "needs": "target",
       "desc": "wp-posture — postur instalasi WordPress dari target (maks 6 GET, tanpa bruteforce): enumerasi user via REST (200+slug guest = L3 reportable), versi di meta generator (L1 + fakta cve-matcher), xmlrpc hidup (L1), wp-login (L1), wp-config backup/debug.log ter-expose (L2); bukan WP = AMAN",
-      "requires_evidence": false
+      "requires_evidence": false,
+      "est_requests": 6
     },
     {
       "name": "gitlab-posture",
@@ -1364,7 +1370,8 @@
       ],
       "safety_class": "bounded-requests",
       "needs": "target",
-      "desc": "wp-plugin-surface — permukaan plugin WordPress bounded 6 GET: readme.txt publik 5 plugin kandidat (bricksforge/elementor/woocommerce/contact-form-7/wordpress-seo) -> versi 'Stable tag' sbg fakta cve-matcher + watchlist CVE-2026-85097; bukan WP = AMAN"
+      "desc": "wp-plugin-surface — permukaan plugin WordPress bounded 6 GET: readme.txt publik 5 plugin kandidat (bricksforge/elementor/woocommerce/contact-form-7/wordpress-seo) -> versi 'Stable tag' sbg fakta cve-matcher + watchlist CVE-2026-85097; bukan WP = AMAN",
+      "est_requests": 6
     },
     {
       "name": "magento-surface",
@@ -1434,7 +1441,8 @@
       ],
       "safety_class": "read-only",
       "needs": "domain",
-      "desc": "Postur domain + drift antar-run: ganti registrar/NS, hold, expiry (<30 hari)"
+      "desc": "Postur domain + drift antar-run: ganti registrar/NS, hold, expiry (<30 hari)",
+      "est_requests": 2
     },
     {
       "name": "typosquat-watch",
@@ -1448,7 +1456,8 @@
       ],
       "safety_class": "read-only",
       "needs": "domain",
-      "desc": "CT drift: sertifikat baru dengan nama tak dikenal pada domain seed + generator permutasi kembar (1 request)"
+      "desc": "CT drift: sertifikat baru dengan nama tak dikenal pada domain seed + generator permutasi kembar (1 request)",
+      "est_requests": 1
     }
   ]
 }

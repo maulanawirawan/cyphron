@@ -157,6 +157,23 @@ def audit(domain: str) -> tuple[list[dict], dict]:
     return rows, meta
 
 
+def error_row(domain: str, meta: dict) -> dict:
+    """Baris unconfirmed utk kegagalan fetch — SATU skill gagal tidak
+    boleh membunuh seluruh scan (pelajaran nightrun 2026-11-01: 502
+    dari crt.sh membuat program abort penuh; fail-closed = baris jujur
+    "tidak dapat dinilai", bukan exit 1)."""
+    return make_finding(
+        tool="typosquat-watch",
+        title=f"CT fetch failed for {domain} (typosquat-watch)",
+        severity="info",
+        description=f"Fetch crt.sh gagal: {str(meta.get('error', ''))[:220]}"
+                    " — tidak dapat dinilai (fail-closed, tanpa klaim).",
+        target_url=f"https://{domain}",
+        evidence_kind="request-response", finding_class="posture",
+        confidence=1.0, status="unconfirmed", verdict=1,
+        extra={"category": "MISC", "safety_class": "read-only"})
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--domain", required=True)
@@ -164,9 +181,14 @@ def main() -> int:
     args = ap.parse_args()
     rows, meta = audit(args.domain)
     if not meta.get("ok"):
-        print(f"GAGAL: {meta.get('error')} (fail-closed — bukan klaim "
-              "bersih)", file=sys.stderr)
-        return 1
+        # kegagalan sumber eksternal = baris unconfirmed + exit 0
+        # (fail-closed jujur; orchestrator lanjut ke skill berikutnya)
+        rows = [error_row(args.domain, meta)]
+        write_findings(args.out, rows, meta)
+        print(f"typosquat-watch: {args.domain} — gagal jaringan, baris "
+              f"unconfirmed ({str(meta.get('error', ''))[:80]})",
+              file=sys.stderr)
+        return 0
     write_findings(args.out, rows, meta)
     print(f"typosquat-watch: {args.domain} — {meta['names_seen']} nama, "
           f"{meta['new_names']} baru (baseline={meta['baseline']}) "

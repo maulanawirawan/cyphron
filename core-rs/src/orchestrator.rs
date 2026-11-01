@@ -61,6 +61,16 @@ pub fn estimate_max_requests(safety_class: &str) -> usize {
     }
 }
 
+/// Estimasi per-skill: field `est_requests` (angka jujur per skill)
+/// menimpa proyeksi kelas bila ada. Kelas bounded default 5 — skill
+/// dengan jejak lebih besar WAJIB mendeklarasi angka nyata, kalau tidak
+/// proyeksi budget berbohong dan scan abort di tengah (kasus nyata
+/// nightrun 2026-11-01: param-probe-checker aktual 14 vs est kelas 5).
+pub fn estimate_skill_requests(s: &SkillSpec) -> usize {
+    s.est_requests
+        .unwrap_or_else(|| estimate_max_requests(&s.safety_class))
+}
+
 fn is_known_safety_class(s: &str) -> bool {
     KNOWN_SAFETY_CLASSES.contains(&s)
 }
@@ -77,6 +87,10 @@ pub struct SkillSpec {
     pub needs: String,
     #[serde(default)]
     pub requires_evidence: bool,
+    /// Estimasi request AKTUAL per skill (opsional, menimpa proyeksi
+    /// kelas — lihat estimate_skill_requests).
+    #[serde(default)]
+    pub est_requests: Option<usize>,
     /// Flag eksplisit lab_only (opsional, default false). Jika true, skill
     /// hanya boleh jalan di mode lab — fail-closed tier0.
     #[serde(default)]
@@ -411,7 +425,7 @@ pub fn run_scan(p: &ScanParams) -> Result<ScanResult, String> {
         println!("name | safety_class | needs | max_requests_est");
         for s in &selected {
             println!("{} | {} | {} | {}", s.name, s.safety_class, s.needs,
-                     estimate_max_requests(&s.safety_class));
+                     estimate_skill_requests(s));
         }
         if selected.is_empty() {
             println!("(no skills selected — fail-closed would trigger on real run)");
@@ -451,7 +465,7 @@ pub fn run_scan(p: &ScanParams) -> Result<ScanResult, String> {
         // kelas lab punya estimasi tak terbatas — di lab budget hanya
         // metadata + baris audit (actual tetap dihitung).
         if p.mode == "tier0" {
-            let est = estimate_max_requests(&s.safety_class);
+            let est = estimate_skill_requests(s);
             let remaining = p.max_requests.saturating_sub(requests);
             if est > remaining {
                 eprintln!(
@@ -783,6 +797,7 @@ mod tests {
         let reg = Registry {
             version: 1,
             skills: vec![SkillSpec {
+                est_requests: None,
                 name: "bad".into(),
                 cmd: vec!["python".into(), "x.py".into()],
                 safety_class: "yolo-probe".into(),
@@ -800,8 +815,8 @@ mod tests {
         let reg = Registry {
             version: 1,
             skills: vec![
-                SkillSpec { name: "dup".into(), cmd: vec!["python".into()], safety_class: "read-only".into(), needs: "none".into(), requires_evidence: false, lab_only: false },
-                SkillSpec { name: "dup".into(), cmd: vec!["python".into()], safety_class: "read-only".into(), needs: "none".into(), requires_evidence: false, lab_only: false },
+                SkillSpec { est_requests: None, name: "dup".into(), cmd: vec!["python".into()], safety_class: "read-only".into(), needs: "none".into(), requires_evidence: false, lab_only: false },
+                SkillSpec { est_requests: None, name: "dup".into(), cmd: vec!["python".into()], safety_class: "read-only".into(), needs: "none".into(), requires_evidence: false, lab_only: false },
             ],
         };
         assert!(validate_registry(&reg).is_err());
@@ -812,6 +827,7 @@ mod tests {
         let reg = Registry {
             version: 1,
             skills: vec![SkillSpec {
+                est_requests: None,
                 name: "empty".into(),
                 cmd: vec![],
                 safety_class: "read-only".into(),
@@ -828,6 +844,7 @@ mod tests {
         let reg = Registry {
             version: 0,
             skills: vec![SkillSpec {
+                est_requests: None,
                 name: "ok".into(),
                 cmd: vec!["python".into()],
                 safety_class: "read-only".into(),
@@ -844,9 +861,9 @@ mod tests {
         let reg = Registry {
             version: 1,
             skills: vec![
-                SkillSpec { name: "safe".into(), cmd: vec!["python".into()], safety_class: "read-only".into(), needs: "none".into(), requires_evidence: false, lab_only: false },
-                SkillSpec { name: "probe".into(), cmd: vec!["python".into()], safety_class: "active-probe".into(), needs: "none".into(), requires_evidence: false, lab_only: false },
-                SkillSpec { name: "creds".into(), cmd: vec!["python".into()], safety_class: "credential-bearing".into(), needs: "none".into(), requires_evidence: false, lab_only: false },
+                SkillSpec { est_requests: None, name: "safe".into(), cmd: vec!["python".into()], safety_class: "read-only".into(), needs: "none".into(), requires_evidence: false, lab_only: false },
+                SkillSpec { est_requests: None, name: "probe".into(), cmd: vec!["python".into()], safety_class: "active-probe".into(), needs: "none".into(), requires_evidence: false, lab_only: false },
+                SkillSpec { est_requests: None, name: "creds".into(), cmd: vec!["python".into()], safety_class: "credential-bearing".into(), needs: "none".into(), requires_evidence: false, lab_only: false },
             ],
         };
         let p = ScanParams { mode: "tier0".into(), target: None, domain: None, evidence: None, source: None, out_dir: PathBuf::from("x"), registry: PathBuf::from("x"), report: false, dry_run: false, max_requests: DEFAULT_MAX_REQUESTS, ua: None, proxy: None, proxies_file: None };
@@ -933,8 +950,8 @@ open(sys.argv[1],"w").write(json.dumps({"ok":True,"data":{},"findings":rows}))
         let reg = Registry {
             version: 1,
             skills: vec![
-                SkillSpec { name: "cfg".into(), cmd: vec!["python".into()], safety_class: "read-only".into(), needs: "source".into(), requires_evidence: false, lab_only: false },
-                SkillSpec { name: "web".into(), cmd: vec!["python".into()], safety_class: "read-only".into(), needs: "target".into(), requires_evidence: false, lab_only: false },
+                SkillSpec { est_requests: None, name: "cfg".into(), cmd: vec!["python".into()], safety_class: "read-only".into(), needs: "source".into(), requires_evidence: false, lab_only: false },
+                SkillSpec { est_requests: None, name: "web".into(), cmd: vec!["python".into()], safety_class: "read-only".into(), needs: "target".into(), requires_evidence: false, lab_only: false },
             ],
         };
         let base = |source: Option<String>| ScanParams {
@@ -957,7 +974,7 @@ open(sys.argv[1],"w").write(json.dumps({"ok":True,"data":{},"findings":rows}))
         // needs=source adalah nilai sah di registry (validasi registry lolos)
         let reg = Registry {
             version: 1,
-            skills: vec![SkillSpec { name: "cfg".into(), cmd: vec!["python".into(), "skills/x.py".into()], safety_class: "read-only".into(), needs: "source".into(), requires_evidence: false, lab_only: false }],
+            skills: vec![SkillSpec { est_requests: None, name: "cfg".into(), cmd: vec!["python".into(), "skills/x.py".into()], safety_class: "read-only".into(), needs: "source".into(), requires_evidence: false, lab_only: false }],
         };
         assert!(validate_registry(&reg).is_ok());
     }
@@ -1166,6 +1183,29 @@ json.dump({"ok":True,"data":{"requests":2},"findings":[{"tool":"t","title":"ok",
         assert_eq!(estimate_max_requests("1-request"), 1);
         assert_eq!(estimate_max_requests("bounded-requests"), 5);
         assert_eq!(estimate_max_requests("active-probe"), usize::MAX);
+    }
+
+    #[test]
+    fn estimate_skill_requests_override() {
+        // kasus nyata nightrun 2026-11-01: param-probe-checker aktual
+        // 2+12=14 — field est_requests WAJIB menimpa proyeksi kelas (5)
+        // supaya proyeksi budget jujur dan scan tidak abort di tengah.
+        let s = SkillSpec {
+            est_requests: Some(14),
+            name: "param-probe-checker".into(),
+            cmd: vec!["python".into()],
+            safety_class: "bounded-requests".into(),
+            needs: "target".into(),
+            requires_evidence: false,
+            lab_only: false,
+        };
+        assert_eq!(estimate_skill_requests(&s), 14);
+        // tanpa override = proyeksi kelas
+        let s2 = SkillSpec {
+            est_requests: None,
+            ..s
+        };
+        assert_eq!(estimate_skill_requests(&s2), 5);
     }
 
     #[test]

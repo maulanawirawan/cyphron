@@ -1,16 +1,16 @@
 {
   "components": {
     "nuclei-templates": {
-      "version": "e6adf540f147",
-      "commit_date": "2026-10-31T03:11:03Z",
+      "version": "ca848f19b9ed",
+      "commit_date": "2026-11-01T03:12:12Z",
       "template_count": 14198,
-      "synced_at": 1793449837.5730753,
+      "synced_at": 1793503070.981949,
       "delta_from_prev": 0
     },
     "kev": {
       "version": "2026-10-30T17:02:45.3665Z",
       "entry_count": 1766,
-      "synced_at": 1793449840.0909996,
+      "synced_at": 1793503072.9287174,
       "delta_from_prev": 0
     },
     "cwe": {
@@ -20,19 +20,19 @@
       "delta_from_prev": 0
     },
     "watchlist": {
-      "version": "window-20261031",
-      "entry_count": 64,
+      "version": "window-20261101",
+      "entry_count": 67,
       "seed_count": 11,
-      "nvd_count": 53,
+      "nvd_count": 56,
       "window_days": 14,
-      "synced_at": 1793449842.80183,
-      "delta_from_prev": 4
+      "synced_at": 1793503075.472836,
+      "delta_from_prev": 3
     },
     "nvd-ranges": {
-      "version": "nvd-20261031",
-      "entry_count": 10122,
-      "synced_at": 1793449857.540257,
-      "delta_from_prev": 1,
+      "version": "nvd-20261101",
+      "entry_count": 10121,
+      "synced_at": 1793503096.4858465,
+      "delta_from_prev": -1,
       "window_days": 3,
       "api_key": false
     }
@@ -311,6 +311,40 @@
       "version": "nvd-20261031",
       "entry_count": 10122,
       "delta_from_prev": 1,
+      "window_days": 3,
+      "api_key": false
+    },
+    {
+      "component": "nuclei-templates",
+      "at": 1793503070.981949,
+      "version": "ca848f19b9ed",
+      "commit_date": "2026-11-01T03:12:12Z",
+      "template_count": 14198,
+      "delta_from_prev": 0
+    },
+    {
+      "component": "kev",
+      "at": 1793503072.9564397,
+      "version": "2026-10-30T17:02:45.3665Z",
+      "entry_count": 1766,
+      "delta_from_prev": 0
+    },
+    {
+      "component": "watchlist",
+      "at": 1793503075.472836,
+      "version": "window-20261101",
+      "entry_count": 67,
+      "seed_count": 11,
+      "nvd_count": 56,
+      "window_days": 14,
+      "delta_from_prev": 3
+    },
+    {
+      "component": "nvd-ranges",
+      "at": 1793503096.4858465,
+      "version": "nvd-20261101",
+      "entry_count": 10121,
+      "delta_from_prev": -1,
       "window_days": 3,
       "api_key": false
     }

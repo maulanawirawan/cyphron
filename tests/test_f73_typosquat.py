@@ -92,6 +92,18 @@ class DriftTest(unittest.TestCase):
         self.assertFalse(meta["ok"])
         self.assertEqual(rows, [])
 
+    def test_error_row_unconfirmed_bukan_crash(self):
+        # pelajaran nightrun 2026-11-01: kegagalan sumber eksternal
+        # (502 crt.sh) = baris unconfirmed, BUKAN exit 1 yang membunuh
+        # seluruh scan program
+        from findings import validate_finding
+        row = tw.error_row("contoh.id", {"ok": False, "error":
+                                         "HTTPError: 502 Bad Gateway"})
+        self.assertEqual(row["verdict"], 1)
+        self.assertEqual(row["status"], "unconfirmed")
+        self.assertIn("502", row["description"])
+        self.assertEqual(validate_finding(row), [])
+
 
 class RegistryGateTest(unittest.TestCase):
     def test_typosquat_watch_registered(self):
