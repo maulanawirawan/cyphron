@@ -89,6 +89,22 @@ flowchart LR
   di Python dan Rust dan diuji silang; inti native juga bawa korelasi
   FAO (dedup, quorum, hash bukti) dan budget request yang fail-closed.
 
+## Isi repo (semuanya jalan, bukan pajangan)
+
+- `skills/` — 90+ script Python CLI deteksi yang bisa langsung dieksekusi:
+
+  ```bash
+  python skills/banner_posture.py --url https://example.com --out banner.json
+  ```
+
+- `core-rs/` — core Rust native: `cyphron validate` (kontrak), `scan` (run bertingkat), laporan PDF
+- `tools/` — lab target (`tools/lab_target.py`), planner, benchmark, intel yang update sendiri
+- MCP server — kerjakan cyphron dari Claude Code, Cursor, atau klien MCP lain
+
+Pakai AI coding agent? Repo ini punya [AGENTS.md](AGENTS.md) — arahkan
+Claude Code, Codex, atau Cursor ke sana, dia langsung tahu cara build,
+test, dan nambah skill.
+
 ## Quick start
 
 ```bash
@@ -218,6 +234,9 @@ cyphron untuk security assessment yang **berotorisasi**: aset milikmu
 sendiri, atau program yang secara eksplisit memberi izin. Memindai sistem
 yang bukan milikmu tanpa otorisasi itu ilegal di hampir semua yurisdiksi —
 jangan.
+
+Kalau cyphron berguna buatmu, satu bintang bantu orang lain menemukannya —
+itu saja yang diminta.
 
 ## Kontribusi
 

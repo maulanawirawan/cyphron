@@ -82,6 +82,22 @@ flowchart LR
   brings FAO correlation (dedup, quorum, evidence hashes) and a request
   budget that fails closed.
 
+## What's inside (everything runs)
+
+- `skills/` — 90+ executable Python detection CLIs. One command each:
+
+  ```bash
+  python skills/banner_posture.py --url https://example.com --out banner.json
+  ```
+
+- `core-rs/` — native Rust core: `cyphron validate` (contract), `scan` (tiered runs), PDF report
+- `tools/` — lab target (`tools/lab_target.py`), attack planner, benchmarks, self-updating intel
+- MCP server — drive cyphron from Claude Code, Cursor, or any MCP client
+
+Using an AI coding agent? This repo ships [AGENTS.md](AGENTS.md) — point
+Claude Code, Codex, or Cursor at it and it knows how to build, test, and
+extend cyphron.
+
 ## Quick start
 
 ```bash
@@ -188,6 +204,9 @@ the FP regression battery.
 cyphron is for **authorized** security assessment: your own assets, or
 programs that explicitly grant permission. Scanning systems you do not
 own without authorization is illegal in most jurisdictions — don't.
+
+If cyphron saves you time, a star helps other people find it —
+that is the whole ask.
 
 ## Contributing
 
