@@ -10,7 +10,7 @@ zero false positives by design.
 
 [![tests](https://img.shields.io/badge/tests-607%20python%20%2B%2044%20rust-brightgreen)](#development)
 [![CI](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml/badge.svg)](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml)
-[![license](https://img.shields.io/badge/license-Noncommercial-orange)](LICENSE)
+[![license](https://img.shields.io/badge/license-PolyForm_NC--blue)](LICENSE)
 [![python](https://img.shields.io/badge/python-3.12%2B-informational)](#quick-start)
 [![rust](https://img.shields.io/badge/rust-stable-orange)](#quick-start)
 [![skills](https://img.shields.io/badge/registry-72%20skills%20%7C%2035%20playbooks-8A2BE2)](#whats-inside)
@@ -194,9 +194,9 @@ own without authorization is illegal in most jurisdictions — don't.
 [PolyForm Noncommercial 1.0.0](LICENSE) - free to use, study, modify, and
 share for **noncommercial purposes**.
 
-Selling Cyphron, or using it commercially (including offering it as a paid
-service), requires a separate commercial license - contact the owner via
-[GitHub issues](https://github.com/maulanawirawan/cyphron/issues) or
+Want to sell Cyphron, or use it commercially (say, bundled into a paid
+service)? Also fine - just ask first and we'll sort a commercial
+license. Ping me via [GitHub issues](https://github.com/maulanawirawan/cyphron/issues) or
 [@maulanawirawan](https://github.com/maulanawirawan).
 
 Bundled third-party components and data sources are credited in

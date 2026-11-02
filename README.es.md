@@ -10,7 +10,7 @@ un contrato estricto, cero falsos positivos por diseño.
 
 [![tests](https://img.shields.io/badge/tests-607%20python%20%2B%2044%20rust-brightgreen)](#desarrollo)
 [![CI](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml/badge.svg)](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml)
-[![license](https://img.shields.io/badge/license-Noncommercial-orange)](LICENSE)
+[![license](https://img.shields.io/badge/license-PolyForm_NC--blue)](LICENSE)
 [![python](https://img.shields.io/badge/python-3.12%2B-informational)](#inicio-rápido)
 [![rust](https://img.shields.io/badge/rust-stable-orange)](#inicio-rápido)
 [![skills](https://img.shields.io/badge/registry-72%20skills%20%7C%2035%20playbooks-8A2BE2)](#qué-incluye)
@@ -230,9 +230,9 @@ jurisdicciones — no lo hagas.
 [PolyForm Noncommercial 1.0.0](LICENSE) - free to use, study, modify, and
 share for **noncommercial purposes**.
 
-Selling Cyphron, or using it commercially (including offering it as a paid
-service), requires a separate commercial license - contact the owner via
-[GitHub issues](https://github.com/maulanawirawan/cyphron/issues) or
+Quieres vender Cyphron o usarlo comercialmente (por ejemplo, como parte
+de un servicio de pago)? Tambien esta bien - pideme permiso primero y
+armamos una licencia comercial. Escribeme via [GitHub issues](https://github.com/maulanawirawan/cyphron/issues) o
 [@maulanawirawan](https://github.com/maulanawirawan).
 
 Bundled third-party components and data sources are credited in
