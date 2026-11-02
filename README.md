@@ -9,7 +9,7 @@ zero false positives by design.
 *No exploit, no report.*
 
 [![tests](https://img.shields.io/badge/tests-607%20python%20%2B%2044%20rust-brightgreen)](#development)
-[![CI](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml/badge.svg)](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml)
+[![CI](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml/badge.svg)](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml) [![release](https://img.shields.io/github/v/release/maulanawirawan/cyphron)](https://github.com/maulanawirawan/cyphron/releases)
 [![license](https://img.shields.io/badge/license-PolyForm_NC--blue)](LICENSE)
 [![python](https://img.shields.io/badge/python-3.12%2B-informational)](#quick-start)
 [![rust](https://img.shields.io/badge/rust-stable-orange)](#quick-start)
