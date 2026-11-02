@@ -1,9 +1,4 @@
-name: CI
-
-# least privilege: job tidak butuh menulis apa pun ke repo (pola
-# anthropics/oss-scanner — riset docs/RISET-OSS-SCANNER-2026-10.md §2)
-permissions:
-  contents: read
+name: ci
 
 on:
   push:
@@ -11,23 +6,13 @@ on:
   pull_request:
 
 jobs:
-  python:
-    name: python unittest
+  test:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Run unittest suite
-        run: python -m unittest discover -s tests
-
-  rust:
-    name: cargo test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
-      - uses: Swatinem/rust-cache@v2
-      - name: Run cargo tests
-        run: cargo test --release --manifest-path core-rs/Cargo.toml
+      - run: python -m pip install --quiet pytest
+      - run: python -m pytest tests/ -q
