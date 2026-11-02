@@ -189,6 +189,12 @@ cyphron is for **authorized** security assessment: your own assets, or
 programs that explicitly grant permission. Scanning systems you do not
 own without authorization is illegal in most jurisdictions — don't.
 
+## Contributing
+
+PRs welcome — bug fixes, new detection skills, docs. See
+[CONTRIBUTING.md](CONTRIBUTING.md). A merged PR = you are in the
+contributors list, for real.
+
 ## License
 
 [PolyForm Noncommercial 1.0.0](LICENSE) - free to use, study, modify, and

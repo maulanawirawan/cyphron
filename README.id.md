@@ -219,6 +219,12 @@ sendiri, atau program yang secara eksplisit memberi izin. Memindai sistem
 yang bukan milikmu tanpa otorisasi itu ilegal di hampir semua yurisdiksi —
 jangan.
 
+## Kontribusi
+
+PR selalu diterima — bug fix, skill deteksi baru, docs. Baca
+[CONTRIBUTING.md](CONTRIBUTING.md). PR yang di-merge = kamu masuk
+daftar contributors, beneran.
+
 ## Lisensi
 
 [PolyForm Noncommercial 1.0.0](LICENSE) - free to use, study, modify, and
