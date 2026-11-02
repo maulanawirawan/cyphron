@@ -9,7 +9,7 @@ Python 技能由原生 Rust 内核驱动，单一严格契约，
 *No exploit, no report.*（未利用，不报告。）
 
 [![tests](https://img.shields.io/badge/tests-607%20python%20%2B%2044%20rust-brightgreen)](#开发)
-[![CI](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml/badge.svg)](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml)
+[![CI](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml/badge.svg)](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml) [![release](https://img.shields.io/github/v/release/maulanawirawan/cyphron)](https://github.com/maulanawirawan/cyphron/releases)
 [![license](https://img.shields.io/badge/license-PolyForm_NC--blue)](LICENSE)
 [![python](https://img.shields.io/badge/python-3.12%2B-informational)](#快速开始)
 [![rust](https://img.shields.io/badge/rust-stable-orange)](#快速开始)
