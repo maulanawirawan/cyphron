@@ -38,6 +38,43 @@ sumber-sumber yang independen sepakat.
 
 Hasilnya laporan yang lebih pendek, tapi bisa kamu pertanggungjawabkan.
 
+## Lihat cara kerjanya
+
+Arahkan sebuah skill ke lab target bawaan, lalu perhatikan verdict-nya,
+bukan cuma tumpukan "temuan". Ini output asli, disalin apa adanya:
+
+```console
+$ python tools/lab_target.py
+lab target aktif: http://127.0.0.1:8777
+
+$ python skills/http_security_headers.py \
+    --url http://127.0.0.1:8777/api/products --from-raw raw.txt \
+    --out headers.json
+http-security-headers: 8 temuan (2 AMAN) (0 request) -> headers.json
+
+$ cyphron validate headers.json
+OK: 8 findings valid terhadap kontrak (headers.json)
+```
+
+Sekarang lihat isi `headers.json` — tiap baris membawa verdict-nya
+sendiri:
+
+```
+L1 SUSPECTED   low    Security header absent: Content-Security-Policy    reportable: false
+L1 SUSPECTED   low    Security header absent: X-Frame-Options            reportable: false
+L1 SUSPECTED   low    Security header absent: X-Content-Type-Options     reportable: false
+L1 SUSPECTED   info   Security header absent: Referrer-Policy            reportable: false
+L1 SUSPECTED   info   Security header absent: Permissions-Policy         reportable: false
+L0 OBSERVED    info   No version leak via Server                         reportable: false
+L0 OBSERVED    info   No version leak via X-Powered-By                   reportable: false
+L1 SUSPECTED   low    Security headers posture: 0/5 present              reportable: false
+```
+
+Perhatikan apa yang *tidak* terjadi: tidak ada yang disebut kerentanan.
+Semuanya lead `L1` dan baris `L0` ("dicek, tidak ada temuan"), masing-
+masing ditandai `reportable: false`, karena belum ada yang terbukti.
+Justru itu intinya.
+
 ## Tangga bukti
 
 | Level | Arti | Masuk laporan? |

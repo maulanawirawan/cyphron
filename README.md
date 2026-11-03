@@ -37,6 +37,45 @@ And a lead only gets promoted when independent sources agree on it.
 
 The result is a shorter report you can actually defend.
 
+## See it think
+
+Point a skill at the bundled lab target and watch the verdicts, not just
+a pile of "findings." This is real output, copied verbatim (the tools
+print in Indonesian — `temuan` = findings, `AMAN` = clear, `request` =
+requests):
+
+```console
+$ python tools/lab_target.py
+lab target aktif: http://127.0.0.1:8777
+
+$ python skills/http_security_headers.py \
+    --url http://127.0.0.1:8777/api/products --from-raw raw.txt \
+    --out headers.json
+http-security-headers: 8 temuan (2 AMAN) (0 request) -> headers.json
+
+$ cyphron validate headers.json
+OK: 8 findings valid terhadap kontrak (headers.json)
+```
+
+Now look at what's actually in `headers.json` — every row carries its
+own verdict:
+
+```
+L1 SUSPECTED   low    Security header absent: Content-Security-Policy    reportable: false
+L1 SUSPECTED   low    Security header absent: X-Frame-Options            reportable: false
+L1 SUSPECTED   low    Security header absent: X-Content-Type-Options     reportable: false
+L1 SUSPECTED   info   Security header absent: Referrer-Policy            reportable: false
+L1 SUSPECTED   info   Security header absent: Permissions-Policy         reportable: false
+L0 OBSERVED    info   No version leak via Server                         reportable: false
+L0 OBSERVED    info   No version leak via X-Powered-By                   reportable: false
+L1 SUSPECTED   low    Security headers posture: 0/5 present              reportable: false
+```
+
+Notice what *didn't* happen: nothing got called a vulnerability. These
+are `L1` leads and `L0` ("checked, found nothing") lines, every one
+marked `reportable: false`, because none of them is proven. That's the
+whole point.
+
 ## The evidence ladder
 
 | Level | Meaning | Goes in the report? |

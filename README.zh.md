@@ -34,6 +34,42 @@ cyphron 反其道而行：**证明不了的发现只是线索，不是结论。*
 
 最后得到的报告更短，但每一条都站得住。
 
+## 看它怎么判断
+
+把一个 skill 指向自带的实验靶场，关注它给出的判定，而不是一堆"发现"。
+下面是真实输出，原样复制（工具用印尼语打印：`temuan` = 发现，`AMAN` =
+正常，`request` = 请求）：
+
+```console
+$ python tools/lab_target.py
+lab target aktif: http://127.0.0.1:8777
+
+$ python skills/http_security_headers.py \
+    --url http://127.0.0.1:8777/api/products --from-raw raw.txt \
+    --out headers.json
+http-security-headers: 8 temuan (2 AMAN) (0 request) -> headers.json
+
+$ cyphron validate headers.json
+OK: 8 findings valid terhadap kontrak (headers.json)
+```
+
+再看看 `headers.json` 里到底是什么——每一行都带着自己的判定：
+
+```
+L1 SUSPECTED   low    Security header absent: Content-Security-Policy    reportable: false
+L1 SUSPECTED   low    Security header absent: X-Frame-Options            reportable: false
+L1 SUSPECTED   low    Security header absent: X-Content-Type-Options     reportable: false
+L1 SUSPECTED   info   Security header absent: Referrer-Policy            reportable: false
+L1 SUSPECTED   info   Security header absent: Permissions-Policy         reportable: false
+L0 OBSERVED    info   No version leak via Server                         reportable: false
+L0 OBSERVED    info   No version leak via X-Powered-By                   reportable: false
+L1 SUSPECTED   low    Security headers posture: 0/5 present              reportable: false
+```
+
+注意没有发生的事：没有任何一条被称作漏洞。它们都是 `L1` 线索和 `L0`
+（"查过了，没发现"）记录，每一条都标着 `reportable: false`，因为还没有
+任何一条被证明。这正是重点。
+
 ## 证据阶梯
 
 | 级别 | 含义 | 进入报告？ |

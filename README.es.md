@@ -39,6 +39,45 @@ pista solo sube de nivel cuando fuentes independientes coinciden.
 
 El resultado es un informe más corto que de verdad puedes defender.
 
+## Míralo razonar
+
+Apunta una skill al objetivo de laboratorio incluido y fíjate en los
+veredictos, no en un montón de "hallazgos". Esta es salida real, copiada
+tal cual (las herramientas imprimen en indonesio: `temuan` = hallazgos,
+`AMAN` = limpio, `request` = peticiones):
+
+```console
+$ python tools/lab_target.py
+lab target aktif: http://127.0.0.1:8777
+
+$ python skills/http_security_headers.py \
+    --url http://127.0.0.1:8777/api/products --from-raw raw.txt \
+    --out headers.json
+http-security-headers: 8 temuan (2 AMAN) (0 request) -> headers.json
+
+$ cyphron validate headers.json
+OK: 8 findings valid terhadap kontrak (headers.json)
+```
+
+Ahora mira qué hay de verdad en `headers.json`: cada fila lleva su
+propio veredicto:
+
+```
+L1 SUSPECTED   low    Security header absent: Content-Security-Policy    reportable: false
+L1 SUSPECTED   low    Security header absent: X-Frame-Options            reportable: false
+L1 SUSPECTED   low    Security header absent: X-Content-Type-Options     reportable: false
+L1 SUSPECTED   info   Security header absent: Referrer-Policy            reportable: false
+L1 SUSPECTED   info   Security header absent: Permissions-Policy         reportable: false
+L0 OBSERVED    info   No version leak via Server                         reportable: false
+L0 OBSERVED    info   No version leak via X-Powered-By                   reportable: false
+L1 SUSPECTED   low    Security headers posture: 0/5 present              reportable: false
+```
+
+Fíjate en lo que *no* pasó: nada se llamó vulnerabilidad. Son pistas
+`L1` y líneas `L0` ("revisado, sin hallazgos"), cada una marcada como
+`reportable: false`, porque ninguna está probada todavía. Ese es justo
+el punto.
+
 ## La escalera de evidencia
 
 | Nivel | Significado | ¿Va al informe? |
