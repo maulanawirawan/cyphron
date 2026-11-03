@@ -18,10 +18,18 @@ is the contract every change must respect.
 
 ## Ground rules (non-negotiable)
 
-1. Authorized targets only — own assets or explicit permission.
-2. Detection and evidence only. Never add exploitation payloads.
-3. Every finding must carry verifiable evidence; if it cannot be proven,
-   the verdict stays quiet (fail-closed).
+1. Authorized targets only — own assets, explicit written permission, or
+   a local lab. This is a tool for learning and for sanctioned testing,
+   not for hitting systems you have no right to touch.
+2. Evidence is the product. A finding only counts when it carries
+   verifiable evidence; if it cannot be proven, the verdict stays quiet
+   (fail-closed). "No exploit, no report."
+3. The proof tier (`tools/exploit_*`) builds reproducible PoCs to turn a
+   lead into proof — but only under its gates: `exploit_allowed` per
+   target, lab/staging by default, three keys for anything destructive.
+   The NEVER-LIST (DoS, persistence/backdoor, worms, ransomware-sim,
+   mass exfiltration) is refused no matter what flags are passed — do
+   not add techniques from it, and do not weaken the gates.
 4. License is PolyForm NC: free for noncommercial use, commercial use by
    arrangement with the owner. Contributions follow the same license.
 
