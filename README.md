@@ -2,18 +2,21 @@
 
 # cyphron
 
-**Proof, not claims.** An evidence-first security assessment engine —
-Python skills driven by a native Rust core, one strict contract,
-zero false positives by design.
+**Proof, not claims.**
+
+An evidence-first security assessment engine. Python detection skills,
+a native Rust core, and one strict output contract that both sides
+agree on.
 
 *No exploit, no report.*
 
-[![tests](https://img.shields.io/badge/tests-607%20python%20%2B%2044%20rust-brightgreen)](#development)
-[![CI](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml/badge.svg)](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml) [![release](https://img.shields.io/github/v/release/maulanawirawan/cyphron)](https://github.com/maulanawirawan/cyphron/releases)
-[![license](https://img.shields.io/badge/license-PolyForm_NC--blue)](LICENSE)
-[![python](https://img.shields.io/badge/python-3.12%2B-informational)](#quick-start)
+[![CI](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml/badge.svg)](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml)
+[![tests](https://img.shields.io/badge/tests-914%20python%20%2B%2059%20rust-brightgreen)](#development)
+[![release](https://img.shields.io/github/v/release/maulanawirawan/cyphron)](https://github.com/maulanawirawan/cyphron/releases)
+[![skills](https://img.shields.io/badge/detection%20skills-92-8A2BE2)](#whats-inside)
+[![python](https://img.shields.io/badge/python-3.12%2B-3776AB)](#quick-start)
 [![rust](https://img.shields.io/badge/rust-stable-orange)](#quick-start)
-[![skills](https://img.shields.io/badge/registry-72%20skills%20%7C%2035%20playbooks-8A2BE2)](#whats-inside)
+[![license](https://img.shields.io/badge/license-PolyForm%20NC%201.0-blue)](LICENSE)
 
 **English** · [Bahasa Indonesia](README.id.md) · [中文](README.zh.md) · [Español](README.es.md)
 
@@ -21,82 +24,74 @@ zero false positives by design.
 
 ---
 
-## Why cyphron exists
+## Why this exists
 
-Most scanners hand you a wall of unverified findings and wish you luck.
-Triage teams reject those reports — *"demonstrated impact is not clear"* —
-and honestly, they're right.
+Most scanners hand you a few hundred "possible" findings and leave the
+rest to you. Then a triage team bounces the report with *"impact not
+demonstrated"*, and, honestly, they're right to.
 
-cyphron optimizes for the opposite outcome: **a finding you cannot prove
-is a lead, not a claim.** Every row carries a verdict on an explicit
-evidence ladder, malformed output stops the run instead of passing
-silently, and cross-tool correlation only upgrades a lead when
-independent sources agree.
+cyphron goes the other way. **A finding you can't prove is a lead, not
+a claim.** Every result sits on an explicit evidence ladder. If a tool
+produces malformed output, the run stops instead of quietly moving on.
+And a lead only gets promoted when independent sources agree on it.
+
+The result is a shorter report you can actually defend.
 
 ## The evidence ladder
 
-| Level | Meaning | Reportable? |
+| Level | Meaning | Goes in the report? |
 |---|---|---|
-| `L-x` | REJECTED (proven false positive) | — |
-| `L0` | OBSERVED — checked, nothing found | no |
-| `L1` | SUSPECTED — inventory/posture lead | no |
-| `L2` | REPRODUCED — reproducible lead | no |
-| `L3` | DETERMINISTICALLY VERIFIED — PoC | ✅ |
-| `L4` | IMPACT VERIFIED — owned someone else's object | ✅ |
-| `L5` | BLIND VALIDATED — third party confirmed | ✅ |
+| `L-x` | REJECTED: proven false positive | no |
+| `L0` | OBSERVED: checked, nothing found | no |
+| `L1` | SUSPECTED: inventory or posture lead | no |
+| `L2` | REPRODUCED: the lead reproduces | no |
+| `L3` | DETERMINISTICALLY VERIFIED: working PoC | ✅ |
+| `L4` | IMPACT VERIFIED: accessed an object that isn't yours | ✅ |
+| `L5` | BLIND VALIDATED: confirmed by a third party | ✅ |
 
-Only `L3+` can ever appear in a report. Everything else is internal
-discipline: what you checked, and what it proved.
+Only `L3` and above ever reach a report. Everything below that is
+bookkeeping: what you checked, and what it showed.
 
 ```mermaid
 flowchart LR
-    A[recon skills<br/>tier0 · budgeted] --> B[findings.json<br/>single-door contract]
+    A[recon skills<br/>tier0 · request budget] --> B[findings.json<br/>single-door contract]
     B --> C[FAO quorum<br/>dedup + evidence hashes]
-    C -->|verified| E[L3+ evidence · report]
-    C -->|not proven| F[L0 line · zero-FP discipline]
+    C -->|proven| E[L3+ evidence · report]
+    C -->|not proven| F[L0 line · kept, not hidden]
     B --> G[PDF report<br/>typst]
 ```
 
 ## What's inside
 
-> **Public edition scope:** this public repository ships the
-> detection/posture engine (read-only + bounded skills, evidence
-> quorum, reports). Active-exploitation components are
-> intentionally excluded and require a separate license.
+- **92 detection skills** in `skills/` covering recon, posture, and
+  exposure. Each one is a standalone CLI with a declared safety class
+  (`read-only` up to `state-changing`) and a hard request budget that
+  follows from it. The registry is an allowlist, so nothing runs unless
+  it's listed.
+- **A native Rust core** in `core-rs/`: `cyphron validate` checks the
+  contract, `cyphron scan` runs tiered scans, and it renders the PDF
+  report. It also handles FAO correlation (dedup, quorum, evidence
+  hashes) and a request budget that fails closed.
+- **One contract, two languages.** `findings.json` is implemented in
+  both Python and Rust, and the two are cross-tested against each other.
+- **Self-updating intel** from CISA KEV, NVD, and OSV, so CVE matching
+  doesn't go stale.
+- **Code map.** Point it at a codebase and it produces an
+  `attack-surface.json` (routes, auth flags, upload handlers) with zero
+  requests and zero code execution, then ties leads back to `file:line`.
+- **Night runs.** Scheduled scans with drift detection: new leads,
+  weakened evidence, and changed verdicts are tracked per program.
+- **MCP server** so you can drive cyphron from Claude Code, Cursor, or
+  any other MCP client.
+- **A gated proof tier** (`tools/exploit_*`) for turning `L1`/`L2` leads
+  into `L3`/`L4` with reproducible PoCs. It's off unless a target is
+  explicitly marked `exploit_allowed`, it's meant for labs and staging,
+  and some techniques (DoS, persistence, worms, ransomware simulation,
+  mass exfiltration) are refused no matter what flags you pass. Details
+  in [docs/EXPLOIT-TIER.md](docs/EXPLOIT-TIER.md).
 
-- **84 registry skills** (recon, posture, exposure) — each with an
-  explicit safety class (`read-only` → `state-changing`) and a hard
-  request budget derived from it.
-- **Public edition scope** — this repository ships the
-  detection/posture engine only (read-only + bounded skills, quorum,
-  reports). The gated active-exploitation tier (playbooks, lab target,
-  sandbox) is intentionally **not** part of this repository.
-- **Code map** — parses a target repo's source into an
-  `attack-surface.json` (routes, auth flags, upload handlers) with
-  zero requests and zero code execution, then reconciles leads to
-  `file:line`.
-- **Night runs** — scheduled scans with drift detection: new leads,
-  weakened evidence, and verdict changes are tracked per program.
-- **One contract, two languages** — `findings.json` is implemented
-  identically in Python and Rust and cross-tested; the native core also
-  brings FAO correlation (dedup, quorum, evidence hashes) and a request
-  budget that fails closed.
-
-## What's inside (everything runs)
-
-- `skills/` — 90+ executable Python detection CLIs. One command each:
-
-  ```bash
-  python skills/banner_posture.py --url https://example.com --out banner.json
-  ```
-
-- `core-rs/` — native Rust core: `cyphron validate` (contract), `scan` (tiered runs), PDF report
-- `tools/` — lab target (`tools/lab_target.py`), attack planner, benchmarks, self-updating intel
-- MCP server — drive cyphron from Claude Code, Cursor, or any MCP client
-
-Using an AI coding agent? This repo ships [AGENTS.md](AGENTS.md) — point
-Claude Code, Codex, or Cursor at it and it knows how to build, test, and
-extend cyphron.
+Using an AI coding agent? Point it at [AGENTS.md](AGENTS.md). It covers
+how to build, test, and add a skill.
 
 ## Quick start
 
@@ -104,54 +99,60 @@ extend cyphron.
 # build the native core
 cargo build --release --manifest-path core-rs/Cargo.toml
 
-# run one skill directly
+# run a single skill
 python skills/banner_posture.py --url https://example.com --out banner.json
 
-# validate against the contract
+# check the output against the contract
 core-rs/target/release/cyphron validate banner.json
 
-# full tier0 scan (public-data only, strict budget) + PDF report
+# full tier0 scan (public data only, strict budget) plus a PDF report
 core-rs/target/release/cyphron scan --domain example.com \
     --max-requests 32 --out findings/scan --report
 ```
 
+Want something safe to practice on? `python tools/lab_target.py` starts
+a local lab target. More setup notes are in
+[docs/INSTALL.md](docs/INSTALL.md).
+
 ### Code map
 
 ```bash
-# map a repo's source to an attack surface (zero requests)
+# map a repo's source to an attack surface (no requests sent)
 python tools/code_map.py --repo <path> --out surface.json --reconcile f.json
 ```
 
-## Design rules (the boring, important part)
+## Design rules
 
-- **Single-door contract** — every tool writes the same `findings.json`
-  shape; malformed output fails the run (fail-closed).
-- **Safety classes + registry allowlist** — tier0 only ever runs the
-  gentle classes; the registry is an allowlist, not a blacklist.
-- **Zero-FP regression battery** — FP1–FP16 plus per-class guards are
-  part of the test suite; a control endpoint "failing too" cancels the
-  claim instead of confirming it.
-- **Low-profile egress** — honest tool identity by default; optional
-  `--ua` / `--proxy` with redacted credentials. No evasion features,
-  on purpose.
-- **Run manifest** — sha256 of every artifact per run, so evidence
-  chains stay verifiable later.
+The boring part, which is also the important part.
+
+- **Single-door contract.** Every tool writes the same `findings.json`
+  shape. Malformed output fails the run.
+- **Safety classes and an allowlist.** tier0 only runs the gentle
+  classes. If a skill isn't in the registry, it doesn't run.
+- **False-positive regression battery.** FP1 to FP16 plus per-class
+  guards live in the test suite. If a control endpoint "fails" the same
+  way, the claim is cancelled, not confirmed.
+- **Honest egress.** cyphron identifies itself by default. You can set
+  `--ua` or `--proxy` (credentials get redacted), but there are no
+  evasion features, on purpose.
+- **Run manifest.** Every artifact in a run gets a sha256, so the
+  evidence chain can still be checked months later.
 
 ## Repo layout
 
 ```
-core/findings.py        # the single-door contract (Python side)
-core-rs/                # native core: contract, orchestrator, FAO, serve
-skills/                 # 75 registry skills + registry.json (allowlist)
-tools/                  # exploit engine/playbooks/sandbox, planner,
-                        # code-map, nightrun, PDF report, MCP server…
-tests/                  # Python suite (incl. FP regression + guards)
-lab/                    # synthetic local lab site
-docs/                   # exploit tier policy, egress, install, nightrun
-Dockerfile              # slim product image
+core/findings.py   the contract, Python side
+core-rs/           native core: contract, orchestrator, FAO, serve
+skills/            92 detection skills + registry.json (the allowlist)
+tools/             planner, code map, night runs, intel sync,
+                   PDF report, MCP server, gated proof tier, lab target
+tests/             Python suite, incl. FP regression and guard tests
+lab/               synthetic local lab site
+docs/              install, egress, night runs, intel, proof tier policy
+Dockerfile         slim image
 ```
 
-## MCP server (Claude Code / Cursor / any MCP client)
+## MCP server
 
 ```bash
 pip install "mcp[cli]"
@@ -168,61 +169,61 @@ pip install "mcp[cli]"
 }
 ```
 
-Exposes `cyphron_list_skills` and `cyphron_run_skill` — lab-only classes
-are never exposed, and every result is contract-validated before it's
-returned.
+This exposes `cyphron_list_skills` and `cyphron_run_skill`. Lab-only
+classes are never exposed, and every result is validated against the
+contract before it comes back to you.
 
 ## FAQ
 
 **Is this a vulnerability scanner?**
-Partly. The tier0 side is a budgeted recon/posture engine. The more
-interesting half is the exploit tier: turning "maybe" into "proven" with
-reproducible PoCs — on targets you're authorized to test.
+Partly. tier0 is a budgeted recon and posture engine, which is the part
+most people will use. The more interesting part is what happens after:
+deciding what's actually proven and what's still a guess.
 
-**Why so many "not proven" lines in the output?**
-That's the point. A failed proof is recorded as an L0 line, not hidden.
-Silent skips are how false positives are born.
+**Why is the output full of "not proven" lines?**
+That's on purpose. A check that didn't prove anything gets recorded as
+an `L0` line instead of disappearing. Silent skips are where false
+positives come from.
 
-**Can I point the exploit engine at a production site?**
-You shouldn't — and the tool makes that a conscious, explicit act
-(`exploit_allowed` per target, lab/staging intended). For anything
-destructive you need three independent keys plus a snapshot.
+**Can I run the proof tier against production?**
+Please don't. The tool makes it a deliberate act: you have to set
+`exploit_allowed` per target, and anything destructive needs three
+separate keys plus a snapshot acknowledgement.
 
 ## Development
 
 ```bash
-python -m unittest discover -s tests
+python -m pytest tests/ -q
 cargo test --release --manifest-path core-rs/Cargo.toml
 ```
 
-Guard tests enforce the contract across languages: verdict tags, finding
-ids, `(rows, meta)` return shapes, caller arity, anti-UA hardcoding, and
-the FP regression battery.
+Guard tests keep the two languages honest with each other: verdict
+tags, finding IDs, `(rows, meta)` return shapes, caller arity, no
+hardcoded user agents, and the full FP regression battery.
 
-## Scope & responsible use
+## Responsible use
 
-cyphron is for **authorized** security assessment: your own assets, or
-programs that explicitly grant permission. Scanning systems you do not
-own without authorization is illegal in most jurisdictions — don't.
-
-If cyphron saves you time, a star helps other people find it —
-that is the whole ask.
+cyphron is for **authorized** testing only: your own systems, or
+programs that clearly give you permission. Scanning things you don't
+own without permission is illegal in most places. Don't.
 
 ## Contributing
 
-PRs welcome — bug fixes, new detection skills, docs. See
-[CONTRIBUTING.md](CONTRIBUTING.md). A merged PR = you are in the
-contributors list, for real.
+PRs are welcome: bug fixes, new detection skills, docs, typos. Start
+with [CONTRIBUTING.md](CONTRIBUTING.md). Merged PRs land you in the
+contributors list.
+
+If cyphron saves you some time, a ⭐ helps other people find it.
 
 ## License
 
-[PolyForm Noncommercial 1.0.0](LICENSE) - free to use, study, modify, and
-share for **noncommercial purposes**.
+[PolyForm Noncommercial 1.0.0](LICENSE). Free to use, study, modify, and
+share for **noncommercial** purposes.
 
-Want to sell Cyphron, or use it commercially (say, bundled into a paid
-service)? Also fine - just ask first and we'll sort a commercial
-license. Ping me via [GitHub issues](https://github.com/maulanawirawan/cyphron/issues) or
+Want to use it commercially, for example inside a paid service? That's
+fine too, just ask first and we'll work out a license. Open an
+[issue](https://github.com/maulanawirawan/cyphron/issues) or reach me at
 [@maulanawirawan](https://github.com/maulanawirawan).
 
-Bundled third-party components and data sources are credited in
+Third-party components and data sources are credited in
 [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).

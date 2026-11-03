@@ -7,13 +7,13 @@ is the contract every change must respect.
 
 ## Repo map
 
-- `skills/` — ~90 standalone Python CLIs, one detection skill each
+- `skills/` — 92 standalone Python CLIs, one detection skill each
   (`--url` / `--target` ... `--out result.json`). This is what users run.
 - `core-rs/` — native Rust core (`cyphron validate | scan ...`).
   Build: `cargo build --release --manifest-path core-rs/Cargo.toml`
 - `tools/` — helpers: lab target (`tools/lab_target.py`), planner,
   benchmarks, self-update.
-- `tests/` — pytest suite (915 tests). Run: `python -m pytest tests/ -q`
+- `tests/` — pytest suite (900+ tests). Run: `python -m pytest tests/ -q`
 - `docs/` — policies: exploit tier, egress, install, nightrun.
 
 ## Ground rules (non-negotiable)

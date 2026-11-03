@@ -1,7 +1,7 @@
 # Contributing to Cyphron / Kontribusi ke Cyphron
 
 PRs are welcome! The engine grows because people poke at it. / PR selalu
-diterima — engine ini tumbuh karena ada yang menggudik.
+diterima — engine ini tumbuh karena ada yang ngoprek.
 
 ## How / Cara
 

@@ -2,18 +2,21 @@
 
 # cyphron
 
-**Bukti, bukan klaim.** Mesin security-assessment berbasis bukti —
-skill Python yang dikendalikan inti Rust native, satu kontrak ketat,
-nol false-positive by design.
+**Bukti, bukan klaim.**
+
+Mesin security assessment yang berangkat dari bukti. Skill deteksi
+ditulis di Python, core-nya native Rust, dan keduanya tunduk pada satu
+kontrak output yang ketat.
 
 *No exploit, no report.*
 
-[![tests](https://img.shields.io/badge/tests-607%20python%20%2B%2044%20rust-brightgreen)](#development)
-[![CI](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml/badge.svg)](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml) [![release](https://img.shields.io/github/v/release/maulanawirawan/cyphron)](https://github.com/maulanawirawan/cyphron/releases)
-[![license](https://img.shields.io/badge/license-PolyForm_NC--blue)](LICENSE)
-[![python](https://img.shields.io/badge/python-3.12%2B-informational)](#quick-start)
-[![rust](https://img.shields.io/badge/rust-stable-orange)](#quick-start)
-[![skills](https://img.shields.io/badge/registry-72%20skill%20%7C%2035%20playbook-8A2BE2)](#isinya-apa-saja)
+[![CI](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml/badge.svg)](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml)
+[![tests](https://img.shields.io/badge/tests-914%20python%20%2B%2059%20rust-brightgreen)](#development)
+[![release](https://img.shields.io/github/v/release/maulanawirawan/cyphron)](https://github.com/maulanawirawan/cyphron/releases)
+[![skills](https://img.shields.io/badge/detection%20skills-92-8A2BE2)](#isinya-apa-saja)
+[![python](https://img.shields.io/badge/python-3.12%2B-3776AB)](#mulai-cepat)
+[![rust](https://img.shields.io/badge/rust-stable-orange)](#mulai-cepat)
+[![license](https://img.shields.io/badge/license-PolyForm%20NC%201.0-blue)](LICENSE)
 
 [English](README.md) · **Bahasa Indonesia** · [中文](README.zh.md) · [Español](README.es.md)
 
@@ -21,166 +24,138 @@ nol false-positive by design.
 
 ---
 
-## Kenapa cyphron ada
+## Kenapa cyphron dibuat
 
-Kebanyakan scanner nyerahin tembok temuan yang belum terverifikasi terus
-bilang "semoga beruntung". Tim triage menolak laporan begitu —
-*"demonstrated impact is not clear"* — dan jujur saja, mereka benar.
+Kebanyakan scanner ngasih ratusan temuan "mungkin", terus sisanya
+urusan kamu. Begitu laporannya dikirim, tim triage nolak dengan alasan
+*"impact belum terbukti"*. Dan jujur saja, mereka benar.
 
-cyphron mengoptimalkan kebalikannya: **temuan yang tidak bisa dibuktikan
-adalah lead, bukan klaim.** Setiap baris membawa verdict di tangga bukti
-yang eksplisit, output cacat menghentikan run (bukan lolos diam-diam),
-dan korelasi lintas-tool hanya menaikkan kelas bila sumber independen
-sepakat.
+cyphron sengaja ambil jalan sebaliknya. **Temuan yang belum bisa
+dibuktikan itu masih lead, belum klaim.** Setiap hasil punya posisi di
+tangga bukti yang jelas. Kalau ada tool yang outputnya cacat, run-nya
+berhenti, bukan diam-diam lanjut. Dan sebuah lead baru naik kelas kalau
+sumber-sumber yang independen sepakat.
+
+Hasilnya laporan yang lebih pendek, tapi bisa kamu pertanggungjawabkan.
 
 ## Tangga bukti
 
-| Level | Arti | Reportable? |
+| Level | Arti | Masuk laporan? |
 |---|---|---|
-| `L-x` | DITOLAK (terbukti false positive) | — |
-| `L0` | OBSERVED — dicek, tidak ada temuan | tidak |
-| `L1` | SUSPECTED — lead inventaris/postur | tidak |
-| `L2` | REPRODUCED — lead reproduktif | tidak |
-| `L3` | DETERMINISTICALLY VERIFIED — PoC | ✅ |
-| `L4` | IMPACT VERIFIED — objek milik orang lain terbaca | ✅ |
-| `L5` | BLIND VALIDATED — dikonfirmasi pihak ketiga | ✅ |
+| `L-x` | REJECTED: terbukti false positive | tidak |
+| `L0` | OBSERVED: sudah dicek, tidak ada temuan | tidak |
+| `L1` | SUSPECTED: lead dari inventaris atau postur | tidak |
+| `L2` | REPRODUCED: lead-nya bisa direproduksi | tidak |
+| `L3` | DETERMINISTICALLY VERIFIED: ada PoC yang jalan | ✅ |
+| `L4` | IMPACT VERIFIED: berhasil mengakses objek milik orang lain | ✅ |
+| `L5` | BLIND VALIDATED: dikonfirmasi pihak ketiga | ✅ |
 
-Hanya `L3+` yang pernah masuk laporan. Sisanya adalah disiplin internal:
-apa yang sudah dicek, dan apa buktinya.
+Cuma `L3` ke atas yang bisa masuk laporan. Di bawah itu sifatnya
+catatan kerja: apa yang sudah dicek, dan apa hasilnya.
 
 ```mermaid
 flowchart LR
-    A[skill recon<br/>tier0 · ber-budget] --> B[findings.json<br/>kontrak satu pintu]
-    B --> C{planner<br/>deterministik + LLM opsional}
-    C --> D[exploit engine<br/>lab/staging saja · ter-gate]
-    D -->|terbukti| E[bukti L3+ · laporan]
-    D -->|tidak terbukti| F[baris L0 · disiplin zero-FP]
+    A[skill recon<br/>tier0 · budget request] --> B[findings.json<br/>kontrak satu pintu]
+    B --> C[quorum FAO<br/>dedup + hash bukti]
+    C -->|terbukti| E[bukti L3+ · laporan]
+    C -->|belum terbukti| F[baris L0 · dicatat, tidak disembunyikan]
     B --> G[laporan PDF<br/>typst]
 ```
 
 ## Isinya apa saja
 
-- **75 skill registry** (recon, postur, exposure) — masing-masing
-  bawa kelas safety eksplisit (`read-only` → `state-changing`) dan
-  budget request keras yang diturunkan darinya.
-- **38 playbook exploit** — IDOR, SQLi (boolean/error/time), SSRF +
-  chain, XXE (OOB + file in-band), deserialization, JNDI, prototype
-  pollution, cache deception **dan poisoning**, JWT (secret lemah +
-  alg confusion), CRLF, enumerasi user (reset + registrasi), session
-  fixation + sesi yang tak mati setelah logout, lockout, OAuth state,
-  host-header poisoning, RCE marker, IDOR massal, regresi auth antar
-  versi API… Setiap playbook bawa **kontrol safe-endpoint** — kalau
-  kontrolnya ikut "gagal", klaimnya dibuang.
-- **Sandbox Docker** — engine jalan di kontainer ephemeral yang
-  di-hardening (rootfs read-only, cap-drop ALL, network internal,
-  tanpa internet). **38 playbook terbukti end-to-end dari dalam
-  kontainer itu**: 140 request, nol trafik eksternal.
-- **Attack planner** — inti deterministik secara default (nol request,
-  nol eksekusi); LLM lokal opsional hanya boleh *memilih dan
-  mengurutkan* dari menu playbook terdaftar, outputnya divalidasi
-  keras. Selalu meng-emit `exploit_allowed: false`.
-- **Code map** — parse source code repo target jadi
-  `attack-surface.json` (routes, flag auth, upload handler) dengan
-  nol request dan nol eksekusi kode, lalu memetakan lead ke
+- **92 skill deteksi** di `skills/` untuk recon, postur, dan exposure.
+  Masing-masing CLI mandiri dengan kelas keamanan yang dideklarasikan
+  (dari `read-only` sampai `state-changing`) dan batas request yang
+  mengikuti kelas itu. Registry-nya berupa allowlist, jadi yang tidak
+  terdaftar tidak akan jalan.
+- **Core native Rust** di `core-rs/`: `cyphron validate` untuk cek
+  kontrak, `cyphron scan` untuk scan bertingkat, sekaligus render
+  laporan PDF. Core ini juga menangani korelasi FAO (dedup, quorum, hash
+  bukti) dan budget request yang fail-closed.
+- **Satu kontrak, dua bahasa.** `findings.json` diimplementasikan di
+  Python dan Rust, lalu keduanya diuji silang.
+- **Intel yang update sendiri** dari CISA KEV, NVD, dan OSV, supaya
+  pencocokan CVE tidak basi.
+- **Code map.** Arahkan ke sebuah codebase, hasilnya
+  `attack-surface.json` (route, flag auth, handler upload) tanpa satu
+  request pun dan tanpa menjalankan kode. Lead lalu dipetakan balik ke
   `file:line`.
-- **Night run** — scan terjadwal dengan drift detection: lead baru,
-  bukti yang melemah, dan perubahan verdict terlacak per program.
-- **Satu kontrak, dua bahasa** — `findings.json` diimplementasi identik
-  di Python dan Rust dan diuji silang; inti native juga bawa korelasi
-  FAO (dedup, quorum, hash bukti) dan budget request yang fail-closed.
+- **Night run.** Scan terjadwal dengan deteksi perubahan: lead baru,
+  bukti yang melemah, dan verdict yang berubah dicatat per program.
+- **MCP server**, jadi cyphron bisa dikendalikan dari Claude Code,
+  Cursor, atau MCP client lain.
+- **Tier pembuktian yang dikunci** (`tools/exploit_*`) untuk menaikkan
+  lead `L1`/`L2` jadi `L3`/`L4` dengan PoC yang bisa direproduksi.
+  Defaultnya mati, kecuali target ditandai `exploit_allowed` secara
+  eksplisit. Tujuannya untuk lab dan staging. Beberapa teknik (DoS,
+  persistence, worm, simulasi ransomware, exfiltration massal) selalu
+  ditolak, flag apa pun yang dipakai. Detailnya di
+  [docs/EXPLOIT-TIER.md](docs/EXPLOIT-TIER.md).
 
-## Isi repo (semuanya jalan, bukan pajangan)
+Pakai AI coding agent? Arahkan ke [AGENTS.md](AGENTS.md). Di sana ada
+cara build, test, dan menambah skill.
 
-- `skills/` — 90+ script Python CLI deteksi yang bisa langsung dieksekusi:
-
-  ```bash
-  python skills/banner_posture.py --url https://example.com --out banner.json
-  ```
-
-- `core-rs/` — core Rust native: `cyphron validate` (kontrak), `scan` (run bertingkat), laporan PDF
-- `tools/` — lab target (`tools/lab_target.py`), planner, benchmark, intel yang update sendiri
-- MCP server — kerjakan cyphron dari Claude Code, Cursor, atau klien MCP lain
-
-Pakai AI coding agent? Repo ini punya [AGENTS.md](AGENTS.md) — arahkan
-Claude Code, Codex, atau Cursor ke sana, dia langsung tahu cara build,
-test, dan nambah skill.
-
-## Quick start
+## Mulai cepat
 
 ```bash
-# bangun inti native
+# build core native
 cargo build --release --manifest-path core-rs/Cargo.toml
 
-# jalankan satu skill langsung
+# jalankan satu skill
 python skills/banner_posture.py --url https://example.com --out banner.json
 
-# validasi terhadap kontrak
+# cek output terhadap kontrak
 core-rs/target/release/cyphron validate banner.json
 
-# scan tier0 penuh (hanya data publik, budget ketat) + laporan PDF
+# scan tier0 lengkap (data publik saja, budget ketat) plus laporan PDF
 core-rs/target/release/cyphron scan --domain example.com \
     --max-requests 32 --out findings/scan --report
 ```
 
-### Exploit tier (lab saja — bagian yang di-gate)
+Butuh target latihan yang aman? `python tools/lab_target.py` akan
+menyalakan target lab lokal. Catatan instalasi lain ada di
+[docs/INSTALL.md](docs/INSTALL.md).
+
+### Code map
 
 ```bash
-# lab target rentan lokal
-python tools/lab_target.py &
-
-# jalankan playbook — wajib exploit_allowed: true di config
-python tools/exploit_engine.py --config exploit-lab.json --out findings/exploit
-
-# atau semuanya di dalam sandbox ephemeral yang di-hardening
-python tools/exploit_sandbox.py --config exploit-lab.json \
-    --out findings/exploit-sandbox --lab-in-docker
-```
-
-Engine menolak menembakkan satu request pun ke target tanpa
-`exploit_allowed: true` eksplisit. Mode destructive butuh tiga kunci
-sekaligus, dan never-list (DoS, persistence, worm, ransomware) tidak
-bisa dibuka oleh flag apa pun.
-
-### Planner & code map
-
-```bash
-# ubah lead jadi attack plan — selalu emit exploit_allowed: false
-python tools/attack_planner.py --findings f.json --out plan.json
-
-# petakan source repo jadi attack surface (nol request)
+# petakan source sebuah repo jadi attack surface (tanpa request)
 python tools/code_map.py --repo <path> --out surface.json --reconcile f.json
 ```
 
-## Aturan desain (bagian membosankan yang penting)
+## Aturan desain
 
-- **Kontrak satu pintu** — semua tool menulis shape `findings.json`
-  yang sama; output cacat = run gagal (fail-closed).
-- **Kelas safety + registry allowlist** — tier0 hanya menjalankan kelas
-  yang lembut; registry itu allowlist, bukan blacklist.
-- **Baterai regresi zero-FP** — FP1–FP16 plus guard per kelas bagian
-  dari suite; endpoint kontrol yang "ikut gagal" membatalkan klaim,
-  bukan mengonfirmasinya.
-- **Egress low-profile** — identitas tool jujur secara default; `--ua`/
-  `--proxy` opsional dengan kredensial ter-redaksi. Tanpa fitur evasion,
-  sengaja.
-- **Run manifest** — sha256 semua artefak per run, supaya rantai bukti
-  tetap bisa diverifikasi belakangan.
+Bagian yang membosankan, tapi justru paling penting.
+
+- **Kontrak satu pintu.** Semua tool menulis bentuk `findings.json`
+  yang sama. Output cacat menggagalkan run.
+- **Kelas keamanan dan allowlist.** tier0 cuma menjalankan kelas yang
+  aman. Skill yang tidak ada di registry tidak akan jalan.
+- **Baterai regresi false positive.** FP1 sampai FP16 plus guard per
+  kelas ada di test suite. Kalau endpoint kontrol ikut "gagal" dengan
+  cara yang sama, klaimnya dibatalkan, bukan dikonfirmasi.
+- **Egress yang jujur.** Secara default cyphron memperkenalkan dirinya
+  apa adanya. Kamu bisa set `--ua` atau `--proxy` (kredensial
+  diredaksi), tapi tidak ada fitur evasion. Itu disengaja.
+- **Run manifest.** Setiap artefak dalam satu run dapat sha256, jadi
+  rantai bukti tetap bisa dicek berbulan-bulan kemudian.
 
 ## Struktur repo
 
 ```
-core/findings.py        # kontrak satu pintu (sisi Python)
-core-rs/                # inti native: contract, orchestrator, FAO, serve
-skills/                 # 75 skill registry + registry.json (allowlist)
-tools/                  # exploit engine/playbook/sandbox, planner,
-                        # code-map, nightrun, laporan PDF, MCP server…
-tests/                  # suite Python (termasuk regresi FP + guard)
-lab/                    # situs lab lokal sintetis
-docs/                   # kebijakan exploit tier, egress, install, nightrun
-Dockerfile              # image produk slim
+core/findings.py   kontrak, sisi Python
+core-rs/           core native: kontrak, orchestrator, FAO, serve
+skills/            92 skill deteksi + registry.json (allowlist)
+tools/             planner, code map, night run, sinkron intel,
+                   laporan PDF, MCP server, tier pembuktian, target lab
+tests/             suite Python, termasuk regresi FP dan guard test
+lab/               situs lab sintetis lokal
+docs/              instalasi, egress, night run, intel, kebijakan tier
+Dockerfile         image ramping
 ```
 
-## MCP server (Claude Code / Cursor / klien MCP lain)
+## MCP server
 
 ```bash
 pip install "mcp[cli]"
@@ -197,62 +172,64 @@ pip install "mcp[cli]"
 }
 ```
 
-Ekspos `cyphron_list_skills` dan `cyphron_run_skill` — kelas lab-only
-tidak pernah terekspos, dan setiap hasil divalidasi kontrak sebelum
-dikembalikan.
+Yang diekspos: `cyphron_list_skills` dan `cyphron_run_skill`. Kelas
+khusus lab tidak pernah diekspos, dan setiap hasil divalidasi terhadap
+kontrak sebelum dikembalikan.
 
 ## FAQ
 
 **Ini vulnerability scanner?**
-Sebagian. Sisi tier0 adalah engine recon/postur ber-budget. Sisi yang
-lebih menarik adalah exploit tier: mengubah "mungkin" jadi "terbukti"
-dengan PoC reproduktif — di target yang berhak kamu uji.
+Sebagian. tier0 adalah mesin recon dan postur dengan budget, dan itu
+bagian yang paling banyak dipakai. Bagian yang lebih menarik justru
+setelahnya: memilah mana yang benar-benar terbukti dan mana yang masih
+tebakan.
 
-**Kenapa outputnya banyak banget baris "not proven"?**
-Justru itu poinnya. Bukti yang gagal dicatat sebagai baris L0, bukan
-disembunyikan. Skip senyap adalah tempat false positive lahir.
+**Kenapa output-nya banyak baris "belum terbukti"?**
+Memang disengaja. Pengecekan yang tidak membuktikan apa-apa tetap
+dicatat sebagai baris `L0`, bukan menghilang. False positive biasanya
+lahir dari skip yang diam-diam.
 
-**Boleh arahkan exploit engine ke situs produksi?**
-Jangan — dan tool-nya membuat itu jadi tindakan sadar dan eksplisit
-(`exploit_allowed` per target, dirancang untuk lab/staging). Untuk yang
-destructive kamu butuh tiga kunci independen plus snapshot.
+**Boleh tier pembuktian dipakai ke production?**
+Tolong jangan. Tool ini membuatnya jadi keputusan yang disadari: kamu
+harus set `exploit_allowed` per target, dan apa pun yang destruktif
+butuh tiga kunci terpisah plus konfirmasi snapshot.
 
 ## Development
 
 ```bash
-python -m unittest discover -s tests
+python -m pytest tests/ -q
 cargo test --release --manifest-path core-rs/Cargo.toml
 ```
 
-Guard test menjaga kontrak lintas bahasa: verdict tag, finding id, bentuk
-return `(rows, meta)`, arity pemanggil, anti-UA-hardcoding, dan baterai
-regresi FP.
+Guard test menjaga Python dan Rust tetap sejalan: tag verdict, ID
+temuan, bentuk return `(rows, meta)`, jumlah argumen pemanggil, tidak
+ada user agent yang di-hardcode, dan seluruh baterai regresi FP.
 
-## Ruang lingkup & penggunaan bertanggung jawab
+## Pemakaian yang bertanggung jawab
 
-cyphron untuk security assessment yang **berotorisasi**: aset milikmu
-sendiri, atau program yang secara eksplisit memberi izin. Memindai sistem
-yang bukan milikmu tanpa otorisasi itu ilegal di hampir semua yurisdiksi —
-jangan.
-
-Kalau cyphron berguna buatmu, satu bintang bantu orang lain menemukannya —
-itu saja yang diminta.
+cyphron hanya untuk pengujian **yang berizin**: sistem milikmu sendiri,
+atau program yang jelas-jelas memberi izin. Memindai sistem orang lain
+tanpa izin itu melanggar hukum di hampir semua negara, termasuk
+Indonesia (UU ITE). Jangan.
 
 ## Kontribusi
 
-PR selalu diterima — bug fix, skill deteksi baru, docs. Baca
-[CONTRIBUTING.md](CONTRIBUTING.md). PR yang di-merge = kamu masuk
-daftar contributors, beneran.
+PR selalu diterima: perbaikan bug, skill deteksi baru, dokumentasi,
+typo. Mulai dari [CONTRIBUTING.md](CONTRIBUTING.md). PR yang di-merge
+otomatis masuk daftar contributor.
+
+Kalau cyphron menghemat waktumu, kasih ⭐ supaya orang lain juga bisa
+menemukannya.
 
 ## Lisensi
 
-[PolyForm Noncommercial 1.0.0](LICENSE) - free to use, study, modify, and
-share for **noncommercial purposes**.
+[PolyForm Noncommercial 1.0.0](LICENSE). Bebas dipakai, dipelajari,
+dimodifikasi, dan dibagikan untuk keperluan **non-komersial**.
 
-Mau jual Cyphron, atau pakainya komersial (misal diselipkan jadi
-bagian layanan berbayar)? Boleh banget - minta izin dulu, lisensi
-komersialnya gampang diatur. Tembak aku lewat [GitHub issues](https://github.com/maulanawirawan/cyphron/issues) atau
+Mau dipakai secara komersial, misalnya di dalam layanan berbayar? Boleh
+juga, tanya dulu saja nanti kita atur lisensinya. Buka
+[issue](https://github.com/maulanawirawan/cyphron/issues) atau hubungi
 [@maulanawirawan](https://github.com/maulanawirawan).
 
-Bundled third-party components and data sources are credited in
+Komponen dan sumber data pihak ketiga dicantumkan di
 [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
