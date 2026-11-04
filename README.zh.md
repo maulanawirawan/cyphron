@@ -12,7 +12,7 @@ Rust，两边遵守同一份严格的输出契约。
 [![CI](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml/badge.svg)](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml)
 [![tests](https://img.shields.io/badge/tests-914%20python%20%2B%2059%20rust-brightgreen)](#开发)
 [![release](https://img.shields.io/github/v/release/maulanawirawan/cyphron)](https://github.com/maulanawirawan/cyphron/releases)
-[![skills](https://img.shields.io/badge/detection%20skills-92-8A2BE2)](#包含什么)
+[![skills](https://img.shields.io/badge/detection%20skills-93-8A2BE2)](#包含什么)
 [![python](https://img.shields.io/badge/python-3.12%2B-3776AB)](#快速开始)
 [![rust](https://img.shields.io/badge/rust-stable-orange)](#快速开始)
 [![license](https://img.shields.io/badge/license-PolyForm%20NC%201.0-blue)](LICENSE)
@@ -96,7 +96,7 @@ flowchart LR
 
 ## 包含什么
 
-- **92 个检测技能**，位于 `skills/`，覆盖侦察、配置态势和暴露面。每个
+- **93 个检测技能**，位于 `skills/`，覆盖侦察、配置态势和暴露面。每个
   都是独立 CLI，声明了安全等级（从 `read-only` 到 `state-changing`），
   并据此设定硬性请求上限。注册表是白名单，未登记的技能不会运行。
 - **原生 Rust 核心**（`core-rs/`）：`cyphron validate` 校验契约，
@@ -168,7 +168,7 @@ python tools/code_map.py --repo <path> --out surface.json --reconcile f.json
 ```
 core/findings.py   契约（Python 端）
 core-rs/           原生核心：契约、编排器、FAO、serve
-skills/            92 个检测技能 + registry.json（白名单）
+skills/            93 个检测技能 + registry.json（白名单）
 tools/             规划器、代码地图、夜间运行、情报同步、
                    PDF 报告、MCP 服务器、受控证明层、实验靶场
 tests/             Python 测试套件，含误报回归与守卫测试

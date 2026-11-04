@@ -13,7 +13,7 @@ kontrak output yang ketat.
 [![CI](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml/badge.svg)](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml)
 [![tests](https://img.shields.io/badge/tests-914%20python%20%2B%2059%20rust-brightgreen)](#development)
 [![release](https://img.shields.io/github/v/release/maulanawirawan/cyphron)](https://github.com/maulanawirawan/cyphron/releases)
-[![skills](https://img.shields.io/badge/detection%20skills-92-8A2BE2)](#isinya-apa-saja)
+[![skills](https://img.shields.io/badge/detection%20skills-93-8A2BE2)](#isinya-apa-saja)
 [![python](https://img.shields.io/badge/python-3.12%2B-3776AB)](#mulai-cepat)
 [![rust](https://img.shields.io/badge/rust-stable-orange)](#mulai-cepat)
 [![license](https://img.shields.io/badge/license-PolyForm%20NC%201.0-blue)](LICENSE)
@@ -101,7 +101,7 @@ flowchart LR
 
 ## Isinya apa saja
 
-- **92 skill deteksi** di `skills/` untuk recon, postur, dan exposure.
+- **93 skill deteksi** di `skills/` untuk recon, postur, dan exposure.
   Masing-masing CLI mandiri dengan kelas keamanan yang dideklarasikan
   (dari `read-only` sampai `state-changing`) dan batas request yang
   mengikuti kelas itu. Registry-nya berupa allowlist, jadi yang tidak
@@ -183,7 +183,7 @@ Bagian yang membosankan, tapi justru paling penting.
 ```
 core/findings.py   kontrak, sisi Python
 core-rs/           core native: kontrak, orchestrator, FAO, serve
-skills/            92 skill deteksi + registry.json (allowlist)
+skills/            93 skill deteksi + registry.json (allowlist)
 tools/             planner, code map, night run, sinkron intel,
                    laporan PDF, MCP server, tier pembuktian, target lab
 tests/             suite Python, termasuk regresi FP dan guard test

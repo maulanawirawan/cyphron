@@ -77,6 +77,7 @@ STRATEGI = {
     "swagger-ui-surface": ("D", "swagger UI = signature ketat; GET ulang identik -> L3"),
     "console-exposure-checker": ("D", "sudah L2 dgn path konsol; GET ulang identik -> L3"),
     "file-exposure-checker": ("D", "file expose = signature konten ketat; GET ulang identik -> L3"),
+    "cached-sensitive-files": ("D", "marker signup-welcome = signature ketat halaman sukses aktivasi; GET ulang identik -> L3 (pola CVE-2026-111464)"),
     "debug-page-detector": ("D", "sudah L3 (marker ketat dari bukti)"),
     "cloud-bucket-exposure": ("D", "ListBucketResult = signature XML unik; GET ulang identik -> L2/L3 (atribusi tetap caveat)"),
     "github-leak-check": ("D", "opt-in: konten raw bisa dikonfirmasi (signature secret format) — tetap L1/L2, tanpa ekstraksi"),

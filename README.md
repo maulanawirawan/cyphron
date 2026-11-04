@@ -13,7 +13,7 @@ agree on.
 [![CI](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml/badge.svg)](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml)
 [![tests](https://img.shields.io/badge/tests-914%20python%20%2B%2059%20rust-brightgreen)](#development)
 [![release](https://img.shields.io/github/v/release/maulanawirawan/cyphron)](https://github.com/maulanawirawan/cyphron/releases)
-[![skills](https://img.shields.io/badge/detection%20skills-92-8A2BE2)](#whats-inside)
+[![skills](https://img.shields.io/badge/detection%20skills-93-8A2BE2)](#whats-inside)
 [![python](https://img.shields.io/badge/python-3.12%2B-3776AB)](#quick-start)
 [![rust](https://img.shields.io/badge/rust-stable-orange)](#quick-start)
 [![license](https://img.shields.io/badge/license-PolyForm%20NC%201.0-blue)](LICENSE)
@@ -102,7 +102,7 @@ flowchart LR
 
 ## What's inside
 
-- **92 detection skills** in `skills/` covering recon, posture, and
+- **93 detection skills** in `skills/` covering recon, posture, and
   exposure. Each one is a standalone CLI with a declared safety class
   (`read-only` up to `state-changing`) and a hard request budget that
   follows from it. The registry is an allowlist, so nothing runs unless
@@ -182,7 +182,7 @@ The boring part, which is also the important part.
 ```
 core/findings.py   the contract, Python side
 core-rs/           native core: contract, orchestrator, FAO, serve
-skills/            92 detection skills + registry.json (the allowlist)
+skills/            93 detection skills + registry.json (the allowlist)
 tools/             planner, code map, night runs, intel sync,
                    PDF report, MCP server, gated proof tier, lab target
 tests/             Python suite, incl. FP regression and guard tests

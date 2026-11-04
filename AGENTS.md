@@ -7,7 +7,7 @@ is the contract every change must respect.
 
 ## Repo map
 
-- `skills/` — 92 standalone Python CLIs, one detection skill each
+- `skills/` — 93 standalone Python CLIs, one detection skill each
   (`--url` / `--target` ... `--out result.json`). This is what users run.
 - `core-rs/` — native Rust core (`cyphron validate | scan ...`).
   Build: `cargo build --release --manifest-path core-rs/Cargo.toml`
