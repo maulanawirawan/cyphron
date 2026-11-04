@@ -8,7 +8,7 @@ Mesin security assessment yang berangkat dari bukti. Skill deteksi
 ditulis di Python, core-nya native Rust, dan keduanya tunduk pada satu
 kontrak output yang ketat.
 
-*No exploit, no report.*
+*Tanpa bukti, tanpa laporan.*
 
 [![CI](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml/badge.svg)](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml)
 [![tests](https://img.shields.io/badge/tests-914%20python%20%2B%2059%20rust-brightgreen)](#development)
@@ -37,6 +37,24 @@ berhenti, bukan diam-diam lanjut. Dan sebuah lead baru naik kelas kalau
 sumber-sumber yang independen sepakat.
 
 Hasilnya laporan yang lebih pendek, tapi bisa kamu pertanggungjawabkan.
+
+## Untuk apa digunakan
+
+cyphron proyek publik terbuka yang dibangun untuk kerja keamanan nyata. Pemakaian tipikal:
+
+- **Bug bounty & VDP** — petakan permukaan serangan (headers, CORS, GraphQL,
+  API docs, exposure, cookie scope) dan dapatkan verdict yang lolos triase,
+  bukan tembok "kemungkinan masalah".
+- **Pentest project codinganmu sendiri** — arahkan skill ke build
+  staging/lokal sebelum rilis dan tangkap buah rendah: header hilang,
+  halaman debug, file bocor, endpoint tanpa auth, CORS permisif.
+- **Membangun keamanan ke pipeline** — kontrak findings.json + `cyphron
+  validate` membuat output ramah CI; core Rust berbicara kontrak yang sama.
+- **Belajar** — lab target bawaan plus `docs/AWARENESS-PATTERNS.md`
+  (sembilan pola celah nyata yang ditelusuri sampai tuntas) jadi kelas praktik.
+
+Tetap di jalur: hanya target yang kamu miliki/berizin, dan gerbang ketat di
+tier proof itu bagian desain, bukan halangan.
 
 ## Lihat cara kerjanya
 

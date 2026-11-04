@@ -2,8 +2,9 @@
 
 cyphron is an evidence-first security assessment engine: skills collect
 evidence, a quorum (FAO) verifies it, and the engine refuses to report
-anything it cannot prove. "No exploit, no report" is not a tagline — it
-is the contract every change must respect.
+anything it cannot prove. "No proof, no report" is the contract — the
+proof tier builds gated PoCs to turn a lead into evidence, but a lead
+that cannot be proven never ships.
 
 ## Repo map
 
@@ -23,7 +24,7 @@ is the contract every change must respect.
    not for hitting systems you have no right to touch.
 2. Evidence is the product. A finding only counts when it carries
    verifiable evidence; if it cannot be proven, the verdict stays quiet
-   (fail-closed). "No exploit, no report."
+   (fail-closed). "No proof, no report."
 3. The proof tier (`tools/exploit_*`) builds reproducible PoCs to turn a
    lead into proof — but only under its gates: `exploit_allowed` per
    target, lab/staging by default, three keys for anything destructive.

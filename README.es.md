@@ -8,7 +8,7 @@ Un motor de evaluación de seguridad basado en evidencia. Skills de
 detección en Python, un núcleo nativo en Rust y un único contrato de
 salida estricto que ambos respetan.
 
-*No exploit, no report.*
+*Sin prueba, no hay informe.*
 
 [![CI](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml/badge.svg)](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml)
 [![tests](https://img.shields.io/badge/tests-914%20python%20%2B%2059%20rust-brightgreen)](#desarrollo)
@@ -38,6 +38,25 @@ mal formada, la ejecución se detiene en vez de seguir en silencio. Y una
 pista solo sube de nivel cuando fuentes independientes coinciden.
 
 El resultado es un informe más corto que de verdad puedes defender.
+
+## Para qué sirve
+
+cyphron es un proyecto público y abierto construido para trabajo de seguridad real. Usos típicos:
+
+- **Bug bounty y VDP** — enumera la superficie de ataque (headers, CORS,
+  GraphQL, docs de API, exposición, cookies) y obtén veredictos que
+  sobreviven al triaje, no una muralla de "posibles problemas".
+- **Pentest de tus propios proyectos** — apunta las habilidades a tu build
+  de staging/local antes de publicar y atrapa lo básico: headers faltantes,
+  páginas de debug, archivos filtrados, endpoints sin auth, CORS permisivo.
+- **Integrar seguridad en tu pipeline** — el contrato findings.json y
+  `cyphron validate` hacen la salida amigable para CI; el núcleo Rust habla
+  el mismo contrato.
+- **Aprender** — el lab objetivo incluido más `docs/AWARENESS-PATTERNS.md`
+  (nueve patrones reales rastreados de principio a fin) son un aula práctica.
+
+Quédate en el carril: solo objetivos autorizados, y las estrictas compuertas
+del nivel de prueba son parte del diseño, no un obstáculo.
 
 ## Míralo razonar
 

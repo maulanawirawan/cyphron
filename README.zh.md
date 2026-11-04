@@ -7,7 +7,7 @@
 一个以证据为先的安全评估引擎。检测技能用 Python 编写，核心是原生
 Rust，两边遵守同一份严格的输出契约。
 
-*No exploit, no report.*
+*无证据，不报告。*
 
 [![CI](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml/badge.svg)](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml)
 [![tests](https://img.shields.io/badge/tests-914%20python%20%2B%2059%20rust-brightgreen)](#开发)
@@ -33,6 +33,21 @@ cyphron 反其道而行：**证明不了的发现只是线索，不是结论。*
 就会停下，而不是悄悄继续。只有当多个独立来源一致时，线索才会升级。
 
 最后得到的报告更短，但每一条都站得住。
+
+## 用途
+
+cyphron 是面向真实安全工作的公开开源项目。典型用法：
+
+- **漏洞赏金与 VDP** — 枚举攻击面（headers、CORS、GraphQL、API 文档、
+  暴露面、Cookie 作用域），得到能通过分诊的判定，而不是一堆"可能有问题"。
+- **对自己编码项目的渗透测试** — 在发布前把技能指向 staging/本地构建，
+  抓住常见问题：缺失的安全头、调试页面、泄露文件、无鉴权端点、宽松 CORS。
+- **把安全集成进流水线** — findings.json 契约与 `cyphron validate` 让输出
+  适合 CI；Rust 核心说同一套契约。
+- **学习** — 内置 lab 目标与 `docs/AWARENESS-PATTERNS.md`（九种真实漏洞
+  模式的端到端剖析）是很好的实践课堂。
+
+留在轨道上：只测自己拥有/获授权的目标，proof 层的严格门控是设计的一部分。
 
 ## 看它怎么判断
 

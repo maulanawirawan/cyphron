@@ -204,7 +204,7 @@ def build_report(program: dict, domain: str, run_dir: Path) -> Path:
         f"- Kanal lapor: {program.get('report_channel', '(cek halaman program)')}",
         f"- Policy: {program.get('policy_url', '-')}",
         f"- Ringkasan: {len(leads)} lead (L1/L2, belum PoC) dari "
-        f"{len(rows)} baris audit — no exploit, no report.", "",
+        f"{len(rows)} baris audit — no proof, no report.", "",
         "## Temuan (lead)", "",
     ]
     inv_p = run_dir / "inventory.json"

@@ -8,7 +8,7 @@ An evidence-first security assessment engine. Python detection skills,
 a native Rust core, and one strict output contract that both sides
 agree on.
 
-*No exploit, no report.*
+*No proof, no report.*
 
 [![CI](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml/badge.svg)](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml)
 [![tests](https://img.shields.io/badge/tests-914%20python%20%2B%2059%20rust-brightgreen)](#development)
@@ -36,6 +36,27 @@ produces malformed output, the run stops instead of quietly moving on.
 And a lead only gets promoted when independent sources agree on it.
 
 The result is a shorter report you can actually defend.
+
+## Use it for
+
+cyphron is a public, open project built for real security work. Typical uses:
+
+- **Bug bounty & VDP work** — enumerate the attack surface (headers, CORS,
+  GraphQL, API docs, exposure, cookie scope) and get verdicts that survive
+  triage instead of a wall of "possible issues".
+- **Pentesting your own coding projects** — point the skills at your
+  staging/local build before shipping and catch the low-hanging fruit:
+  missing headers, debug pages, leaked files, unauth'd endpoints, permissive
+  CORS, outdated exposure.
+- **Building security into your pipeline** — the findings.json contract and
+  `cyphron validate` make outputs CI-friendly; the Rust core speaks the same
+  contract, so gates can be wired straight into a build.
+- **Learning the craft** — the bundled lab target plus
+  `docs/AWARENESS-PATTERNS.md` (nine real-world vulnerability patterns traced
+  end-to-end from official diffs) make it a hands-on classroom.
+
+Stay on the rails: authorized targets only, and the strict gates on the
+proof tier are part of the design, not an obstacle.
 
 ## See it think
 
