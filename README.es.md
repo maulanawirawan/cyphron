@@ -286,6 +286,10 @@ de contribuidores.
 
 Si cyphron te ahorra tiempo, una ⭐ ayuda a que otros lo encuentren.
 
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=maulanawirawan/cyphron&type=Date)](https://star-history.com/#maulanawirawan/cyphron&Date)
+
 ## Licencia
 
 [PolyForm Noncommercial 1.0.0](LICENSE). Libre para usar, estudiar,

@@ -276,6 +276,10 @@ otomatis masuk daftar contributor.
 Kalau cyphron menghemat waktumu, kasih ⭐ supaya orang lain juga bisa
 menemukannya.
 
+## Riwayat Bintang
+
+[![Star History Chart](https://api.star-history.com/svg?repos=maulanawirawan/cyphron&type=Date)](https://star-history.com/#maulanawirawan/cyphron&Date)
+
 ## Lisensi
 
 [PolyForm Noncommercial 1.0.0](LICENSE). Bebas dipakai, dipelajari,

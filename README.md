@@ -275,6 +275,10 @@ contributors list.
 
 If cyphron saves you some time, a ⭐ helps other people find it.
 
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=maulanawirawan/cyphron&type=Date)](https://star-history.com/#maulanawirawan/cyphron&Date)
+
 ## License
 
 [PolyForm Noncommercial 1.0.0](LICENSE). Free to use, study, modify, and

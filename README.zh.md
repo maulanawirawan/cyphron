@@ -249,6 +249,10 @@ cyphron 仅用于**已授权**的测试：你自己的系统，或明确给予�
 
 如果 cyphron 帮你省了时间，点个 ⭐ 能让更多人发现它。
 
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=maulanawirawan/cyphron&type=Date)](https://star-history.com/#maulanawirawan/cyphron&Date)
+
 ## 许可证
 
 [PolyForm Noncommercial 1.0.0](LICENSE)。可在**非商业**用途下自由
