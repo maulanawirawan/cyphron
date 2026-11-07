@@ -95,6 +95,10 @@ MODES: dict[str, dict] = {
         "desc": "tandai prompt-injection di bukti sebelum dibaca",
         "script": "tools/injection_guard.py",
     },
+    "shield": {
+        "desc": "tamper-evidence file panduan agent (pin/verify/scan)",
+        "script": "tools/agent_shield.py",
+    },
     "skills": {
         "desc": "daftar skill terdaftar + kelas amannya",
         "script": None, "special": "skills",
