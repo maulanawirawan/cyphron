@@ -9,7 +9,8 @@ that cannot be proven never ships.
 ## Repo map
 
 - `cyphron.py` — one-command mode board (`scan | validate | scout | night
-  | intel | fresh | contrib | ledger | report | mcp | skills | lab`);
+  | intel | fresh | contrib | ledger | report | mcp | skills | lab |
+  guard | shield | gate`);
   every mode has its own `--help`. Start here.
 - `SKILL.md` — the agent manual: safe playbook + guardrails (also mounted
   as `.claude/skills/cyphron/`).
@@ -19,8 +20,11 @@ that cannot be proven never ships.
   Build: `cargo build --release --manifest-path core-rs/Cargo.toml`
 - `tools/` — helpers: lab target (`tools/lab_target.py`), planner,
   benchmarks, self-update, MCP server (`tools/mcp_server.py`), scout,
-  session ledger, contribution pipeline (`cve_sweep`, `antidup_check`).
-- `tests/` — pytest suite (1006 tests). Run: `python -m pytest tests/ -q`
+  session ledger, contribution pipeline (`cve_sweep`, `antidup_check`),
+  agent-safety (`injection_guard`, `agent_shield`), audit engines
+  (`audit_phases` multi-phase fail-closed, `insecure_defaults` config
+  scanner), verify gate (`verify_gate` — claims need fresh evidence).
+- `tests/` — pytest suite (1090 tests). Run: `python -m pytest tests/ -q`
 - `docs/` — policies: exploit tier, egress, install, nightrun, legion
   method (`docs/LEGION-METHOD.md`).
 
