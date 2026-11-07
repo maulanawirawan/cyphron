@@ -10,7 +10,7 @@ Rust，两边遵守同一份严格的输出契约。
 *无证据，不报告。*
 
 [![CI](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml/badge.svg)](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml)
-[![tests](https://img.shields.io/badge/tests-1120%20python%20%2B%2059%20rust-brightgreen)](#开发)
+[![tests](https://img.shields.io/badge/tests-1148%20python%20%2B%2059%20rust-brightgreen)](#开发)
 [![release](https://img.shields.io/github/v/release/maulanawirawan/cyphron)](https://github.com/maulanawirawan/cyphron/releases)
 [![skills](https://img.shields.io/badge/detection%20skills-93-8A2BE2)](#包含什么)
 [![python](https://img.shields.io/badge/python-3.12%2B-3776AB)](#快速开始)
