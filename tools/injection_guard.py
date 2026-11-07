@@ -75,6 +75,24 @@ PATTERNS: tuple[tuple[str, re.Pattern], ...] = tuple(
         ("exfiltration", r"\b(?:send|post|upload|exfiltrate|forward)\s+(?:me\s+)?"
                          r"(?:the\s+)?(?:api[_\s-]?keys?|credentials?|secrets?|"
                          r"\.env|tokens?)\b"),
+        # 6. dokumen jailbreak operator-level: marker struktural persona
+        #    yang mencoba MENIMPA sistem AI pembaca (bukan sekadar satu
+        #    kalimat instruksi). Kelas terpisah karena satu dokumen jail-
+        #    break biasanya memuat BANYAK marker sekaligus.
+        ("operator-override", r"\bMANDATORY!+"),
+        ("operator-override", r"\bnon[- ]negotiable\b"),
+        ("operator-override", r"\bno\s+exceptions\b"),
+        ("operator-override", r"\b(?:never|do\s+not|don'?t)\s+question\s+"
+                              r"(?:the\s+)?(?:user|him|her|them|your)\b"),
+        ("operator-override", r"\b(?:do\s+not|don'?t)\s+obey\b"),
+        ("operator-override", r"\bsafety\s+(?:theater|override|filter)s?\b"),
+        ("operator-override", r"\bidentity\s+recovery\b"),
+        ("operator-override", r"\b(?:start|begin)\s+your\s+"
+                              r"(?:reasoning|thinking|responses?|replies?|"
+                              r"messages?)\s+(?:in|with|inside)\b"),
+        ("operator-override", r"\b(?:he|she|they|the\s+user)\s+can\s+see\s+"
+                              r"your\s+(?:internal\s+)?(?:thoughts?|thinking)\b"),
+        ("operator-override", r"\bignore\s+the\s+voice\s+that\s+says\b"),
     )
 )
 
@@ -165,7 +183,13 @@ def main(argv: list[str] | None = None) -> int:
             for hit in file_report["hits"]:
                 hit.setdefault("field", f"(raw){file}")
                 merged_hits.append({"file": file, **hit})
-        report = {"total_hits": len(merged_hits), "hits": merged_hits}
+        labels: dict[str, int] = {}
+        for hit in merged_hits:
+            labels[hit["label"]] = labels.get(hit["label"], 0) + 1
+        report = {"total_hits": len(merged_hits),
+                  "by_label": dict(sorted(labels.items(),
+                                          key=lambda kv: -kv[1])),
+                  "hits": merged_hits}
 
     if args.out:
         out_path = Path(args.out)
