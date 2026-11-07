@@ -413,3 +413,100 @@ sisanya didistilasi di bawah. #0272/#0285/#0296 = di luar domain.
 - [ ] kepatuhan/privasi (#0324): asesmen GDPR Article 30/35 dst — tata
       kelola kepatuhan, bukan pengujian teknis
 
+
+---
+Blok B13 (#0361-#0390, 8 Nov) — sumber mukul975/Anthropic-Cybersecurity-
+Skills (Apache-2.0 — konsep, bukan teks). Lima entri diekstrak jadi tool
+(#0363 -> ps_obf_scan, #0380 -> arp_pcap_scan, #0383 -> cloudtrail_scan,
+#0386 -> iam_escalation_scan, #0390 -> zeek_beacon_scan); yang layak di
+bawah ini didistilasi. Ops produk/deployment dicatat di seksi 48.
+
+## 43. Triase skrip JavaScript ter-obfuscation (dari mukul975/deobfuscating-javascript-malware)
+- [ ] urutan triase statis: ekstrak <script> dari HTML -> beautify ->
+      kenali teknik -> dekode berlapis; JANGAN pernah eksekusi sampel
+- [ ] taksonomi encoding: \xNN hex, \uNNNN unicode, atob(), unescape(),
+      String.fromCharCode([...]), array-lookup var _0xNNNN[...]
+- [ ] rantai eksekusi dinamis yang dicari: eval(atob(...)), new
+      Function(...), setTimeout(decoded,0), document.write("<script>")
+- [ ] anti-analisis = penanda kuat: debugger; dalam setInterval,
+      override console.*, timing check performance.now(), deteksi
+      window.outerWidth-innerWidth
+- [ ] dekoder universal sudah ada: skills/deep_decode.py (base64/hex/
+      unicode/octal/charCode/HTML entity/ROT13, hingga 8 lapis) —
+      gunakan itu, jangan tulis dekoder baru; yang diputuskan manual:
+      TAHAPAN (beautify, pendataan teknik) bukan dekodenya
+
+## 44. Lapisan deteksi prompt injection (dari mukul975/detecting-ai-model-prompt-injection-attacks + defending-llms-with-guardrails)
+- [ ] tiga lapis dengan biaya menaik: regex signature (sub-ms) ->
+      heuristik struktural (densitas instruksi, anomali format) ->
+      klasifikasi model; gabung dengan bobot eksplisit (mis. 0.3/0.2/0.5)
+      dan threshold yang bisa diatur
+- [ ] signature minimum: "ignore previous instructions", "you are now",
+      "system prompt:", delimiter-escape (```, <|endoftext|>), payload
+      terenkode dalam prompt
+- [ ] padanan cyphron: tools/injection_guard.py melayani lapis 1-2 untuk
+      bukti/teks yang masuk repo; lapis 3 (model klasifikasi) = butuh
+      unduhan model + jaringan — di luar disiplin cyphron
+- [ ] guardrail runtime (LLM Guard/NeMo/Llama Guard) = produk di jalur
+      request aplikasi — konfigurasi/ops, bukan alat audit offline
+
+## 45. Adversary engagement MITRE Engage (dari mukul975/designing-adversary-engagement-with-mitre-engage)
+- [ ] mulai dari STRATEGIC GOAL (apa yang ingin dipelajari/diperlambat
+      tentang adversary), bukan dari honeypot yang tersedia
+- [ ] siklus: prepare (pilih approach + risiko) -> execute -> understand
+      (kumpulkan temuan) -> effect (ukur dampak: deteksi, denial,
+      intelligence dari engagement)
+- [ ] setiap approach Engage dipetakan ke T-ID ATT&CK (mis. decoy
+      content = T1546) + "engage-ability" target dinilai dulu
+- [ ] kriteria aman-untuk-engage: konten decoy harus sah untuk disentuh,
+      tidak mengganggu produksi, dan punya jalur alert jelas saat disentuh
+- [ ] cyphron: tidak ada alat engagement — checklist ini dipakai saat
+      MENDESAIN rencana deception di lab, selaras attack_planner
+
+## 46. Pola anomali autentikasi (dari mukul975/detecting-anomalous-authentication-patterns)
+- [ ] bedakan tiga pola: brute force (banyak gagal per AKUN), password
+      spray (satu sumber, banyak AKUN, gagal merata), impossible travel
+      (lokasi berpindah lebih cepat dari fisik) — ambang dan responsnya
+      berbeda
+- [ ] impossible travel butuh GeoIP + baseline per user; tanpa itu
+      proksi yang bisa dicapai: perubahan ASN/negara per sesi, waktu
+      login di luar pola user, konsol tanpa MFA
+- [ ] sekuens bermakna: N gagal -> sukses (kompromi), gagal merata di
+      banyak akun lalu satu sukses (spray berhasil), reset password
+      + tambah MFA method (persistensi)
+- [ ] padanan cyphron: brute force web = web_log_intrusion (ambang POST
+      per window); konsol cloud tanpa MFA = cloudtrail_scan; k8s authz =
+      k8s_audit_triage — pola di atas dipakai saat MEMBACA hasilnya
+
+## 47. Deteksi enumerasi API dari access log (dari mukul975/detecting-api-enumeration-attacks)
+- [ ] dua pola serangan: enumerasi ID objek berurutan (path berpola
+      /api/v1/<res>/<int-id>, banyak id unik per sumber) dan BOLA (401/
+      403 beruntun per identity dgn 200 selingan = sukses sebagian)
+- [ ] aturan ambang portabel: unique_ids > 20 dalam window + rate
+      stabil > 2 req/s = kandidat; failure_count > 10 per 5 menit per
+      identity, unique_paths > 5 -> enumerasi, sisanya brute force
+- [ ] mixed-status penting: 200 dan 403 bergantian pada objek berbeda =
+      akses BOLA berhasil SEBAGIAN — jangan dinilai "hanya scan"
+- [ ] pencegahan di sisi kode: otorisasi di lapisan data, UUID alih-alih
+      id berurutan, rate limit per identity — cek cyphron: IdorOrders/
+      AdminAccessPlaybook (aktif), rate-limit-validator
+- [ ] di cyphron: parser CLF sudah ada di web_log_intrusion — pola
+      enumerasi bisa ditambahkan di situ bila dibutuhkan, jangan tool baru
+
+## 48. Di luar domain + ops produk — catatan bidang blok B13
+- [ ] OT/ICS/SCADA (#0377 #0381 #0382): deteksi anomali proses ICS,
+      historian, aturan Suricata Modbus/S7comm/DNP3 — domain teknologi
+      operasional, di luar fokus web/app/infra cyphron; butuh jaringan
+      OT tersegmentasi + sensor SPAN milik sendiri
+- [ ] deployment deception (#0364 #0365 #0367 #0369 #0372): runbook
+      membuat honeytoken/canary/decoy (AD, cloud, file) + alert-on-touch
+      — konsepnya dicakup seksi 45; pelaksanaan = ops infrastruktur
+- [ ] produk zero-trust/EDR (#0366 #0368 #0370 #0371 #0373 #0374):
+      Cloudflare Access, CrowdStrike, osquery/Fleet, Prisma Access, SDP,
+      Tailscale — integrasi produk pihak ketiga, bukan alat audit
+- [ ] ops deteksi cloud (#0385 #0387 #0388 #0389): automation GuardDuty
+      (EventBridge/Lambda), KQL Azure, query Graph utk service principal,
+      az CLI storage — butuh kredensial live; padanan statis cyphron:
+      cloudtrail_scan + iam_escalation_scan
+- [ ] alat eksternal (#0384): TruffleHog = scanner secret pihak ketiga;
+      padanan cyphron: secret_history_scan (riwayat git) + zeroize_scan
