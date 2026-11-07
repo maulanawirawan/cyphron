@@ -875,3 +875,178 @@ didistilasi di bawah.
       EDR Windows via Intune/PowerShell; padanan statis cyphron:
       pe_mitigation_scan (B05 #0131) memverifikasi DEP/ASLR/CFG dari
       binary — versi konfigurasi OS-nya = ops endpoint
+
+---
+Blok B15 (#0421-#0450, 8 Nov) — sumber mukul975 (Apache-2.0 — konsep,
+bukan teks). Empat entri-grup diekstrak jadi tool: #0421+#0423 ->
+tools/insider_baseline_scan.py, #0425+#0426+#0440+#0442 ->
+tools/win_auth_triage.py, #0428+#0429+#0431 -> tools/lolbin_scan.py,
+#0427 -> tools/zeek_lateral_scan.py; sisanya didistilasi di bawah.
+Pembagian ranah dgn tool B16 (sysmon_triage, win_logon_triage) dan
+tool lama (kerberos_log_triage, npm_script_audit, k8s_audit_triage,
+packer_scan, eml_phish_triage, ids_rule_lint) ditulis eksplisit di
+docstring masing-masing tool.
+
+## 76. Baseline perilaku insider / UEBA hemat (dari mukul975/detecting-insider-data-exfiltration-via-dlp, detecting-insider-threat-behaviors, detecting-insider-threat-with-ueba)
+- [ ] aturan inti = DEViasi dari BASELINE sendiri, bukan ambang global:
+      total upload hari ini > 3x mean harian user adalah sinyal
+      utama; rasio tak bermakna utk user bervolume kecil — beri
+      lantai minimum baseline sebelum menilai (anti-FP)
+- [ ] z-score butuh minimal ~4 hari data & stdev > 0; jumlah hari
+      kurang = cek DILEWATI dgn catatan, bukan disimpulkan aman
+- [ ] sinyal pelengkap: aktivitas di luar jam kerja (jendela kerja
+      eksplisit), mass download per hari, dan peer-group deviation
+      (median teman segrup AKTIF hari itu, kecuali user yang
+      dievaluasi — user pasif merusak median)
+- [ ] skenario insider yang dicari: bulk download menjelang
+      pengunduran diri, admin IT mengakses data di luar fungsi
+      kerja, service account dipakai query data, kontraktor menyalin
+      source code ke cloud pribadi
+- [ ] UEBA platform (Elastic/OpenSearch + agregasi) = ops
+      infrastruktur; di cyphron inti offline-nya dilayani
+      insider_baseline_scan (CSV aktivitas file -> 5 cek); deteksi
+      live streaming (watchdog/psutil) tidak di-port
+
+## 77. Lateral movement Windows & NTLM relay (dari mukul975/detecting-lateral-movement-in-network, detecting-lateral-movement-with-splunk, detecting-ntlm-relay-with-event-correlation, detecting-pass-the-hash-attacks, detecting-privilege-escalation-attempts)
+- [ ] peta event inti: 4624 LogonType 3 (network)/10 (RDP), 4625
+      (gagal), 4648 (kredensial eksplisit — RunAs/PsExec), 4776
+      (validasi NTLM), 7045 (service baru — PsExec), 4672 (privilese
+      khusus saat logon)
+- [ ] pass-the-hash = satu user, logon network NTLM ke BANYAK host
+      unik; akun mesin (`$`) dan ANONYMOUS LOGON selalu
+      dikecualikan; NTLMv1 di lingkungan NTLMv2 = downgrade
+      mencurigakan (alat ofensif memaksa NTLMv1)
+- [ ] deteksi relay T1557.001 = 4624 type-3 dgn WorkstationName
+      tercatat tapi IP sumber != IP inventory (DHCP/DNS/CMDB) —
+      TANPA inventory cek ini TIDAK BOLEH ditebak; audit juga
+      enforcement SMB/LDAP signing (relay hanya sukses bila signing
+      tidak wajib)
+- [ ] privesc generik (T1134 token, T1548.002 UAC, T1574.009 unquoted
+      service path): indikatornya di log proses/registry — padanan
+      cyphron: lolbin_scan (cmdline) + sysmon_triage (uac-registry-
+      hijack, auto-elevate-parent)
+- [ ] containment berjenjang saat alert lateral: enrich dulu (peran
+      user, admin workstation, hasil scan) -> isolate (port down /
+      VLAN karantina / blokir firewall — pilih yang paling kecil
+      dampaknya) -> lumpuhkan akun (disable, bukan delete — jejak
+      audit) -> reset password -> kumpulkan bukti (Velociraptor)
+      SEBELUM tindakan destruktif
+- [ ] disiplin investigasi: SATU alert tidak boleh jadi kesimpulan —
+      telusuri rantai (host sumber -> semua host tujuan), cek
+      persistence tiap host sebelum menyatakan contained, dan
+      selalu korelasikan log endpoint dgn network flow (alat yang
+      tidak memunculkan event Windows tetap kelihatan di jaringan);
+      tanpa baseline pola auth normal, "anomali" tak terdefinisi
+
+## 78. Analisis jaringan pasif & deteksi scan (dari mukul975/detecting-lateral-movement-with-zeek, detecting-network-anomalies-with-zeek, detecting-network-scanning-with-ids-signatures, detecting-port-scanning-with-fail2ban)
+- [ ] deployment Zeek/Suricata + konfigurasi sensor (SPAN/TAP,
+      node.cfg, offloading NIC) = ops infrastruktur; nilai yang
+      diekstrak = analisis POST-HOC file log-nya (conn/smb_mapping/
+      smb_files/dce_rpc/ntlm, TSV #fields atau JSONL)
+- [ ] signature lateral di Zeek: akses share C$/ADMIN$/IPC$
+      (smb_mapping), svcctl/atsvc di dce_rpc = buat service/task
+      jarak jauh, satu akun NTLM -> banyak host = spray (ntlm.log
+      TIDAK ekspos hash — deteksinya perilaku, bukan isi kredensial)
+- [ ] tabel flag scan TCP: SYN-scan (SYN tanpa selesai), FIN/Xmas/
+      NULL (flag kombinasi tak sah), ACK (probing firewall),
+      SYN+ACK stateless — tiap jenis butuh threshold window per
+      sumber; Nmap T0-T5 menentukan keterlihatan (T0 nyaris tak
+      terdeteksi, T4/T5 mudah)
+- [ ] fail2ban = pertahanan host (jail/filter/iptables recent) —
+      konsep yang dipinjam: ambang N kejadian dalam window T ->
+      aksi; ignoreip utk jaringan internal; bukan pengganti
+      segmentasi
+- [ ] padanan cyphron: zeek_lateral_scan (lateral SMB/DCE-RPC/NTLM),
+      zeek_beacon_scan + dns_log_triage (beacon/DNS), ids_rule_lint
+      (mutu rule IDS) — deteksi scan-port generik = Suricata live,
+      di luar kelas tool offline
+
+## 79. Kredensial & tiket — pelengkap deteksi (dari mukul975/detecting-kerberoasting-attacks, detecting-mimikatz-execution-patterns, detecting-pass-the-ticket-attacks)
+- [ ] kerberoasting (T1558.003): 4769 RC4 (0x17) padahal domain
+      AES-only + VOLUME TGS tinggi per user utk banyak SPN berbeda
+      dalam window pendek; AS-REP roasting = 4768 pre-auth tidak
+      wajib (accounts dnt-req-preauth); padanan cyphron:
+      kerberos_log_triage (RC4/tanpa-TGT/lifetime) — burst-volume
+      bisa ditambah di situ bila dibutuhkan
+- [ ] mimikatz: cmdline sekurlsa::/lsadump::/Invoke-Mimikatz + EID 10
+      akses lsasse (0x1010/0x1FFFFF) — padanan cyphron:
+      sysmon_triage (dump-cmdline + lsass-access)
+- [ ] pass-the-ticket (T1550.003): tiket dipakai dari host berbeda
+      dgn saat diterbitkan, tiket sama muncul di beberapa workstation
+      berurutan = REUSE bukan reissue; padanan: kerberos_log_triage
+      (indeks user+IP)
+
+## 80. Vetting paket npm (dari mukul975/detecting-malicious-npm-packages)
+- [ ] bahaya khas npm: `npm install` MENJALANKAN preinstall/install/
+      postinstall sebelum kode aplikasi apa pun — cukup memasang
+      untuk terkena; vektor masuk: typosquat, dependency confusion,
+      maintainer takeover, worm (Shai-Hulud-style)
+- [ ] akuisisi aman: `npm pack` / tarball dgn scripts disabled, di
+      VM disposabel tanpa kredensial produksi; detonasi dinamis
+      HANYA di sandbox dgn capture egress (tcpdump) bila statis tak
+      menyimpulkan
+- [ ] heuristik ber-sinyal-tinggi ala GuardDog: install-script,
+      serialize-environment (process.env keluar), exec-base64,
+      silent-process-execution, obfuscation, shady-links,
+      typosquatting
+- [ ] cross-check lockfile vs advisory MAL- (OSV) + ekstrak IOC
+      (URL/hash) utk blokir; verdict akhir = benign/suspicious/
+      malicious DENGAN bukti per baris
+- [ ] padanan cyphron: npm_script_audit (lifecycle script offline),
+      dep_confusion_check, dependency_cve, supplychain_check —
+      GuardDog/OSV sendiri = alat pihak ketiga (ops CI)
+
+## 81. Cloud, AI, mobile, ransomware — pola yang layak diingat (dari mukul975/detecting-misconfigured-azure-storage, detecting-model-extraction-attacks, detecting-oauth-token-theft, detecting-mobile-malware-behavior, detecting-ransomware-encryption-behavior)
+- [ ] Azure storage (ops az CLI): yang diaudit — allowBlobPublicAccess,
+      networkRuleSet.defaultAction (Allow = terbuka), minimumTlsVersion
+      >= 1.2, encryption.requireInfrastructureEncryption, SAS token
+      berlebihan, logging disabled; anonymous-blob test = satu curl
+      list container; di cyphron belum ada padanan Azure — checklist
+      ini utk audit manual/kelak tool JSON-export offline
+- [ ] model extraction (AML.T0024): tiga sinyal per principal pada
+      log inference API — volume query/window, rasio UNIQUE-input
+      (penyerang jarang mengulang), rasio permintaan probabilitas
+      penuh; defensinya: rate limit, label-only/rounding, deteksi
+      output; uji ekstraktability sendiri (ART) sebelum produksi
+- [ ] OAuth token theft Entra (ops API): tabel lifetime — access
+      60-90 menit, refresh hingga 90 hari, PRT = SSO penuh, session
+      cookie = AitM; vektor: Evilginx (AitM), device-code phishing,
+      PRT extraction (sekurlsa::cloudap), infostealer cookie;
+      remediasi = cabut sesi/refresh token, bukan reset password
+      saja; cf. seksi 50/59
+- [ ] mobile malware: triase statis APK (hash, izin, eksport
+      komponen) = apk_firebase_scan; analisis dinamis (MobSF/
+      Frida/emulator + capture jaringan) = kelas alat lain —
+      indikator perilaku: izin SMS/kontak berlebih, API C2 hard-
+      coded, lodear dynamis
+- [ ] ransomware entropi: baseline entropi PER TIPE file (teks 2-5.5,
+      dokumen 3.5-7.2, terenkripsi 7.8-8.0) — teks = kandidat
+      terbaik, ZIP/JPEG tak terbedakan (FP); entropi sendirian tak
+      cukup: gabung laju I/O + pola rename massal + vssadmin delete
+      shadows; padanan cyphron: packer_scan (entropi PE); monitoring
+      real-time = out of class
+
+## 82. Quishing — QR-code phishing (dari mukul975/detecting-qr-code-phishing-with-email-security)
+- [ ] kenapa lolos: gateway scan URL teks, tidak membaca piksel QR;
+      pindai QR terjadi di perangkat pribadi di luar kontrol
+      korporat; QR dianggap normal (menu/parkir/pembayaran)
+- [ ] taksonomi evasif: SPLIT QR (dua gambar terpisah yang masing-
+      masing tampak jinak), NESTED QR (QR dalam QR + halaman antara),
+      ASCII QR (teks karakter, lolos analisis gambar), QR artistik
+      ber-logo, QR di lampiran PDF
+- [ ] lead deterministik di level email: lampiran gambar/PDF + body
+      minim URL + konteks pembayaran/kredensial — decode QR butuh
+      dependensi non-stdlib (zbar/PIL), jadi di cyphron ditangani
+      sebagai prosedur manual pada eml yang sudah ditandai
+      eml_phish_triage, bukan tool decode
+
+## 83. Di luar domain — Modbus/OT (dari mukul975/detecting-modbus-command-injection-attacks, detecting-modbus-protocol-anomalies)
+- [ ] domain ICS/SCADA (cf. seksi 48/63) — butuh SPAN/TAP jaringan OT
+      + parser protokol industri, di luar fokus web/app/infra cyphron
+- [ ] inti yang layak diingat: function code Modbus read = 1-4,
+      write = 5/6/15/16 (unauthorized write = dampak operasional
+      langsung, gaya FrostyGoop), diagnostic = 8/17/43; deteksi =
+      baseline master/slamen sah (siapa boleh menulis, rentang
+      register, interval poling) -> deviasi + rogue master + frame
+      malformed = alert; diagnosis butuh dokumentasi register PLC
+      milik lab sendiri
