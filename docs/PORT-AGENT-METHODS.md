@@ -287,3 +287,129 @@ sisanya didistilasi di bawah. #0272/#0285/#0296 = di luar domain.
       — data-mining utk admin IAM, bukan temuan keamanan; padanan cyphron
       (k8s_rbac_audit) mengaudit hak berlebih, bukan mendesain peran
 
+## 35. Profil aktor & atribusi OSINT (dari mukul975/building-threat-actor-profile-from-osint) — distilasi B11
+- [ ] profil lengkap = alias lintas vendor, motivasi, sektor/geografi
+      target, kampanye, TTP, toolset/malware, pola infrastruktur, timeline
+- [ ] Diamond Model: tiap aktivitas diurai ke adversary / capability /
+      infrastructure / victim — hubungan antar-sumbu = titik korelasi
+- [ ] atribusi TIDAK diklaim dari satu indikator: Analysis of Competing
+      Hypotheses — daftar hipotesis, cari bukti yang MENOLAK, bukan yang
+      mendukung; level confidence ditulis eksplisit
+- [ ] infrastruktur bersama (IP dipakai banyak domain, registrar/naming
+      pattern sama) = korelasi kuat; butuh >=3 sumber independen sebelum
+      disebut "confirmed"
+- [ ] di cyphron: tidak ada tool atribusi (bagian API OSINT butuh kunci +
+      jaringan) — checklist ini dipakai saat MENULIS profil dari bukti
+      yang sudah terkumpul, output selalu memakai kalimat kepercayaan
+
+## 36. Hipotesis threat hunt (dari mukul975/building-threat-hunt-hypothesis-framework) — distilasi B11
+- [ ] hipotesis harus TERUJI: "jika <teknik TTP> dipakai, maka <artefak
+      spesifik> akan terlihat di <sumber data X>" — tanpa ketiga bagian
+      itu, bukan hipotesis melainkan kegelisahan
+- [ ] sumber data disebut SEBELUM query: log apa yang membuktikan/menolak;
+      sumber tidak tersedia = celah telemetri, dicatat (bukan dilewati)
+- [ ] hasil per hipotesis: validated / refuted / inconclusive — refuted
+      tetap bernilai (mengisi celah deteksi), inconclusive = sumber kurang
+- [ ] tiap temuan: true/false positive dijelaskan kontekstual (pola yang
+      sama dipakai proses sah?), lalu dikaitkan ke rantai serangan lebih
+      luas
+- [ ] output hunt standar: ID, teknik, host/akun, bukti, risk, confidence,
+      tindakan — plus UPDATE rule deteksi dari apa yang dipelajari
+
+## 37. Differential auth-enforcement (dari mukul975/bypassing-authentication-with-forced-browsing) — distilasi B11
+- [ ] tes inti = DIFERENSIAL: respons endpoint tanpa sesi vs sesi sah —
+      status & ukuran isi mirip tanpa redirect/login-page = auth tidak
+      ditegakkan di endpoint itu
+- [ ] path tak tertaut tetap wajib dites (forced browsing): backup/config
+      (.bak/.old/.env/.conf), panel admin, debug/actuator — keberadaan
+      cek cyphron: file-exposure-checker, directory-listing-detector,
+      cached-sensitive-files
+- [ ] enforcement kadang hanya ditegakkan pada METODE tertentu: HEAD/
+      OPTIONS/PATCH atau method-override header bisa lolos sementara GET
+      diblok — tes varian metode pada endpoint yang sama
+- [ ] 403 bukan "aman": bandingkan isi respons 403 vs 404 vs 200 untuk
+      membedakan "ada tapi dilindungi" vs "ada dan bocor"
+- [ ] di cyphron: differential unauth-vs-auth sudah ada di
+      AdminAccessPlaybook (exploit_playbooks); checklist ini utk review
+      manual saat lead tersangka tapi playbook belum mencakup path-nya
+
+## 38. Koleksi OSINT terarah (dari mukul975/collecting-open-source-intelligence) — distilasi B11
+- [ ] mulai dari collection requirement: pertanyaan yang harus dijawab —
+      tanpa itu, OSINT menjadi arsip tanpa arah
+- [ ] lapisan sumber: pasif-DNS/WHOIS (kepemilikan), map infrastruktur
+      (port/cert/hosting), pemantauan paste/darkweb (bocor, kredensial),
+      repo kode (kunci keras) — tiap lapisan punya bias waktu berbeda
+- [ ] korrelasi lintas sumber: domain yang sama muncul di WHOIS berbeda +
+      cert + hosting = kandidat infrastruktur satu aktor
+- [ ] catat sumber + waktu akses per fakta — bukti tanpa asal tak bisa
+      dipakai ulang dan tak bisa dipercaya
+- [ ] di cyphron: permukaan pasif sudah luas (rdap-whois, ct-inventory,
+      subdomain-enum-surface, wayback-history, favicon-fingerprint);
+      checklist ini utk MENYUSUN temuan lintas-tool menjadi narasi
+
+## 39. Recon pasif eksternal (dari mukul975/conducting-external-reconnaissance-with-osint) — distilasi B11
+- [ ] definisi pasif: NOL paket ke target — hanya arsip pihak ketiga (DNS
+      history, CT log, wayback, repo, dokumen publik); pemindaian aktif =
+      fase lain dengan izin lain
+- [ ] peta footprint: domain/subdomain, rentang IP, teknologi, alamat
+      email/staf, vendor pihak ketiga, artefak kebocoran lama
+- [ ] artefak kedaluwarsa tetap berharga: subdomain lama di wayback =
+      kandidat takeover; repo terlupa = kredensial lama yang belum dirotasi
+- [ ] email staf + pola nama = bahan validasi keberadaan, bukan bahan
+      serangan — di cyphron dipakai untuk menyempitkan scope audit sah
+- [ ] padanan cyphron: program_discovery/target_scout + permukaan pasif
+      registry (lihat seksi 38); checklist ini urutan pikirannya
+
+## 40. Urutan volatilitas + chain of custody (dari mukul975/collecting-volatile-evidence-from-compromised-host) — distilasi B11
+- [ ] urutan klasik (paling volatil dulu): register/RAM -> state jaringan
+      -> proses -> data disk -> arsip cadangan/remote log — kumpulkan dari
+      yang paling mudah hilang sebelum isolasi/power-off
+- [ ] isolasi (network) lebih dulu daripada shutdown; power-off menghancurkan
+      bukti memori dan artefak fileless
+- [ ] chain of custody per artefak: siapa, kapan, dari mana, alat apa,
+      hash (dua alat = hash ganda), penyimpanan baca-saja — tanpa itu
+      bukti tak bernilai formal
+- [ ] catat waktu SISTEM target vs waktu kolektor (skew) — timeline salah
+      satuan jam adalah kesalahan forensik umum
+- [ ] di cyphron: mft_scan/dpapi_blob_scan membaca artefak statis; checklist
+      ini dipakai saat MEMINTA/MENCATAT bukti, bukan saat memparse-nya
+
+## 41. OWASP API Top 10 dipetakan cyphron (dari mukul975/conducting-api-security-testing) — distilasi B11
+- [ ] BOLA/IDOR: ganti id objek antar-prinsip — AdminAccessPlaybook
+      (orders), IdorOrdersPlaybook; selalu dua bukti: respons objek lain +
+      isi tidak sesuai pemilik sesi
+- [ ] broken auth: token JWT lemah (JwtWeakSecretPlaybook,
+      JwtAlgConfusionPlaybook), sesi tanpa kedaluwarsa/scope
+- [ ] BFLA/mass-assignment: kirim field role/is_admin pada POST/PUT —
+      MassAssignmentPlaybook; tes juga DELETE/ubah oleh role rendah
+- [ ] property-level: respons memborong field sensitif (PSS) — bandingkan
+      skema respons role rendah vs dokumentasi
+- [ ] rate-limit: rate-limit-validator (tolok ukur + canary); consumen
+      DoS = payload bentuk aneh yang mahal diparse
+- [ ] SSRF/injection klasik: SsrfCallbackPlaybook/XxeCallbackPlaybook/
+      SqliProductsPlaybook — callback eksternal = bukti lebih kuat daripada
+      perbedaan respons
+- [ ] urutan hemat: autentikasi dulu (murah), lalu otorisasi antar-objek,
+      lalu validasi input, terakhir logika bisnis (paling mahal analisis)
+
+## 42. Di luar domain — catatan bidang blok B11 (rincian di ADDENDUM B11)
+- [ ] SOC platform ops (#0302 #0304 #0305 #0306 #0308 #0315): deploy MISP/
+      Splunk ES/DefectDojo/OpenCTI/TIP + API produknya — integrasi produk
+      pihak ketiga, bukan alat audit; konsep feed-quality tetap relevan
+      (lihat intel_sync: freshness/delta/TTL)
+- [ ] emulasi serangan AD (#0312 #0321 #0326): Coercer/PetitPotam/DCSync/
+      BloodHound CE — alat ofensif infrastruktur AD, di luar fokus
+      web/app cyphron dan bertentangan dengan kelas read-only
+- [ ] IR/response ops (#0318 #0327): cloud IR + malware IR — proses
+      respons insiden organisasi; triase statisnya sudah dilayani
+      maldoc_triage/pdf_triage/packer_scan/ioc_defang
+- [ ] pentest ofensif jaringan/cloud/mobile (#0319 #0323 #0325 #0328
+      #0330): metodologi engagement ofensif penuh (MITM, internal network,
+      cloud, MASTG) — pelaksanaan butuh izin per-engagement dan alat aktif;
+      padanan statis cyphron: attack_planner (rencana, tanpa eksekusi),
+      apk_firebase_scan (triase APK)
+- [ ] forensik memori (#0329): parsing RAM dump (Volatility) — di luar
+      kelas alat cyphron (artefak statis: mft_scan, dpapi_blob_scan)
+- [ ] kepatuhan/privasi (#0324): asesmen GDPR Article 30/35 dst — tata
+      kelola kepatuhan, bukan pengujian teknis
+
