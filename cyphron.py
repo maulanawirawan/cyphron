@@ -99,6 +99,10 @@ MODES: dict[str, dict] = {
         "desc": "tamper-evidence file panduan agent (pin/verify/scan)",
         "script": "tools/agent_shield.py",
     },
+    "gate": {
+        "desc": "verify gate — klaim status wajib bukti fresh (fail-closed)",
+        "script": "tools/verify_gate.py",
+    },
     "skills": {
         "desc": "daftar skill terdaftar + kelas amannya",
         "script": None, "special": "skills",
