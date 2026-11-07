@@ -48,7 +48,7 @@ def _r(status, body, headers=None):
 class RegistryTest(unittest.TestCase):
     def test_entries(self):
         self.assertGreaterEqual(len(REG["skills"]), 86)
-        self.assertEqual(len(ep.PLAYBOOKS), 39)
+        self.assertEqual(len(ep.PLAYBOOKS), 41)
         by = {s["name"]: s for s in REG["skills"]}
         self.assertEqual(by["console-exposure-checker"]["safety_class"],
                          "bounded-requests")

@@ -53,7 +53,7 @@ def one(rows, needle):
 class RegistryTest(unittest.TestCase):
     def test_entries(self):
         self.assertGreaterEqual(len(REG["skills"]), 86)
-        self.assertEqual(len(ep.PLAYBOOKS), 39)
+        self.assertEqual(len(ep.PLAYBOOKS), 41)
         by = {s["name"]: s for s in REG["skills"]}
         for n in ("api-version-surface", "cloud-bucket-exposure",
                   "github-leak-check"):

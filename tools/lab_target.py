@@ -113,6 +113,16 @@ class _Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(raw)
 
+    def _csv(self, code: int, body: str):
+        raw = body.encode("utf-8")
+        self.send_response(code)
+        self.send_header("Content-Type", "text/csv; charset=utf-8")
+        self.send_header("Content-Disposition",
+                         'attachment; filename="statement.csv"')
+        self.send_header("Content-Length", str(len(raw)))
+        self.end_headers()
+        self.wfile.write(raw)
+
     def _session_user(self):
         cookie = self.headers.get("Cookie", "")
         for part in cookie.split(";"):
@@ -496,6 +506,33 @@ class _Handler(BaseHTTPRequestHandler):
             except Exception as exc:
                 return self._json(200, {"resolved": False,
                                         "error": repr(exc)[:120]})
+        if parsed.path == "/api/transfer/list":
+            user = self._session_user()
+            if not user:
+                return self._json(401, {"error": "unauthenticated"})
+            rows = [{"key": t["key"], "to": t["to"], "amount": t["amount"]}
+                    for t in self.lab.transfers
+                    if t["owner"] == user["username"]]
+            return self._json(200, {"transfers": rows, "total": len(rows)})
+        if parsed.path == "/api/statement/export":
+            user = self._session_user()
+            if not user:
+                return self._json(401, {"error": "unauthenticated"})
+            note = self.lab.statement_notes.get(user["username"]) or {}
+            # KERENTANAN SENGAJA: nilai user dimasukkan mentah ke CSV
+            # (CWE-1236) — formula (=, +, -, @) dirender aplikasi
+            # spreadsheet saat file dibuka.
+            raw = note.get("note", "")
+            return self._csv(200, "id,note\n1," + raw + "\n")
+        if parsed.path == "/api/statement/export-safe":
+            user = self._session_user()
+            if not user:
+                return self._json(401, {"error": "unauthenticated"})
+            note = self.lab.statement_notes.get(user["username"]) or {}
+            # kontrol: formula-guard OWASP — nilai berawalan =+-@ di-prefix
+            raw = note.get("note", "")
+            guarded = "'" + raw if raw[:1] in ("=", "+", "-", "@") else raw
+            return self._csv(200, "id,note\n1," + guarded + "\n")
         if parsed.path.startswith("/cacheable-header/") or \
                 parsed.path.startswith("/cache-safe-header/"):
             # mini-cache sama (keyed by PATH SAJA): refleksi header unkeyed
@@ -833,6 +870,59 @@ class _Handler(BaseHTTPRequestHandler):
                 if k in fields:
                     user[k] = fields[k]
             return self._json(200, {"ok": True, "role": user.get("role")})
+        if parsed.path in ("/api/transfer", "/api/transfer-safe"):
+            user = self._session_user()
+            if not user:
+                return self._json(401, {"error": "unauthenticated"})
+            length = int(self.headers.get("Content-Length", 0))
+            try:
+                body = json.loads(
+                    self.rfile.read(length).decode("utf-8", "replace"))
+            except Exception:
+                return self._json(400, {"error": "body JSON wajib"})
+            key = str(body.get("idempotency_key", ""))
+            to = str(body.get("to", ""))
+            amount = int(body.get("amount", 0) or 0)
+            if not key or not to or amount <= 0:
+                return self._json(400, {"error": "to+amount+idempotency_key "
+                                                "wajib"})
+            if parsed.path == "/api/transfer-safe":
+                # kontrol: key di-store — replay dengan key sama ditahan
+                seen = any(t["key"] == key and t["owner"] == user["username"]
+                           for t in self.lab.transfers)
+                if seen:
+                    return self._json(409, {"error": "duplicate "
+                                            "idempotency key",
+                                            "idempotency_key": key})
+            # KERENTANAN SENGAJA (/api/transfer): idempotency key DITERIMA
+            # tapi TIDAK pernah dicek (CWE-837) — replay key sama
+            # memproses transfer ulang (double-process, pola double-spend)
+            time.sleep(0.02)
+            self.lab.transfers.append({"key": key, "to": to,
+                                       "amount": amount,
+                                       "owner": user["username"]})
+            occ = sum(1 for t in self.lab.transfers
+                      if t["key"] == key and t["owner"] == user["username"])
+            return self._json(200, {"processed": True,
+                                    "idempotency_key": key,
+                                    "occurrences": occ})
+        if parsed.path == "/api/statement/note":
+            user = self._session_user()
+            if not user:
+                return self._json(401, {"error": "unauthenticated"})
+            length = int(self.headers.get("Content-Length", 0))
+            try:
+                body = json.loads(
+                    self.rfile.read(length).decode("utf-8", "replace"))
+            except Exception:
+                return self._json(400, {"error": "body JSON wajib"})
+            note = str(body.get("note", ""))[:500]
+            if not note:
+                return self._json(400, {"error": "note wajib"})
+            # canary milik user sendiri — disimpan apa adanya (vuln di
+            # sisi export, bukan di sini)
+            self.lab.statement_notes[user["username"]] = {"note": note}
+            return self._json(201, {"stored": True})
         if parsed.path == "/api/xml":
             body = self.rfile.read(
                 min(int(self.headers.get("Content-Length", 0)), 8192)
@@ -1017,6 +1107,24 @@ class _Handler(BaseHTTPRequestHandler):
             if self.lab.coupons.pop(name, None) is None:
                 return self._json(404, {"error": "not found"})
             return self._json(200, {"deleted": name})
+        if self.path.startswith("/api/transfer/"):
+            # cleanup canary idempotency: hapus transfer milik user
+            # dengan key tsb (owner dicek — bukan milik orang lain)
+            user = self._session_user()
+            if not user:
+                return self._json(401, {"error": "unauthenticated"})
+            before = len(self.lab.transfers)
+            self.lab.transfers = [t for t in self.lab.transfers
+                                  if not (t["key"] == name
+                                          and t["owner"] == user["username"])]
+            removed = before - len(self.lab.transfers)
+            return self._json(200, {"deleted": removed})
+        if self.path == "/api/statement/note":
+            user = self._session_user()
+            if not user:
+                return self._json(401, {"error": "unauthenticated"})
+            removed = self.lab.statement_notes.pop(user["username"], None)
+            return self._json(200, {"deleted": bool(removed)})
         return self._json(404, {"error": "not found"})
 
 
@@ -1064,6 +1172,12 @@ class LabServer(ThreadingHTTPServer):
         self.corpus_pending: dict[str, str] = {}
         self.uploads: dict[str, bytes] = {}
         self.coupons: dict[str, dict] = {}
+        # idempotency lab: transfer canary (vuln = key diabaikan; safe =
+        # key di-store dan replay ditahan). ThreadingHTTPServer —
+        # list.append atomik di CPython, cukup untuk lab.
+        self.transfers: list[dict] = []
+        # CSV-injection lab: satu note per user (disimpan mentah utk vuln)
+        self.statement_notes: dict[str, dict] = {}
         self.db = sqlite3.connect(":memory:", check_same_thread=False)
         self.db_lock = threading.Lock()
         self.db.execute("CREATE TABLE products (id INT, name TEXT, price INT)")
