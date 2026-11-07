@@ -510,3 +510,213 @@ bawah ini didistilasi. Ops produk/deployment dicatat di seksi 48.
       cloudtrail_scan + iam_escalation_scan
 - [ ] alat eksternal (#0384): TruffleHog = scanner secret pihak ketiga;
       padanan cyphron: secret_history_scan (riwayat git) + zeroize_scan
+
+---
+Blok B14 (#0391-#0420, 8 Nov) — sumber mukul975 (Apache-2.0 — konsep,
+bukan teks). Tiga entri diekstrak jadi tool: #0392 -> tools/
+api_property_scan.py, #0418+#0419 -> tools/kerberos_log_triage.py,
+#0420 -> tools/ingest_gate.py (gerbang pra-ingesti; sisi pola instruksi
+yang langsung terlihat di teks sudah dicakup seksi 44); sisanya
+didistilasi di bawah.
+
+## 49. BEC & kompromi akun email (dari mukul975/detecting-business-email-compromise + detecting-business-email-compromise-with-ai + detecting-email-account-compromise + detecting-email-forwarding-rules-attack)
+- [ ] taksonomi FBI IC3: CEO fraud, account compromise, false invoice
+      (ubah rekening vendor), attorney impersonation, data theft
+      (W-2/PII dari HR) — BEC kerap TANPA link/lampiran; scanner URL
+      meleset, indikatornya identitas & proses
+- [ ] indikator deterministik per email (sudah di eml_phish_triage):
+      Reply-To != From, domain Return-Path != domain From, domain
+      homoglyph/mirip eksekutif-vendor; sisanya bahasa (urgensi +
+      kerahasiaan "jangan beritahu siapa pun", perubahan payment
+      detail) — bukti lemah bila sendirian
+- [ ] persistence T1114.003: inbox rule forward ke domain eksternal,
+      rule yang menghapus/memindahkan email ber-keyword "invoice/
+      payment" — event New-InboxRule/Set-InboxRule di audit log
+- [ ] kontrol proses yang menutup celah teknis: dual-authorization
+      wire transfer, verifikasi out-of-band (callback ke nomor
+      TERSIMPAN) untuk perubahan rekening vendor
+- [ ] kompromi akun: impossible travel di sign-in log, UA aneh
+      (python-requests/PowerShell/curl) di log email, OAuth consent
+      grant pihak ketiga mencurigakan
+- [ ] sisi AI (#0394): baseline perilaku 30 hari + writing-style
+      profile per user — butuh platform/API; intinya: identitas
+      pengirim TIDAK cukup, gaya & pola juga bukti
+
+## 50. Cloud threat & kredensial cloud (dari mukul975/detecting-cloud-threats-with-guardduty + detecting-compromised-cloud-credentials)
+- [ ] taksonomi finding GuardDuty "ThreatPurpose:ResourceType/
+      ThreatName"; yang khas: InstanceCredentialExfiltration.OutsideAWS
+      (kredensial instance dipakai DI LUAR AWS — pasti aneh),
+      TorIPCaller, ConsoleLoginSuccess.B
+- [ ] routing severity eksplisit: >=7 -> otomasi (EventBridge ->
+      isolasi via SG), >=9 -> hunt; finding tanpa aksi = noise
+- [ ] korelasi deterministik atas log yang diekspor: impossible
+      travel = 2 IP beda negara < 1 jam per user; stuffing = >=10
+      gagal lalu sukses per user; unique IP console login > 3 / 24 jam
+- [ ] containment kredensial: deactivate access key, revoke session,
+      disable service account — hentikan pemakaian DULU, cari jejak
+      belakangan
+- [ ] di cyphron: sisi log AWS offline dilayani cloudtrail_scan
+      (#0383, B13) + iam_escalation_scan; Entra/GCP butuh API —
+      checklist ini dipakai saat MENGATUR ekspor log dari lab
+
+## 51. Container drift & escape runtime (dari mukul975/detecting-container-drift-at-runtime + detecting-container-escape-attempts + detecting-container-escape-with-falco-rules + detecting-container-runtime-threats-with-falco)
+- [ ] drift (T1611): binary DIEKSEKUSI dari upper layer, package
+      manager (apt/yum/apk/pip/npm) di runtime, shell yang bukan
+      entrypoint — semua = "image tidak lagi sama dengan manifest"
+- [ ] vektor escape yang dipantau: privileged container, mount
+      docker.sock, /proc/kcore & /proc/sysrq-trigger, write cgroup
+      release_agent (CVE-2022-0492), nsenter/unshare/mount dgn argumen
+      /host, insmod/modprobe, baca /etc/kubernetes/admin.conf
+- [ ] anatomi rule Falco: spawned_process + container + proc.name/
+      fd.name, plus list biner + EXCEPTION list utk FP + priority —
+      rule tanpa exception = alarm massal hari pertama
+- [ ] integritas image: pin digest @sha256: (bukan tag mutable);
+      readOnlyRootFilesystem = mitigasi drift termurah
+- [ ] runtime detection butuh sensor kernel (eBPF/Falco) — di cyphron
+      jejak API-side dilayani k8s_audit_triage/k8s_rbac_audit;
+      checklist ini utk AUDIT aturan milik lab, bukan eksekusi
+
+## 52. Credential dumping Windows (dari mukul975/detecting-credential-dumping-techniques)
+- [ ] Sysmon EID 10 (ProcessAccess) ke lsasse: GrantedAccess
+      mencurigakan umum 0x1010 (query+read VM), 0x1FFFFF (semua) —
+      proses biasa TIDAK membaca lsasse; pola yang sama diterapkan ke
+      proses tak dikenal dgn bit read
+- [ ] dump alternatif di cmdline (4688/Sysmon EID 1): rundll32
+      comsvcs.dll MiniDump, procdump -ma, reg save SAM/SYSTEM,
+      ntdsutil "ifm", vssadmin create shadow -> salin NTDS.dit
+- [ ] disiplin: satu akses lsasse = LEAD; konfirmasi butuh konteks
+      (EDR/backup agent sah memang kerap berhak membaca)
+
+## 53. Cryptomining di cloud (dari mukul975/detecting-cryptomining-in-cloud)
+- [ ] empat sinyal independen: cost anomaly (dimensi SERVICE), alarm
+      CPU (>=90% x 3 periode), traffic ke pool (port stratum/3333,
+      domain pool), proses runtime (xmrig/minerd)
+- [ ] pola CloudTrail khas: RunInstances burst di region tak lazim,
+      instance GPU, user-data berisi curl|sh miner (T1496) — sisi log
+      offline dilayani cloudtrail_scan (#0383)
+- [ ] satu sinyal = lead; dua sinyal serentak = eskalasi langsung
+
+## 54. Data & model poisoning (dari mukul975/detecting-data-and-model-poisoning)
+- [ ] provenance dulu: dataset per versi disimpan hash + sumber +
+      waktu; dataset "muncul sendiri" tanpa provenance = jangan
+      dipakai train
+- [ ] label noise: distribusi prediksi vs label (mis. Cleanlab) —
+      label yang selalu salah pada fitur tertentu = kandidat
+      poisoning ATAU kualitas data (dua-duanya temuan sah)
+- [ ] deteksi poison: activation clustering (dua cluster jelas di
+      lapisan akhir = curiga) + spectral signature (gap eigenvalue
+      besar); keduanya sinyal statistik, konfirmasi = review sampel
+      manual
+- [ ] backdoor: performa normal di distribusi utama + anomali pada
+      subset trigger — uji subset terpisah
+- [ ] gate: dataset/weight baru masuk pipeline lewat diff-stat +
+      quarantine review (analog ci_gate utk kode)
+
+## 55. DCSync (dari mukul975/detecting-dcsync-attack-in-active-directory)
+- [ ] Event 4662 di DC dengan GUID replicasi: DS-Replication-Get-
+      Changes 1131f6aa-9c07-11d1-f79f-00c04fc2dcd2, -All
+      1131f6ad-9c07-11d1-f79f-00c04fc2dcd2, -In-Filtered-Set
+      89e95b76-444d-4c62-991a-0facbeda640c
+- [ ] pembeda utama: sumber normal GUID itu = DC lain; akun user/
+      service biasa = DCSync (Mimikatz lsadump::dcsync, secretsdump)
+- [ ] presyarat audit: Advanced Audit Policy 4662 di DC — tanpa itu
+      teknik invisible; cek coverage logging dulu sebelum menyimpulkan
+      "tidak ada DCSync"
+
+## 56. Deepfake audio di vishing (dari mukul975/detecting-deepfake-audio-in-vishing-attacks)
+- [ ] pertahanan termurah = PROSES: permintaan uang/kredensial lewat
+      suara WAJIB callback ke nomor tersimpan (bukan nomor penelepon)
+      — tak peduli suara asli atau bukan
+- [ ] artefak forensik: discontinuity fasa/spektral, prosodi & jeda
+      tak wajar, hilangnya napas/transisi fonem, band-limit (energi
+      > 8-12 kHz kosong); classifier ML butuh model terlatih — cukup
+      checklist inspeksi
+- [ ] bukti = gabungan artefak audio + anomali konteks (jam, permintaan,
+      identitas); satu artefak = lead
+
+## 57. Dependency confusion — padanan (dari mukul975/detecting-dependency-confusion)
+- [ ] padanan cyphron: dep_confusion_check (manifest + konfigurasi
+      registry, offline). Entri ini versi deteksi aktif: nama internal
+      yang tak terdaftar di registry publik = CLAIMABLE (cek 404
+      registry = langkah live ops, bukan tool)
+- [ ] remediasi pinning: .npmrc scope->registry privat, pip index-url
+      TUNGGAL (jangan extra-index-url — pip menggabungkan & memilih
+      versi tertinggi), Maven mirrorOf=*
+- [ ] defensif terakhir: pre-register nama internal di registry
+      publik sbg placeholder
+
+## 58. DLL side-loading (dari mukul975/detecting-dll-sideloading-attacks)
+- [ ] pola T1574.002: EXE signed + DLL tak-signature nama sama di dir
+      yang sama (wrapper); phantom DLL (nama tak ada di dir aplikasi,
+      dicari di PATH); proxy DLL (export-forward ke DLL asli, payload
+      di DllMain)
+- [ ] deteksi log: Sysmon EID 7 ImageLoaded — DLL unsigned dimuat EXE
+      signed, path Temp/AppData/Public, DLL bukan dari dir aplikasi;
+      verifikasi signature + hash ke inventaris
+- [ ] statis: pe_mitigation_scan menutup sisi mitigasi biner; ekspor
+      Sysmon XML bisa diparse pola sama dgn kerberos_log_triage bila
+      kelak dibutuhkan
+
+## 59. UA fingerprint tool ofensif di Entra ID (dari mukul975/detecting-entra-offensive-tools-in-graph-logs)
+- [ ] UA yang dikenali: ROADtools/aiohttp, AADInternals, AzureHound di
+      SignInLogs/Graph log; python-requests generik dari lingkungan
+      tanpa app resmi = lead
+- [ ] behavioral: endpoint sweep (banyak GET objek berurutan dalam
+      detik) = roadrecon-likes, terpisah dari login manusia sah
+- [ ] mitigasi: conditional access menolak UA tak sah + alert saat UA
+      resmi muncul di lokasi baru — log Entra = API/jaringan; pola
+      "UA + sweep" berlaku juga di log HTTP umum (web_log_intrusion)
+
+## 60. Evasion endpoint — T1070 (dari mukul975/detecting-evasion-techniques-in-endpoint-logs)
+- [ ] log clearing: Security 1102, System 104, Sysmon EID 1 cmdline
+      `wevtutil cl` / `Clear-EventLog`; juga lonjakan ukuran log turun
+      mendadak
+- [ ] timestomping: Sysmon EID 2 FileCreationTime changed — file
+      ber-isi resen tapi creation time LAMA = anomali; korelasi EID 11
+      FileCreate
+- [ ] encodedcommand/base64 di cmdline = evasion klasik — decode dulu
+      sebelum menilai
+- [ ] kegelapan deteksi = insiden itu sendiri: gap log justru area
+      dicurigai (cf. seksi 33 timeline)
+
+## 61. Fileless & LOLBins (dari mukul975/detecting-fileless-attacks-on-endpoints + detecting-fileless-malware-techniques)
+- [ ] indikator di log proses: office/scripting parent -> powershell/
+      wscript/mshta child, cmdline encodedcommand/iex/downloadstring/
+      frombase64string, jaringan langsung setelahnya
+- [ ] persistence WMI (Sysmon EID 19 Filter / 20 Consumer / 21
+      Binding): consumer cmdline mencurigakan + binding ke filter
+      timer/event = persistence tanpa file
+- [ ] registry-resident: payload base64 di Run keys/HKCU yang
+      mengeksekusi encodedcommand = lead
+- [ ] sumber kebenaran fileless = script block logging (EID 4104,
+      isi SETELAH deobfuscation) — pastikan menyala di lab sebelum uji
+- [ ] analisis memori di luar kelas cyphron — checklist utk MEMBACA
+      ekspor event XML/EDR lab
+
+## 62. DNS C2/eksfiltrasi — pelengkap (dari mukul975/detecting-command-and-control-over-dns + detecting-dns-exfiltration-with-dns-query-analysis + detecting-exfiltration-over-dns-with-zeek)
+- [ ] padanan cyphron: dns_log_triage (entropi, panjang label, volume
+      TXT, DGA kelas-karakter, beacon, signature tool; parser Zeek +
+      BIND) + zeek_beacon_scan (#0390, B13). Yang tak ada di tool dan
+      layak diingat saat triase manual:
+- [ ] decode payload TXT: base64 -> header MZ/ELF + regex stager PS
+      (IEX/DownloadString/FromBase64String); TXT sah punya whitelist
+      (SPF/DKIM/DMARC/verifikasi domain)
+- [ ] tabel interval beacon C2 umum (60/120/300/600/900/1800/3600 s,
+      toleransi ±10%) sebagai alat pencocokan cepat; CV jitter < 25%
+- [ ] rasio NXDOMAIN per client tinggi = kelas DGA yang lolos uji
+      entropi; kueri per domain puncak + kekalaan interval = beacon
+
+## 63. Di luar domain blok B14 — catatan bidang (bukan "skip" polos)
+- [ ] #0391 BLE (Bluetooth Low Energy): sniffer hardware (Ubertooth/
+      nRF52840), enumerasi GATT live (bleak), crackle utk legacy
+      pairing (TK=0 Just Works, passkey 6-digit), replay & MITM via
+      cloning advertising — butuh radio + alat eksternal, di luar
+      web/app/infra. Inti yang layak diingat: characteristic
+      write/write-without-response tanpa auth = kandidat; SMP opcode
+      0x00/0x01 & L2CAP CID 0x0006 = titik analisis pairing
+- [ ] #0409 DNP3 (ICS/OT): anomali protokol industri — deviasi interval
+      poling, unsolicited flood, object group/variation tak biasa,
+      scan burst ke outstation; jaringan OT berbeda risiko (nyawa/
+      produksi) & regulasi — di luar fokus web/app cyphron; konsep
+      "deviasi interval poling" berlaku generik (cf. beacon di
+      zeek_beacon_scan)
