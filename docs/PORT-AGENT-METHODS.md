@@ -721,7 +721,7 @@ didistilasi di bawah.
       "deviasi interval poling" berlaku generik (cf. beacon di
       zeek_beacon_scan)
 
-## 49. Siklus uji penetrasi jaringan (dari mukul975/conducting-network-penetration-test) — distilasi B12
+## 64. Siklus uji penetrasi jaringan (dari mukul975/conducting-network-penetration-test) — distilasi B12
 - [ ] validasi ruang lingkup SEBELUM scan: kepemilikan IP via WHOIS,
       jendela waktu tertulis, jalur komunikasi darurat — scan IP milik
       pihak lain = insiden, bukan temuan
@@ -736,7 +736,7 @@ didistilasi di bawah.
 - padanan cyphron: target_scout, lab_target, exploit_engine + gates,
   session_ledger
 
-## 50. Penjarahan & deteksi tiket Kerberos (dari mukul975/conducting-pass-the-ticket-attack) — distilasi B12
+## 65. Penjarahan & deteksi tiket Kerberos (dari mukul975/conducting-pass-the-ticket-attack) — distilasi B12
 - [ ] sisi serangan (lab): ekstrak TGT/TGS dari LSASS (.kirbi) ->
       konversi ccache -> injeksi -> gerbang hanya di lab berizin;
       NEVER-LIST cyphron tetap di atas segalanya
@@ -746,7 +746,7 @@ didistilasi di bawah.
 - padanan cyphron: kerberos_log_triage (B14, #0418/#0419) — cek RC4
   downgrade & TGS tanpa TGT di log XML Windows
 
-## 51. Koridor tangani insiden phishing (dari mukul975/conducting-phishing-incident-response) — distilasi B12
+## 66. Koridor tangani insiden phishing (dari mukul975/conducting-phishing-incident-response) — distilasi B12
 - [ ] klasifikasi 4-bin: confirmed / suspicious / spam / false-report —
       jangan campur BEC (pembajakan akun internal) dgn phishing eksternal
 - [ ] corong dampak: recipients -> delivered -> opened -> clicked ->
@@ -761,7 +761,7 @@ didistilasi di bawah.
 - padanan cyphron: eml_phish_triage (B07 #0199) — header, SPF/DKIM/DMARC,
   Reply-To mismatch; spf_dmarc_posture untuk postur domain
 
-## 52. Post-mortem blameless & metrik respons (dari mukul975/conducting-post-incident-lessons-learned) — distilasi B12
+## 67. Post-mortem blameless & metrik respons (dari mukul975/conducting-post-incident-lessons-learned) — distilasi B12
 - [ ] fokus pada sistem/proses, bukan individu; asumsi niat baik dgn info
       yang tersedia saat itu
 - [ ] 5 Whys berhenti di akar proses ("PAM belum ada"), bukan di orang
@@ -774,7 +774,7 @@ didistilasi di bawah.
 - catatan cyphron: pola sama dipakai saat menulis nightrun/report —
   impact_narrative + session_ledger menyimpan timeline
 
-## 53. Uji social-engineering berizin (dari mukul975/conducting-social-engineering-penetration-test, -pretext-call, -spearphishing-simulation-campaign) — distilasi B12
+## 68. Uji social-engineering berizin (dari mukul975/conducting-social-engineering-penetration-test, -pretext-call, -spearphishing-simulation-campaign) — distilasi B12
 - [ ] autorisasi tertulis utk lingkup SE + tinjauan legal (perekaman
       suara, spoofing caller-ID punya hukumnya sendiri per yurisdiksi)
 - [ ] matriks target: kelompok -> pretext -> vektor (phish/vish/physical);
@@ -787,7 +787,7 @@ didistilasi di bawah.
 - [ ] prasyarat spoof email = postur auth domain target; cek dulu
 - padanan cyphron: spf_dmarc_posture (spoofability), eml_phish_triage
 
-## 54. Uji penetrasi nirkabel (dari mukul975/conducting-wireless-network-penetration-test) — distilasi B12
+## 69. Uji penetrasi nirkabel (dari mukul975/conducting-wireless-network-penetration-test) — distilasi B12
 - [ ] butuh adapter monitor-mode + izin fisik — di luar bentuk tool
       cyphron (software-only); catat sebagai bidang terpisah
 - [ ] yang bisa diekstrak: sisi analisis PCAP — handshake/PMKID capture,
@@ -796,7 +796,7 @@ didistilasi di bawah.
 - padanan cyphron: deauth_pcap_scan (B06 #0159) — frame deauth dari
   pcap; sisanya (crack PSK, evil twin) = bidang radio/HW
 
-## 55. Hardening identitas & infrastruktur (dari mukul975/configuring-active-directory-tiered-model, -host-based-intrusion-detection, -ldap-security-hardening, -microsegmentation-for-zero-trust) — distilasi B12
+## 70. Hardening identitas & infrastruktur (dari mukul975/configuring-active-directory-tiered-model, -host-based-intrusion-detection, -ldap-security-hardening, -microsegmentation-for-zero-trust) — distilasi B12
 - [ ] model bertingkat AD (tier 0/1/2): akun admin tier-N TIDAK boleh
       logon ke host tier-N-1; PAW terpisah; audit = daftar anggota grup
       lintas tier
@@ -812,7 +812,7 @@ didistilasi di bawah.
 - catatan cyphron: k8s_rbac_audit (B09) & k8s_audit_triage menyentuh
   lintas-tier di klaster; AD/LDAP = infra Windows, catat bidang
 
-## 56. OAuth 2.1 / PKCE checklist (dari mukul975/configuring-oauth2-authorization-flow) — distilasi B12
+## 71. OAuth 2.1 / PKCE checklist (dari mukul975/configuring-oauth2-authorization-flow) — distilasi B12
 - [ ] authorization code + PKCE S256 WAJIB utk semua klien (implicit &
       ROPC mati di OAuth 2.1) — verifier 43-128 char unreserved, challenge
       = BASE64URL(SHA256(verifier))
@@ -823,7 +823,7 @@ didistilasi di bawah.
 - [ ] token di httpOnly cookie (web)/keychain (mobile), BUKAN localStorage
 - padanan cyphron: open_redirect_surface, cors_checker, param_probe_checker
 
-## 57. TLS 1.3 (dari mukul975/configuring-tls-1-3-for-secure-communications) — padanan cyphron
+## 72. TLS 1.3 (dari mukul975/configuring-tls-1-3-for-secure-communications) — padanan cyphron
 - [ ] 3 cipher suite sah TLS 1.3 (AES-256-GCM, AES-128-GCM, ChaCha20-
       Poly1305); kunci = PFS wajib, tidak ada RSA key exchange
 - [ ] 0-RTT replayable — hanya utk request idempoten
@@ -833,7 +833,7 @@ didistilasi di bawah.
       hsts_preload_checker — skill ini = panduan konfigurasi server,
       tanpa inti deterministik baru
 
-## 58. Mengandung pelanggaran aktif (dari mukul975/containing-active-breach) — distilasi B12
+## 73. Mengandung pelanggaran aktif (dari mukul975/containing-active-breach) — distilasi B12
 - [ ] map dulu scope (host/akun/C2/lintasan lateral), baru bertindak —
       containment parsial memberi sinyal ke penyerang
 - [ ] urutan volatilitas saat menahan: tangkap memori SEBELUM
@@ -845,7 +845,7 @@ didistilasi di bawah.
 - [ ] komunikasi status: % aktivitas terhenti, sisa risiko, dampak
       bisnis dari tindakan containment
 
-## 59. Red team LLM berkelanjutan & pola korelasi SIEM (dari mukul975/continuous-llm-red-teaming-with-promptfoo, correlating-security-events-in-qradar) — distilasi B12
+## 74. Red team LLM berkelanjutan & pola korelasi SIEM (dari mukul975/continuous-llm-red-teaming-with-promptfoo, correlating-security-events-in-qradar) — distilasi B12
 - [ ] red team LLM = CI gate: attack-success-rate per kategori OWASP LLM
       dipantau ANTAR rilis — naik di kategori mana pun = regresi yang
       
@@ -859,7 +859,7 @@ didistilasi di bawah.
 - [ ] penjaga FP: IP pen-tester di reference-set TTL (polanya = allowlist
       berkedaluwarsa, bukan allowlist abadi)
 
-## 60. Di luar domain + ops produk — catatan bidang blok B12
+## 75. Di luar domain + ops produk — catatan bidang blok B12
 - [ ] perangkat keras kunci (#0343 HSM/PKCS#11): butuh perangkat/SoftHSM2
       — bidang kriptografi-hardware, di luar bentuk tool cyphron;
       prinsip yang bisa dipinjam: kunci non-extractable, SO-PIN,
@@ -870,7 +870,7 @@ didistilasi di bawah.
 - [ ] produk ZTNA/cloud IAM (#0340 AWS Verified Access, #0344 Google IAP,
       #0347 Duo, #0356 Zscaler ZPA): konsol/gcloud vendor, butuh
       kredensial live — bukan alat audit; pola Cedar/IAP = kebijakan
-      per-request, dicatat sebagai konsep seksi 55
+      per-request, dicatat sebagai konsep seksi 70
 - [ ] endpoint vendor (#0354 Defender ASR/Exploit Protection): setting
       EDR Windows via Intune/PowerShell; padanan statis cyphron:
       pe_mitigation_scan (B05 #0131) memverifikasi DEP/ASLR/CFG dari
