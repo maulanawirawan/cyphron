@@ -1218,3 +1218,199 @@ sysmon_triage.py; sisanya didistilasi di bawah (84-94).
       stop/threat profile — padanan cyphron: attack_planner (rencana
       tanpa eksekusi); checklist ini utk MENINJAU rencana, bukan
       menjalankan
+
+---
+Blok B18 (#0511-#0540, 8 Nov) — sumber mukul975 (Apache-2.0 — konsep,
+bukan teks). Enam entri-grup diekstrak jadi tool: #0511 -> tools/
+ssti_engine_id.py, #0514 -> tools/ws_handshake_audit.py, #0517+#0519 ->
+tools/rat_config_scan.py, #0526+#0527 -> tools/docker_audit.py,
+#0534 -> tools/ps_scriptlog_triage.py, #0540 -> tools/
+dcom_lateral_scan.py; sisanya didistilasi di bawah (95-107).
+
+## 95. Type juggling PHP & magic hash (dari mukul975/exploiting-type-juggling-vulnerabilities)
+- [ ] akar masalah = perbandingan LONGGAR `==` / `in_array` tanpa
+      strict pada kode keamanan-kritis (login, verifikasi token/PIN,
+      cek peran); PHP 8 meredakan sebagian, lama tetap relevan
+- [ ] matriks mutasi tipe JSON: true, false, null, 0, "", [],
+      "0", "0e99999" — json_decode mempertahankan tipe, jadi penyerang
+      memilih tipe, bukan string
+- [ ] magic hash: hash yang berawalan "0e" + hanya digit dievaluasi
+      sbg notasi ilmiah (0) — "0e123" == "0e456" TRUE; tabel seed
+      publik (240610708 utk MD5, aaK1STfY utk SHA-1) dipakai sbg
+      payload, dan cek `hash_equals()`/`password_verify()` = remediasi
+- [ ] strcmp(array, string) -> NULL == 0 TRUE: kirim password[]
+      (array) utk mem-bypass perbandingan
+- [ ] di cyphron: tidak ada tool PHP-khusus (lab web umumnya bukan
+      PHP) — checklist dipakai saat review kode PHP lab; padanan
+      lint: grep `==`/`in_array` di file auth lab, bukan tool
+
+## 96. Validasi eksploitabilitas via Metasploit (dari mukul975/exploiting-vulnerabilities-with-metasploit-framework)
+- [ ] fungsi kerangka di vuln management: VALIDASI temuan scanner
+      (skor != eksploitabel), demonstrasi dampak, prioritas remediasi,
+      dan post-patch verification (check ulang setelah patch)
+- [ ] disiplin wajib: `check` SEBELUM `exploit` bila modul punya;
+      payload minim untuk validasi; workspace per engagement; log
+      per aksi dgn timestamp (chain of custody, cf. seksi 40)
+- [ ] percobaan exploit GAGAL tetap didokumentasikan = bukti kontrol
+      bekerja (cf. seksi 64); CLEANUP + verifikasi scan-ulang setelah
+      sesi (sesi meterpreter tertinggal = insiden sendiri)
+- [ ] di cyphron: eksekusi exploit live = exploit_engine + gates +
+      session_ledger di lab berizin; tidak ada tool baru (msf = alat
+      eksternal ops)
+
+## 97. Forensik artefak peramban (dari mukul975/extracting-browser-history-artifacts)
+- [ ] peta artefak: Chrome/Edge (Chromium) = History/Cookies/"Login
+      Data"/Bookmarks (SQLite + JSON); Firefox = places.sqlite/
+      cookies.sqlite/formhistory.sqlite/logins.json — salin dulu
+      (read-only), hash sumber sebelum analisis
+- [ ] dua epok berbeda: Chromium = µs sejak 1601 (offset 11644473600
+      detik ke Unix), Firefox = µs sejak 1970 — konversi salah epok =
+      timeline meleset berjam-jam (cf. skew seksi 40)
+- [ ] SQLite WAL berisi rekord TERBARU yang belum di-checkpoint —
+      salin berkas -wal/-shm bersama DB utk rekord terdekat insiden
+- [ ] kredensial/cookie Chromium terenkripsi DPAPI/AES-GCM per profil
+      — nilai ter-dekripsi butuh masterkey user (dpapi_blob_scan
+      menutup sisi blob masterkey); tanpa itu hanya metadata
+- [ ] skenario investigasi: phishing (URL yang dikunjungi + download),
+      eksfil cloud pribadi (domain storage + volume), rantai redirect
+      drive-by (referrer + downloads)
+- [ ] di cyphron: parsing SQLite peramban tidak di-build (skema DB
+      berubah antar-versi browser + enkripsi kredensial non-stdlib);
+      checklist dipakai saat AKUISISI/penugasan artefak, bukan parse
+
+## 98. Forensik memori — volatilitas (dari mukul975/extracting-credentials-from-memory-dump, extracting-memory-artifacts-with-rekall) — di luar kelas
+- [ ] di luar kelas alat cyphron (cf. seksi 42 #0329, seksi 85): butuh
+      Volatility/pypykatz + simbol OS; prinsip yang layak diingat:
+      cross-view pslist vs psscan (seksi 85), prioritas akun utk reset
+      (RID 500/krbtgt = double reset 12 jam, cf. seksi 73)
+- [ ] pencarian string di memori utk kredensial cloud (AKIA.../bearer)
+      = pola yang sama dgn zeroize_scan/secret scanning — hanya lebih
+      liar (FP tinggi, lead saja)
+
+## 99. Di luar domain — AD ofensif & firmware (blok B18)
+- [ ] #0515 Zerologon (CVE-2020-1472): eksploit AD ofensif (reset
+      mesin akun DC + DCSync) — di luar fokus web/app (cf. seksi 42);
+      sisi deteksi yang layak diingat: 4742 beruntun utk akun DC$,
+      5805 banjir lalu sukses, Suricata dcerpc opnum 4 challenge
+      all-zero; remediasi = patch + enforcement secure RPC
+      (FullSecureChannelProtection)
+- [ ] #0531 bootkit di ESP: mount ESP + hash boot loader vs golden
+      baseline + file non-EFI/ di root ESP = indikator (T1542.003) —
+      bidang firmware/hardware (cf. seksi 94 #0455); butuh akses
+      elevated + sbsign/UEFITool
+
+## 100. Ekosistem alat eksternal triase — EVTX & Velociraptor (dari mukul975/extracting-windows-event-logs-artifacts, fleet-hunting-with-velociraptor, generating-forensic-timelines-with-hayabusa, hunting-evtx-with-chainsaw)
+- [ ] chainsaw/hayabusa = binary eksternal dgn korpus SigmaHQ —
+      padanan cyphron: parser XML triase milik sendiri (win_logon_
+      triage, win_auth_triage, sysmon_triage, kerberos_log_triage,
+      ps_scriptlog_triage); pilih berdasar kebutuhan: korpus Sigma
+      luas = alat eksternal, cek deterministik tertarget = parser
+      cyphron; alat eksternal = ops, bukan kode repo
+- [ ] alur yang layak diingat saat MENGARAHKAN ekspor: prioritaskan
+      channel Security, Sysmon, PowerShell/Operational, RDP
+      LocalSessionManager, TaskScheduler — ekspor XML (wevtutil /x)
+      langsung bisa dibaca parser cyphron
+- [ ] Velociraptor: VQL artifact + hunt fleet-wide + offline collector
+      = platform ops (cf. seksi 48 produk); konsep yang dipinjam:
+      hipotesis -> VQL -> fan-out -> agregasi terpusat (pola sama dgn
+      fleet_dispatch cyphron)
+
+## 101. SBOM CycloneDX/SPDX (dari mukul975/generating-and-analyzing-sboms) — padanan ada
+- [ ] padanan cyphron: dependency_cve MENGKONSUMSI CycloneDX JSON +
+      SPDX JSON langsung (match CVE dari rentang NVD/OSV) — SBOM =
+      input, bukan tool baru
+- [ ] disiplin yang diambil: SBOM disimpan per rilis lalu DI-SCAN ULANG
+      saat DB CVE terbaru (komponen tak berubah bisa jadi rentan) —
+      re-scan-on-db-update, bukan scan-on-build saja
+- [ ] gate CI: --fail-on severity = pola exploit_ci_gate; hanya-fixed
+      = filter temuan tanpa remediasi
+- [ ] tanda tangan/attestation (cosign/in-toto) = infra registry, ops
+      (cf. seksi 94 provenance)
+
+## 102. Laporan threat intelligence (dari mukul975/generating-threat-intelligence-reports)
+- [ ] empat produk dgn audiens berbeda: strategis (C-suite, tren &
+      keputusan), operasional (CISO/IR, kampanye & TTP), taktis (SOC,
+      IOC/rule), flash (<=1 halaman, <2 jam) — jangan campur audiens
+      dalam satu dokumen
+- [ ] key judgment DI DEPAN dlm kalimat langsung ("aktor X memanfaatkan
+      CVE-Y di produk Z; risiko = W"), bukan "laporan ini mengkaji..."
+- [ ] bahasa kepercayaan standar ICD-203: high/medium/low confidence
+      ditulis eksplisit per klaim (cf. seksi 35 ACH) — klaim tanpa
+      label confidence = red flag metodologi
+- [ ] TLP ditentukan SEBELUM distribusi; IOC mentah dibagikan via
+      TIP/MISP (mesin), laporan = intel jadi utk manusia
+- [ ] di cyphron: impact_narrative + report_pack melayani temuan
+      internal; checklist ini utk MENULIS ringkasan, bukan tool
+
+## 103. Hardening endpoint CIS benchmark (dari mukul975/hardening-linux-endpoint-with-cis-benchmark, hardening-windows-endpoint-with-cis-benchmark)
+- [ ] runbook live (butuh root/admin per host) — yang layak diingat:
+      urutan priorit remediasi = internet-facing dulu, kontrol akun/
+      auth sebelum audit-logging, dan SETIAP kontrol punya nomor CIS
+      yang dapat direferensikan sbg bukti kepatuhan
+- [ ] Linux: partisi tmp/dev/shm dgn noexec,nodev,nosuid, boot
+      password GRUB, pam pwquality, sshd PermitRootLogin no +
+      PasswordAuthentication no — cek via file konfigurasi saat
+      audit manual (sshd_config/fstab), bukan dari nama port
+- [ ] Windows: LAPS utk password admin lokal, ASR rules, credential
+      guard, SMB signing — sisi konfigurasi OS = ops endpoint (cf.
+      seksi 75 #0354); padanan statis cyphron: pe_mitigation_scan
+      (biner), win_audit_coverage (cakupan logging)
+- [ ] di cyphron: tidak ada tool audit CIS host (butuh akses host
+      hidup); konsep gate = docker_audit (B18) utk sisi kontainer
+
+## 104. APT hunting hypothesis (dari mukul975/hunting-advanced-persistent-threats) — duplikat
+- [ ] kerangka sama dgn seksi 36 (hipotesis teruji: teknik -> artefak
+      -> sumber data) — tidak ada tambahan baru; sumber ekstra yang
+      disebut: ATT&CK Groups sbg seeds, ISAC report sbg pemicu sprint
+
+## 105. Credential stuffing vs spray (dari mukul975/hunting-credential-stuffing-attacks)
+- [ ] pembeda yang menentukan respons: brute force = satu akun banyak
+      percobaan dari sedikit IP; spray = satu password banyak akun;
+      stuffing = banyak akun BANYAK IP dgn kredensial bocor (velocity
+      per akun rendah tapi IP unik per akun tinggi + UA seragam)
+- [ ] indikator stuffing: unique_ip per username gagal tinggi, success
+      rate < 1% lintas banyak akun, ASN konsentrasi cloud/proxy,
+      geo-impossibility per akun
+- [ ] padanan cyphron: web_log_intrusion (ambang POST per window),
+      win_logon_triage (4625 spray/enumerasi) — stuffing lintas-IP
+      butuh agregasi per-akun lintas window; pola bisa ditambah di
+      web_log_intrusion bila dibutuhkan, bukan tool baru
+- [ ] defensif: rate limit per identitas+per-IP, deteksi breach
+      password (deny-list), MFA — bukan cuma CAPTCHA
+
+## 106. Beacon C2 & Cobalt Strike statis (dari mukul975/hunting-for-beaconing-with-frequency-analysis, hunting-for-cobalt-strike-beacons, hunting-for-command-and-control-beaconing)
+- [ ] padanan cyphron: zeek_beacon_scan (interval/CV/jitter per pair),
+      dns_log_triage (DGA/TXT/beacon DNS) — entri #0535/#0537 adalah
+      metodologi yang sama (CV < 0.20 = periodik, >= 50 koneksi,
+      filter known-good: update/AV/NTP/SaaS-heartbeat)
+- [ ] sinyal pelengkap yang layak diingat: konsistensi UKURAN payload
+      (CV bytes rendah = heartbeat otomatis), JA3/JA3S/JARM utk
+      kelompokkan client TLS aneh, IP->host via DHCP -> proses via
+      Sysmon EID 1/3 (korelasi jaringan-endpoint)
+- [ ] Cobalt Strike statis (bila membaca ssl.log/http.log Zeek):
+      sertifikat default CS (serial mencurigakan dikenal publik),
+      JA3S default CS, profil malleable (URI tetap berpola + UA
+      tua MSIE), URIs yang sama persis berulang — indikator statis
+      satu-dua saja = lead; butuh konfirmasi timing (zeek_beacon_scan)
+- [ ] aturan escalasi tetap: satu sinyal = lead, dua berangkai =
+      eskalasi (pola sama dgn dcom-lateral-chain & seksi 84)
+
+## 107. Eksfiltrasi & staging pra-eksfil (dari mukul975/hunting-for-data-exfiltration-indicators, hunting-for-data-staging-before-exfiltration)
+- [ ] kanal eksfil (T1048/T1567): volume anomali per user/host/dest
+      vs baseline 30 hari, DNS tunneling (TXT besar/sering —
+      dns_log_triage), upload cloud pribadi, email attachment, USB;
+      baseline dulu, deviasi sesudah (cf. seksi 76 UEBA)
+- [ ] padanan cyphron: insider_baseline_scan (volume per user),
+      dns_log_triage (DNS), netflow_parse (volume flow); kanal
+      cloud/emails = log gateway, bukan tool offline
+- [ ] staging (T1074/T1560): eksekusi archiver (7z/rar/tar/zip dgn
+      argumen arsip) di EID 1/4688, tulis ke %TEMP%/ProgramData/
+      Recycle Bin/hidden dir, konsolidasi file multi-direktori ->
+      satu lokasi, lalu eksfil pelan (T1030 size-limits)
+- [ ] kandidat perluasan: cek "archiver-exec + staging-path" cocok
+      ditempatkan di lolbin_scan milik pemiliknya (ranah EID 1/11
+      sudah dipegang tool itu) — jangan tool paralel dgn parser sama;
+      sampai ada, checklist ini dipakai saat MEMBACA hasil
+      lolbin_scan/sysmon_triage
+- [ ] skor staging eksplisit: ukuran arsip x keunikan sumber (banyak
+      dir) x kecurigaan path x jam — satu sinyal saja = lead
