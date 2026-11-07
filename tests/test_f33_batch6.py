@@ -108,7 +108,7 @@ class _AxfrServer(socketserver.TCPServer):
 class RegistryTest(unittest.TestCase):
     def test_entries(self):
         self.assertGreaterEqual(len(REG["skills"]), 86)
-        self.assertEqual(len(ep.PLAYBOOKS), 38)
+        self.assertEqual(len(ep.PLAYBOOKS), 39)
         by = {s["name"]: s for s in REG["skills"]}
         self.assertEqual(by["error-oracle"]["safety_class"], "1-request")
         self.assertEqual(by["dns-axfr-check"]["safety_class"],

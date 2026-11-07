@@ -48,7 +48,7 @@ def one(rows, needle):
 class RegistryTest(unittest.TestCase):
     def test_entries(self):
         self.assertGreaterEqual(len(REG["skills"]), 86)
-        self.assertEqual(len(ep.PLAYBOOKS), 38)
+        self.assertEqual(len(ep.PLAYBOOKS), 39)
         for name in ("ssrf-chain", "xxe-file", "cache-poison", "idor-mass"):
             pb = ep.PLAYBOOKS[name]
             self.assertEqual(pb.tier, 1, name)

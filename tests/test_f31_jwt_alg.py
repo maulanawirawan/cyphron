@@ -56,7 +56,7 @@ class RegistryTest(unittest.TestCase):
         pb = ep.PLAYBOOKS["jwt-alg-confusion"]
         self.assertEqual(pb.tier, 1)
         self.assertFalse(pb.techniques & ep.NEVER_LIST)
-        self.assertEqual(len(ep.PLAYBOOKS), 38)
+        self.assertEqual(len(ep.PLAYBOOKS), 39)
 
 
 class ProvenE2E(LabTestCase):
