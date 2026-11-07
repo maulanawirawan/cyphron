@@ -233,7 +233,8 @@ def run_audit(base_url: str, playbooks: list[str], params: dict | None,
 
     # fase 3: verify — fail-closed pada bukti
     findings = _verify_phase(findings)
-    invalid = [f for f in findings if not validate_finding(f)]
+    # validate_finding return list error — non-kosong = invalid
+    invalid = [f for f in findings if validate_finding(f)]
 
     # fase 4: report
     (out_dir / "findings.json").write_text(
