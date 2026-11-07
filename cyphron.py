@@ -91,6 +91,10 @@ MODES: dict[str, dict] = {
         "desc": "jalankan MCP server (Claude Code / Cursor)",
         "script": "tools/mcp_server.py",
     },
+    "guard": {
+        "desc": "tandai prompt-injection di bukti sebelum dibaca",
+        "script": "tools/injection_guard.py",
+    },
     "skills": {
         "desc": "daftar skill terdaftar + kelas amannya",
         "script": None, "special": "skills",
