@@ -10,7 +10,7 @@ Rust，两边遵守同一份严格的输出契约。
 *无证据，不报告。*
 
 [![CI](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml/badge.svg)](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml)
-[![tests](https://img.shields.io/badge/tests-914%20python%20%2B%2059%20rust-brightgreen)](#开发)
+[![tests](https://img.shields.io/badge/tests-1006%20python%20%2B%2059%20rust-brightgreen)](#开发)
 [![release](https://img.shields.io/github/v/release/maulanawirawan/cyphron)](https://github.com/maulanawirawan/cyphron/releases)
 [![skills](https://img.shields.io/badge/detection%20skills-93-8A2BE2)](#包含什么)
 [![python](https://img.shields.io/badge/python-3.12%2B-3776AB)](#快速开始)
@@ -22,6 +22,22 @@ Rust，两边遵守同一份严格的输出契约。
 </div>
 
 ---
+
+## 从你的 Agent 使用
+
+cyphron 既是单命令多模式的 CLI，也提供可加载的 agent skill 与 MCP
+服务器 —— Claude Code、Cursor、ZCode 或任何能执行 shell 的 agent
+都可以直接驱动它。
+
+```bash
+git clone https://github.com/maulanawirawan/cyphron && cd cyphron
+python cyphron.py                          # 模式面板
+python cyphron.py <mode> --help            # 查看某个模式的全部选项
+claude mcp add cyphron -- python tools/mcp_server.py   # MCP（仅 tier0 白名单）
+```
+
+Agent 请先阅读 [SKILL.md](SKILL.md) —— 教 agent 安全驱动 cyphron 的
+手册。仅限授权目标；无证明，不出报告。
 
 ## 为什么做 cyphron
 

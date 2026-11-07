@@ -8,14 +8,21 @@ that cannot be proven never ships.
 
 ## Repo map
 
+- `cyphron.py` — one-command mode board (`scan | validate | scout | night
+  | intel | fresh | contrib | ledger | report | mcp | skills | lab`);
+  every mode has its own `--help`. Start here.
+- `SKILL.md` — the agent manual: safe playbook + guardrails (also mounted
+  as `.claude/skills/cyphron/`).
 - `skills/` — 93 standalone Python CLIs, one detection skill each
   (`--url` / `--target` ... `--out result.json`). This is what users run.
 - `core-rs/` — native Rust core (`cyphron validate | scan ...`).
   Build: `cargo build --release --manifest-path core-rs/Cargo.toml`
 - `tools/` — helpers: lab target (`tools/lab_target.py`), planner,
-  benchmarks, self-update.
-- `tests/` — pytest suite (914 tests). Run: `python -m pytest tests/ -q`
-- `docs/` — policies: exploit tier, egress, install, nightrun.
+  benchmarks, self-update, MCP server (`tools/mcp_server.py`), scout,
+  session ledger, contribution pipeline (`cve_sweep`, `antidup_check`).
+- `tests/` — pytest suite (1006 tests). Run: `python -m pytest tests/ -q`
+- `docs/` — policies: exploit tier, egress, install, nightrun, legion
+  method (`docs/LEGION-METHOD.md`).
 
 ## Ground rules (non-negotiable)
 

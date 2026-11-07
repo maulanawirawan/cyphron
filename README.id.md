@@ -11,7 +11,7 @@ kontrak output yang ketat.
 *Tanpa bukti, tanpa laporan.*
 
 [![CI](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml/badge.svg)](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml)
-[![tests](https://img.shields.io/badge/tests-914%20python%20%2B%2059%20rust-brightgreen)](#development)
+[![tests](https://img.shields.io/badge/tests-1006%20python%20%2B%2059%20rust-brightgreen)](#development)
 [![release](https://img.shields.io/github/v/release/maulanawirawan/cyphron)](https://github.com/maulanawirawan/cyphron/releases)
 [![skills](https://img.shields.io/badge/detection%20skills-93-8A2BE2)](#isinya-apa-saja)
 [![python](https://img.shields.io/badge/python-3.12%2B-3776AB)](#mulai-cepat)
@@ -23,6 +23,24 @@ kontrak output yang ketat.
 </div>
 
 ---
+
+## Pakai dari agent-mu
+
+cyphron dikirim sebagai CLI satu command dengan mode, file skill yang
+bisa dimuat agent, dan MCP server — jadi Claude Code, Cursor, ZCode,
+atau agent apa pun yang bisa menjalankan shell bisa mengendalikannya
+langsung.
+
+```bash
+git clone https://github.com/maulanawirawan/cyphron && cd cyphron
+python cyphron.py                          # papan mode
+python cyphron.py <mode> --help            # semua pilihan satu mode
+claude mcp add cyphron -- python tools/mcp_server.py   # MCP (allowlist tier0)
+```
+
+Agent: muat [SKILL.md](SKILL.md) — manual yang mengajari agent
+mengendalikan cyphron dengan aman. Hanya target berizin; no proof, no
+report.
 
 ## Kenapa cyphron dibuat
 

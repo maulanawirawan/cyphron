@@ -11,7 +11,7 @@ salida estricto que ambos respetan.
 *Sin prueba, no hay informe.*
 
 [![CI](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml/badge.svg)](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml)
-[![tests](https://img.shields.io/badge/tests-914%20python%20%2B%2059%20rust-brightgreen)](#desarrollo)
+[![tests](https://img.shields.io/badge/tests-1006%20python%20%2B%2059%20rust-brightgreen)](#desarrollo)
 [![release](https://img.shields.io/github/v/release/maulanawirawan/cyphron)](https://github.com/maulanawirawan/cyphron/releases)
 [![skills](https://img.shields.io/badge/detection%20skills-93-8A2BE2)](#qué-incluye)
 [![python](https://img.shields.io/badge/python-3.12%2B-3776AB)](#inicio-rápido)
@@ -23,6 +23,23 @@ salida estricto que ambos respetan.
 </div>
 
 ---
+
+## Úsalo desde tu agente
+
+cyphron viene como un CLI de un solo comando con modos, un skill
+cargable para agentes y un servidor MCP — así Claude Code, Cursor,
+ZCode o cualquier agente que ejecute shell puede manejarlo directo.
+
+```bash
+git clone https://github.com/maulanawirawan/cyphron && cd cyphron
+python cyphron.py                          # tablero de modos
+python cyphron.py <mode> --help            # todas las opciones de un modo
+claude mcp add cyphron -- python tools/mcp_server.py   # MCP (solo tier0)
+```
+
+Agentes: carguen [SKILL.md](SKILL.md) — el manual que enseña a un agente
+a manejar cyphron con seguridad. Solo objetivos autorizados; sin prueba,
+sin reporte.
 
 ## Por qué existe
 

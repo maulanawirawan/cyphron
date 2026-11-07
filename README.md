@@ -11,7 +11,7 @@ agree on.
 *No proof, no report.*
 
 [![CI](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml/badge.svg)](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml)
-[![tests](https://img.shields.io/badge/tests-914%20python%20%2B%2059%20rust-brightgreen)](#development)
+[![tests](https://img.shields.io/badge/tests-1006%20python%20%2B%2059%20rust-brightgreen)](#development)
 [![release](https://img.shields.io/github/v/release/maulanawirawan/cyphron)](https://github.com/maulanawirawan/cyphron/releases)
 [![skills](https://img.shields.io/badge/detection%20skills-93-8A2BE2)](#whats-inside)
 [![python](https://img.shields.io/badge/python-3.12%2B-3776AB)](#quick-start)
@@ -23,6 +23,22 @@ agree on.
 </div>
 
 ---
+
+## Use it from your agent
+
+cyphron ships as a one-command CLI with modes, a loadable agent skill,
+and an MCP server — so Claude Code, Cursor, ZCode, or any agent that
+runs shell commands can drive it directly.
+
+```bash
+git clone https://github.com/maulanawirawan/cyphron && cd cyphron
+python cyphron.py                          # mode board
+python cyphron.py <mode> --help            # every option of one mode
+claude mcp add cyphron -- python tools/mcp_server.py   # MCP (tier0 allowlist)
+```
+
+Agents: load [SKILL.md](SKILL.md) — the manual that teaches an agent to
+drive cyphron safely. Authorized targets only; no proof, no report.
 
 ## Why this exists
 
