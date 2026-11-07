@@ -23,8 +23,8 @@ that cannot be proven never ships.
   session ledger, contribution pipeline (`cve_sweep`, `antidup_check`),
   agent-safety (`injection_guard`, `agent_shield`), audit engines
   (`audit_phases` multi-phase fail-closed, `insecure_defaults` config
-  scanner), verify gate (`verify_gate` — claims need fresh evidence).
-- `tests/` — pytest suite (1090 tests). Run: `python -m pytest tests/ -q`
+  scanner), verify gate (`verify_gate` — claims need fresh evidence), leak-claim triage (`leak_triage`), parallel job dispatch (`fleet_dispatch`).
+- `tests/` — pytest suite (1120 tests). Run: `python -m pytest tests/ -q`
 - `docs/` — policies: exploit tier, egress, install, nightrun, legion
   method (`docs/LEGION-METHOD.md`).
 

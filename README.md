@@ -11,7 +11,7 @@ agree on.
 *No proof, no report.*
 
 [![CI](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml/badge.svg)](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml)
-[![tests](https://img.shields.io/badge/tests-1090%20python%20%2B%2059%20rust-brightgreen)](#development)
+[![tests](https://img.shields.io/badge/tests-1120%20python%20%2B%2059%20rust-brightgreen)](#development)
 [![release](https://img.shields.io/github/v/release/maulanawirawan/cyphron)](https://github.com/maulanawirawan/cyphron/releases)
 [![skills](https://img.shields.io/badge/detection%20skills-93-8A2BE2)](#whats-inside)
 [![python](https://img.shields.io/badge/python-3.12%2B-3776AB)](#quick-start)
