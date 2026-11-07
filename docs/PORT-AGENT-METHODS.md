@@ -1050,3 +1050,171 @@ docstring masing-masing tool.
       register, interval poling) -> deviasi + rogue master + frame
       malformed = alert; diagnosis butuh dokumentasi register PLC
       milik lab sendiri
+
+---
+Blok B16 (#0451-#0480, 8 Nov) — sumber mukul975 (Apache-2.0 — konsep,
+bukan teks). Enam entri diekstrak jadi tool: #0452 -> tools/
+win_logon_triage.py, #0458 -> tools/shadow_api_diff.py, #0461 -> tools/
+waf_sqli_triage.py, #0463 -> tools/gha_workflow_audit.py, #0469+#0470
+-> tools/pkg_typosquat_check.py, #0466+#0467+#0468+#0471 -> tools/
+sysmon_triage.py; sisanya didistilasi di bawah (84-94).
+
+## 84. Koridor ransomware pre-encryption (dari mukul975/detecting-ransomware-precursors-in-network)
+- [ ] fokus = window pra-enkripsi (rata-rata 17 menit dari beacon CS
+      sampai enkripsi) — deteksi tepat waktu > deteksi cantik
+- [ ] fase kill-chain jaringan dgn sumbernya: akses awal (RDP brute
+      force/VPN stuffing), C2 (beacon HTTPS/DNS), panen kredensial
+      (NTLM relay/Kerberoasting/DCSync), recon internal, lateral
+      (PsExec/WMI/WinRM/SMB), staging (arsip + upload)
+- [ ] korelasi berantai > satu sinyal: RDP brute force + akses admin
+      share dari IP sama = high-confidence; satu sinyal saja = lead
+- [ ] pola port-to-port: 445/135/3389/5985 lintas host internal dgn
+      volume anomali = lateral movement, bukan noise
+- [ ] padanan cyphron: zeek_beacon_scan (beacon), dns_log_triage
+      (DGA/TXT), web_log_intrusion (brute force), netflow_parse;
+      checklist ini utk MERANGKAI hasilnya jadi narasi insiden
+
+## 85. Rootkit cross-view (dari mukul975/detecting-rootkit-activity)
+- [ ] inti metodologi = CROSS-VIEW: enumerasi API (pslist, netstat)
+      vs enumerasi mentah (psscan pool scan, raw disk/proc) — objek
+      yang ada di view bawah tapi hilang di view atas = hidden
+- [ ] SSDT/IRP hook: alamat handler menunjuk di luar modul sah
+      (ntoskrnl/win32k) = hook; inline patch = lead
+- [ ] alat userland (rkhunter/GMER) = sinyal awal, bukan bukti;
+      konfirmasi butuh memori/disk akses rendah
+- [ ] di luar kelas alat cyphron (forensik memori Volatility);
+      prinsip cross-view muncul generik: ct_baseline_diff (harapan vs
+      kenyataan), mft_scan (disk mentah vs API)
+
+## 86. Eksfiltrasi S3 — pelengkap cloudtrail_scan (dari mukul975/detecting-s3-data-exfiltration-attempts)
+- [ ] padanan cyphron: cloudtrail_scan (B13) melayani sisi log statis;
+      skill ini menambah pola yang layak dicari saat membaca hasil:
+- [ ] data event S3: GetObject BULK per identity baru (volume/entitas
+      tak lazim), CopyObject lintas akun (dest account != owner) =
+      exfil paling bersih
+- [ ] presyarat: data event S3 HARUS dinyalakan eksplisit di trail
+      (default mati) — "tidak ada temuan" pada trail tanpa data event
+      = telemetri kosong, bukan bersih
+- [ ] GuardDuty/Macie = pengayaan, bukan sumber kebenaran tunggal;
+      skor eksfil = volume x keunikan objek x kelainan identity
+
+## 87. Serverless function injection (dari mukul975/detecting-serverless-function-injection)
+- [ ] permukaan: SEMUA event source tidak dipercaya (S3 key, SQS
+      body, header API GW, DynamoDB stream) — field event yang
+      mengalir ke exec/eval/shell = sink injeksi serverless
+- [ ] lapisan audit: (1) statis kode fungsi (sink + sumber event),
+      (2) CloudTrail: UpdateFunctionConfiguration/AddLayerVersion/
+      AddRoleToInstanceProfile = persistence/eskalasi via fungsi,
+      (3) layer pihak ketiga = dependensi supply chain runtime
+- [ ] mitigasi runtime: IMDSv2 wajib, env var rahasia jangan di
+      plaintext, fungsi = role per-fungsi minimal
+- [ ] padanan cyphron: sisi CloudTrail/IAM = cloudtrail_scan +
+      iam_escalation_scan; analisis sink kode = belum ada (SAST umum),
+      checklist ini dipakai saat review kode handler lab
+
+## 88. Abuse service account (dari mukul975/detecting-service-account-abuse)
+- [ ] definisi abuse T1078: akun servis melakukan hal INTERAKTIF —
+      logon type 2/10 dari akun servis = anomali hampir pasti
+- [ ] pola yang dicari: RDP servis -> DC, akses share di luar scope
+      fungsi servis, aktivitas off-hours, servis dgn hak domain-
+      luas dipakai DCSync
+- [ ] higiene: gMSA/managed identity > password statis; password
+      servis = evergreen di log; inventorikan owner+tujuan tiap servis
+- [ ] padanan cyphron: win_logon_triage (logon type filter bisa
+      dilebarkan), k8s_rbac_audit (serviceaccount cluster); checklist
+      ini utk MEMBACA hasilnya
+
+## 89. Shadow IT SaaS (dari mukul975/detecting-shadow-it-cloud-usage)
+- [ ] mekanisme: agregasi proxy/DNS log per domain -> volume byte +
+      jumlah user unik -> klasifikasi kategori SaaS -> bandingkan
+      daftar disetujui organisasi
+- [ ] risiko bukan dari kategori saja: volume data + jumlah user +
+      kategori (storage/AI = tinggi) -> skor eksfil potensial
+- [ ] butuh daftar-putih ORGANISASI — alat generik tidak bisa
+      memutuskan "unauthorized"; di cyphron ini proses review log,
+      bukan tool (dns_log_triage menyediakan agregasi per-domain)
+- [ ] remediasi berjenjang: temukan -> kategorikan -> kebijakan
+      (blokir/sanction) -> monitor deviasi
+
+## 90. Spearphishing via email gateway — sisi konfigurasi (dari mukul975/detecting-spearphishing-with-email-gateway)
+- [ ] empat lapis SEG yang wajib dinyala: impersonation protection
+      (display-name/domain mirip eksekutif), URL rewriting+detonation,
+      attachment sandboxing, rule kustom kampanye
+- [ ] spearphish lolos spam filter generik karena personal — indikator
+      = ketidakcocokan identitas + konteks proses, bukan signature
+- [ ] padanan cyphron: eml_phish_triage (header/SPF/DKIM/Reply-To),
+      spf_dmarc_posture (spoofability domain); checklist ini utk
+      AUDIT konfigurasi gateway lab, bukan analisis email tunggal
+
+## 91. Illicit OAuth consent grant (dari mukul975/detecting-suspicious-oauth-application-consent)
+- [ ] serangan: phish halaman consent -> user memberi app pihak
+      ketiga scope tinggi (Mail.ReadWrite, Files.ReadWrite.All,
+      full_access_as_app) — tanpa password, tanpa MFA
+- [ ] yang diaudit (Graph API live): /oauth2PermissionGrants, service
+      principal tanpa publisher verification, audit log "Consent to
+      application" dgn IP/jam anomali
+- [ ] red flag: consent pertama user non-admin utk scope delegated
+      tinggi, app baru + langganan inbox rule segera setelahnya
+- [ ] butuh kredensial Graph — di cyphron = runbook live ops;
+      pola "grant tinggi + tindak lanjut persistence" berlaku juga
+      saat membaca cloudtrail_scan (AttachUserPolicy dsb.)
+
+## 92. PowerShell T1059.001 — melengkapi ps_obf_scan (dari mukul975/detecting-suspicious-powershell-execution)
+- [ ] padanan cyphron: ps_obf_scan (obfuskasi statis); skill ini
+      menambah pola sisi log yang layak dicari:
+- [ ] token cmdline: -enc/encodedcommand, -nop -w hidden, iex/
+      invoke-expression + downloadstring/downloadfile, frombase64
+- [ ] AMSI bypass = patch reflection (AmsiInitialize/AmsiScanBuffer)
+      — stringnya di script block log (EID 4104), bukan cmdline
+- [ ] constrained language mode evasion = tanda payload runtime;
+      proses office/winword sebagai parent powershell = chain fileless
+- [ ] EID 4104 = sumber kebenaran isi skrip; tanpa logging skrip,
+      "tidak ada temuan" = telemetri kosong
+
+## 93. Eradikasi malware — verifikasi bersih (dari mukul975/eradicating-malware-from-infected-systems)
+- [ ] peta persistence SEBELUM menghapus: Run/RunOnce (HKLM+HKCU),
+      schtasks, WMI subscription, services BinaryPathName, cron/
+      init.d/systemd/rc.local/bashrc — autorunsc -a = daftar lengkap
+- [ ] urutan: peta -> identifikasi artefak (hash/YARA/AV multi-engine)
+      -> hapus persistence -> hapus binary -> verifikasi
+- [ ] verifikasi "bersih" = bukti: autoruns ulang, scan ulang, kred
+      direset (kalau tidak, re-infeksi lewat kredensial lama), no
+      callback C2 baru window >= 1 minggu
+- [ ] jangan bersihkan sebelum forensik selesai (menghancurkan bukti)
+- [ ] cyphron: sysmon_triage/win_logon_triage membaca jejak; checklist
+      ini = runbook respons lab
+
+## 94. Di luar domain + ops/produk — blok B16
+-- [ ] #0455 Secure Boot/bootkit: firmware UEFI — mokutil/dbxtool/
+      CHIPSEC butuh akses OS/fisik; inti: dbx harus mutakhir (revokasi
+      BlackLotus), EFI binary diverifikasi sbverify, Fail = precondition
+      bootkit pra-OS (T1542); bidang hardware-firmware
+- [ ] #0462 Stuxnet-style: ICS/OT — integritas logika PLC + anomali
+      fisika proses (setpoint vs sensor); butuh sensor OT tersegmentasi;
+      bidang OT (cf. seksi 48/83)
+- [ ] #0472 Stratus Red Team: emulasi serangan cloud live (warmup-
+      detonate-revert) utk uji deteksi — butuh kredensial cloud +
+      environment throwaway; padanan statis cyphron: cloudtrail_scan/
+      iam_escalation_scan utk MEMBACA telemetrinya
+- [ ] #0473 CloudFox: enumerasi read-only AWS/Azure pasca-kredensial
+      (role-trust, secrets, endpoints) — alat ofensif live; polanya
+      (AssumeRole graph) dicakup iam_escalation_scan
+- [ ] #0475 container escape (ofensif): privileged/hostPath/docker
+      .sock/release_agent — sisi deteksinya sudah diekstrak seksi 51;
+      eksekusi breakout = hanya lab berizin, bukan bentuk tool cyphron
+- [ ] #0476 evaluasi TIP: procurement (feed integration, STIX/TAXII,
+      TCO) — tata kelola, bukan pengujian teknis (cf. seksi 24)
+- [ ] #0477 simulasi serangan AD: BloodHound/Mimikatz/Impacket —
+      ofensif infra AD (cf. seksi 42); padanan deteksi statis:
+      kerberos_log_triage, sysmon_triage
+- [ ] #0478 NIST RMF ATO: proses otorisasi federal (SP 800-37, FIPS
+      199/200, 800-53) — kepatuhan dokumen (SSP/SAR/POA&M), bukan
+      pengujian; prinsip yang bisa dipinjam: baseline kontrol dari
+      kategorisasi dampak, POA&M = temuan dgn owner+tenggat
+- [ ] #0479 kampanye phishing simulasi: pelaksanaan (infra harvest,
+      kirim) = ops SE berizin (cf. seksi 68); metrik: reported rate >
+      click rate sebagai ukuran kesehatan
+- [ ] #0480 perencanaan engagement red team: scope/RoE/emergency
+      stop/threat profile — padanan cyphron: attack_planner (rencana
+      tanpa eksekusi); checklist ini utk MENINJAU rencana, bukan
+      menjalankan
