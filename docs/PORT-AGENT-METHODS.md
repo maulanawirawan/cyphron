@@ -1414,3 +1414,190 @@ dcom_lateral_scan.py; sisanya didistilasi di bawah (95-107).
       lolbin_scan/sysmon_triage
 - [ ] skor staging eksplisit: ukuran arsip x keunikan sumber (banyak
       dir) x kecurigaan path x jam — satu sinyal saja = lead
+
+---
+Blok B17 (#0481-#0510, 8 Nov) — sumber mukul975 (Apache-2.0 — konsep,
+bukan teks). Gelombang "exploiting-*" mayoritas = eksploitasi live yang
+SUDAH dilayani playbook cyphron; dua entri diekstrak jadi tool:
+#0491+#0495 -> tools/mobile_manifest_audit.py (AXML/XML/plist/prefs),
+#0498 -> tools/jwt_token_audit.py (konten token); sisanya di bawah.
+Ranah playbooks live TIDAK diperluas — tool triase pasif saja.
+
+## 108. Eksekusi red team exercise (dari mukul975/executing-red-team-exercise)
+- [ ] rencana eksekusi turun dari threat model (aktor nyata yang
+      relevan), bukan daftar exploit yang menarik — padanan cyphron:
+      attack_planner + session_ledger
+- [ ] fase: plan (objektif + RoE + deconfliction) -> execute (gated)
+      -> measure (detection/response ratio per fase) -> report
+- [ ] deconfliction eksplisit dengan SOC/biru: jendela, IP sumber
+      terdaftar (cf. seksi 74 allowlist berkedaluwarsa), kata kode
+      stop — aktivitas tanpa deconfliction = insiden palsu
+- [ ] ukur respons, bukan penetrasi: berapa fase terdeteksi, berapa
+      lama MTTD/MTTC biru, temuan biru akurat tidak — laporan merah
+      yang penting adalah celah DETEKSI, bukan daftar akses
+- [ ] kriteria sukses ditulis SEBELUM mulai (apa yang membuktikan
+      risiko) — tanpa itu exercise berhenti jadi "kita masuk"
+
+## 109. Taksonomi bypass injeksi API & SSRF (dari mukul975/exploiting-api-injection-vulnerabilities, exploiting-server-side-request-forgery)
+- [ ] titik injeksi mencakup HEADER juga (X-Forwarded-For/Referer/UA
+      yang ter-log ke DB = injeksi second-order; cf. seksi 41)
+- [ ] tabel format bypass SSRF yang portabel: hex 0x7f000001, desimal
+      2130706433, oktal 0177.0.0.1, pendek 127.1, IPv6 [::1], DNS
+      rebinding (nip.io dst), protokol gopher/dict/file — validator
+      URL yang hanya cocok string pasti lolos salah satu
+- [ ] target metadata cloud selalu diuji eksplisit: 169.254.169.254
+      (AWS/Azure), metadata.google.internal (wajib header
+      Metadata-Flavor) — balasan berisi ami-id/instance-id/
+      AccessKeyId = bukti langsung
+- [ ] cmd injection: indikator time-based (sleep/ping delay) +
+      output marker (uid=/root:/bin/bash, "Directory of") — payload
+      destruktif TIDAK perlu; padanan cyphron: RceMarkerPlaybook
+- [ ] padanan cyphron: SsrfCallbackPlaybook/SsrfChainPlaybook
+      (callback eksternal = bukti terkuat), Sqli*/NosqliLogin;
+      checklist ini saat MEMBACA hasil & menulis temuan SSRF
+
+## 110. BFLA — pelengkap seksi 41 (dari mukul975/exploiting-broken-function-level-authorization)
+- [ ] beda dgn BOLA: BFLA = FUNGSI (endpoint admin utk role rendah),
+      BOLA = OBJEK (id milik orang lain); dua kelas, dua tes
+- [ ] metode hemat: daftar path admin (admin/manage/internal/system/
+      backoffice + /users/role /settings /config /audit) x kelima
+      metode (GET/POST/PUT/DELETE/PATCH) dgn kredensial user biasa
+- [ ] sinyal "accessible": status BUKAN 401/403/404/405 — 405 atau
+      200-kosong perlu dikonfirmasi manual (method override sering
+      mengubah hasil; cf. seksi 37)
+- [ ] tes fungsi admin juga via endpoint NON-admin: POST /users dgn
+      field role/is_admin = jalur MassAssignment yang menaikkan
+      role (cf. seksi 41 BFLA/mass-assignment)
+- [ ] padanan cyphron: AdminAccessPlaybook (diferensial unauth/auth),
+      MassAssignmentPlaybook, k8s_rbac_audit (sisi klaster);
+      checklist ini utk menyusun matriks metode x path manual
+
+## 111. HTTP request smuggling (dari mukul975/exploiting-http-request-smuggling)
+- [ ] taksonomi: CL.TE (front-end CL, back-end TE), TE.CL kebalikannya,
+      TE.TE (obfuscation header TE — duplicate/gagal parse), CL.0
+      (back-end abaikan CL sepenuhnya) — penyebab umum: dua processor
+      dgn parser framing berbeda
+- [ ] deteksi pasif (clue) = tools/smuggling_clue_checker: dua CL
+      beda nilai, CL+TE bersamaan, TE non-chunked — clue L1, bukan
+      bukti desync
+- [ ] uji desync AKTIF = payload bisa mencemari request user lain/
+      cache front-end — hanya staging berizin, jangan produksi;
+      teknik deteksi: differential/timing (request tidak lengkap
+      membuat back-end menunggu)
+- [ ] arsitektur rawan dicatat dari header respons (Via/Server/
+      x-served-by) — rantai CDN->proxy->app = permukaan utama;
+      HTTP/2 downgrade ke HTTP/1.1 di origin = kelas baru (H2.CL)
+- [ ] dampak: bypass kontrol front-end (auth/rate-limit di proxy
+      yang di-skip back-end) — selalu hubungkan temuan ke kontrol
+      yang bisa dilewati, bukan sekadar desync
+
+## 112. Insecure deserialization — taksonomi gadget (dari mukul975/exploiting-insecure-deserialization)
+- [ ] peta per runtime: Java (ysoserial + CommonsCollections — cek
+      pustaka di classpath), PHP (phpggc — unserialize), .NET
+      (ViewState tanpa MAC validation / machineKey bocor), Python
+      (pickle.loads pada data tak dipercaya), Node (node-serialize/
+      func eval)
+- [ ] sinyal statis: endpoint menerima blob terenkode (base64 cookie/
+      body) yang berubah panjangnya dgn input; string pustaka gadget
+      di dependensi (CommonsCollections 3.x, yaml.load tanpa
+      SafeLoader)
+- [ ] mitigasi bawaan yang dicari di review: format biner diganti
+      JSON, signature/HMAC di atas blob, deserialization filter,
+      versi pustaka yang sudah patch (cf. dependency_cve)
+- [ ] padanan cyphron: DeserRcePlaybook (uji live lab); eksploitasi
+      gadget nyata = alat khusus per-runtime, bukan bentuk tool
+      offline
+
+## 113. NoSQL injection melampaui login bypass (dari mukul975/exploiting-nosql-injection-vulnerabilities)
+- [ ] tiga kelas: operator injection di JSON body ({"$ne": ""},
+      $gt, $regex ".*", $exists), operator di QUERY PARAM (username
+      [$ne]=x — parser yang menerima bracket-notation mengangkat
+      string jadi objek), $where JS injection (kode JS dieksekusi
+      server — kelas RCE-ish)
+- [ ] ekstraksi blind: $regex "^a" per karakter = oracle boolean
+      dari endpoint login/search; ekstraksi lambat tapi sunyi
+      (tanpa error) — deteksinya volume query regex per sumber
+- [ ] tanda app rentan: framework menerima array/objek dari form
+      (qs/express bracket parsing), peta cek cyphron:
+      param_probe_checker + NosqliLoginPlaybook (bypass login)
+- [ ] mitigasi: sanitasi operator ($-prefixed key ditolak di body),
+      cast tipe eksplisit, disable $where di server, validasi
+      skema input (cf. seksi 41 urutan hemat)
+
+## 114. OAuth redirect_uri bypass taxonomy (dari mukul975/exploiting-oauth-misconfiguration)
+- [ ] bentuk bypass redirect_uri yang dicoba berurutan: suffix
+      (app.example.com.evil.com), userinfo (@evil.com), path
+      traversal (/callback/../../evil), case (APP.EXAMPLE.COM),
+      percent-encoding, downgrade http, append query/fragment —
+      validasi yang benar = EXACT-MATCH string (cf. seksi 71)
+- [ ] kebocoran token/code di Referer = implicit flow (response_type
+      token) yang dijatuhkan di halaman dgn link keluar — implicit
+      mati di OAuth 2.1; state satu-pakai (cf. seksi 71)
+- [ ] openid-configuration ekspos grant yang didukung — implicit/
+      hybrid terlihat langsung; PKCE S256 wajib
+- [ ] padanan cyphron: OauthStatePlaybook, open_redirect_surface,
+      cors_checker; checklist ini saat MERANCANG urutan tes OAuth
+
+## 115. Race condition — kelas & teknik (dari mukul975/exploiting-race-condition-vulnerabilities)
+- [ ] dua kelas: limit-race (kupon/vote/withdraw sekali-klaim — satu
+      endpoint dipanggil paralel) dan multi-step TOCTOU (registrasi/
+      reset password/MFA: state "sudah diverifikasi" dicek di langkah
+      lain) — multi-step TIDAK butuh paralel, cukup urutan aneh
+- [ ] teknik pengiriman: HTTP/2 single-packet (semua request dalam
+      satu frame, byte terakhir dikirim bersamaan), koneksi N
+      paralel, last-byte sync — kebisingan sisi server (ambang
+      toleransi) ditangani jitter
+- [ ] sisi deteksi: N sukses pada sumber daya sama dalam window <
+      detik dari satu identity (cf. seksi 74 korelasi); padanan
+      cyphron: RaceCouponPlaybook/ReplayTransferPlaybook (lab),
+      rate-limit-validator (ambang)
+- [ ] mitigasi yang dicari di review: locking serializable / unique
+      constraint DB (bukan cek-then-write aplikasi), idempotency key
+
+## 116. Di luar domain + padanan — catatan bidang blok B17
+- [ ] #0482/#0484 AD CS ESC1/Certipy (cf. seksi 42 AD ofensif):
+      inti konsep ESC1 = template dgn ENROLLEE_SUPPLIES_SUBJECT +
+      EKU auth = SAN bebas = impersonasi (T1649); sisi audit
+      template = data AD live, di luar kelas tool cyphron
+- [ ] #0483 BloodHound/SharpHound: graf jalur serangan AD (session/
+      ACL/group) — konsep graf dipakai iam_escalation_scan (cloud);
+      kolektor = eksekusi di host AD, di luar fokus web/app
+- [ ] #0486 Pacu: live AWS creds; modulnya membuat PERUBAHAN DURABLE
+      (IAM user/key/policy) — wajib dicatat & direvert; sisi log
+      statis dilayani cloudtrail_scan + iam_escalation_scan
+- [ ] #0487 BGP hijacking: prefix hijack/route leak/ROA-RPKI —
+      infrastruktur routing global (containerlab), di luar domain;
+      inti yang layak: monitoring as-paths milik sendiri + ROA
+- [ ] #0490 constrained delegation: enumerasi msDS-AllowedToDelegate
+      (S4U2Self/S4U2Proxy) — ofensif AD (cf. seksi 42); sisi
+      deteksi 4769 dgn forwardable = ranah kerberos_log_triage
+- [ ] #0497 IPv6: RA spoofing/ND/DHCPv6 rogue + dual-stack yang
+      tak setara kontrolnya — jaringan L2/L3 live, di luar domain;
+      prinsip: kontrol v4 tanpa padanan v6 = celah
+- [ ] #0499 Kerberoasting w/ Impacket (cf. seksi 79): minta TGS
+      RC4 utk SPN lalu crack offline — ofensif AD; deteksi
+      volume-TGS/RC4 = kerberos_log_triage
+- [ ] #0501 EternalBlue MS17-010 + #0508 SMB Metasploit: exploit
+      kernel SMB (WannaCry/NotPetya) — RCE jaringan pada host
+      tak diperbarui; NEVER-LIST & kelas read-only cyphron
+      melarang; sisi audit = inventaris SMBv1/patch level (ops)
+- [ ] #0502 noPac CVE-2021-42278/42287: rename komputer + s4U2self
+      = eskalasi ke DC — ofensif AD (cf. seksi 42); patch level =
+      kontrol utamanya
+- [ ] #0489 broken link hijacking: padanan cyphron SUDAH ADA —
+      sri_checker + third_party_script_risk (script eksternal tanpa
+      SRI), wayback_history (referensi historis), rdap_whois
+      (status domain live); cek CNAME/dig = live DNS ops
+- [ ] #0492 excessive data exposure: padanan api_property_scan
+      (#0392 B14 — diff skema respons vs dokumentasi) + seksi 41
+      PSS; tanpa inti baru
+- [ ] #0494 IDOR: padanan IdorOrdersPlaybook/IdorMassPlaybook +
+      seksi 41 (dua bukti: respons objek lain + isi tak sesuai
+      pemilik)
+- [ ] #0505 prototype pollution: padanan ProtoPollutionPlaybook
+      (__proto__ merge sink, klien & server); gadget chain =
+      riset per-pustaka, bukan tool umum
+- [ ] #0509/#0510 SQLi manual & sqlmap: padanan SqliProducts/
+      SqliError/SqliTime + waf_sqli_triage (#0461); sqlmap = alat
+      eksternal — prinsip yang diambil: injeksi juga di COOKIE/
+      header (bukan hanya param) + level/risk bertingkat
