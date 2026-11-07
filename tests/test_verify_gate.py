@@ -196,10 +196,15 @@ class TestArtifacts(unittest.TestCase):
         self.assertTrue(any("tidak ada" in b for b in bad))
 
     def test_artifact_dalam_gate(self):
+        # artefak WAJIB ditulis oleh cek di dalam run yang sama — file yang
+        # dibuat sebelum run = bukti basi (by design, lihat test_stale).
         art = Path(self.tmp) / "gate-art.txt"
-        art.write_text("x", encoding="utf-8")
         gate = {"claim": "x", "checks": [
-            {"name": "c", "cmd": [PY, "-c", "pass"],
+            {"name": "tulis bukti",
+             "cmd": [PY, "-c",
+                     f"open(r'{art}', 'w', encoding='utf-8').write('fresh')"],
+             "timeout_sec": 30},
+            {"name": "verifikasi bukti", "cmd": [PY, "-c", "pass"],
              "artifacts": [str(art)]}]}
         ev = verify_gate.run_gate(gate)
         self.assertEqual(ev["verdict"], verify_gate.VERDICT_VERIFIED)
