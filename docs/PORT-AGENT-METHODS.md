@@ -64,3 +64,226 @@ referensi penjelasan tiap brocard.
 
 ## 8. Patch proof (dari tob/prove-patch) — SUDAH diekstrak menjadi
 tools/patch_proof.py (three-arm proof).
+
+---
+Blok B10 (#0271-#0300, 8 Nov) — sumber mukul975/Anthropic-Cybersecurity-
+Skills (Apache-2.0 — konsep, bukan teks). Dua entri diekstrak jadi tool
+(#0271 -> tools/ct_baseline_diff.py, #0289 -> tools/ioc_defang.py);
+sisanya didistilasi di bawah. #0272/#0285/#0296 = di luar domain.
+
+## 9. Pengayaan IOC via SOAR (dari mukul975/automating-ioc-enrichment)
+- [ ] routing per tipe dulu (ip/domain/url/hash -> sumber berbeda) sebelum
+      fan-out; jangan query semua sumber untuk semua tipe
+- [ ] skor keyakinan komposit eksplisit (mis. rasio malicious VT x bobot +
+      skor AbuseIPDB x bobot, cap 100) — selalu tulis formulanya di output
+- [ ] budget rate limit dicatat per API (VT free 4/menit), throttle sebelum
+      kirim, backoff pada HTTP 429 (patuhi header Retry-After)
+- [ ] cache hasil pengayaan (TTL ~24 jam) — query ulang IOC sama = buang biaya
+- [ ] kegagalan API TIDAK boleh menghasilkan "bersih" — log + fallback,
+      tandai partial (prinsip fail-closed cyphron)
+- [ ] skor otomatis tidak pernah memicu blokir sendiri — manusia yang
+      konfirmasi (keputusan berdampak butuh persetujuan)
+
+## 10. Benchmark Kubernetes (dari mukul975/benchmarking-kubernetes-with-kube-bench)
+- [ ] runbook eksternal (kube-bench butuh node/cluster) — cyphron mengaudit
+      offline via tools/k8s_audit_triage.py + k8s_rbac_audit.py
+- [ ] triase output: FAIL = perbaiki sekarang, WARN = kategorikan risiko,
+      PASS = bukti kepatuhan; re-run untuk verifikasi remediasi
+- [ ] scope per target: master/node/etcd/policies — audit satu per satu,
+      jangan campur temuan lintas komponen
+
+## 11. Pelacakan infrastruktur adversary (dari mukul975/building-adversary-infrastructure-tracking-system)
+- [ ] pivot berlapis dari seed: IP (reverse-IP), domain (riwayat pasif-DNS),
+      WHOIS (registran/registrar), sertifikat (SAN sama), NS/MX
+- [ ] simpan graf relasi (node = indikator, edge = resolves_to/whois_same/
+      cert_shared) — pivot berikutnya baca graf, bukan daftar datar
+- [ ] pola yang dicatat per aktor: registrar favorit, hosting, pola penamaan,
+      DGA, reuse sertifikat antar kampanye
+- [ ] sumber pasif-DNS/SecurityTrails = jaringan+API key — di cyphron cukup
+      rdap-enrichment (read-only) untuk pivot registrar
+
+## 12. Pustaka pola serangan dari laporan CTI (dari mukul975/building-attack-pattern-library-from-cti-reports)
+- [ ] ekstraksi perilaku per kalimat: kata kerja aksi (used/deployed/
+      exfiltrated) + kata kunci teknis -> kandidat teknik ATT&CK
+- [ ] tabel kata kunci -> T-ID dikelola eksplisit (dapat diaudit, bukan
+      NLP gelap); alat/malware dikenali via daftar nama, bukan tebakan
+- [ ] setiap pola disimpan sebagai objek terstruktur (STIX Attack Pattern
+      SDO) + tautan laporan sumber — provenance wajib
+- [ ] output akhir = template deteksi (Sigma/YARA) + gap telemetri, bukan
+      ringkasan prosa
+
+## 13. Pipeline submission malware (dari mukul975/building-automated-malware-submission-pipeline)
+- [ ] pre-screen hash (sha256) SEBELUM submit sandbox — sampel dikenal
+      tidak perlu analisis ulang; dedup by sha256 dengan penyimpanan hasil
+- [ ] karantina file ke nama sha256.sample — identitas konten = nama file
+- [ ] sandbox terisolasi penuh dari produksi (jaringan one-way/independen)
+- [ ] verdict sandbox = satu sinyal, bukan kesimpulan; gabung dengan IOCs
+      yang diekstrak untuk triase
+
+## 14. C2 Sliver (dari mukul975/building-c2-infrastructure-with-sliver-framework)
+- [ ] sisi biru: yang dideteksi = listener mTLS/DNS/WG, implant beacon vs
+      session (interval reguler = sinyal), operator config files
+- [ ] audit lingkungan biru: pastikan egress tidak bisa ke port C2 umum
+      (443/53/8888/51820 ke luar), DNS logging menangkap channel DNS
+- [ ] tidak ada inti deterministik untuk di-build — runbook ops merah
+
+## 15. Redirector C2 (dari mukul975/building-c2-redirector-infrastructure)
+- [ ] bentuk yang dipantau (biru): reverse-proxy yang memfilter URI/UA
+      profile-matching + 302 decoy untuk sisanya = T1090.002
+- [ ] deteksi: host yang merespons berbeda utk UA/URI beda (kandidat
+      redirector); TLS certificate reuse antar edge
+- [ ] lab cyphron: verifikasi header/UA-filtering bisa diuji via playbook
+      HTTP biasa (bandingkan respons dua permintaan)
+
+## 16. Cloud SIEM Sentinel (dari mukul975/building-cloud-siem-with-sentinel)
+- [ ] provisioning (az CLI) = runbook ops; yang layak distilasi = pola KQL
+      deteksinya: impossible travel (jarak vs delta-waktu per user),
+      konsol login multi-IP, mass deletion S3
+- [ ] setiap aturan analytics wajib: mapping ATT&CK, severity, runbook
+      respons — aturan tanpa runbook = noise
+
+## 17. Pola aturan deteksi SPL (dari mukul975/building-detection-rule-with-splunk-spl)
+- [ ] enam pola generik yang dipakai ulang di SEMUA SIEM: threshold
+      (count>ambang per window), sequence (gagal lalu sukses), baseline
+      anomaly (x > avg+3*stdev periode lalu), lateral (dc(host)>N per
+      user+src), exfil (bytes_out besar / dest unik banyak), berbahaya-
+      cmd (daftar token seperti encodedcommand/iex/downloadstring)
+- [ ] setiap pola tulis sebagai: sumber log, agregasi, ambang, severity,
+      mapping ATT&CK — konsep ini portabel lintas produk
+
+## 18. Aturan Sigma (dari mukul975/building-detection-rules-with-sigma)
+- [ ] lint sigma tidak di-build: butuh dep YAML (repo stdlib-first) dan
+      belum ada konsumen sigma di cyphron — disiplinnya saja yang diambil
+- [ ] anatomi rule yang benar: id (uuid stabil), status, level, logsource
+      (category/product), detection (selection + filter + condition),
+      falsepositives eksplisit, tags attack.tNNNN
+- [ ] filter FP = kondisi negatif eksplisit di condition (not 1 of
+      filter_*), bukan menghapus seleksi
+- [ ] konversi lintas backend (SPL/Lucene/KQL) = tugas pySigma; uji hasil
+      konversi dgn sampel event nyata sebelum dipakai
+
+## 19. Pipeline DevSecOps GitLab CI (dari mukul975/building-devsecops-pipeline-with-gitlab-ci)
+- [ ] urutan stage yang sehat: build -> test -> security (SAST, secret,
+      dep, container) -> deploy-staging -> DAST -> deploy-production
+- [ ] secret detection jalan di SETIAP commit (paling murah, paling
+      bernilai); DAST hanya utk environment staging yang stabil
+- [ ] gate: temuan critical = gagalkan pipeline (fail-closed), bukan catatan
+- [ ] padanan cyphron: tools/exploit_ci_gate.py + diff_risk_scan untuk
+      perubahan berisiko
+
+## 20. Federasi identitas SAML (dari mukul975/building-identity-federation-with-saml-azure-ad)
+- [ ] pilih model sadar-risiko: federated (AD FS) vs managed (PHS/PTA) —
+      federasi menambah permukaan endpoint on-prem yang terpapar internet
+- [ ] yang diaudit: rotasi token-signing cert, clock skew, enkripsi
+      assertion, penutupan endpoint lama (AD FS tidak dipakai = matikan)
+- [ ] audit dari sisi SP: validasi audience/recipient/NotOnOrAfter —
+      assertion longgar = bypass autentikasi
+
+## 21. Dashboard respons insiden (dari mukul975/building-incident-response-dashboard)
+- [ ] panel minimum yang berguna: status insiden (host terdampak vs
+      terkandung), timeline IOC per jam, IOC baru per sumber, umur insiden
+- [ ] sumber kebenaran tunggal (lookup CSV/index insiden) — dashboard yang
+      menghitung sendiri = angka berbeda antar panel
+
+## 22. Playbook respons insiden (dari mukul975/building-incident-response-playbook)
+- [ ] struktur playbook: pemicu (trigger) -> keputusan (decision tree) ->
+      aksi per cabang -> bukti yang wajib dikumpulkan -> kriteria tutup
+- [ ] setiap aksi punya owner + target waktu; aksi destruktif (isolate,
+      power down) selalu punya cabang alternatif
+- [ ] playbook hidup: diuji via tabletop, diperbarui pasca-insiden
+
+## 23. Timeline insiden Timesketch (dari mukul975/building-incident-timeline-with-timesketch)
+- [ ] deployment runbook (docker-compose); konsepnya: timeline tersentral
+      dgn tag/star/saved-search kolaboratif
+- [ ] ingesti dua jalur: plaso (menyeluruh) atau CSV/JSONL (cepat) —
+      pilih berdasar ukuran kasus, bukan kebiasaan
+
+## 24. Pengayaan IOC via OpenCTI (dari mukul975/building-ioc-enrichment-pipeline-with-opencti)
+- [ ] TIP (OpenCTI/MISP) = sumber konteks, bukan penggabung alert; alirkan
+      temuan -> TIP, bukan TIP -> temuan
+- [ ] padanan cyphron: rdap-enrichment + intel_sync (KEV/nuclei) sudah
+      menutup kebutuhan pengayaan statis
+
+## 25. Template komunikasi insiden malware (dari mukul975/building-malware-incident-communication-template)
+- [ ] SLA notifikasi per severity: P1 15 menit (CISO/CEO/legal), P2 1 jam,
+      P3 4 jam, P4 24 jam — tulis di template, jangan diimprovisasi
+- [ ] kanal berjenjang: out-of-band utk kritis, tiket utk dokumentasi,
+      intranet utk umum — satu insiden satu kanal resmi
+- [ ] setiap update wajib: ID insiden, waktu UTC, status, aksi berikutnya
+
+## 26. Proses Patch Tuesday (dari mukul975/building-patch-tuesday-response-process)
+- [ ] kategorisasi -> SLA: zero-day/KEV 24-48 jam, RCE kritis 3-5 hari,
+      exploit publik/EPSS tinggi 7 hari, high 14, medium 30, low = window
+      maintenance (tabel eksplisit, bukan perasaan)
+- [ ] ring deployment: staging -> pilot 5-10% -> produksi berjenjang ->
+      validasi scan; zero-day boleh lompat ring dengan change request
+      darurat
+- [ ] hari-H: cross-ref MSRC + CISA KEV + advisori vendor sebelum kelola
+
+## 27. Tombol lapor phishing (dari mukul975/building-phishing-reporting-button-workflow)
+- [ ] loop umpan balik wajib: terima laporan -> klasifikasi otomatis ->
+      balas ke pelapor (<5 menit terima, hasil saat selesai)
+- [ ] klasifikasi 4 kotak: phishing/spam/simulasi/legitim — email simulasi
+      yang dilapor = poin positif utk pelapor (jangan dihukum)
+- [ ] metrik program: tingkat laporan, MTTT, FP rate laporan
+
+## 28. Playbook ransomware CISA (dari mukul975/building-ransomware-playbook-with-cisa-framework)
+- [ ] pra-insiden (CISA): backup offline+enkripsi+DIUJI, MFA, segmentasi,
+      RDP dibatasi, allowlisting, patch 48 jam utk internet-facing
+- [ ] deteksi: rename massal, ransom note, vssadmin delete shadows,
+      lonjakan Sysmon EID 11
+- [ ] containment 1-4 jam: isolate -> matikan bila tak bisa isolate ->
+      matikan share -> reset kredensial -> blok IOC -> preservasi bukti
+- [ ] jangan lupa: identitas vektor akses awal + cek exfiltrasi (double
+      extortion) sebelum keputusan pemulihan
+
+## 29. Playbook SOC ransomware (dari mukul975/building-soc-playbook-for-ransomware)
+- [ ] decision tree triase: indikator -> skala (1 host vs berjangkit) ->
+      jalur contain berbeda; jangan tunggu kepastian ransomware utk isolate
+- [ ] pasca: dokumentasi (fail, waktu, IOC) -> lessons learned ->
+      perbarui playbook (dua arah dgn seksi 28)
+
+## 30. C2 Havoc (dari mukul975/building-red-team-c2-infrastructure-with-havoc)
+- [ ] sisi biru: profil malleable Havoc = pola traffic; deteksi = deviasi
+      dari profil (UA/URIs/jitter), bukan signature statis
+- [ ] ops merah: teamserver terpisah dari edge, OPSEC logging — tidak ada
+      inti deterministik utk cyphron
+
+## 31. Matriks eskalasi SOC (dari mukul975/building-soc-escalation-matrix)
+- [ ] tier memegang severity: T1 = P3/P4 sampai tuntas, P1/P2 naik T2
+      dalam SLA; T3 = hunting + malware RE, bukan antrean
+- [ ] per severity tulis eksplisit: respon awal, ambang eskalasi, target
+      resolusi, cadensi komunikasi (P1 = tiap 30 menit)
+- [ ] jalur manajemen terpisah dari jalur teknis (CISO = keputusan dampak,
+      legal/PR = notifikasi)
+
+## 32. Metrik & KPI SOC (dari mukul975/building-soc-metrics-and-kpi-tracking)
+- [ ] definisi wajib sebelum mengukur: MTTD (kejadian->deteksi), MTTA
+      (alert->ack), MTTC (investigasi->contain), MTTR (deteksi->selesai)
+      + FP/TP rate, coverage ATT&CK, dwell time, escalation rate
+- [ ] buang data kotor sebelum agregasi (mttd < 0 atau > 24 jam = isu
+      kualitas data, bukan performa)
+- [ ] laporkan median + p90 selain rata-rata — rata-rata menutup outlier
+
+## 33. Super timeline Plaso (dari mukul975/building-super-timelines-with-plaso)
+- [ ] alur: log2timeline (--parsers selektif utk kecepatan) -> pinfo
+      (sanity) -> psort (filter TZ UTC, json_line utk Timesketch)
+- [ ] nilai forensik utama: deteksi T1070 — timestomping/log clearing
+      menonjol sbg inkonsistensi MACB vs journal vs event log
+- [ ] di cyphron konsep ini muncul sebagai korelasi multi-sumber di
+      dns_log_triage/netflow_parse — timeline = pertanyaan, bukan alat
+
+## 34. Di luar domain — catatan bidang (bukan "skip" polos)
+- [ ] #0272 auditing-uefi-firmware-with-chipsec: firmware/UEFI hardware —
+      butuh akses fisik+driver kernel, di luar web/app/infra cyphron.
+      Inti yang layak diingat: bios_wp (BIOS_CNTL+PRR), spi_lock (FLOCKDN),
+      smrr/smm, secureboot variables, s3bootscript — FAIL = precondition
+      implant firmware (T1542.001); bukti = dump SPI vs image OEM
+- [ ] #0285 identity governance lifecycle: proses IGA enterprise (JML:
+      joiner-mover-leaver, status PRE_HIRE->ACTIVE->TERMINATED, orphan
+      account) — administrasi identitas, bukan pengujian keamanan
+- [ ] #0296 role mining RBAC: optimasi peran dari matriks user-permission
+      (clustering Jaccard / Formal Concept Analysis, metrik WSC & coverage)
+      — data-mining utk admin IAM, bukan temuan keamanan; padanan cyphron
+      (k8s_rbac_audit) mengaudit hak berlebih, bukan mendesain peran
+
