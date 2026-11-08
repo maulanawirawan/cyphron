@@ -2900,3 +2900,126 @@ catatan bidang (182). CATATAN PENOMORAN: seksi 162-175 milik blok B25
       throttling tc/netem/iperf3 (#0779 — manipulasi jaringan hidup,
       di luar bentuk tool; baseline SEBELUM degradasi + rollback
       plan, cf. seksi 69)
+
+---
+Blok B24 (#0691-#0720, 8 Nov) — sumber mukul975 (Apache-2.0 — konsep,
+bukan teks). Empat entri diekstrak jadi tool: #0691 -> tools/
+killswitch_triage.py, #0694 -> tools/rsa_key_audit.py, #0699+#0701 ->
+tools/secret_report_ingest.py, #0703+#0713 -> tools/stix_bundle_audit
+.py; sisanya didistilasi di bawah. Entri #0693 = padanan k8s_rbac_audit
+(B09); #0705 = padanan sarif_ingest + SAST eksternal (semgrep = tool
+pihak ketiga, SARIF-nya masuk lewat sarif_ingest).
+
+## 183. Program vulnerability scanning & remediasi (dari mukul975/implementing-rapid7-insightvm-for-scanning) — distilasi B24
+- [ ] scan unauthenticated melewatkan 60-80% vuln lokal — authenticated
+      scan (SSH key > password, sudo elevation, WMI/db cred) = standar;
+      UJI kredensial dulu sebelum full scan (scan gagal-auth = "bersih"
+      palsu, bukan bersih)
+- [ ] urutan hemat: discovery (inventaris) -> full audit -> template
+      khusus (web spider terpisah dari infra); safe-checks ON untuk
+      perangkat rentan (printer/ICS/medis) — scan agresif matikan
+      perangkat = insiden operasional sendiri
+- [ ] scan engine ditempatkan DEKAT segmen target (lintas-firewall =
+      bottleneck + false scope); agent untuk endpoint berpindah; dua
+      sumber digabung, bukan diganti
+- [ ] blackout window jam kerja + batas durasi scan (runaway scan =
+      resource habis diam-diam)
+- [ ] remediasi project = scope eksplisit (severity >= 7 / CVSS >= 7),
+      owner, due date, auto-verify via re-scan, eskalasi di 75% SLA —
+      tabel SLA sama dengan seksi 26; padanan cyphron: vuln_sla_aging +
+      kev_gap + cve_sweep
+- [ ] catatan cyphron: InsightVM/konsol = produk komersial (ops); yang
+      diport = disiplin program di atas
+
+## 184. Runtime protection: RASP & eBPF Tetragon (dari mukul975/implementing-runtime-application-self-protection, implementing-runtime-security-with-tetragon) — cf. seksi 51
+- [ ] RASP: pasang dalam mode MONITOR dulu (baseline, ukur FP), baru
+      BLOCK — membalik urutan = aplikasi produksi mati; deteksinya di
+      konteks eksekusi (fungsi SQL/exec/deserialisasi), bukan traffic —
+      itu sebabnya FP-nya rendah, dan itu juga sebabnya agent-nya
+      berat (in-process)
+- [ ] Tetragon (eBPF, <1% overhead): TracingPolicy = kprobe (security_
+      bprm_check, setns, security_file_open) + selector (matchBinaries/
+      matchNamespaces) + aksi (Post/Sigkill/Override/Signal)
+- [ ] kebijakan yang layak diingat utk audit kebijakan lab: Sigkill pada
+      sys_setns di luar host_ns (escape), Post pada open prefix /etc/
+      shadow | /etc/kubernetes/pki | /var/run/secrets (kredensial),
+      Sigkill matchBinaries xmrig/minerd (miner)
+- [ ] metrik kesehatan sensor: tetragon_missed_events_total > 0
+      sustained = blind spot terukur (bukan "aman"); spike events > 3x
+      baseline = insiden
+- [ ] sisi cyphron: jejak API-side k8s = k8s_audit_triage/k8s_rbac_audit;
+      sensor kernel = ops infrastruktur — checklist ini utk AUDIT
+      kebijakan TracingPolicy milik lab, bukan eksekusi
+
+## 185. SAML SP-side validation & SCIM lifecycle (dari mukul975/implementing-saml-sso-with-okta, implementing-scim-provisioning-with-okta) — cf. seksi 20, 34
+- [ ] lima validasi SP yang tidak boleh bolong: (1) signature SHA-256
+      (tolak SHA-1), (2) assertion encryption (AES-256) bila atribut
+      sensitif, (3) Audience restriction (assertion dipinjam SP lain =
+      replay), (4) NotBefore/NotOnOrAfter + toleransi clock skew
+      eksplisit, (5) InResponseTo dicocokkan AuthnRequest (IdP-initiated
+      unsolicited = jalur terpisah yang dikelola, bukan dimatikan)
+- [ ] kegagalan umum produksi: sertifikat signing kedaluwarsa tanpa
+      rotasi = outage massal — rotasi dual-cert sebelum expiry, uji
+      tanpa downtime
+- [ ] SCIM (RFC 7644): deprovision = active:false, BUKAN hard delete
+      (jejak audit + reaktivasi); PATCH = ops add/replace/remove;
+      filter "userName eq" wajib didukung (Okta dedup); error schema
+      scimType (uniqueness) = kontrak, bukan 500 generik
+- [ ] provisioning hooks = T1098/F1005 — akun baru/grup baru yang dibuat
+      otomatis HARUS masuk audit yang sama dgn akun manual; tool cyphron:
+      belum ada (end-to-end butuh IdP live) — checklist utk review
+      konfigurasi IdP di lab
+
+## 186. Secret scanning lifecycle & baseline (dari mukul975/implementing-secret-scanning-with-gitleaks, implementing-secrets-scanning-in-ci-cd) — inti diekstrak tools/secret_report_ingest.py
+- [ ] tiga lapisan waktu: pre-commit (blok SEBELUM masuk riwayat),
+      CI per-commit, dan riwayat penuh (audit legacy) — padanan
+      cyphron: secret_history_scan + repo-secret-scan; ingest laporan
+      scanner eksternal + baseline diff = secret_report_ingest
+- [ ] baseline = BUKAN allowlist abadi: tiap entri ditriase (aktif/
+      sudah-rotasi/FP), dikurangi tiap rotasi; "asumsi sudah mati" tanpa
+      verifikasi provider = kebocoran yang dianggap aman
+- [ ] remediasi = ROTASI DULU, bersihkan riwayat kemudian (git-filter-
+      repo koordinasi tim); sebaliknya = secret masih valid di cache/
+      fork/laporan lama
+- [ ] custom rule organisasi: regex + ENTROPY + keywords + allowlist
+      path (test/vendor/fixtures) — pola generik tanpa entropi = alarm
+      massal hari pertama (cf. kosakata repo-secret-scan: pola kuat +
+      generik berentropi + penekan placeholder)
+
+## 187. Korelasi multi-event SIEM & tuning FP (dari mukul975/implementing-siem-correlation-rules-for-apt, implementing-siem-use-case-tuning, implementing-security-monitoring-with-datadog) — cf. seksi 17, 74, 77
+- [ ] pola SEQUENCE (A lalu B pada host sama dalam window): RDP logon
+      (4624 type-10) -> service baru (7045) <= 15 menit; NTLM logon
+      type-3 -> proses admin tool; named pipe PSEXESVC + service
+      install <= 5 menit — tiap pola tulis: sumber log, agregasi per
+      host/principal, window, severity, mapping ATT&CK (format seksi 17)
+- [ ] tuning = siklus data, bukan selera: FP rate per rule dari
+      disposition analyst, ambang baru = baseline (mean + N*stdev,
+      minimum data 30 hari), whitelist known-good BERKEDALUWARSA (TTL,
+      cf. seksi 74), hasil diukur dgn alert-to-incident conversion —
+      rule yang tidak pernah jadi insiden = kandidat matikan/merge
+- [ ] suppression per POLA entity (mis. @usr.id:service-account-*),
+      bukan per kejadian; keep-alive signal (10-30 menit) supaya
+      aktivitas bertahap tidak pecah jadi N alert
+- [ ] contoh agent-rule kernel-level yang reusable (Datadog CSM): write
+      ke authorized_keys oleh proses non-sshd = T1098.004 — pola
+      "subjek tak sah menyentuh file kebijakan" dipakai ulang untuk
+      FIM apa pun (cf. seksi 51/70)
+
+## 188. STIX/TAXII — disiplin konsumen offline (dari mukul975/implementing-security-information-sharing-with-stix2, implementing-stix-taxii-feed-integration, implementing-taxii-server-with-opentaxii) — inti diekstrak tools/stix_bundle_audit.py
+- [ ] bundle = unit pertukaran; nilai intel = GRAF (relationship
+      indicates/uses antar SDO), bukan daftar IOC datar — simpan graf,
+      render datar saat butuh (padanan cyphron: campaign_correlate)
+- [ ] feed tak patuh spec = temuan: id bukan UUIDv4 (SDO/SRO), modified
+      < created, ref menggantung, pattern tanpa grammar — SIEM/TIP yang
+      membaca tanpa validasi = data hilang diam-diam; sba menghitung
+      semuanya (fail-closed)
+- [ ] indicator: valid_until aktif (expired = jangan diblokir otomatis),
+      TLP marking dihormati saat re-share, provenance created_by_ref +
+      external_references (mitre-attack id) wajib ada utk attribution
+- [ ] TAXII: added_after = incremental polling (konsep freshness cf.
+      intel_sync); pagination per-request; collection readonly utk
+      konsumen — transport/server (Medallion/OpenTAXII) = ops produk
+      TIP, bukan alat audit
+
+## 189. Ops produk & di luar domain — catatan bidang blok B24 (cf. seksi 42, 48, 136, 137, 130)
+- [ ] #0700 Vault secrets m
