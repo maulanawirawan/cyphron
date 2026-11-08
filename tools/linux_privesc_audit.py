@@ -504,6 +504,17 @@ def _check_priv_file(root: "Path | None", path: str, kind: str,
         _add(findings, f"{kind}-unexpected-location", "medium",
              f"{kind.upper()} berkas di luar prefiks standar: {path}",
              path)
+    if root is not None:
+        # berkas SUID/SGID itu sendiri world-writable = istilah root
+        # (docstring: suid-writable-file / sgid-writable-file)
+        try:
+            fm = os.stat(root / path.lstrip("/")).st_mode
+        except OSError:
+            fm = None
+        if fm is not None and statmod.S_ISREG(fm) and (fm & 0o0002):
+            _add(findings, f"{kind}-writable-file", "high",
+                 f"berkas {kind.upper()} itu sendiri world-writable: "
+                 f"{path}", path)
     if check_parents and root is not None:
         parent_rel = os.path.dirname(path) or "/"
         real_parent = root / parent_rel.lstrip("/")

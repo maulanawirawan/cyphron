@@ -23,29 +23,73 @@ sys.path.insert(0, str(TOOLS))
 import sqlite_forensics as sfo  # noqa: E402
 
 
+def _plant_freeleaf_content(db: Path, payload: bytes) -> None:
+    """Tanam byte carvable ke halaman LEAF freelist.
+
+    Halaman leaf freelist tidak berstruktur (fileformat2: "Leaf pages
+    of the freelist contain no information"), jadi isinya aman ditulis
+    langsung tanpa merusak akuntansi freelist. SQLite >= 3.46 menimpa
+    isi halaman bebas saat commit (3.45 menyimpannya) — penanaman ini
+    membuat skenario carving DETERMINISTIK di semua versi SQLite."""
+    raw = bytearray(db.read_bytes())
+    pagesize = struct.unpack(">H", raw[16:18])[0]
+    if pagesize == 1:
+        pagesize = 65536
+    trunk = struct.unpack(">I", raw[32:36])[0]
+    seen: "set[int]" = set()
+    leaf = None
+    while trunk and trunk not in seen:
+        seen.add(trunk)
+        off = (trunk - 1) * pagesize
+        nxt = struct.unpack(">I", raw[off:off + 4])[0]
+        k = struct.unpack(">I", raw[off + 4:off + 8])[0]
+        if k >= 1:
+            leaf = struct.unpack(">I", raw[off + 8:off + 12])[0]
+            break
+        trunk = nxt
+    assert leaf is not None, "fixture: tidak ada halaman leaf freelist"
+    loff = (leaf - 1) * pagesize
+    raw[loff:loff + len(payload)] = payload
+    db.write_bytes(bytes(raw))
+
+
 def _make_db_with_deleted(path: Path, n: int = 120) -> None:
     con = sqlite3.connect(str(path))
     con.execute("CREATE TABLE notes (id INTEGER PRIMARY KEY, "
                 "body TEXT, refs TEXT)")
-    for i in range(n):
+    # urutan penting: marker + blok kredensial DI TENGAH, survivor di
+    # ekor — halaman terbebaskan tetap interior (tidak ter-truncate)
+    # sehingga freelist selalu berisi halaman di semua ukuran n
+    n_markers = max(n // 2, 44)  # cukup halaman: 1 jadi trunk, sisanya leaf
+    n_survivors = n - n // 2     # live rows (dijaga sama seperti desain awal)
+    for i in range(n_markers):
         con.execute("INSERT INTO notes (body, refs) VALUES (?, ?)",
-                    (f"DELETEDMARKER-{i:04d} " + "x" * 180
-                     if i < n // 2 else f"survivor-{i:04d} " + "y" * 180,
+                    (f"DELETEDMARKER-{i:04d} " + "x" * 180,
                      f"/share/doc{i}.pdf"))
     con.commit()
-    # blok kredensial di AKHIR tabel: halaman terakhirnya berisi SEMUA
-    # baris terhapus -> halaman penuh ke freelist dgn konten utuh
-    # (freelist SQLite tidak menimpa isi halaman yang dibebaskan)
+    # blok kredensial setelah marker
     for i in range(8):
         con.execute("INSERT INTO notes (body, refs) VALUES (?, ?)",
                     (f"CREDBLOCK-{i} AKIA{i:016d} "
                      f"https://attacker.example/drop{i}",
                      "/share/secret"))
     con.commit()
+    # survivor di ekor (dihitung test_live_inventory_rows: n - n//2)
+    for i in range(n_survivors):
+        con.execute("INSERT INTO notes (body, refs) VALUES (?, ?)",
+                    (f"survivor-{i:04d} " + "y" * 180,
+                     f"/share/doc{i}.pdf"))
+    con.commit()
     con.execute("DELETE FROM notes WHERE body LIKE 'CREDBLOCK-%' "
                 "OR body LIKE 'DELETEDMARKER-%'")
     con.commit()
     con.close()
+    # skenario carving deterministik lintas versi SQLite: tanam isinya
+    # ke halaman leaf freelist (SQLite 3.46+ menimpa isi halaman bebas
+    # saat commit — tanpa penanaman, byte baris terhapus tak tersisa)
+    _plant_freeleaf_content(path, (
+        b"DELETEDMARKER-7777 AKIA0000000000007777 "
+        b"https://attacker.example/drop7777 " + b"P" * 64))
 
 
 def _make_wal_pair(db: Path, wal: Path, n: int = 40) -> None:
