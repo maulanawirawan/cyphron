@@ -4527,4 +4527,73 @@ dilanjutkan 254-256.
 - [ ] IoT assessment (hardware interface, firmware dump, radio) =
       butuh akses fisik/lab — preseden #0132 offensive-iot
 
+## 268. Lateral movement: deteksi (padanan) vs eksekusi (di luar domain) + log forensik (dari mukul975/performing-lateral-movement-detection, -performing-lateral-movement-with-wmiexec, -performing-log-analysis-for-forensic-investigation, -performing-network-traffic-analysis-with-zeek) — distilasi G6-delta-3
+- [ ] deteksi TA0008 (PtH/PsExec/WMI/RDP/SMB spread) via SIEM/SPL =
+      metodologi det-engineering; padanan offline secai: sysmon_triage
+      (EID proses/jaringan), win_logon_triage (4624 type 3), zeek_lateral_scan
+      + zeek_front_scan, netflow_parse, dcsync_triage/dcom_lateral_scan
+- [ ] wmiexec/CrackMapExec = eksekusi remote aktif (di luar kontrak);
+      sisi deteksinya sama dgn baris di atas
+- [ ] analisis log forensik (korrelasi + timeline): parser artefak
+      eksisting = web_log_intrusion, sysmon_triage, sqlite_forensics,
+      mft_scan (cf. seksi 252 peta EZ tools); korrelasi lintas-sumber
+      = penalaran analyst, bukan alat baru
+- [ ] Zeek deployment + custom script = ops NDR; analisis LOG zeek
+      hasil deployment = zeek_beacon_scan/zeek_lateral_scan/
+      zeek_front_scan + pcap_triage (nol jaringan, artefak offline)
+
+## 269. Kluster triase malware/IOC/DFIR — alat eksternal & padanan (dari mukul975/performing-malware-hash-enrichment-with-virustotal, -performing-malware-ioc-extraction, -performing-malware-triage-with-yara, -performing-memory-forensics-with-volatility3, -performing-memory-forensics-with-volatility3-plugins, -performing-mobile-device-forensics-with-cellebrite, -performing-osint-with-spiderfoot, -performing-threat-hunting-with-yara-rules, -performing-threat-intelligence-sharing-with-misp) — distilasi G6-delta-3
+- [ ] IOC extraction = PADANAN langsung: ioc_defang subkomando
+      `extract` (klasifikasi multi-tipe teks bebas: url/ipv4/domain/
+      hash/email) + refang pra-ekstraksi + ioc_lifecycle_score;
+      format pertukaran = stix_bundle_audit (B24)
+- [ ] VirusTotal/SpiderFoot/PyMISP = API live pihak ketiga (kontrak
+      nol-jaringan; reputasi & sharing = ops); triase hash/IOC dari
+      teks offline = ioc_defang + paste_triage
+- [ ] YARA (triage malware & hunt) = engine eksternal; yang secai
+      punya: yara_rule_lint (B04, mutu rule) + packer_scan/
+      rat_config_scan/crypto_constant_scan utk triase statis offline
+- [ ] Volatility3 (2 skill) = DFIR live memory dump (akses image RAM
+      insiden) — ops; cf. seksi 252 forensik Windows offline
+- [ ] Cellebrite UFED = perangkat forensik komersial + akses fisik
+      perangkat; parser artefak open-source (ALEAPP/iLEAPP) = ops;
+      mobile offline secai = mobile_manifest_audit (B17)
+
+## 270. Kepatuhan & penilaian OT (dari mukul975/performing-nist-csf-maturity-assessment, -performing-oil-gas-cybersecurity-assessment, -performing-ot-network-security-assessment, -performing-ot-vulnerability-assessment-with-claroty, -performing-ot-vulnerability-scanning-safely) — distilasi G6-delta-3 — cf. seksi 232/264
+- [ ] NIST CSF 2.0 maturity (6 fungsi x 4 tier + roadmap) = GRC
+      benchmark organisasi — runbook penilaian
+- [ ] oil-gas (API 1164, TSA pipeline) = preseden B29 di-luar-domain
+- [ ] OT assessment/VA (SCADA/Purdue; Claroty xDome; Tenable OT
+      "scanning safely") = produk komersial + akses jaringan OT —
+      preseden seksi 264; disiplin "pasif dulu, aktif hati-hati" =
+      prinsip yang sama dgn baseline-first di 264
+
+## 271. Serangan aktif, simulasi & fisik — di luar kontrak (dari mukul975/performing-kerberoasting-attack, -performing-mobile-app-certificate-pinning-bypass, -performing-packet-injection-attack, -performing-phishing-simulation-with-gophish, -performing-physical-intrusion-assessment, -performing-threat-emulation-with-atomic-red-team, -performing-threat-modeling-with-owasp-threat-dragon) — distilasi G6-delta-3
+- [ ] kerberoasting aktif = duplikat inti #1015 (seksi 257) — sisi
+      biru = kerberos_log_triage + gMSA
+- [ ] cert pinning bypass (Frida/Objection) + packet injection
+      (Scapy/hping3) = interseksi/injeksi aktif — preseden seksi 259
+- [ ] GoPhish = kampanye phishing awareness — EKSEKUSI dilarang
+      (preseden #0142); simulasi awareness = ops HR/keamanan; sisi
+      defensif = eml_phish_triage + dmarc analisanya (email-sender-
+      surface)
+- [ ] physical intrusion (tailgating/RFID clone/lock bypass) =
+      fisik — preseden B29 physical; Atomic Red Team/atomic-operator
+      = validasi cakupan deteksi purple-team (ops EDR/SIEM live)
+- [ ] OWASP Threat Dragon + STRIDE/LINDDUN = tool diagram & desain
+      review — metodologi desain, bukan alat audit secai
+
+## 272. Padanan eksplisit G6-delta-3 (dari mukul975/performing-ssrf-vulnerability-exploitation, -performing-subdomain-enumeration-with-subfinder, -performing-supply-chain-attack-simulation) — distilasi G6-delta-3
+- [ ] SSRF (metadata 169.254.169.254, file://, gopher://, DNS
+      rebinding) = playbook ssrf/ssrf-callback/ssrf-chain + jndi-oob;
+      probe aktif = di luar kontrak nol-jaringan
+- [ ] Subfinder passive enum = alat eksternal; padanan skill surface:
+      subdomain-enum-surface + ct-inventory + rdap-whois +
+      wayback-history (preseden B05 #0140)
+- [ ] supply chain attack simulation: typosquat Levenshtein =
+      pkg_typosquat_check (B16) + typosquat-watch; dependency
+      confusion = dep_confusion_check (B05, #0144); verifikasi hash
+      paket = slsa_provenance_audit (B34); pip-audit = alat eksternal
+
+
 
