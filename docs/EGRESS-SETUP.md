@@ -87,7 +87,7 @@ mesin, N egress. Murah untuk rotasi kecil (3–5 IP).
 ## Pemakaian
 
 ```bash
-cyphron scan --mode tier0 --domain contoh.id --target https://contoh.id/ \
+secai scan --mode tier0 --domain contoh.id --target https://contoh.id/ \
     --proxies proxies.txt --ua browser
 ```
 

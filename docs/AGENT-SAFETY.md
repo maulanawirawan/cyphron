@@ -1,4 +1,4 @@
-# AGENT-SAFETY — tiga lapis pertahanan saat AI membaca cyphron
+# AGENT-SAFETY — tiga lapis pertahanan saat AI membaca secai
 
 *(Bahasa Indonesia. Standar rujukan: OWASP Top-10 for LLM Applications,
 LLM01 "Prompt Injection" — prinsip publik, bukan rahasia platform.)*
@@ -26,9 +26,9 @@ yang dimodifikasi bisa menyisipkannya ke sana. Pertahanannya bukan
 teks — tapi **tamper evidence**:
 
 ```bash
-python cyphron.py shield pin      # setelah mengubah file panduan
-python cyphron.py shield verify   # gate CI / pra-scan — exit 1 bila berubah
-python cyphron.py shield scan     # sapu file panduan utk pola override
+python secai.py shield pin      # setelah mengubah file panduan
+python secai.py shield verify   # gate CI / pra-scan — exit 1 bila berubah
+python secai.py shield scan     # sapu file panduan utk pola override
 ```
 
 `agent-shield.lock.json` (di-commit) menyimpan SHA256 semua file
@@ -39,11 +39,11 @@ berisiko kehilangan objektivitas terhadap **bukti** — teks yang berasal
 dari server yang tidak kamu kendalikan. Server jahat bisa menyisip
 kalimat yang bentuknya instruksi ("ignore previous instructions…")
 untuk membajak siapa pun yang membacanya. Dokumen ini mendokumentasikan
-tiga lapis pertahanan cyphron, urut dari yang paling kuat.
+tiga lapis pertahanan secai, urut dari yang paling kuat.
 
 ## Lapis 1 — Kode (paling kuat, sudah ada)
 
-Gerbang keamanan cyphron hidup di **kode**, bukan di prompt:
+Gerbang keamanan secai hidup di **kode**, bukan di prompt:
 
 - `skills/registry.json` adalah **allowlist**: hanya skill terdaftar
   yang bisa dieksekusi via MCP/orchestrator.
@@ -57,12 +57,12 @@ Penting dan jujur: karena lapis ini KODE, dia tetap bekerja bahkan
 kalau agent yang menjalankannya sudah "dibajak" lewat prompt. Tapi dia
 bukan DRM — orang yang men-fork dan sengaja membongkar gerbang bisa
 saja melakukannya. Yang dilindungi lapis ini: **jalur default** —
-orang yang memakai cyphron apa adanya tidak bisa secara tidak sengaja
+orang yang memakai secai apa adanya tidak bisa secara tidak sengaja
 menyalahgunakan.
 
 ## Lapis 2 — Panduan agent terbuka (SKILL.md)
 
-`SKILL.md` (root, juga terpasang sebagai `.claude/skills/cyphron/`)
+`SKILL.md` (root, juga terpasang sebagai `.claude/skills/secai/`)
 adalah instruksi yang **tertulis terang-terangan** untuk agent yang
 patuh (Claude Code, ZCode, Cursor, dsb.): aturan keras, playbook aman,
 dan rambu target berizin. Terbuka, bukan tersembunyi — instruksinya
@@ -70,14 +70,14 @@ untuk ditaati dan diaudit, bukan untuk menyelundupkan perilaku.
 
 ## Lapis 3 — injection_guard (alat, baru)
 
-`tools/injection_guard.py` (mode `python cyphron.py guard`) memindai
+`tools/injection_guard.py` (mode `python secai.py guard`) memindai
 findings/bukti dan **menandai** teks yang mencoba menjadi instruksi:
 instruction-override, role-hijack, leksikon jailbreak, struktur prompt
 palsu, perintah destruktif/remote-exec, dan pola eksfiltrasi.
 
 ```bash
-python cyphron.py guard findings/scan/findings.json
-python cyphron.py guard findings.json --strict   # exit 1 → bisa jadi gate CI
+python secai.py guard findings/scan/findings.json
+python secai.py guard findings.json --strict   # exit 1 → bisa jadi gate CI
 ```
 
 Prinsipnya: bukti adalah **DATA**. Yang bertanda adalah bagian yang
@@ -89,7 +89,7 @@ diteruskan ke agent sebagai perintah.
 1. **Repositori tidak bisa mengendalikan AI orang lain.** Model
    uncensored/abliterated yang dijalankan operatornya sendiri berada
    di luar jangkauan file mana pun di repo ini — tidak ada teks di
-   repo yang bisa "memaksa" AI tersebut berperilaku baik, dan cyphron
+   repo yang bisa "memaksa" AI tersebut berperilaku baik, dan secai
    tidak berusaha memalsu kemampuan itu.
 2. **Heuristik bisa meleset dua arah.** `injection_guard` bisa false
    positive (memang men-scan aplikasi LLM → temuannya memuat teks

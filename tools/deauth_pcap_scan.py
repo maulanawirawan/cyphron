@@ -36,7 +36,7 @@ import sys
 from collections import Counter
 from pathlib import Path
 
-SCHEMA = "cyphron.deauth-pcap-scan/1"
+SCHEMA = "secai.deauth-pcap-scan/1"
 RADIOTAP_LINKTYPE = 127
 IEEE80211_LINKTYPE = 105
 BROADCAST = "ff:ff:ff:ff:ff:ff"

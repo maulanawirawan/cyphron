@@ -80,7 +80,7 @@ fn header_family_key(f: &Finding) -> Option<String> {
 /// Dedup by id (tool|title|target|file|param): baris pertama dipertahankan,
 /// duplikat dibuang, `dup_count` di baris pertama mencatat total kemunculan.
 /// Return jumlah baris yang dibuang. Dipakai FAO (per-run) DAN
-/// `cyphron merge --dedup-id` (penggabungan lintas-mode tier0/lab) — satu
+/// `secai merge --dedup-id` (penggabungan lintas-mode tier0/lab) — satu
 /// semantik untuk semua jalur, sama seperti tools/merge_findings.py.
 pub fn dedup_by_id(findings: &mut Vec<Finding>) -> usize {
     let mut idx_by_id: HashMap<String, usize> = HashMap::new();

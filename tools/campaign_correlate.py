@@ -7,7 +7,7 @@ pivot berbobot infrastruktur 40 / kapabilitas 35 / temporal 15 /
 viktimologi 10 dengan ambang HIGH/MEDIUM/LOW dan penjaga false-positive
 CDN/hosting-bersama; atribusi konsep). Dibangun FROM SCRATCH: parser event
 JSON, mesin pivot berpasangan, dan penjaga FP ditulis sendiri — tidak
-menyalin kode sumber, tidak memakai MISP/OpenCTI/Neo4j. Lisensi cyphron:
+menyalin kode sumber, tidak memakai MISP/OpenCTI/Neo4j. Lisensi secai:
 PolyForm NC.
 
 Input -> mekanisme -> output:
@@ -52,7 +52,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-SCHEMA = "cyphron.campaign-correlate/1"
+SCHEMA = "secai.campaign-correlate/1"
 
 W_INFRA = 40
 W_CAP = 35

@@ -117,10 +117,10 @@ class MainFailClosedTest(unittest.TestCase):
 
 class EndToEndTest(unittest.TestCase):
     """Scan sumber fixture mini dgn enforcement — butuh binary release
-    (dibangun cargo build --release; CI ubuntu: binary `cyphron`)."""
+    (dibangun cargo build --release; CI ubuntu: binary `secai`)."""
 
     def _binary(self) -> Path | None:
-        exe = "cyphron.exe" if sys.platform == "win32" else "cyphron"
+        exe = "secai.exe" if sys.platform == "win32" else "secai"
         b = ROOT / "core-rs" / "target" / "release" / exe
         return b if b.exists() else None
 

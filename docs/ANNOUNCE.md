@@ -1,6 +1,6 @@
 # Announcement drafts
 
-Honest copy you can paste when you want to share cyphron. Nothing here
+Honest copy you can paste when you want to share secai. Nothing here
 overstates what the tool does. Swap in real numbers before posting, and
 only post where self-promotion is allowed (read each community's rules —
 r/netsec in particular is strict about it).
@@ -10,7 +10,7 @@ r/netsec in particular is strict about it).
 ## Show HN
 
 **Title:**
-Show HN: Cyphron – a security scanner that refuses to report what it can't prove
+Show HN: SecAI – a security scanner that refuses to report what it can't prove
 
 **Body:**
 
@@ -38,7 +38,7 @@ A few things that make it different:
 It's Python skills driven by a native Rust core. Authorized testing
 only. PolyForm Noncommercial license.
 
-Repo: https://github.com/maulanawirawan/cyphron
+Repo: https://github.com/maulanawirawan/secai
 
 Happy to answer anything about the design — especially the evidence
 ladder and why I went fail-closed on malformed output.
@@ -53,12 +53,12 @@ ladder and why I went fail-closed on malformed output.
 > in a weekly thread instead.
 
 **Title:**
-Cyphron: evidence-first scanning with an explicit L0–L5 verdict ladder (Python + Rust, open source)
+SecAI: evidence-first scanning with an explicit L0–L5 verdict ladder (Python + Rust, open source)
 
 **Body:**
 
 Sharing a tool I've been building. The core idea: a finding you can't
-prove is a lead, not a claim. Cyphron puts every result on an evidence
+prove is a lead, not a claim. SecAI puts every result on an evidence
 ladder and only lets L3+ (a reproducible proof) into a report.
 
 Technical bits that might interest this crowd:
@@ -76,7 +76,7 @@ Technical bits that might interest this crowd:
 Authorized targets only, and the active proof tier is gated behind an
 explicit per-target opt-in. PolyForm NC license.
 
-https://github.com/maulanawirawan/cyphron
+https://github.com/maulanawirawan/secai
 
 Feedback on the verdict model and the zero-FP guards is very welcome.
 
@@ -84,10 +84,10 @@ Feedback on the verdict model and the zero-FP guards is very welcome.
 
 ## One-liner (Twitter/X, Mastodon, LinkedIn, Discord)
 
-Built Cyphron: a security scanner that refuses to report anything it
+Built SecAI: a security scanner that refuses to report anything it
 can't prove. Every finding sits on an L0–L5 evidence ladder; only
 reproducible proof (L3+) makes the report. Python + Rust, open source,
-authorized testing only. https://github.com/maulanawirawan/cyphron
+authorized testing only. https://github.com/maulanawirawan/secai
 
 ---
 

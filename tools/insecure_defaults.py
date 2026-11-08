@@ -4,7 +4,7 @@ Konsep kategori audit (default credentials, fail-open security settings,
 debug features aktif, weak crypto) mengacu pada plugin insecure-defaults
 repo trailofbits/skills (8k+ stars, CC-BY-SA-4.0) — dibangun from scratch
 TANPA kode/data dari repo itu: semua pola di bawah ditulis sendiri dari
-pengetahuan konfigurasi publik yang umum. Lisensi cyphron: PolyForm NC.
+pengetahuan konfigurasi publik yang umum. Lisensi secai: PolyForm NC.
 
 Read-only, NOL request jaringan: pindai file/direktori konfigurasi lokal
 (--source). Presisi di atas recall (zero-FP, kontrak repo):
@@ -29,7 +29,7 @@ Empat kategori:
      sebagai hash/cipher config) dan secret bawaan terkenal
      (jwt_secret=secret, secret_key=changeme, your-256-bit-secret, ...).
 
-Semua temuan = make_finding kontrak cyphron (status confirmed, verdict L2
+Semua temuan = make_finding kontrak secai (status confirmed, verdict L2
 REPRODUCED — bukti file+baris; POC = perintah baca baris), lulus
 validate_finding. Ini scanner STATIC: temuan boleh L2, bukan L3 —
 klaim dampak butuh verifikasi live (no proof, no report).
@@ -52,7 +52,7 @@ for _p in ("core", "tools"):
 
 from findings import make_finding, validate_finding  # noqa: E402
 
-SCHEMA = "cyphron.insecure-defaults/1"
+SCHEMA = "secai.insecure-defaults/1"
 MAX_FILE_BYTES = 512 * 1024
 SKIP_DIRS = {".git", "node_modules", "venv", ".venv", "env", "vendor",
              "dist", "build", "__pycache__", ".mypy_cache", ".pytest_cache",

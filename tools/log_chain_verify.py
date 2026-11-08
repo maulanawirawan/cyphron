@@ -59,7 +59,7 @@ import sys
 import time
 from pathlib import Path
 
-SCHEMA = "cyphron.log-chain-verify/1"
+SCHEMA = "secai.log-chain-verify/1"
 GENESIS = "0" * 64
 MAX_BYTES = 64 * 1024 * 1024
 LEDGER_FIELDS = {"i", "src", "line", "content_hash", "prev_hash",
@@ -163,7 +163,7 @@ def _load_ledger(path: Path) -> "list[dict]":
                          "(fail-closed)")
     if not header_seen:
         raise ValueError("header ledger tidak dikenali (bukan output "
-                         "cyphron log_chain_verify)")
+                         "secai log_chain_verify)")
     return entries
 
 

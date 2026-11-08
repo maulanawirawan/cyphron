@@ -3,7 +3,7 @@
 Diff berbasis ID temuan deterministik (sha256 tool|title|target|file|
 param): judul yang direvisi dihitung temuan berbeda — catatan metodologi
 itu ikut di field method diff.json. NOL jaringan: helper difunctional-
-kan, cyphron.exe tidak dijalankan di sini.
+kan, secai.exe tidak dijalankan di sini.
 """
 from __future__ import annotations
 

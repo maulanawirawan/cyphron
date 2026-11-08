@@ -48,7 +48,7 @@ import sys
 from datetime import date, datetime, timezone
 from pathlib import Path
 
-SCHEMA = "cyphron.vuln-sla-aging/1"
+SCHEMA = "secai.vuln-sla-aging/1"
 MAX_FILE_BYTES = 8 * 1024 * 1024
 
 DEFAULT_SLA_DAYS = {"critical": 14, "high": 30, "medium": 60, "low": 90}

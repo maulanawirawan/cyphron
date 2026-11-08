@@ -7,7 +7,7 @@ atribusi konsep, lisensi sumber Apache-2.0). Dibangun FROM SCRATCH:
 parser log + taksonomi pola ditulis sendiri dari konsep deteksi publik
 (skenario sumber: China Chopper via IIS, ASPXSpy lewat upload, PHP
 shell tersamar image, JSP via Tomcat manager). Skill sumber menanyakan
-SIEM/EDR live; cyphron memilih artefak offline (access log CLF/combined
+SIEM/EDR live; secai memilih artefak offline (access log CLF/combined
 milik lab) supaya nol jaringan dan dapat dites. Ranah SQLi/LFI/XSS di
 URI TIDAK diduplikasi (web_log_intrusion B07; waf_sqli_triage B16).
 
@@ -70,7 +70,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import unquote
 
-SCHEMA = "cyphron.webshell-triage/1"
+SCHEMA = "secai.webshell-triage/1"
 MAX_FILE_BYTES = 512 * 1024 * 1024
 
 CLF_RE = re.compile(

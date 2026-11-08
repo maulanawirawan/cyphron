@@ -6,7 +6,7 @@ NVIDIA/SkillSpector — 24k+ stars, Apache-2.0, yang melaporkan 26.1% dari
 from scratch TANPA kode dari repo itu; pola-pola di bawah ditulis sendiri
 dari pengetahuan kelas serangan yang dipublikasikan terbuka (prompt
 injection tersembunyi di SKILL.md/tool-description, exfiltration berkedok
-helper, curl-pipe-shell) plus guardrails cyphron sendiri (docs/
+helper, curl-pipe-shell) plus guardrails secai sendiri (docs/
 AGENT-SAFETY.md, tools/injection_guard.py yang dipakai ulang di sini).
 
 Read-only, NOL jaringan: pindai file/direktori panduan agent (SKILL.md,
@@ -22,7 +22,7 @@ Verdict fail-closed:
 
 Zero-FP pragmatis: teks di dalam fenced code-block markdown (` ``` `)
 diberi flag `in_code_block` — skill yang mendokumentasikan serangan
-(contoh: cyphron sendiri) tidak otomatis DANGEROUS hanya karena
+(contoh: secai sendiri) tidak otomatis DANGEROUS hanya karena
 menampilkan perintah di blok contoh; instruksi BIJAK di luar blok yang
 dinilai paling keras.
 
@@ -44,7 +44,7 @@ sys.path.insert(0, str(ROOT / "tools"))
 
 import injection_guard  # noqa: E402  (scan_text — kelas operator-override)
 
-SCHEMA = "cyphron.skill-vet/1"
+SCHEMA = "secai.skill-vet/1"
 MAX_FILE_BYTES = 512 * 1024
 VERDICTS = ("SAFE", "RISKY", "DANGEROUS")
 FENCE_RE = re.compile(r"^\s*(```|~~~)")

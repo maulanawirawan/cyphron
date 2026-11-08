@@ -1,4 +1,4 @@
-"""Riset oss-scanner — threat_model loader per program Cyphron.
+"""Riset oss-scanner — threat_model loader per program SecAI.
 
 Fail-closed: opsional (tidak ada = None), bounded 64 KB, path WAJIB di
 dalam programs/ (symlink/traversal keluar = ditolak), output ber-hash.

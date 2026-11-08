@@ -9,7 +9,7 @@ Cybersecurity-Skills 'detecting-sql-injection-via-waf-logs' — analisis
 log ModSecurity/AWS WAF/Cloudflare utk kampanye SQLi dgn klasifikasi
 OWASP; atribusi konsep, lisensi sumber Apache-2.0). Dibangun FROM
 SCRATCH: parser audit-log + taksonomi regex ditulis sendiri; skill
-sumber memakai kelas agent dgn dependensi tambahan, cyphron stdlib
+sumber memakai kelas agent dgn dependensi tambahan, secai stdlib
 murni.
 
 Input -> mekanisme -> output:
@@ -65,7 +65,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from urllib.parse import unquote
 
-SCHEMA = "cyphron.waf-sqli-triage/1"
+SCHEMA = "secai.waf-sqli-triage/1"
 MAX_FILE_BYTES = 256 * 1024 * 1024
 MAX_UNPARSED_SAMPLES = 10
 MAX_EVIDENCE_CHARS = 300

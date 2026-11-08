@@ -8,7 +8,7 @@ compliance'; atribusi konsep, lisensi sumber Apache-2.0). Dibangun FROM
 SCRATCH: evaluasi field configuration-item ditulis sendiri dari konsep
 rule AWS Config publik (CIS managed rules + custom rule required-tags di
 sumber). Skill sumber menjalankan AWS Config + Lambda remediation live;
-cyphron mengevaluasi EKSPOR offline (configuration-item JSON dari
+secai mengevaluasi EKSPOR offline (configuration-item JSON dari
 ConfigurationItemChangeNotification / get-resource-config-history /
 config-snapshot S3) agar nol jaringan dan dapat dites. Ranah TIDAK
 diduplikasi: terraform_audit (IaC HCL sebelum deploy), cloudtrail_scan

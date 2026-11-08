@@ -51,7 +51,7 @@ import re
 import sys
 from pathlib import Path
 
-SCHEMA = "cyphron.ioc-defang/1"
+SCHEMA = "secai.ioc-defang/1"
 MAX_FILE_BYTES = 8 * 1024 * 1024
 
 IOC_TYPES = ("url", "ipv4", "domain", "email", "md5", "sha1", "sha256")

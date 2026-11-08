@@ -74,7 +74,7 @@ import struct
 import sys
 from pathlib import Path
 
-SCHEMA = "cyphron.elf-checksec/1"
+SCHEMA = "secai.elf-checksec/1"
 MAX_FILE_BYTES = 512 * 1024 * 1024  # 512 MB — biner besar tetap diurai
 
 # Mitigasi inti (vocab disamakan dgn pe_mitigation_scan).

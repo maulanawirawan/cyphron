@@ -1,7 +1,7 @@
-"""Test merge_findings.py sebagai thin wrapper `cyphron merge`.
+"""Test merge_findings.py sebagai thin wrapper `secai merge`.
 
 Dua jalur wajib setara:
-  - binary `cyphron merge` (validasi kontrak + dedup_by_id Rust);
+  - binary `secai merge` (validasi kontrak + dedup_by_id Rust);
   - fallback python murni (binary tidak ada — export OSS).
 Flag lama dipertahankan: --run, --dedup-id, skip input hilang/ok=false,
 meta output bentuk kontrak (run label + sources dict + requests jumlahan).
@@ -23,7 +23,7 @@ sys.path.insert(0, str(ROOT / "core"))
 import merge_findings as mf  # noqa: E402
 from findings import make_finding  # noqa: E402
 
-EXE = ROOT / "core-rs" / "target" / "release" / "cyphron.exe"
+EXE = ROOT / "core-rs" / "target" / "release" / "secai.exe"
 EXE_OK = EXE.exists()
 
 
@@ -59,7 +59,7 @@ class FallbackPythonTest(unittest.TestCase):
             out = td / "merged.json"
             argv = ["mf.py", str(a), str(b), "--out", str(out),
                     "--run", "label-uji", "--dedup-id"]
-            with patch.dict(os.environ, {"CYPHRON_EXE": str(td / "nope.exe")}):
+            with patch.dict(os.environ, {"SECAI_EXE": str(td / "nope.exe")}):
                 rc = _main(argv)
             self.assertEqual(rc, 0)
             doc = json.loads(out.read_text(encoding="utf-8"))
@@ -87,7 +87,7 @@ class FallbackPythonTest(unittest.TestCase):
             out = td / "merged.json"
             argv = ["mf.py", str(a), str(td / "hilang.json"), str(bad),
                     "--out", str(out)]
-            with patch.dict(os.environ, {"CYPHRON_EXE": str(td / "nope.exe")}):
+            with patch.dict(os.environ, {"SECAI_EXE": str(td / "nope.exe")}):
                 rc = _main(argv)
             self.assertEqual(rc, 0)
             doc = json.loads(out.read_text(encoding="utf-8"))
@@ -98,7 +98,7 @@ class FallbackPythonTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             argv = ["mf.py", str(Path(td) / "hilang.json"),
                     "--out", str(Path(td) / "o.json")]
-            with patch.dict(os.environ, {"CYPHRON_EXE": str(Path(td) / "n.exe")}):
+            with patch.dict(os.environ, {"SECAI_EXE": str(Path(td) / "n.exe")}):
                 self.assertEqual(_main(argv), 2)
 
 
@@ -112,7 +112,7 @@ def _main(argv: list[str]) -> int:
         sys.argv = old_argv
 
 
-@unittest.skipUnless(EXE_OK, "binary cyphron belum di-build")
+@unittest.skipUnless(EXE_OK, "binary secai belum di-build")
 class BinaryPathTest(unittest.TestCase):
     def test_binary_path_matches_fallback_output(self):
         with tempfile.TemporaryDirectory() as td:
@@ -121,10 +121,10 @@ class BinaryPathTest(unittest.TestCase):
             _write_fixtures(a, b)
             out_bin, out_py = td / "out-bin.json", td / "out-py.json"
             common = ["--run", "label-uji", "--dedup-id"]
-            with patch.dict(os.environ, {"CYPHRON_EXE": str(EXE)}):
+            with patch.dict(os.environ, {"SECAI_EXE": str(EXE)}):
                 rc1 = _main(["mf.py", str(a), str(b), "--out",
                              str(out_bin)] + common)
-            with patch.dict(os.environ, {"CYPHRON_EXE": str(td / "nope.exe")}):
+            with patch.dict(os.environ, {"SECAI_EXE": str(td / "nope.exe")}):
                 rc2 = _main(["mf.py", str(a), str(b), "--out",
                              str(out_py)] + common)
             self.assertEqual((rc1, rc2), (0, 0))
@@ -149,7 +149,7 @@ class BinaryPathTest(unittest.TestCase):
                  "verdict": 0, "id": "x", "reportable": False}]}),
                 encoding="utf-8")
             out = td / "o.json"
-            with patch.dict(os.environ, {"CYPHRON_EXE": str(EXE)}):
+            with patch.dict(os.environ, {"SECAI_EXE": str(EXE)}):
                 rc = _main(["mf.py", str(bad), "--out", str(out)])
             self.assertEqual(rc, 1, "input kontrak-invalid harus exit 1 "
                                     "(bukan fallback senyap)")

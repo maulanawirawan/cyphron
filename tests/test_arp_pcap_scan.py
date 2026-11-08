@@ -189,7 +189,7 @@ class TestCLI(unittest.TestCase):
                 capture_output=True, text=True, timeout=60)
             self.assertEqual(out.returncode, 1)
             res = json.loads(out.stdout)
-            self.assertEqual(res["schema"], "cyphron.arp-pcap-scan/1")
+            self.assertEqual(res["schema"], "secai.arp-pcap-scan/1")
             self.assertIn("duplicate-ip", checks(res["findings"]))
         finally:
             Path(p).unlink()

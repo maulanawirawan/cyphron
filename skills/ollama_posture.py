@@ -65,7 +65,7 @@ def audit(url: str) -> tuple[list[dict], dict]:
         try:
             req = urllib.request.Request(
                 base + path, method="GET",
-                headers={"User-Agent": "cyphron-ollama-posture"})
+                headers={"User-Agent": "secai-ollama-posture"})
             with urllib.request.urlopen(req, timeout=TIMEOUT_S) as r:
                 body = r.read(32_000).decode("utf-8", "replace")
                 headers = dict(r.headers.items())

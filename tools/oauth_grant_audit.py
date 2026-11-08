@@ -82,7 +82,7 @@ import json
 import sys
 from pathlib import Path
 
-SCHEMA = "cyphron.oauth-grant-audit/1"
+SCHEMA = "secai.oauth-grant-audit/1"
 MAX_FILE_BYTES = 64 * 1024 * 1024
 
 SEV_ORDER = {"info": 0, "low": 1, "medium": 2, "high": 3, "critical": 4}

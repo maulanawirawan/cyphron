@@ -52,7 +52,7 @@ import json
 import sys
 from pathlib import Path
 
-SCHEMA = "cyphron.risk-matrix-80030/1"
+SCHEMA = "secai.risk-matrix-80030/1"
 MAX_FILE_BYTES = 4 * 1024 * 1024
 
 LEVELS = ("very_low", "low", "moderate", "high", "very_high")

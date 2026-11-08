@@ -163,7 +163,7 @@ class VulnExceptionCheckCli(unittest.TestCase):
             ])), "--as-of", AS_OF], out)
         self.assertEqual(code, 0)
         self.assertEqual(data["schema"],
-                         "cyphron.vuln-exception-check/1")
+                         "secai.vuln-exception-check/1")
         c = data["summary"]["counts"]
         self.assertEqual(c, {"valid": 1, "expiring_soon": 0, "expired": 1,
                              "pending_approval": 1, "invalid": 1})

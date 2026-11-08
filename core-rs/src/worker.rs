@@ -4,7 +4,7 @@
 //! Shape job (JSON pada pesan):
 //!   {"cmd": ["python", "skills/x.py", "--domain", "d", "--out", "@OUT@"],
 //!    "out": "findings/run-1/x.json"}
-//! `@OUT@` diganti path absolut output (sama seperti `cyphron run`).
+//! `@OUT@` diganti path absolut output (sama seperti `secai run`).
 //!
 //! Kebijakan ack:
 //!   - sukses + kontrak valid  -> ACK

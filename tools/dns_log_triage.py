@@ -59,7 +59,7 @@ from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
 
-SCHEMA = "cyphron.dns-log-triage/1"
+SCHEMA = "secai.dns-log-triage/1"
 
 # Akhiran publik dua-tingkat umum (subset deterministik, bukan PSL penuh)
 _MULTI_SUFFIX = {

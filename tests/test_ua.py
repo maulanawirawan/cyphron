@@ -1,6 +1,6 @@
 """Test F20 — modul UA terpusat (skills/ua.py).
 
-Default = identitas alat (jujur); env CYPHRON_UA override; profil
+Default = identitas alat (jujur); env SECAI_UA override; profil
 'browser' diperluas ke UA Chrome realistis. Proxy tidak diuji di sini
 (urllib menghormati env HTTP(S)_PROXY bawaan).
 """
@@ -25,23 +25,23 @@ class UaTest(unittest.TestCase):
     def test_default_is_tool_identity(self):
         with patch.dict("os.environ", {}, clear=False):
             import os
-            os.environ.pop("CYPHRON_UA", None)
+            os.environ.pop("SECAI_UA", None)
             self.assertEqual(ua.user_agent(), ua.DEFAULT_UA)
-            self.assertEqual(ua.user_agent(), "cyphron-audit/0.1")
+            self.assertEqual(ua.user_agent(), "secai-audit/0.1")
 
     def test_browser_profile_expands_to_realistic_ua(self):
-        with patch.dict("os.environ", {"CYPHRON_UA": "browser"}):
+        with patch.dict("os.environ", {"SECAI_UA": "browser"}):
             val = ua.user_agent()
         self.assertTrue(val.startswith("Mozilla/5.0"), val)
         self.assertIn("Chrome", val)
 
     def test_custom_string_passthrough(self):
         with patch.dict("os.environ",
-                        {"CYPHRON_UA": "sascanner-custom/1.0"}):
+                        {"SECAI_UA": "sascanner-custom/1.0"}):
             self.assertEqual(ua.user_agent(), "sascanner-custom/1.0")
 
     def test_blank_env_falls_back_to_default(self):
-        with patch.dict("os.environ", {"CYPHRON_UA": "   "}):
+        with patch.dict("os.environ", {"SECAI_UA": "   "}):
             self.assertEqual(ua.user_agent(), ua.DEFAULT_UA)
 
     def test_skills_read_central_module(self):
@@ -98,7 +98,7 @@ class SocksEgressTest(unittest.TestCase):
         else:
             sys.modules["socks"] = old_socks
         socket_mod.socket = old_socket
-        with patch.dict("os.environ", {"CYPHRON_UA": ""}):
+        with patch.dict("os.environ", {"SECAI_UA": ""}):
             importlib.reload(ua)
 
     def test_socks5_with_credentials_installed(self):
@@ -141,13 +141,13 @@ class SocksEgressTest(unittest.TestCase):
             else:
                 sys.modules["socks"] = old_socks
             socket_mod.socket = old_socket
-            with patch.dict("os.environ", {"CYPHRON_UA": ""}):
+            with patch.dict("os.environ", {"SECAI_UA": ""}):
                 importlib.reload(ua)
 
     def test_no_proxy_env_is_noop(self):
         import socket as socket_mod
         old_socket = socket_mod.socket
-        with patch.dict("os.environ", {"CYPHRON_UA": ""}):
+        with patch.dict("os.environ", {"SECAI_UA": ""}):
             importlib.reload(ua)
         self.assertIs(socket_mod.socket, old_socket)
 

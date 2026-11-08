@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Something in cyphron crashes, misreports, or misbehaves
+about: Something in secai crashes, misreports, or misbehaves
 title: "[bug] "
 labels: bug
 assignees: ""
@@ -12,7 +12,7 @@ assignees: ""
 
 **Which tool/skill?**
 
-<!-- e.g. `tools/waf_sqli_triage.py`, skill name, or `cyphron scan` tier -->
+<!-- e.g. `tools/waf_sqli_triage.py`, skill name, or `secai scan` tier -->
 
 **Command + input shape**
 

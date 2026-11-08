@@ -97,7 +97,7 @@ def _match(body: str) -> str | None:
 
 def probe(base_url: str, timeout: float = 15.0) -> dict:
     """SATU GET ke path canary acak (per-run, tak masuk cache)."""
-    path = f"/cyphron-err-{secrets.token_hex(8)}"
+    path = f"/secai-err-{secrets.token_hex(8)}"
     req = urllib.request.Request(base_url.rstrip("/") + path,
                                  headers={"User-Agent": UA})
     try:

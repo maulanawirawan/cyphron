@@ -49,7 +49,7 @@ import sys
 from collections import Counter
 from pathlib import Path
 
-SCHEMA = "cyphron.k8s-audit-triage/1"
+SCHEMA = "secai.k8s-audit-triage/1"
 
 _UNPARSED_SAMPLE_MAX = 20
 _SAMPLE_MAX = 10

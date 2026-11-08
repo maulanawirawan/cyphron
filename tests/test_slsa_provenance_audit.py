@@ -358,7 +358,7 @@ class Cli(unittest.TestCase):
             self.assertEqual(rc, 0)
             data = json.loads(out.read_text(encoding="utf-8"))
             self.assertEqual(data["schema"],
-                             "cyphron.slsa-provenance-audit/1")
+                             "secai.slsa-provenance-audit/1")
             doc = data["documents"][0]
             self.assertEqual(doc["bindings_matched"], 1)
             self.assertEqual(data["artifacts"]["artifact.bin"]["sha256"],

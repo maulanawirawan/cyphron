@@ -9,7 +9,7 @@ Mengukur yang bisa diukur LOKAL (tanpa Docker daemon):
   6. baseline startup python & bun (subprocess kosong)
 Hasil: benchmarks/f0-results.json (angka mentah + metode).
 
-Path platform pembanding lewat env CYPHRON_BENCH_REF (opsional): seksi
+Path platform pembanding lewat env SECAI_BENCH_REF (opsional): seksi
 1-4 di-skip otomatis bila direktorinya tidak ada; seksi 5-6 jalan di
 mana pun. Benchmark tidak bergantung pada mesin tertentu.
 """
@@ -23,7 +23,7 @@ import time
 import urllib.request
 from pathlib import Path
 
-REF = Path(os.environ.get("CYPHRON_BENCH_REF", "scratch/reference-src"))
+REF = Path(os.environ.get("SECAI_BENCH_REF", "scratch/reference-src"))
 OUT = Path(__file__).resolve().parents[1] / "benchmarks" / "f0-results.json"
 
 
@@ -99,7 +99,7 @@ def main() -> int:
         results["web_dev_cold_start"] = {
             "ready_s": None,
             "skipped": f"REF '{REF}/apps/web' tidak ada — "
-                       "set CYPHRON_BENCH_REF untuk mengukur",
+                       "set SECAI_BENCH_REF untuk mengukur",
         }
         return _worker_and_rest(results)
     t0 = time.perf_counter()
@@ -133,7 +133,7 @@ def _worker_and_rest(results: dict) -> int:
     if not (REF / "apps/worker").exists():
         results["worker_cold_start"] = {
             "skipped": f"REF '{REF}/apps/worker' tidak ada — "
-                       "set CYPHRON_BENCH_REF untuk mengukur",
+                       "set SECAI_BENCH_REF untuk mengukur",
         }
         return _tail(results)
     t0 = time.perf_counter()
@@ -163,7 +163,7 @@ def _worker_and_rest(results: dict) -> int:
 
 def _tail(results: dict) -> int:
     # 4. sidecar PyInstaller cold start (skip bila tidak ada)
-    exe = REF / "sidecar/cyphron/dist/cyphron.exe"
+    exe = REF / "sidecar/secai/dist/secai.exe"
     if exe.exists():
         results["sidecar_pyinstaller"] = {
             "bytes": exe.stat().st_size,

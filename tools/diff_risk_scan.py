@@ -3,7 +3,7 @@
 Konsep antrean SKILL-PORT-QUEUE #0026 'differential-review' dari
 trailofbits/skills (CC-BY-SA-4.0, atribusi); dibangun from scratch —
 heuristik ditulis sendiri dari kelas perubahan yang terbukti sering
-menyusupkan kerentanan. Lisensi cyphron: PolyForm NC.
+menyusupkan kerentanan. Lisensi secai: PolyForm NC.
 
 Input: git diff (unified) dari file ATAU dari git repo via --git-range
 (mis. HEAD~3..HEAD). Read-only, NOL jaringan (subprocess git lokal saja
@@ -40,7 +40,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-SCHEMA = "cyphron.diff-risk/1"
+SCHEMA = "secai.diff-risk/1"
 COMMENT_PREFIXES = ("#", "//", "/*", "*", "--", "<!--")
 
 SECRET_KEY_RE = re.compile(

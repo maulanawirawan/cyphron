@@ -42,7 +42,7 @@ import re
 import sys
 from pathlib import Path
 
-SCHEMA = "cyphron.leak-triage/1"
+SCHEMA = "secai.leak-triage/1"
 VERDICTS = ("UNVERIFIED", "VERIFIED-CANDIDATE", "DEBUNKED-CANDIDATE")
 
 

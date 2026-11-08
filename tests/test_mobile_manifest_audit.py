@@ -371,7 +371,7 @@ def test_e2e_manifest_axml_exit_1(tmp_path):
     p.write_bytes(_build_axml())
     code, out, err = _run("--manifest", str(p))
     assert code == 1
-    assert out["schema"] == "cyphron.mobile-manifest-audit/1"
+    assert out["schema"] == "secai.mobile-manifest-audit/1"
     checks = _checks(out)
     assert "deeplink-no-host" in checks
 

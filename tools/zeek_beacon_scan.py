@@ -49,7 +49,7 @@ import math
 import sys
 from pathlib import Path
 
-SCHEMA = "cyphron.zeek-beacon-scan/1"
+SCHEMA = "secai.zeek-beacon-scan/1"
 
 SEV_ORDER = {"info": 0, "medium": 1, "high": 2}
 

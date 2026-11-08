@@ -2,7 +2,7 @@
 (skeleton teruji). Penegakan budget request SEBELUM koneksi terkirim
 untuk proses skill Python.
 
-Konsep: runner Rust menyuntik env CYPHRON_NET_GUARD=1 + budget file +
+Konsep: runner Rust menyuntik env SECAI_NET_GUARD=1 + budget file +
 audit file, dan memuat modul ini via sitecustomize (PYTHONPATH). Setiap
 upaya koneksi (TCP connect / UDP sendto) melewati cek budget atomik:
 habis/hilang/korup = ditolak SEBELUM connect() — fail-closed.
@@ -20,9 +20,9 @@ import threading
 import time
 from pathlib import Path
 
-GUARD_ENV = "CYPHRON_NET_GUARD"
-BUDGET_ENV = "CYPHRON_NET_BUDGET_FILE"
-AUDIT_ENV = "CYPHRON_NET_AUDIT"
+GUARD_ENV = "SECAI_NET_GUARD"
+BUDGET_ENV = "SECAI_NET_BUDGET_FILE"
+AUDIT_ENV = "SECAI_NET_AUDIT"
 
 _installed = False
 _uninstaller = None
@@ -98,7 +98,7 @@ def install(budget_file: str | Path, audit_file: str | Path):
     def guarded_connect(self, address):
         if not _gate("tcp-connect", address):
             raise OSError(10061 if sys.platform == "win32" else 111,
-                          "cyphron net-guard: budget habis/kontrak hilang "
+                          "secai net-guard: budget habis/kontrak hilang "
                           f"(ditolak sebelum connect) -> {address!r}")
         return orig_connect(self, address)
 
@@ -110,7 +110,7 @@ def install(budget_file: str | Path, audit_file: str | Path):
     def guarded_sendto(self, data, address=None, *args, **kwargs):
         if address is not None and not _gate("udp-sendto", address):
             raise OSError(10065 if sys.platform == "win32" else 101,
-                          "cyphron net-guard: budget habis/kontrak hilang "
+                          "secai net-guard: budget habis/kontrak hilang "
                           f"(ditolak sebelum sendto) -> {address!r}")
         return orig_sendto(self, data, address, *args, **kwargs)
 
@@ -123,7 +123,7 @@ def install(budget_file: str | Path, audit_file: str | Path):
         # di-patch — jadi token diambil 1x di sini, bukan 2x).
         if not _gate("tcp-create-connection", address):
             raise OSError(10061 if sys.platform == "win32" else 111,
-                          "cyphron net-guard: budget habis/kontrak hilang "
+                          "secai net-guard: budget habis/kontrak hilang "
                           f"(ditolak sebelum connect) -> {address!r}")
         # buka koneksi tanpa melewati gate connect lagi
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

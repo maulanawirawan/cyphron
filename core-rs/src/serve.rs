@@ -211,10 +211,10 @@ const DASHBOARD_CSS: &str = include_str!("assets/dashboard.css");
 const DASHBOARD_JS: &str = include_str!("assets/dashboard.js");
 
 const DASHBOARD: &str = r#"<!doctype html><html lang="id"><head><meta charset="utf-8">
-<title>Cyphron — Dashboard</title>
+<title>SecAI — Dashboard</title>
 <link rel="stylesheet" href="/assets/dashboard.css">
 </head><body>
-<h1>Cyphron <small>(working title)</small> — Dashboard</h1>
+<h1>SecAI <small>(working title)</small> — Dashboard</h1>
 <small>Baca findings.json satu pintu · LOCAL-ONLY · bind 127.0.0.1</small>
 <table id="t"><thead><tr><th>Run</th><th>Temuan</th><th>Reportable L3+</th><th>Request</th><th>Laporan</th></tr></thead><tbody></tbody></table>
 <script src="/assets/dashboard.js"></script>
@@ -409,7 +409,7 @@ mod tests {
     #[test]
     fn audit_log_never_contains_token() {
         // audit 2026-10: token via ?token= tidak boleh masuk audit log
-        let tmp = std::env::temp_dir().join(format!("cyphron_audit_{}", std::process::id()));
+        let tmp = std::env::temp_dir().join(format!("secai_audit_{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&tmp);
         std::fs::create_dir_all(&tmp).unwrap();
         let p = tmp.join("audit.jsonl");
@@ -440,7 +440,7 @@ mod tests {
 
     #[test]
     fn auth_file_loads_tokens_and_rejects_empty() {
-        let tmp = std::env::temp_dir().join(format!("cyphron_auth_{}", std::process::id()));
+        let tmp = std::env::temp_dir().join(format!("secai_auth_{}", std::process::id()));
         std::fs::create_dir_all(&tmp).unwrap();
         let p = tmp.join("tokens.json");
         std::fs::write(&p, serde_json::json!({"tokens": [
@@ -483,7 +483,7 @@ mod tests {
     #[test]
     fn list_runs_finds_findings_json() {
         let tmp =
-            std::env::temp_dir().join(format!("cyphron_runs_{}", std::process::id()));
+            std::env::temp_dir().join(format!("secai_runs_{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&tmp);
         std::fs::create_dir_all(&tmp).unwrap();
         write_fixture_run(&tmp, "tier0-contoh/findings.json", 2);
@@ -500,7 +500,7 @@ mod tests {
     #[test]
     fn resolve_under_blocks_traversal() {
         let tmp =
-            std::env::temp_dir().join(format!("cyphron_res_{}", std::process::id()));
+            std::env::temp_dir().join(format!("secai_res_{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&tmp);
         std::fs::create_dir_all(&tmp).unwrap();
         write_fixture_run(&tmp, "tier0-contoh/findings.json", 1);

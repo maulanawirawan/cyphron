@@ -49,7 +49,7 @@ import re
 import sys
 from pathlib import Path
 
-SCHEMA = "cyphron.k8s-rbac-audit/1"
+SCHEMA = "secai.k8s-rbac-audit/1"
 RBAC_KINDS = {"Role", "ClusterRole", "RoleBinding", "ClusterRoleBinding"}
 SCAN_EXT = {".yaml", ".yml", ".json"}
 MAX_FILE_BYTES = 4 * 1024 * 1024

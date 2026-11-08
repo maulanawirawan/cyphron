@@ -8,7 +8,7 @@ Anthropic-Cybersecurity-Skills 'hunting-for-domain-fronting-c2-traffic';
 atribusi konsep, lisensi sumber Apache-2.0). Dibangun FROM SCRATCH:
 parser log + logika pencocokan domain ditulis sendiri dari konsep
 deteksi publik (fronting = SNI dan Host berbeda pada satu koneksi
-TLS). Skill sumber memakai pyOpenSSL + daftar IP CDN; cyphron memilih
+TLS). Skill sumber memakai pyOpenSSL + daftar IP CDN; secai memilih
 pasangan log Zeek offline supaya nol jaringan dan dapat dites —
 verifikasi CDN/IP tetap langkah manual (dicatat di message).
 
@@ -58,7 +58,7 @@ import json
 import sys
 from pathlib import Path
 
-SCHEMA = "cyphron.zeek-front-scan/1"
+SCHEMA = "secai.zeek-front-scan/1"
 MAX_FILE_BYTES = 256 * 1024 * 1024
 
 HTTP_FIELDS = ("uid", "host", "method", "uri", "id.orig_h", "id.resp_h")

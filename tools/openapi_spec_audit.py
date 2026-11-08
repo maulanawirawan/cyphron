@@ -9,7 +9,7 @@ Dibangun FROM SCRATCH: linter statis dokumen spec ditulis sendiri dari tabel
 anti-pola publik sumber (additionalProperties, maxLength, pattern, enum
 fixed-vocabulary, password tanpa TLS, error response tanpa schema, readOnly
 di request). Skill sumber menjalankan spectral/dredd di CI + platform vendor
-42Crunch; cyphron memilih linter JSON stdlib agar nol jaringan dan dapat
+42Crunch; secai memilih linter JSON stdlib agar nol jaringan dan dapat
 dites. Ranah TIDAK diduplikasi: api_property_scan (tangkapan respons live),
 shadow_api_diff (trafik vs dokumentasi), api_docs_surface (keberadaan dokumen)
 — tool ini menilai ISI spec itu sendiri, bukan kecocokannya dengan trafik.

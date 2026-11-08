@@ -1,8 +1,8 @@
 [package]
-name = "cyphron"
+name = "secai"
 version = "0.1.0"
 edition = "2021"
-description = "Cyphron core — engine runner + findings contract (working title)"
+description = "SecAI core — engine runner + findings contract (working title)"
 
 [dependencies]
 serde = { version = "1", features = ["derive"] }

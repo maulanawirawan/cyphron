@@ -247,7 +247,7 @@ class TestFailClosed(unittest.TestCase):
         rc = wli.main(["--log", str(p), "--out", str(out)])
         self.assertEqual(rc, 0)
         data = json.loads(out.read_text(encoding="utf-8"))
-        self.assertEqual(data["schema"], "cyphron.web-log-intrusion/1")
+        self.assertEqual(data["schema"], "secai.web-log-intrusion/1")
         self.assertIn("sqli",
                       [f["category"] for f in data["findings"]])
 

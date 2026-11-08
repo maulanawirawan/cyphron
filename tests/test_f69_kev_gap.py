@@ -46,7 +46,7 @@ YAML_COVERED = (
 
 class KevGapTest(unittest.TestCase):
     def setUp(self):
-        self.tmp = Path(tempfile.mkdtemp(prefix="cyphron-f69-"))
+        self.tmp = Path(tempfile.mkdtemp(prefix="secai-f69-"))
         (self.tmp / "kev.json").write_text(json.dumps(KEV_DOC),
                                            encoding="utf-8")
         corp = self.tmp / "corpus"

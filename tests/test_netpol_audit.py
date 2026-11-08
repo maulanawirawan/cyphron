@@ -555,7 +555,7 @@ spec:
             rc = npa.main(["--source", str(src), "--out", str(out)])
             rep = json.loads(out.read_text(encoding="utf-8"))
             self.assertEqual(rc, 0)
-            self.assertEqual(rep["schema"], "cyphron.netpol-audit/1")
+            self.assertEqual(rep["schema"], "secai.netpol-audit/1")
 
 
 if __name__ == "__main__":

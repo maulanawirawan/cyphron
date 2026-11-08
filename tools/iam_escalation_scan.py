@@ -8,7 +8,7 @@ escalation' — analisis gaya cloudsplaining: kombinasi izin berbahaya,
 Resource "*", PassRole + CreateFunction, AssumeRole; atribusi konsep,
 lisensi sumber Apache-2.0). Dibangun FROM SCRATCH: evaluasi policy
 document ditulis sendiri; TIDAK memakai boto3/cloudsplaining — skill
-aslinya mengunduh artefak live via API, cyphron menganalisis FILE yang
+aslinya mengunduh artefak live via API, secai menganalisis FILE yang
 sudah diunduh (nol jaringan, hasil dapat diaudit ulang).
 
 Input -> mekanisme -> output:
@@ -61,7 +61,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
-SCHEMA = "cyphron.iam-escalation-scan/1"
+SCHEMA = "secai.iam-escalation-scan/1"
 
 SEV_ORDER = {"info": 0, "medium": 1, "high": 2}
 

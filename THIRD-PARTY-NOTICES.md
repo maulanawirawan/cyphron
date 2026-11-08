@@ -1,7 +1,7 @@
 # Third-party notices
 
-Cyphron stands on other people's work. This is where that work gets
-credited, along with how each piece is licensed and how Cyphron uses it.
+SecAI stands on other people's work. This is where that work gets
+credited, along with how each piece is licensed and how SecAI uses it.
 
 *(Catatan ini sengaja ditulis dalam bahasa Inggris agar atribusi lisensi
 mudah dirujuk lintas negara.)*
@@ -34,6 +34,6 @@ Pulled in at sync time, **not** redistributed inside this repo.
 
 ## Commercial use
 
-Using Cyphron commercially needs a separate license — see
+Using SecAI commercially needs a separate license — see
 [LICENSE](LICENSE) (PolyForm Noncommercial 1.0.0) and get in touch
-through https://github.com/maulanawirawan/cyphron/issues.
+through https://github.com/maulanawirawan/secai/issues.

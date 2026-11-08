@@ -8,7 +8,7 @@ skrip plugin. SUBSET source-level: versi lengkap skill sumber butuh
 LLVM IR/asm + compile_commands.json + cargo nightly (bukan stdlib,
 butuh toolchain) — cakupan alat ini C/C++/Rust pada level teks sumber
 saja dan setiap temuan = LEAD perlu-review, bukan klaim. Lisensi
-cyphron: PolyForm NC.
+secai: PolyForm NC.
 
 Input -> mekanisme -> output:
   - Input : file .c/.cc/.cpp/.h/.hpp/.rs atau direktori (read-only,
@@ -54,7 +54,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
-SCHEMA = "cyphron.zeroize-scan/1"
+SCHEMA = "secai.zeroize-scan/1"
 
 EXT = {".c", ".cc", ".cpp", ".h", ".hpp", ".rs"}
 

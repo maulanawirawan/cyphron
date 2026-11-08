@@ -37,7 +37,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 INTEL = ROOT / "assets" / "intel"
 MANIFEST = INTEL / "manifest.json"
-UA = "cyphron-intel-sync/0.1"
+UA = "secai-intel-sync/0.1"
 
 NUCLEI_TPL_REPO = "projectdiscovery/nuclei-templates"
 KEV_URL = ("https://www.cisa.gov/sites/default/files/feeds/"
@@ -67,7 +67,7 @@ WATCHLIST_WINDOW_DAYS = 14
 NVD_RANGES_OUT = INTEL / "nvd-ranges.json"
 NVD_RANGES_WINDOW_DAYS = 120
 NVD_RANGES_DELTA_DAYS = 3
-NVD_RANGES_RETAIN_DAYS = int(os.environ.get("CYPHRON_NVD_RETAIN_DAYS",
+NVD_RANGES_RETAIN_DAYS = int(os.environ.get("SECAI_NVD_RETAIN_DAYS",
                                             "1460"))
 NVD_BACKFILL_STATE = INTEL / "nvd-backfill-state.json"
 NVD_MAX_PAGES = 3

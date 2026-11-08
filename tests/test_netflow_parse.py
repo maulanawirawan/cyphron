@@ -186,7 +186,7 @@ def test_out_file(tmp_path):
     rc, out = _run(p, "--out", str(tmp_path / "o.json"))
     assert rc == 0
     saved = json.loads((tmp_path / "o.json").read_text(encoding="utf-8"))
-    assert saved["schema"] == "cyphron.netflow-parse/1"
+    assert saved["schema"] == "secai.netflow-parse/1"
 
 
 def test_two_datagrams_sequential(tmp_path):

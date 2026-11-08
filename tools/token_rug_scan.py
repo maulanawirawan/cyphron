@@ -5,7 +5,7 @@ klaim LP/lock yang tidak bisa diverifikasi offline.
 
 Port konsep awarexone/Agentic-Bug-Hunter (MIT) — skills/meme-coin-audit
 (8 kelas rug token + token_scanner) & web3/10-meme-coin-bugs. Dibangun
-from-scratch untuk cyphron; TIDAK ada kode vendor yang disalin — kelas
+from-scratch untuk secai; TIDAK ada kode vendor yang disalin — kelas
 vektor & disiplin "the retained authority IS the rug vector" yang dipindah
 menjadi mesin deterministik milik sendiri.
 
@@ -65,7 +65,7 @@ import re
 import sys
 from pathlib import Path
 
-SCHEMA = "cyphron.token_rug_scan.v1"
+SCHEMA = "secai.token_rug_scan.v1"
 TOOL = "token_rug_scan"
 
 SEVERITY_ORDER = {"critical": 0, "high": 1, "medium": 2, "low": 3, "info": 4}

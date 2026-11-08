@@ -245,7 +245,7 @@ class TestCLI(unittest.TestCase):
         self.assertEqual(il.main(["--source", str(dirty), "--json", str(jf)]), 1)
         import json
         data = json.loads(jf.read_text(encoding="utf-8"))
-        self.assertEqual(data["schema"], "cyphron.ids-rule-lint/1")
+        self.assertEqual(data["schema"], "secai.ids-rule-lint/1")
         self.assertEqual(data["summary"]["rules"], 3)
         self.assertGreater(data["summary"]["high"], 0)
 

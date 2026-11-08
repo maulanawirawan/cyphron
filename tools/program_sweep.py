@@ -1,6 +1,6 @@
 """[F15] Program sweep — TIER 0 (data publik) ke semua program terbuka.
 
-Membaca programs/index.json, menjalankan `cyphron scan --mode tier0`
+Membaca programs/index.json, menjalankan `secai scan --mode tier0`
 untuk domain tiap program (DNS/CT/RDAP/security.txt/banner/TLS — semua
 data publik, nol testing aktif), lalu:
   - findings per program  : findings/programs/<id>/findings.json
@@ -24,7 +24,7 @@ import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-EXE = ROOT / "core-rs" / "target" / "release" / "cyphron.exe"
+EXE = ROOT / "core-rs" / "target" / "release" / "secai.exe"
 INDEX = ROOT / "programs" / "index.json"
 DIFF_ADDED_CAP = 50  # jaga diff.json tetap ringkas (id deterministik tetap utuh)
 
@@ -76,7 +76,7 @@ def diff_since_last(old: dict | None, new_doc: dict) -> dict:
 def evidence_scan(prog_id: str, domain: str, target: str, out_dir: Path,
                   root: Path, exe: Path) -> dict:
     """Mode bukti (F19): SATU GET banner disimpan sebagai evidence
-    (--save-raw), lalu `cyphron scan --evidence` menjalankan keluarga
+    (--save-raw), lalu `secai scan --evidence` menjalankan keluarga
     skill read-only berbasis bukti dengan NOL request ke target.
     Return ringkasan {findings, requests, family_quorum} atau {error}."""
     ev_dir = out_dir / "evidence"
@@ -107,7 +107,7 @@ def main() -> int:
     ap.add_argument("--only", default=None, help="id program tertentu (koma)")
     ap.add_argument("--out", default="findings/programs")
     ap.add_argument("--max-requests", type=int, default=None,
-                    help="budget request per program ke cyphron scan "
+                    help="budget request per program ke secai scan "
                          "(default: biarkan orchestrator pakai default 64)")
     ap.add_argument("--with-evidence", action="store_true",
                     help="tambah mode bukti per program: 1 GET banner "

@@ -65,7 +65,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
-SCHEMA = "cyphron.ps-obf-scan/1"
+SCHEMA = "secai.ps-obf-scan/1"
 SCRIPT_EXTS = {".ps1", ".psm1", ".psd1"}
 
 SEV_ORDER = {"info": 0, "medium": 1, "high": 2}

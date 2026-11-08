@@ -6,7 +6,7 @@ Cybersecurity-Skills 'exploiting-template-injection-vulnerabilities';
 atribusi konsep, lisensi sumber Apache-2.0). Dibangun FROM SCRATCH: pohon
 keputusan pembeda mesin (polyglot aritmetika + discriminator) ditulis
 sendiri dari konsep deteksi publik. Skill sumber = runbook live (tplmap/
-SSTImap/curl); cyphron menganalisis BUKTI probe offline. Ranah dibagi
+SSTImap/curl); secai menganalisis BUKTI probe offline. Ranah dibagi
 eksplisit: tools/exploit_playbooks.py SstiEvalPlaybook mengeksekusi probe
 benign live dan BERHENTI di "SSTI terkonfirmasi" — tool ini TIDAK mengirim
 request; ia membaca hasil probe (Burp Intruder export, curl, atau
@@ -66,7 +66,7 @@ import re
 import sys
 from pathlib import Path
 
-SCHEMA = "cyphron.ssti-engine-id/1"
+SCHEMA = "secai.ssti-engine-id/1"
 MAX_FILE_BYTES = 16 * 1024 * 1024
 
 # Payload aritmetika universal (per sintaks) -> hasil yang dihitung sendiri.

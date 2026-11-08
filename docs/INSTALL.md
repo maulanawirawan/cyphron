@@ -1,4 +1,4 @@
-# Install — cyphron
+# Install — secai
 
 Prasyarat dan cara mendapat binary vendored (folder `tools/bin` IKUT di
 repo kerja tapi TIDAK ikut release OSS — 442 MB; unduh sendiri bila
@@ -9,7 +9,7 @@ membangun dari export).
 | Komponen | Untuk | Cara |
 |---|---|---|
 | Python 3.10+ | semua skill/tools | `python --version` |
-| Rust toolchain (stable) | engine core `cyphron` | `cargo build --release --manifest-path core-rs/Cargo.toml` |
+| Rust toolchain (stable) | engine core `secai` | `cargo build --release --manifest-path core-rs/Cargo.toml` |
 | PyMuPDF (`pip install pymupdf`) | validasi hasil PDF report | import `fitz` |
 
 Opsional:
@@ -32,9 +32,9 @@ tools/bin/
 
 1. Unduh release resmi typst (arsip `typst-x86_64-pc-windows-msvc.zip`).
 2. Ekstrak sehingga ada `tools/bin/typst-x86_64-pc-windows-msvc/typst.exe`,
-   ATAU letakkan di mana pun lalu set env `CYPHRON_TYPST` ke path binary.
+   ATAU letakkan di mana pun lalu set env `SECAI_TYPST` ke path binary.
 3. Alternatif: taruh `typst.exe` di `PATH`.
-   Resolusi dicari berurutan: env `CYPHRON_TYPST` → tools/bin → PATH
+   Resolusi dicari berurutan: env `SECAI_TYPST` → tools/bin → PATH
    (fail-closed: tidak ada = report_pdf keluar dengan pesan jelas).
 
 ### nuclei (lab-only, TIDAK dipakai mode tier0)
@@ -59,6 +59,6 @@ cargo test --release --manifest-path core-rs/Cargo.toml
 python tools/nightrun.py --config nightrun.json --dry-run   # cek rencana
 ```
 
-Binary hasil build: `core-rs/target/release/cyphron(.exe)` — dipakai
+Binary hasil build: `core-rs/target/release/secai(.exe)` — dipakai
 `tools/program_sweep.py`, `tools/nightrun.py`, `tools/merge_findings.py`
 (wrapper; fallback python murni bila binary tidak ada).

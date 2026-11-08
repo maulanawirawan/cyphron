@@ -1,6 +1,6 @@
 # AGENTS.md — guidance for AI coding agents (and humans who read code)
 
-cyphron is an evidence-first security assessment engine: skills collect
+secai is an evidence-first security assessment engine: skills collect
 evidence, a quorum (FAO) verifies it, and the engine refuses to report
 anything it cannot prove. "No proof, no report" is the contract — the
 proof tier builds gated PoCs to turn a lead into evidence, but a lead
@@ -8,15 +8,15 @@ that cannot be proven never ships.
 
 ## Repo map
 
-- `cyphron.py` — one-command mode board (`scan | validate | scout | night
+- `secai.py` — one-command mode board (`scan | validate | scout | night
   | intel | fresh | contrib | ledger | report | mcp | skills | lab |
   guard | shield | gate`);
   every mode has its own `--help`. Start here.
 - `SKILL.md` — the agent manual: safe playbook + guardrails (also mounted
-  as `.claude/skills/cyphron/`).
+  as `.claude/skills/secai/`).
 - `skills/` — 93 standalone Python CLIs, one detection skill each
   (`--url` / `--target` ... `--out result.json`). This is what users run.
-- `core-rs/` — native Rust core (`cyphron validate | scan ...`).
+- `core-rs/` — native Rust core (`secai validate | scan ...`).
   Build: `cargo build --release --manifest-path core-rs/Cargo.toml`
 - `tools/` — helpers: lab target (`tools/lab_target.py`), planner,
   benchmarks, self-update, MCP server (`tools/mcp_server.py`), scout,
@@ -49,14 +49,14 @@ that cannot be proven never ships.
 
 - run all tests: `python -m pytest tests/ -q`
 - run one skill: `python skills/banner_posture.py --url https://example.com --out banner.json`
-- validate an output: `core-rs/target/release/cyphron validate banner.json`
+- validate an output: `core-rs/target/release/secai validate banner.json`
 - local playground: `python tools/lab_target.py` (safe target for skills)
 
 ## Adding a skill (the most common contribution)
 
 1. Copy the reference shape: `skills/banner_posture.py` (small, argparse,
    evidence dict out).
-2. Your output must satisfy the contract (`cyphron validate` decides).
+2. Your output must satisfy the contract (`secai validate` decides).
 3. Add a unit test under `tests/` mirroring the naming scheme.
 4. Run the full suite — green before the PR. Small and focused PRs win.
 

@@ -124,7 +124,7 @@ import struct
 import sys
 from pathlib import Path
 
-SCHEMA = "cyphron.linux-privesc-audit/1"
+SCHEMA = "secai.linux-privesc-audit/1"
 
 SEV_ORDER = {"info": 0, "low": 1, "medium": 2, "high": 3, "critical": 4}
 

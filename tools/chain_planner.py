@@ -1,19 +1,19 @@
 r"""[PLANNER: read-only] chain_planner — rencanakan rantai eksploitasi
-A→B→C dari temuan findings.json cyphron: satu temuan rendah sering
+A→B→C dari temuan findings.json secai: satu temuan rendah sering
 menjadi submittable begitu digabung — tool ini menyusun kandidat
 rantai secara deterministik dari tabel rantai terkurasi yang
-MEMETAKAN setiap langkah ke tool cyphron yang benar-benar ada.
+MEMETAKAN setiap langkah ke tool secai yang benar-benar ada.
 
 Port konsep dari awarexone/Agentic-Bug-Hunter 'chain-builder' agent
 (dan /chain) — atribusi konsep, lisensi sumber MIT. Dibangun FROM
-SCRATCH: tabel rantai ditulis ulang untuk ekosistem cyphron (langkah
-B selalu menyebut tool cyphron pembawa buktinya, bukan alat live
+SCRATCH: tabel rantai ditulis ulang untuk ekosistem secai (langkah
+B selalu menyebut tool secai pembawa buktinya, bukan alat live
 pihak ketiga), semantik gabungan severity dinyatakan eksplisit per
 baris tabel — tidak pernah ditebak. Skill sumber = agent LLM yang
 menyusun rantai naratif; tool ini memilih sisi deterministik: tabel
 data + pencocokan pola + aturan gabungan yang bisa diaudit.
 
-Ranah tetangga eksplisit: merge_findings/cyphron merge = dedup
+Ranah tetangga eksplisit: merge_findings/secai merge = dedup
 temuan; verify_gate = klaim status kerja; brocards_triage = logika
 triase laporan; submission_gate (KOORDINATOR, satu program) = gerbang
 pra-submission bug bounty; attack_coverage = cakupan deteksi ATT&CK.
@@ -61,12 +61,12 @@ SCHEMA = "chain_planner/v1"
 SEV_ORDER = {"info": 0, "low": 1, "medium": 2, "high": 3, "critical": 4}
 
 # ------------------------------------------------------- tabel rantai
-# a_tools    : nama tool cyphron yang menghasilkan temuan A (sisi
+# a_tools    : nama tool secai yang menghasilkan temuan A (sisi
 #              kiri; boleh beberapa alias)
 # a_checks   : pola awalan check-id temuan A (regex sederhana)
 # a_cwes     : CWE yang memetakan ke kelas A
 # b_step     : langkah berikutnya yang dicari
-# b_tool     : tool cyphron pembawa bukti langkah B
+# b_tool     : tool secai pembawa bukti langkah B
 # b_probe    : jenis bukti yang menaikkan verdict (probe kind)
 # combined   : severity gabungan yang dinyatakan tabel
 # uplift_note: kapan gabungan naik kelas

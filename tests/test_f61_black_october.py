@@ -104,7 +104,7 @@ SEEDS_DOC = {"seeds": [
 
 class IntelSyncWatchlistTest(unittest.TestCase):
     def setUp(self):
-        self.tmp = Path(tempfile.mkdtemp(prefix="cyphron-f61-"))
+        self.tmp = Path(tempfile.mkdtemp(prefix="secai-f61-"))
         self._old = {k: getattr(intel_sync, k)
                      for k in ("INTEL", "MANIFEST", "WATCHLIST_SEEDS",
                                "WATCHLIST_OUT")}
@@ -163,7 +163,7 @@ WL_DOC = {"seeds": SEEDS_DOC["seeds"]}
 
 class MatcherWatchlistTest(unittest.TestCase):
     def setUp(self):
-        self.tmp = Path(tempfile.mkdtemp(prefix="cyphron-f61b-"))
+        self.tmp = Path(tempfile.mkdtemp(prefix="secai-f61b-"))
         self.wl_path = self.tmp / "watchlist.json"
         self.wl_path.write_text(json.dumps(WL_DOC), encoding="utf-8")
         self.wl, self.rejected = cm.load_watchlist(self.wl_path)

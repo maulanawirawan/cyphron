@@ -70,7 +70,7 @@ from pathlib import Path
 from typing import Optional, Union
 from urllib.parse import urlsplit
 
-SCHEMA = "cyphron.scope-gate/1"
+SCHEMA = "secai.scope-gate/1"
 TOOL = "scope_gate"
 
 # --- eksepsi fail-closed -----------------------------------------------------

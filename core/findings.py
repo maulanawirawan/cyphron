@@ -1,7 +1,7 @@
-"""Shared findings helpers for the cyphron skill packs — SATU PINTU.
+"""Shared findings helpers for the secai skill packs — SATU PINTU.
 
 Every skill writes ONE output format: `findings.json`, compatible with the
-Cyphron `Finding` schema + verdict ladder (verdicts.py) and mapped to
+SecAI `Finding` schema + verdict ladder (verdicts.py) and mapped to
 RawFinding/NormalizedFinding by packages/scanner adapters (plan F3).
 
 Skill findings are deterministic probes: a skill that reproduces a response

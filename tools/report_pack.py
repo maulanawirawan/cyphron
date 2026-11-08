@@ -39,7 +39,7 @@ import cwe_check  # noqa: E402  (F45 audit referensi CWE)
 
 def resolve_exe() -> Path:
     return (ROOT / "core-rs" / "target" / "release" /
-            ("cyphron.exe" if sys.platform == "win32" else "cyphron"))
+            ("secai.exe" if sys.platform == "win32" else "secai"))
 
 
 def load_programs(path: Path, only: list[str] | None) -> list[dict]:

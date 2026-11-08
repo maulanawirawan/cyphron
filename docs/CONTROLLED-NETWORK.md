@@ -34,9 +34,9 @@ gap atau butuh infrastruktur OS.
 ```
 runner Rust (run_skill_with_env)
   env untuk skill:
-    CYPHRON_NET_GUARD=1
-    CYPHRON_NET_BUDGET_FILE=<path JSON atomik, milik runner>
-    CYPHRON_NET_AUDIT=<path JSONL append-only>
+    SECAI_NET_GUARD=1
+    SECAI_NET_BUDGET_FILE=<path JSON atomik, milik runner>
+    SECAI_NET_AUDIT=<path JSONL append-only>
     PYTHONPATH=<root>;tools/net_guard   (Windows: ';', POSIX ':')
   setelah skill selesai:
     verifikasi audit log ADA dan skill tidak melebihi budget
@@ -46,7 +46,7 @@ runner Rust (run_skill_with_env)
         ▼
 proses skill Python
   sitecustomize (auto-import Python saat startup, dari PYTHONPATH)
-    bila CYPHRON_NET_GUARD=1:
+    bila SECAI_NET_GUARD=1:
       patch socket.socket.connect / connect_ex / sendto
       patch socket.create_connection
   setiap upaya koneksi:
@@ -59,7 +59,7 @@ proses skill Python
 
 ### Kebijakan fail-closed (ladder tidak dilonggar)
 
-1. `CYPHRON_NET_GUARD=1` + budget file tidak ada/tak terbaca → SEMUA
+1. `SECAI_NET_GUARD=1` + budget file tidak ada/tak terbaca → SEMUA
    koneksi outbound ditolak. Guard aktif tanpa kontrak budget = blok.
 2. Budget habis → koneksi berikutnya ditolak. Skill yang membaca
    penolakan (exception) mengalir ke jalur error skill yang sudah ada
@@ -94,7 +94,7 @@ proses skill Python
     `socket.socket.sendto`, `socket.create_connection`.
   - Idempotent: `install` dua kali tidak menumpuk patch.
 - `tools/net_guard/sitecustomize.py`: entry tipis yang di-import
-  otomatis Python; hanya bertindak bila `CYPHRON_NET_GUARD=1`.
+  otomatis Python; hanya bertindak bila `SECAI_NET_GUARD=1`.
 - Runner (fase berikutnya): set env + PYTHONPATH, verifikasi audit
   log per skill, hard-fail tanpa log.
 

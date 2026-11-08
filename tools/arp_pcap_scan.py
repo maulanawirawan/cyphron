@@ -54,7 +54,7 @@ import sys
 from collections import Counter
 from pathlib import Path
 
-SCHEMA = "cyphron.arp-pcap-scan/1"
+SCHEMA = "secai.arp-pcap-scan/1"
 
 LINKTYPE_ETHERNET = 1
 ETHERTYPE_ARP = 0x0806

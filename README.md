@@ -1,24 +1,26 @@
 <div align="center">
 
-# cyphron
+# secai
 
 **Proof, not claims.**
 
-An evidence-first security assessment engine. Python detection skills,
-a native Rust core, and one strict output contract that both sides
-agree on.
+**secai** is an evidence-first **agentic cybersecurity** engine:
+93 detection skills + 175 offline tools (120 ported from 995 skill
+concepts), a native Rust core, one strict findings contract, and an
+MCP server — so Claude Code, Cursor, ZCode, or any shell-capable agent
+can drive it.
 
 *No proof, no report.*
 
-[![CI](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml/badge.svg)](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml)
+[![CI](https://github.com/maulanawirawan/secai/actions/workflows/ci.yml/badge.svg)](https://github.com/maulanawirawan/secai/actions/workflows/ci.yml)
 [![tools](https://img.shields.io/badge/tools-175-brightgreen)](#whats-inside)
-[![release](https://img.shields.io/badge/release-v0.1.0-blue)](https://github.com/maulanawirawan/cyphron/releases)
+[![release](https://img.shields.io/badge/release-v0.1.0-blue)](https://github.com/maulanawirawan/secai/releases)
 [![skills](https://img.shields.io/badge/detection%20skills-93-8A2BE2)](#whats-inside)
 [![python](https://img.shields.io/badge/python-3.12%2B-3776AB)](#quick-start)
 [![rust](https://img.shields.io/badge/rust-stable-orange)](#quick-start)
 [![license](https://img.shields.io/badge/license-PolyForm%20NC%201.0-blue)](LICENSE)
 
-**English** · [Bahasa Indonesia](README.id.md) · [中文](README.zh.md) · [Español](README.es.md)
+**English** · [中文](README.zh.md) · [Español](README.es.md)
 
 </div>
 
@@ -26,19 +28,19 @@ agree on.
 
 ## Use it from your agent
 
-cyphron ships as a one-command CLI with modes, a loadable agent skill,
+secai ships as a one-command CLI with modes, a loadable agent skill,
 and an MCP server — so Claude Code, Cursor, ZCode, or any agent that
 runs shell commands can drive it directly.
 
 ```bash
-git clone https://github.com/maulanawirawan/cyphron && cd cyphron
-python cyphron.py                          # mode board
-python cyphron.py <mode> --help            # every option of one mode
-claude mcp add cyphron -- python tools/mcp_server.py   # MCP (tier0 allowlist)
+git clone https://github.com/maulanawirawan/secai && cd secai
+python secai.py                          # mode board
+python secai.py <mode> --help            # every option of one mode
+claude mcp add secai -- python tools/mcp_server.py   # MCP (tier0 allowlist)
 ```
 
 Agents: load [SKILL.md](SKILL.md) — the manual that teaches an agent to
-drive cyphron safely. Authorized targets only; no proof, no report.
+drive secai safely. Authorized targets only; no proof, no report.
 
 ## Why this exists
 
@@ -46,7 +48,7 @@ Most scanners hand you a few hundred "possible" findings and leave the
 rest to you. Then a triage team bounces the report with *"impact not
 demonstrated"*, and, honestly, they're right to.
 
-cyphron goes the other way. **A finding you can't prove is a lead, not
+secai goes the other way. **A finding you can't prove is a lead, not
 a claim.** Every result sits on an explicit evidence ladder. If a tool
 produces malformed output, the run stops instead of quietly moving on.
 And a lead only gets promoted when independent sources agree on it.
@@ -55,7 +57,7 @@ The result is a shorter report you can actually defend.
 
 ## Use it for
 
-cyphron is a public, open project built for real security work. Typical uses:
+secai is a public, open project built for real security work. Typical uses:
 
 - **Bug bounty & VDP work** — enumerate the attack surface (headers, CORS,
   GraphQL, API docs, exposure, cookie scope) and get verdicts that survive
@@ -65,7 +67,7 @@ cyphron is a public, open project built for real security work. Typical uses:
   missing headers, debug pages, leaked files, unauth'd endpoints, permissive
   CORS, outdated exposure.
 - **Building security into your pipeline** — the findings.json contract and
-  `cyphron validate` make outputs CI-friendly; the Rust core speaks the same
+  `secai validate` make outputs CI-friendly; the Rust core speaks the same
   contract, so gates can be wired straight into a build.
 - **Learning the craft** — the bundled lab target plus
   `docs/AWARENESS-PATTERNS.md` (nine real-world vulnerability patterns traced
@@ -90,7 +92,7 @@ $ python skills/http_security_headers.py \
     --out headers.json
 http-security-headers: 8 temuan (2 AMAN) (0 request) -> headers.json
 
-$ cyphron validate headers.json
+$ secai validate headers.json
 OK: 8 findings valid terhadap kontrak (headers.json)
 ```
 
@@ -144,8 +146,8 @@ flowchart LR
   (`read-only` up to `state-changing`) and a hard request budget that
   follows from it. The registry is an allowlist, so nothing runs unless
   it's listed.
-- **A native Rust core** in `core-rs/`: `cyphron validate` checks the
-  contract, `cyphron scan` runs tiered scans, and it renders the PDF
+- **A native Rust core** in `core-rs/`: `secai validate` checks the
+  contract, `secai scan` runs tiered scans, and it renders the PDF
   report. It also handles FAO correlation (dedup, quorum, evidence
   hashes) and a request budget that fails closed.
 - **One contract, two languages.** `findings.json` is implemented in
@@ -157,7 +159,7 @@ flowchart LR
   requests and zero code execution, then ties leads back to `file:line`.
 - **Night runs.** Scheduled scans with drift detection: new leads,
   weakened evidence, and changed verdicts are tracked per program.
-- **MCP server** so you can drive cyphron from Claude Code, Cursor, or
+- **MCP server** so you can drive secai from Claude Code, Cursor, or
   any other MCP client.
 - **A gated proof tier** (`tools/exploit_*`) for turning `L1`/`L2` leads
   into `L3`/`L4` with reproducible PoCs. It's off unless a target is
@@ -201,14 +203,14 @@ distilled from non-tool-shaped concepts (250 sections) lives in
 
 | Command | What it does |
 |:---|:---|
-| `cyphron scan --domain example.com --max-requests 32 --report` | Full tier0 scan (public data only, strict budget) + PDF report |
-| `cyphron validate findings.json` | Check any findings.json against the contract (Rust core) |
-| `cyphron merge --dedup-id ...` | Merge + dedup finding sets (FAO correlation) |
+| `secai scan --domain example.com --max-requests 32 --report` | Full tier0 scan (public data only, strict budget) + PDF report |
+| `secai validate findings.json` | Check any findings.json against the contract (Rust core) |
+| `secai merge --dedup-id ...` | Merge + dedup finding sets (FAO correlation) |
 | `python skills/<skill>.py --url … --out f.json` | Run a single detection skill (93 available, allowlist-gated) |
 | `python tools/code_map.py --repo <path> --out surface.json` | Map a codebase to an attack surface — zero requests |
 | `python tools/chain_planner.py --findings f.json` | Plan A→B→C exploit chains from existing findings |
 | `python tools/submission_gate.py --finding f.json --program p.json` | 7-question pre-submission gate for a finding |
-| `claude mcp add cyphron -- python tools/mcp_server.py` | Drive cyphron from Claude Code / any MCP client |
+| `claude mcp add secai -- python tools/mcp_server.py` | Drive secai from Claude Code / any MCP client |
 | `python tools/lab_target.py` | Start a local lab target to practice on |
 
 Night runs (scheduled scans with drift detection) and intel sync
@@ -224,10 +226,10 @@ cargo build --release --manifest-path core-rs/Cargo.toml
 python skills/banner_posture.py --url https://example.com --out banner.json
 
 # check the output against the contract
-core-rs/target/release/cyphron validate banner.json
+core-rs/target/release/secai validate banner.json
 
 # full tier0 scan (public data only, strict budget) plus a PDF report
-core-rs/target/release/cyphron scan --domain example.com \
+core-rs/target/release/secai scan --domain example.com \
     --max-requests 32 --out findings/scan --report
 ```
 
@@ -253,7 +255,7 @@ The boring part, which is also the important part.
 - **False-positive regression battery.** FP1 to FP16 plus per-class
   guards live in the test suite. If a control endpoint "fails" the same
   way, the claim is cancelled, not confirmed.
-- **Honest egress.** cyphron identifies itself by default. You can set
+- **Honest egress.** secai identifies itself by default. You can set
   `--ua` or `--proxy` (credentials get redacted), but there are no
   evasion features, on purpose.
 - **Run manifest.** Every artifact in a run gets a sha256, so the
@@ -282,7 +284,7 @@ pip install "mcp[cli]"
 ```json
 {
   "mcpServers": {
-    "cyphron": {
+    "secai": {
       "command": "python",
       "args": ["tools/mcp_server.py"]
     }
@@ -290,7 +292,7 @@ pip install "mcp[cli]"
 }
 ```
 
-This exposes `cyphron_list_skills` and `cyphron_run_skill`. Lab-only
+This exposes `secai_list_skills` and `secai_run_skill`. Lab-only
 classes are never exposed, and every result is validated against the
 contract before it comes back to you.
 
@@ -324,7 +326,7 @@ hardcoded user agents, and the full FP regression battery.
 
 ## Responsible use
 
-cyphron is for **authorized** testing only: your own systems, or
+secai is for **authorized** testing only: your own systems, or
 programs that clearly give you permission. Scanning things you don't
 own without permission is illegal in most places. Don't.
 
@@ -333,7 +335,7 @@ own without permission is illegal in most places. Don't.
 - 🐛 **Found a bug?** → [bug report](.github/ISSUE_TEMPLATE/bug_report.md)
 - 🙅 **A detector flagged something benign?** → [false positive report](.github/ISSUE_TEMPLATE/false_positive.md) — FP reports are first-class here; every one tightens an anti-FP floor
 - 💡 **Missing a capability?** → [feature request](.github/ISSUE_TEMPLATE/feature_request.md)
-- 🔒 **Security issue in cyphron itself?** → [SECURITY.md](.github/SECURITY.md) (private disclosure, no public issue)
+- 🔒 **Security issue in secai itself?** → [SECURITY.md](.github/SECURITY.md) (private disclosure, no public issue)
 - 🤝 [Contributing guide](CONTRIBUTING.md) · [Code of Conduct](.github/CODE_OF_CONDUCT.md) · [Changelog](CHANGELOG.md)
 
 ## Contributing
@@ -342,11 +344,11 @@ PRs are welcome: bug fixes, new detection skills, docs, typos. Start
 with [CONTRIBUTING.md](CONTRIBUTING.md). Merged PRs land you in the
 contributors list.
 
-If cyphron saves you some time, a ⭐ helps other people find it.
+If secai saves you some time, a ⭐ helps other people find it.
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=maulanawirawan/cyphron&type=Date)](https://star-history.com/#maulanawirawan/cyphron&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=maulanawirawan/secai&type=Date)](https://star-history.com/#maulanawirawan/secai&Date)
 
 ## Credits
 
@@ -360,6 +362,19 @@ If cyphron saves you some time, a ⭐ helps other people find it.
   ported tool is built from scratch with concept attribution in its
   docstring.
 
+## Roadmap
+
+- [ ] **Deeper Web3 audits** — AST-level Solidity analysis beyond the
+      current static-lead layer (`solidity_static_audit`)
+- [ ] **Auto-fix suggestions** — remediation hints attached to each
+      finding class, not just the detection
+- [x] **One-command install** — `install.sh` builds + links the
+      `secai` binary (no manual cargo dance)
+- [ ] **Web dashboard** — browse findings, evidence, and drift across
+      programs without reading JSON
+- [ ] **More platform report formats** — YesWeHack, Synack on top of
+      the current HackerOne / Bugcrowd / Intigriti drafts
+
 ## License
 
 [PolyForm Noncommercial 1.0.0](LICENSE). Free to use, study, modify, and
@@ -367,7 +382,7 @@ share for **noncommercial** purposes.
 
 Want to use it commercially, for example inside a paid service? That's
 fine too, just ask first and we'll work out a license. Open an
-[issue](https://github.com/maulanawirawan/cyphron/issues) or reach me at
+[issue](https://github.com/maulanawirawan/secai/issues) or reach me at
 [@maulanawirawan](https://github.com/maulanawirawan).
 
 Third-party components and data sources are credited in

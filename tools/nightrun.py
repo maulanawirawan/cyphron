@@ -1,7 +1,7 @@
 """[F23] Night-run otomatis + drift detection — orchestrator harian.
 
 Loop per program target dari config (nama + domain + budget):
-  1. tier0 scan (cap budget per target) via binary cyphron;
+  1. tier0 scan (cap budget per target) via binary secai;
   2. diff-since-last vs run sebelumnya (by ID deterministik, pola
      program_sweep) + perubahan verdict per ID (naik/turun);
   3. drift.json per program + ringkasan run + akumulasi ringkasan
@@ -17,7 +17,7 @@ Fail-closed:
 
 Windows scheduler (schtasks siap-pakai, TIDAK di-install otomatis —
 lihat docs/NIGHTRUN.md):
-  schtasks /Create /TN "cyphron-nightrun" /SC DAILY /ST 02:00 /TR ^
+  schtasks /Create /TN "secai-nightrun" /SC DAILY /ST 02:00 /TR ^
     "python tools\\nightrun.py --config nightrun.json --out findings\\night-run"
 
 Pemakaian:
@@ -51,10 +51,10 @@ class ConfigError(ValueError):
 
 
 def resolve_exe() -> Path:
-    env = os.environ.get("CYPHRON_EXE")
+    env = os.environ.get("SECAI_EXE")
     if env:
         return Path(env)
-    exe = "cyphron.exe" if sys.platform == "win32" else "cyphron"
+    exe = "secai.exe" if sys.platform == "win32" else "secai"
     return ROOT / "core-rs" / "target" / "release" / exe
 
 

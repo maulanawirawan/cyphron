@@ -59,7 +59,7 @@ import sys
 from html.parser import HTMLParser
 from pathlib import Path
 
-SCHEMA = "cyphron.ingest-gate/1"
+SCHEMA = "secai.ingest-gate/1"
 MAX_FILE_BYTES = 8 * 1024 * 1024
 
 # ------------------------------------------------------------ unicode

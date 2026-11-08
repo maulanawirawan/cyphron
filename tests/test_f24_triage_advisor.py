@@ -22,7 +22,7 @@ from findings import validate_finding  # noqa: E402
 
 FIXTURE = ROOT / "tests" / "fixtures" / "outcomes-fixture.json"
 
-TYPST_OK = bool(os.environ.get("CYPHRON_TYPST")
+TYPST_OK = bool(os.environ.get("SECAI_TYPST")
                 or (ROOT / "tools/bin/typst-x86_64-pc-windows-msvc/typst.exe"
                     ).exists()
                 or shutil.which("typst"))

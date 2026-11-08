@@ -41,7 +41,7 @@ Input -> mekanisme -> output:
             baru (created <= 90 hari) dan mx=true menaikkan severity satu
             tingkat (cap high) — TANPA metadata, tidak ada uplift dan
             itu dicatat (fail-closed, bukan dianggap aman).
-  - Output: findings.json kontrak cyphron (status confirmed, verdict L2
+  - Output: findings.json kontrak secai (status confirmed, verdict L2
             REPRODUCED — fakta aritmetika klasifikasi; klaim
             "impersonasi/phishing" TIDAK dibuat di sini) + meta
             (hitungan per teknik, excluded legit, idn-unparseable,
@@ -84,7 +84,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "core"))
 from findings import make_finding, write_findings  # noqa: E402
 
-SCHEMA = "cyphron.brand-lookalike-scan/1"
+SCHEMA = "secai.brand-lookalike-scan/1"
 MAX_FILE_BYTES = 16 * 1024 * 1024
 MAX_OBSERVED = 5000
 MAX_BRANDS = 50

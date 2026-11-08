@@ -11,7 +11,7 @@ alg confusion RS256->HS256, varian alg:none, injeksi kid/jku/x5u;
 atribusi konsep, lisensi sumber Apache-2.0). Dibangun FROM SCRATCH:
 dekoder base64url + aturan cek ditulis sendiri; skill sumber
 MENGEKSPLOITASI token live (PyJWT/cryptography/jwt_tool, forge token),
-cyphron hanya MENILAI konten token yang sudah ada di bukti (read-only,
+secai hanya MENILAI konten token yang sudah ada di bukti (read-only,
 tanpa forge). Sisi eksekusi live dilayani JwtAlgConfusionPlaybook +
 JwtWeakSecretPlaybook di tools/exploit_playbooks.py.
 
@@ -74,7 +74,7 @@ import sys
 import time
 from pathlib import Path
 
-SCHEMA = "cyphron.jwt-token-audit/1"
+SCHEMA = "secai.jwt-token-audit/1"
 MAX_FILE_BYTES = 8 * 1024 * 1024
 MAX_EVIDENCE_CHARS = 120
 MAX_BROKEN_SAMPLES = 10

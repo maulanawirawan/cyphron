@@ -134,7 +134,7 @@ class TestFpNuclei(unittest.TestCase):
 class TestFpFao(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        exe_name = "cyphron.exe" if sys.platform == "win32" else "cyphron"
+        exe_name = "secai.exe" if sys.platform == "win32" else "secai"
         if not (ROOT / "core-rs/target/release" / exe_name).exists():
             raise unittest.SkipTest(
                 "binary core belum dibangun: cargo build --release "
@@ -145,7 +145,7 @@ class TestFpFao(unittest.TestCase):
         reg = Path(tmp) / "registry.json"
         reg.write_text(json.dumps({"version": 1, "skills": skills}),
                        encoding="utf-8")
-        exe_name = "cyphron.exe" if sys.platform == "win32" else "cyphron"
+        exe_name = "secai.exe" if sys.platform == "win32" else "secai"
         exe = ROOT / "core-rs/target/release" / exe_name
         out = Path(tmp) / "out"
         r = subprocess.run([str(exe), "scan", "--registry", str(reg),

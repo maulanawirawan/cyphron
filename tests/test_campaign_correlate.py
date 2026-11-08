@@ -222,7 +222,7 @@ class TestCLI(unittest.TestCase):
         self.assertEqual(self._run(["--source", str(f), "--json", str(jf),
                                     "--min-score", "45"]), 0)
         data = json.loads(jf.read_text(encoding="utf-8"))
-        self.assertEqual(data["schema"], "cyphron.campaign-correlate/1")
+        self.assertEqual(data["schema"], "secai.campaign-correlate/1")
         self.assertEqual(data["summary"]["pairs"], 1)  # hanya A-B MEDIUM
         self.assertEqual(data["pairs"][0]["verdict"], "MEDIUM")
 

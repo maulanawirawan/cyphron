@@ -58,7 +58,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "core"))
 from findings import make_finding, write_findings  # noqa: E402
 
-SCHEMA = "cyphron.ioc-lifecycle-score/1"
+SCHEMA = "secai.ioc-lifecycle-score/1"
 
 # tipe -> (keluarga, half-life hari)
 FAMILIES: dict[str, tuple[str, int]] = {

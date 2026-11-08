@@ -37,10 +37,10 @@ import triage_advisor  # noqa: E402  (F24 learning loop)
 import threat_model  # noqa: E402  (F74 konteks per program)
 
 def _resolve_typst() -> str | None:
-    """Cari executable typst: env CYPHRON_TYPST -> binary vendored
+    """Cari executable typst: env SECAI_TYPST -> binary vendored
     (tools/bin, Windows) -> PATH. None = tidak tersedia (main() gagal
     dengan pesan jelas — fail-closed)."""
-    env = os.environ.get("CYPHRON_TYPST")
+    env = os.environ.get("SECAI_TYPST")
     if env and Path(env).exists():
         return env
     # vendored hanya untuk Windows — di linux, typst.exe yang ter-COPY ke
@@ -702,7 +702,7 @@ def main() -> int:
     args = ap.parse_args()
 
     if not TYPST:
-        raise SystemExit("typst tidak ditemukan — set CYPHRON_TYPST, "
+        raise SystemExit("typst tidak ditemukan — set SECAI_TYPST, "
                          "letakkan binary di tools/bin/, atau PATH")
 
     docs = [load_doc(Path(p)) for p in args.findings]
@@ -750,7 +750,7 @@ def main() -> int:
                       date_str=args.date, egress=egress_state, class_history=class_history,
                       threat_model=tm_meta)
 
-    build_dir = Path(tempfile.mkdtemp(prefix="cyphron-report_"))
+    build_dir = Path(tempfile.mkdtemp(prefix="secai-report_"))
     try:
         (build_dir / "report.typ").write_text(
             TEMPLATE.read_text(encoding="utf-8"), encoding="utf-8")

@@ -6,7 +6,7 @@ harus menghasilkan atom 4-byte, sasar keluarga spesifik bukan kategori,
 uji lawan goodware, short-circuit cek murah dulu, metadata = dokumentasi;
 atribusi ide). Dibangun FROM SCRATCH: tokenizer aturan, daftar string
 rawan-FP, dan seluruh aturan lint ditulis sendiri — tidak menyalin
-yara_lint.py/atom_analyzer.py milik plugin tersebut. Lisensi cyphron:
+yara_lint.py/atom_analyzer.py milik plugin tersebut. Lisensi secai:
 PolyForm NC.
 
 Input -> mekanisme -> output:
@@ -56,7 +56,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
-SCHEMA = "cyphron.yara-rule-lint/1"
+SCHEMA = "secai.yara-rule-lint/1"
 
 EXT = {".yar", ".yara"}
 

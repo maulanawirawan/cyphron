@@ -54,11 +54,11 @@ ADMIN_MARKER = "admin-panel-secret-marker"
 JWT_SECRET = "changeme"
 
 # Canary LFI: file DI LUAR root served — hanya terbaca via traversal (CWE-22)
-LFI_CANARY = "cyphron-lfi-canary-9d1c"
+LFI_CANARY = "secai-lfi-canary-9d1c"
 
 # Data privat cache-deception: halaman profil auth-required yang (sengaja)
 # terhidang di URL statis + header cache publik (CWE-444)
-CACHE_DECEPTION_MARKER = "cyphron-private-data-7a3"
+CACHE_DECEPTION_MARKER = "secai-private-data-7a3"
 
 PRODUCTS = [
     (1, "keyboard", 150000),
@@ -1185,7 +1185,7 @@ class LabServer(ThreadingHTTPServer):
         self.db.commit()
         # LFI lab: root served + canary DI LUARNYA (satu direktori temp
         # milik lab sendiri; dihapus stop_lab)
-        self.files_base = tempfile.mkdtemp(prefix="cyphron-lab-files-")
+        self.files_base = tempfile.mkdtemp(prefix="secai-lab-files-")
         self.files_root = os.path.join(self.files_base, "files")
         os.makedirs(self.files_root)
         with open(os.path.join(self.files_root, "report.txt"), "w",
@@ -1236,8 +1236,8 @@ if __name__ == "__main__":
     import os
     # dukungan lab-in-docker: bind/port lewat env (sandbox menaruh lab di
     # jaringan internal Docker dan engine mengakses via nama kontainer)
-    port = int(os.environ.get("CYPHRON_LAB_PORT", "0") or 0)
-    bind = os.environ.get("CYPHRON_LAB_BIND", "127.0.0.1")
+    port = int(os.environ.get("SECAI_LAB_PORT", "0") or 0)
+    bind = os.environ.get("SECAI_LAB_BIND", "127.0.0.1")
     server = LabServer(bind=bind, port=port)
     threading.Thread(target=server.serve_forever, daemon=True).start()
     print(f"lab target aktif: http://{bind}:{server.server_address[1]}")

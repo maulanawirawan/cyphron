@@ -1,7 +1,7 @@
 # Exposure Audit — alur client (F48-F54)
 
 > Produk use-case: client menyerahkan **bundle/artefak miliknya**
-> (hasil build frontend, Electron, APK, extension) → cyphron
+> (hasil build frontend, Electron, APK, extension) → secai
 > menunjukkan "apa yang dilihat tool reverse-engineering di dalamnya
 > SEBELUM attacker melihatnya" → PDF laporan bahasa awam.
 > Tanggung jawab otorisasi = pemilik aset (client); NOL jaringan;

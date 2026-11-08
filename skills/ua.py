@@ -1,7 +1,7 @@
 """Identitas jaringan terpusat untuk semua skill (F20): UA + egress.
 
 User-Agent: default identitas alat (jujur di log target); override via
-env CYPHRON_UA — orchestrator mengisinya dari flag --ua (profil
+env SECAI_UA — orchestrator mengisinya dari flag --ua (profil
 'browser' untuk black-box testing aset sendiri).
 
 Egress/proxy: orchestrator --proxy / --proxies mengisi env
@@ -15,7 +15,7 @@ Tidak ada rotasi IP/fingerprint bawaan — pool egress milik operator
 import os
 import sys
 
-DEFAULT_UA = "cyphron-audit/0.1"
+DEFAULT_UA = "secai-audit/0.1"
 
 # Profil 'browser': string UA realistis agar respons target tidak
 # berbeda dari yang dilihat pengunjung asli (akurasi black-box).
@@ -25,9 +25,9 @@ BROWSER_UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
 
 
 def user_agent() -> str:
-    """UA aktif: env CYPHRON_UA > default. Nilai 'browser' di env
+    """UA aktif: env SECAI_UA > default. Nilai 'browser' di env
     diperluas ke profil Chrome (dipakai orchestrator --ua browser)."""
-    override = os.environ.get("CYPHRON_UA", "").strip()
+    override = os.environ.get("SECAI_UA", "").strip()
     if not override:
         return DEFAULT_UA
     if override.lower() == "browser":

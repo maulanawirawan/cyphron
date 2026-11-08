@@ -158,7 +158,7 @@ class VulnSlaAgingCli(unittest.TestCase):
         code, data, _ = _run_cli(["--source", str(src), "--as-of", AS_OF,
                                   "--out", str(out)])
         self.assertEqual(code, 0)
-        self.assertEqual(data["schema"], "cyphron.vuln-sla-aging/1")
+        self.assertEqual(data["schema"], "secai.vuln-sla-aging/1")
         self.assertEqual(data["summary"]["total"], 2)
         # critical internet-facing: SLA ceil(14*0.5)=7, umur 38 -> overdue
         v1 = next(f for f in data["findings"] if f["id"] == "V-1")

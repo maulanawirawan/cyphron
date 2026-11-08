@@ -148,7 +148,7 @@ def test_garbage_csv_row_skipped_not_crash(tmp_path):
 
 # ------------------------------------------------------- mft_scan JSON
 def test_mft_json_composition(tmp_path):
-    doc = {"schema": "cyphron.mft-scan/1", "entries": [
+    doc = {"schema": "secai.mft-scan/1", "entries": [
         {"mft_ref": 100, "deleted": False, "is_dir": False,
          "name": "implant.dll", "size": 4096, "parent_ref": 5,
          "times": {"si_created": "2014-06-01T00:00:00Z",

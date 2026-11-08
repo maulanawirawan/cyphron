@@ -151,7 +151,7 @@ class ManualVerificationTest(unittest.TestCase):
 
 
 @unittest.skipUnless(
-    TYPST_OK, "typst tidak tersedia (CYPHRON_TYPST / tools/bin / PATH)")
+    TYPST_OK, "typst tidak tersedia (SECAI_TYPST / tools/bin / PATH)")
 class ManualVerificationRenderTest(trp.RenderTest):
     """Render end-to-end: blok 'Cara verifikasi manual' muncul di PDF
     (asersi dgn normalisasi whitespace — pelajaran F74: typst memotong

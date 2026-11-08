@@ -1,6 +1,6 @@
 """Test F26 — konsolidasi katalog batch 1 (docs/CATALOG-CONSOLIDATION.md).
 
-Port playbook terbukti dari Cyphron-legacy lewat pipeline wajib:
+Port playbook terbukti dari SecAI-legacy lewat pipeline wajib:
 ssti-eval (CWE-1336), lfi-traversal (CWE-22), nosqli-login (CWE-943).
 NOL jaringan eksternal — lawan uji lab_target 127.0.0.1 port ephemeral.
 Yang dikunci:

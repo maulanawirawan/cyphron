@@ -103,7 +103,7 @@ class TestCli(unittest.TestCase):
         self.assertEqual(rc, 0)
         d = json.loads(out.read_text(encoding="utf-8"))
         self.assertEqual(d["base_score"], 9.8)
-        self.assertEqual(d["schema"], "cyphron.cvss-score/1")
+        self.assertEqual(d["schema"], "secai.cvss-score/1")
 
     def test_invalid_exit2(self):
         rc = cs.main(["--vector", "AV:N/AC:L/PR:N/UI:N/S:U/C:H"])

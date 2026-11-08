@@ -105,7 +105,7 @@ class TestCli(unittest.TestCase):
                       "--official", "ack", "--out", str(out)])
         self.assertEqual(rc, 0)
         data = json.loads(out.read_text(encoding="utf-8"))
-        self.assertEqual(data["schema"], "cyphron.leak-triage/1")
+        self.assertEqual(data["schema"], "secai.leak-triage/1")
         self.assertEqual(data["verdict"], "VERIFIED-CANDIDATE")
 
     def test_cli_tanpa_claim_exit2(self):

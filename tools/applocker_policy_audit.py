@@ -8,7 +8,7 @@ applocker'; atribusi konsep, lisensi sumber Apache-2.0). Dibangun FROM
 SCRATCH: parser XML policy + agregasi CSV event ditulis sendiri dari
 konsep AppLocker publik (RuleCollection/EnforcementMode, deny LOLBin,
 gap direktori user-writable, event 8003/8004/8006/8007/8023). Skill sumber
-adalah runbook PowerShell/GPO live di endpoint Windows; cyphron memilih
+adalah runbook PowerShell/GPO live di endpoint Windows; secai memilih
 artefak offline (export policy XML `Get-AppLockerPolicy -Effective -Xml`
 + CSV event `Get-WinEvent ... Export-Csv`) agar nol jaringan dan dapat
 dites. Ranah TIDAK diduplikasi: lolbin_scan (B15) mendeteksi EKSEKUSI

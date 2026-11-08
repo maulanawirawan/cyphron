@@ -84,7 +84,7 @@ PATCH_REF_PATTERNS = (
     re.compile(r"/pull/\d+", re.IGNORECASE),
 )
 
-_USER_AGENT = "cyphron-cve-sweep/1.0"
+_USER_AGENT = "secai-cve-sweep/1.0"
 
 
 def iso_utc(dt: datetime) -> str:

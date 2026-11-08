@@ -7,7 +7,7 @@ with-openssl' — hierarki Root/Intermediate, basicConstraints, pathLen
 constraint, keyUsage, revokasi; atribusi konsep). Dibangun FROM SCRATCH:
 parser DER minimal, kanonisasi DN, dan seluruh cek ditulis sendiri —
 tidak memakai lib cryptography/x509 dan tidak menyalin kode sumber.
-Lisensi cyphron: PolyForm NC.
+Lisensi secai: PolyForm NC.
 
 Input -> mekanisme -> output:
   - Input : file .pem/.crt/.cer/.der (satu file = satu rantai, urutan
@@ -73,7 +73,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
-SCHEMA = "cyphron.cert-chain-audit/1"
+SCHEMA = "secai.cert-chain-audit/1"
 CERT_EXTS = {".pem", ".crt", ".cer", ".der"}
 
 SEV_ORDER = {"info": 0, "medium": 1, "high": 2}

@@ -208,4 +208,4 @@ def test_out_file(tmp_path):
     rc, _, _ = _run("--evidence", str(p), "--out", str(o))
     assert rc == 1 and o.exists()
     assert json.loads(o.read_text(encoding="utf-8"))["schema"] == \
-        "cyphron.ws-handshake-audit/1"
+        "secai.ws-handshake-audit/1"

@@ -104,7 +104,7 @@ pub fn run_skill(
 }
 
 /// Sama dengan run_skill + env tambahan untuk proses skill (F20:
-/// CYPHRON_UA untuk profil User-Agent, HTTP(S)_PROXY untuk proxy run).
+/// SECAI_UA untuk profil User-Agent, HTTP(S)_PROXY untuk proxy run).
 /// Env menggantikan nilai bawaan bila key sama.
 pub fn run_skill_with_env(
     skill_argv: &[String],
@@ -236,7 +236,7 @@ pub fn write_merged(
     dedup_dropped: Option<usize>,
 ) -> Result<(), String> {
     let mut data = json!({
-        "run": "cyphron-core",
+        "run": "secai-core",
         "sources": sources,
         "total_findings": findings.len(),
     });
@@ -292,7 +292,7 @@ mod tests {
     #[test]
     fn write_merged_records_dedup_metadata() {
         // merge lintas-mode: data.dedup hanya muncul saat dedup aktif
-        let tmp = std::env::temp_dir().join(format!("cyphron_wm_{}", std::process::id()));
+        let tmp = std::env::temp_dir().join(format!("secai_wm_{}", std::process::id()));
         std::fs::create_dir_all(&tmp).unwrap();
         let f = make_finding_json("t", "x", 1, "e.id");
         let finding: Finding = serde_json::from_value(f).unwrap();
@@ -373,7 +373,7 @@ mod tests {
     #[test]
     fn runner_executes_python_subprocess_and_validates() {
         // Simulasi skill python: tulis findings.json valid via placeholder @OUT@
-        let tmp = std::env::temp_dir().join(format!("cyphron_test_{}", std::process::id()));
+        let tmp = std::env::temp_dir().join(format!("secai_test_{}", std::process::id()));
         std::fs::create_dir_all(&tmp).unwrap();
         let out = tmp.join("out.json");
         let script = r#"
@@ -402,7 +402,7 @@ open(sys.argv[1],"w").write(json.dumps({"ok":True,"data":{"k":1},"findings":rows
 
     #[test]
     fn runner_fails_hard_on_bad_contract_output() {
-        let tmp = std::env::temp_dir().join(format!("cyphron_testbad_{}", std::process::id()));
+        let tmp = std::env::temp_dir().join(format!("secai_testbad_{}", std::process::id()));
         std::fs::create_dir_all(&tmp).unwrap();
         let out = tmp.join("out.json");
         let script = r#"

@@ -4,10 +4,10 @@ eksekusi, TANPA jaringan (murni analisis teks/struktur sumber).
 
 Port konsep awarexone/Agentic-Bug-Hunter (MIT) — skills/web3-audit
 (10 bug class + grep arsenal) & skills/meme-coin-audit. Dibangun
-from-scratch untuk cyphron; TIDAK ada kode vendor yang disalin — hanya
+from-scratch untuk secai; TIDAK ada kode vendor yang disalin — hanya
 konsep kelas bug yang dipindah ke mesin deterministik milik sendiri.
 
-Kenapa cyphron butuh: repo belum punya ranah .sol/web3 sama sekali
+Kenapa secai butuh: repo belum punya ranah .sol/web3 sama sekali
 (pembagian ranah ABH-PORT: web3/.sol/token = item W2). Kontrak "no proof,
 no report" dipertahankan: tool ini HANYA menghasilkan LEAD ber-eviden —
 setiap temuan membawa baris + potongan kode sumber sebagai bukti, status
@@ -46,7 +46,7 @@ terhadap vektor resmi saat startup — gagal = exit 2 internal, fail-closed).
 Tipe tuple/struct tidak diekspansi ABI offline -> selector NULL + alasan
 (jujur, tidak ditebak).
 
-Severity & verdict (kontrak cyphron core/findings.py):
+Severity & verdict (kontrak secai core/findings.py):
   - semua finding: status "unconfirmed", verdict 1 (L1 SUSPECTED - LEAD)
     atau 2 (L2 REPRODUCED - LEAD), reportable=false.
   - L2 = struktur teks deterministik (mis. pragma ^, tx.origin di require);
@@ -86,7 +86,7 @@ if str(_CORE_DIR) not in sys.path:
     sys.path.insert(0, str(_CORE_DIR))
 from findings import verdict_tag  # noqa: E402
 
-SCHEMA = "cyphron.solidity_static_audit.v1"
+SCHEMA = "secai.solidity_static_audit.v1"
 TOOL = "solidity_static_audit"
 
 SEVERITY_ORDER = {"critical": 0, "high": 1, "medium": 2, "low": 3, "info": 4}

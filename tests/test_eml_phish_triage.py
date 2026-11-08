@@ -250,7 +250,7 @@ def test_cli_out_schema(tmp_path):
     rc, _ = _run(p, "--out", str(outp))
     assert rc == 0 and outp.is_file()
     data = json.loads(outp.read_text(encoding="utf-8"))
-    assert data["schema"] == "cyphron.eml-phish-triage/1"
+    assert data["schema"] == "secai.eml-phish-triage/1"
     assert data["read_only"] is True
     assert data["note"].startswith("semua temuan = LEAD")
 

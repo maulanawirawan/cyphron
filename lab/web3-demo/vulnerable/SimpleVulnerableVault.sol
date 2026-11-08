@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 // KONTRAK DEMO LIVE-VERIFY (analisis statis; BUKAN untuk deploy).
-// Contoh realistis karya sendiri untuk cyphron W2 — memuat pola-pola
+// Contoh realistis karya sendiri untuk secai W2 — memuat pola-pola
 // buruk yang seharusnya tertangkap tools/solidity_static_audit.py
 // (10 kelas lead). Sengaja TIDAK dideploy & tidak perlu dikompilasi:
 // pipeline tool ini murni analisis teks/struktur.

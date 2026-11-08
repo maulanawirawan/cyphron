@@ -116,7 +116,7 @@ class TestOutput(unittest.TestCase):
     def test_probe_bounded_metadata(self):
         # probe() tak dipanggil (jaringan); hanya cek konstanta & schema
         self.assertEqual(hp.MAX_REQUESTS, 5)
-        self.assertEqual(hp.SCHEMA, "cyphron.hpp-differential/1")
+        self.assertEqual(hp.SCHEMA, "secai.hpp-differential/1")
 
     def test_result_json_serializable(self):
         # simulate hasil classify penuh seperti probe() kembalikan

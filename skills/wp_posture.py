@@ -45,7 +45,7 @@ def _get(base: str, path: str):
     try:
         req = urllib.request.Request(
             base + path, method="GET",
-            headers={"User-Agent": "cyphron-wp-posture"})
+            headers={"User-Agent": "secai-wp-posture"})
         with urllib.request.urlopen(req, timeout=TIMEOUT_S) as r:
             return r.status, r.read(64_000).decode(
                 "utf-8", "replace"), dict(r.headers.items())

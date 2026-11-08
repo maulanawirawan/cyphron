@@ -44,7 +44,7 @@ import re
 import sys
 from pathlib import Path
 
-SCHEMA = "cyphron.maldoc-triage/1"
+SCHEMA = "secai.maldoc-triage/1"
 
 VERDICTS = ("CLEAN", "INCONCLUSIVE", "SUSPICIOUS", "MALICIOUS-LIKELY")
 MAX_EVIDENCE = 240

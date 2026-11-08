@@ -6,7 +6,7 @@ Anthropic-Cybersecurity-Skills, skill 'detecting-aws-cloudtrail-anomalies'
 — baseline aktivitas, penggunaan API sensitif (IAM/KMS/S3 policy), error
 rate; atribusi konsep, lisensi sumber Apache-2.0). Dibangun FROM SCRATCH:
 parser log + taksonomi event ditulis sendiri; TIDAK memakai boto3 —
-skill aslinya query live via lookup_events, cyphron memilih artefak
+skill aslinya query live via lookup_events, secai memilih artefak
 offline (file log CloudTrail) supaya nol jaringan dan dapat dites.
 Live-baseline/GeoIP tidak dibangun (butuh kredensial + jaringan).
 
@@ -61,7 +61,7 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 
-SCHEMA = "cyphron.cloudtrail-scan/1"
+SCHEMA = "secai.cloudtrail-scan/1"
 
 SEV_ORDER = {"info": 0, "medium": 1, "high": 2}
 

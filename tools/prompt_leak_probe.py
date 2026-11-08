@@ -72,9 +72,9 @@ sys.path.insert(0, str(ROOT / "core"))
 
 from findings import make_finding, validate_finding, write_findings  # noqa: E402
 
-SCHEMA = "cyphron.prompt-leak-probe/1"
+SCHEMA = "secai.prompt-leak-probe/1"
 SEV_ORDER = {"info": 0, "low": 1, "medium": 2, "high": 3, "critical": 4}
-UA = "cyphron-prompt-leak-probe/1"
+UA = "secai-prompt-leak-probe/1"
 
 MAX_PROBES = 12
 MAX_BODY_BYTES = 256 * 1024

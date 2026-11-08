@@ -8,7 +8,7 @@ timestomping'; atribusi konsep, lisensi sumber Apache-2.0). Dibangun
 FROM SCRATCH: parser CSV/JSON + logika perbandingan ditulis sendiri
 dari konsep deteksi publik (properti atribut NTFS yang terdokumentasi:
 SI bisa diubah user-mode, FN hanya di-update driver NTFS kernel-mode).
-Skill sumber memakai pandas; cyphron stdlib-only (csv + datetime).
+Skill sumber memakai pandas; secai stdlib-only (csv + datetime).
 
 Input -> mekanisme -> output:
   - Input : (a) CSV hasil MFTECmd (Eric Zimmerman) dgn kolom
@@ -66,7 +66,7 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-SCHEMA = "cyphron.timestomp-triage/1"
+SCHEMA = "secai.timestomp-triage/1"
 MAX_FILE_BYTES = 512 * 1024 * 1024
 
 CSV_TS_COLS = {

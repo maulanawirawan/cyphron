@@ -50,7 +50,7 @@ NVD_DOC = {"totalResults": 2, "vulnerabilities": [
 
 class BackfillTest(unittest.TestCase):
     def setUp(self):
-        self.tmp = Path(tempfile.mkdtemp(prefix="cyphron-f68-"))
+        self.tmp = Path(tempfile.mkdtemp(prefix="secai-f68-"))
         self._old = {k: getattr(intel_sync, k) for k in
                      ("INTEL", "MANIFEST", "NVD_RANGES_OUT",
                       "NVD_BACKFILL_STATE", "NVD_POLITE_DELAY")}

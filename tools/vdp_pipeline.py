@@ -1,5 +1,5 @@
 """[F27] VDP pipeline — pipa recon klasik (subfinder/httpx/katana/dalfox
-gaya Kali) di dalam disiplin Cyphron: policy-gated, bounded, zero-FP.
+gaya Kali) di dalam disiplin SecAI: policy-gated, bounded, zero-FP.
 
 Tahapan per program (programs/index.json):
   enum   — subdomain-enum-surface + ct-inventory (read-only, data

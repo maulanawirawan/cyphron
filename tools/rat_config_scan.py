@@ -11,7 +11,7 @@ Apache-2.0). Dibangun FROM SCRATCH: taksonomi kanal + regex ditulis
 sendiri dari spesifikasi format publik (format token bot Telegram,
 format URL webhook Discord, skema SMTP/FTP). Skill sumber menyasar
 khusus satu keluarga (Agent Tesla) via dekompilasi .NET (dnSpy/ILSpy);
-cyphron memilih lapisan string generik (apa pun keluarga malware yang
+secai memilih lapisan string generik (apa pun keluarga malware yang
 menyimpan konfigurasi plaintext/base64) supaya stdlib murni dan dapat
 dites deterministik. Ranah dibagi eksplisit: binary_strings_surface =
 surface URL/secret-format umum utk audit binary sah; ioc_defang =
@@ -69,7 +69,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from ioc_defang import defang_value, extract_iocs  # noqa: E402
 
-SCHEMA = "cyphron.rat-config-scan/1"
+SCHEMA = "secai.rat-config-scan/1"
 MAX_FILE_BYTES = 64 * 1024 * 1024
 MAX_RUNS = 200_000
 

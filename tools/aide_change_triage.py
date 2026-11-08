@@ -10,7 +10,7 @@ menjalankan AIDE di host (aide --init/--check) dan menyebut langkah
 inti deterministik yang diekstrak di sini adalah PARSER LAPORAN +
 klasifikasi severity-nya, dari scratch (tidak menyalin kode sumber,
 tidak memanggil AIDE). AIDE sendiri = alat host eksternal; jalankan
-`aide --check` di lab Anda, triase output-nya di cyphron.
+`aide --check` di lab Anda, triase output-nya di secai.
 
 Pembagian ranah (TIDAK diduplikasi):
   - baseline kredensial/appArmor dsb. di Windows  -> mft_scan (B08)
@@ -74,7 +74,7 @@ import re
 import sys
 from pathlib import Path
 
-SCHEMA = "cyphron.aide-change-triage/1"
+SCHEMA = "secai.aide-change-triage/1"
 MAX_FILE_BYTES = 16 * 1024 * 1024
 
 SEV_ORDER = {"info": 0, "low": 1, "medium": 2, "high": 3, "critical": 4}

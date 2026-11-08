@@ -71,7 +71,7 @@ sys.path.insert(0, str(ROOT / "tools"))
 from findings import make_finding, write_findings  # noqa: E402
 from k8s_rbac_audit import parse_documents  # noqa: E402
 
-SCHEMA = "cyphron.etcd-config-audit/1"
+SCHEMA = "secai.etcd-config-audit/1"
 MAX_FILE_BYTES = 8 * 1024 * 1024
 
 ETCD_FLAGS = {

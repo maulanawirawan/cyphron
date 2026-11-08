@@ -53,7 +53,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "core"))
 from findings import make_finding, write_findings  # noqa: E402
 
-SCHEMA = "cyphron.kubebench-ingest/1"
+SCHEMA = "secai.kubebench-ingest/1"
 MAX_FILE_BYTES = 16 * 1024 * 1024
 
 CRITICAL_KEYWORDS = (

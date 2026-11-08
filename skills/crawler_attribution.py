@@ -28,7 +28,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "core"))
 from findings import make_finding, write_findings  # noqa: E402
 
 TOOL = "crawler-attribution"
-UA_HDR = "cyphron-audit/0.1"
+UA_HDR = "secai-audit/0.1"
 MAX_RESPONSE_BYTES = 262_144  # 256 KB — cap bukti; lebih besar = fail-closed
 
 # Crawler terdokumentasi: (substring UA, nama, operator, asal-usual, doc)

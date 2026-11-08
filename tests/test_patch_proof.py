@@ -104,7 +104,7 @@ def test_proved_via_cli_exit0_and_out_file(tmp_path):
                 "--harness", str(harness), "--out", str(out_file))
     assert r.returncode == pp.EXIT_PROVED
     saved = json.loads(out_file.read_text(encoding="utf-8"))
-    assert saved["schema"] == "cyphron.patch-proof/1"
+    assert saved["schema"] == "secai.patch-proof/1"
     assert saved["verdict"] == "PROVED"
 
 

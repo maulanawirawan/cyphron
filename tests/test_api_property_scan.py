@@ -140,7 +140,7 @@ def test_cli_end_to_end(tmp_path):
     out = tmp_path / "temuan.json"
     rc, payload = _run("--file", str(p), "--out", str(out))
     assert rc == 0
-    assert payload["schema"] == "cyphron.api-property-scan/1"
+    assert payload["schema"] == "secai.api-property-scan/1"
     assert payload["stats"]["critical"] >= 1
     assert out.read_text(encoding="utf-8").startswith("{")
 

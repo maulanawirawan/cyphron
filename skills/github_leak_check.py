@@ -1,6 +1,6 @@
 """[SAFETY: bounded-requests; OPT-IN KETAT] github-leak-check — cari
 kode publik yang merujuk domain target bersama indikator secret
-(CWE-798/200). OPT-IN: tanpa token di env CYPHRON_GH_TOKEN skill
+(CWE-798/200). OPT-IN: tanpa token di env SECAI_GH_TOKEN skill
 MELEWATI (nol request, satu baris audit) — keputusan desain pola
 program-discovery. Bounded: 1 query search code, maks 5 hasil.
 Temuan = L1 lead faktual (tautan + path) — WAJIB verifikasi manual
@@ -30,9 +30,9 @@ SECRET_HINTS = ("password", "secret", "api_key", "apikey", "token",
 
 def probe(domain: str, token: str | None = None,
           timeout: float = 20.0) -> dict:
-    token = token or os.environ.get("CYPHRON_GH_TOKEN", "").strip()
+    token = token or os.environ.get("SECAI_GH_TOKEN", "").strip()
     if not token:
-        return {"skipped": "opt-in: tanpa token (CYPHRON_GH_TOKEN kosong)",
+        return {"skipped": "opt-in: tanpa token (SECAI_GH_TOKEN kosong)",
                 "items": []}
     q = f'"{domain}" ' + " OR ".join(f'"{h}"' for h in SECRET_HINTS[:3])
     req = urllib.request.Request(
@@ -65,7 +65,7 @@ def audit(domain: str, result: dict) -> tuple[list[dict], dict]:
             title=f"GitHub leak check on {domain} — dilewati (opt-in)",
             severity="info",
             description=f"{result['skipped']} — skill opt-in: isi env "
-                        "CYPHRON_GH_TOKEN untuk mengaktifkan (nol request "
+                        "SECAI_GH_TOKEN untuk mengaktifkan (nol request "
                         "tanpa itu, fail-closed).",
             target_url=f"https://{domain}",
             evidence_kind="request-response", finding_class="posture",

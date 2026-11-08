@@ -7,7 +7,7 @@ Cybersecurity-Skills 'detecting-supply-chain-attacks-in-ci-cd' —
 unpinned actions, script injection via expression, permission berlebih;
 atribusi konsep, lisensi sumber Apache-2.0). Dibangun FROM SCRATCH:
 scanner baris-basis ditulis sendiri; skill sumber memakai PyGithub +
-yaml.safe_load, cyphron stdlib murni.
+yaml.safe_load, secai stdlib murni.
 
 BATASAN TERSADAR (dicatat juga di meta): ini BUKAN parser YAML penuh
 — pemeriksaan baris-basis bisa meleset pada konstruksi tidak lazim
@@ -57,7 +57,7 @@ import re
 import sys
 from pathlib import Path
 
-SCHEMA = "cyphron.gha-workflow-audit/1"
+SCHEMA = "secai.gha-workflow-audit/1"
 MAX_FILE_BYTES = 1 * 1024 * 1024
 
 _USES_RE = re.compile(r"^\s*(?:-\s+)?uses:\s*(\S+)\s*$")

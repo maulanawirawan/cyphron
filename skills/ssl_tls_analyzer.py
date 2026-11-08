@@ -1,6 +1,6 @@
 """[SAFETY: 1-request] SSL/TLS analyzer — satu koneksi TLS ke host:443.
 
-Skill v2 (produk Cyphron). Satu TCP+TLS handshake (setara satu kunjungan
+Skill v2 (produk SecAI). Satu TCP+TLS handshake (setara satu kunjungan
 browser HTTPS). Yang dianalisis dari sertifikat & sesi:
   - masa berlaku: kedaluwarsa / < 14 hari -> lead
   - protokol negosiasi: TLSv1.0/1.1 -> lead (CWE-327)

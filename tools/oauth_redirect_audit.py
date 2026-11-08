@@ -76,7 +76,7 @@ sys.path.insert(0, str(ROOT / "core"))
 
 from findings import make_finding, validate_finding, write_findings  # noqa: E402
 
-SCHEMA = "cyphron.oauth-redirect-audit/1"
+SCHEMA = "secai.oauth-redirect-audit/1"
 SEV_ORDER = {"info": 0, "low": 1, "medium": 2, "high": 3, "critical": 4}
 MAX_FILE_BYTES = 64 * 1024 * 1024
 

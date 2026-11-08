@@ -1,6 +1,6 @@
 r"""[INGEST] secret_report_ingest — ingest laporan pemindai secret
 eksternal (gitleaks JSON / trufflehog JSON-JSONL) -> findings.json
-cyphron + DIFF BASELINE: hanya temuan BARU (tidak ada di baseline)
+secai + DIFF BASELINE: hanya temuan BARU (tidak ada di baseline)
 yang dihitung gate.
 
 Mengisi antrean port dari mukul975/Anthropic-Cybersecurity-Skills
@@ -35,7 +35,7 @@ Input -> mekanisme -> output:
             Raw/Verified). Deteksi format PER ENTRI, bukan per file.
             --baseline FILE — output findings.json tool ini dari run
             sebelumnya (id temuan = known).
-  - Mekanisme: normalisasi -> id kontrak cyphron (make_finding,
+  - Mekanisme: normalisasi -> id kontrak secai (make_finding,
             sha256(tool|title|target|file|param)) -> redaksi nilai
             (prefix 4 + panjang, TIDAK PERNAH nilai penuh) -> diff
             vs baseline (id) -> gate.
@@ -66,7 +66,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "core"))
 from findings import make_finding, write_findings  # noqa: E402
 
-SCHEMA = "cyphron.secret-report-ingest/1"
+SCHEMA = "secai.secret-report-ingest/1"
 MAX_FILE_BYTES = 64 * 1024 * 1024
 
 SEVERITY_GITLEAKS = "high"

@@ -1,6 +1,6 @@
 ---
 name: False positive report
-about: A cyphron tool flagged something that is not real
+about: A secai tool flagged something that is not real
 title: "[fp] "
 labels: false-positive
 assignees: ""

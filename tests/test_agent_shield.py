@@ -21,7 +21,7 @@ import agent_shield as shield  # noqa: E402
 
 class ShieldEnv(unittest.TestCase):
     def setUp(self):
-        self.tmp = Path(tempfile.mkdtemp(prefix="cyphron_shield_"))
+        self.tmp = Path(tempfile.mkdtemp(prefix="secai_shield_"))
         self.watched = ("GUIDE.md", "docs/SAFETY.md", "registry.json")
         (self.tmp / "GUIDE.md").write_text(
             "# guide\nbe safe. authorized targets only.\n", encoding="utf-8")
@@ -82,11 +82,11 @@ class ShieldEnv(unittest.TestCase):
 class HashTest(unittest.TestCase):
     def test_sha256_matches_stdlib(self):
         import hashlib
-        tmp = Path(tempfile.mkdtemp(prefix="cyphron_shield_h_"))
+        tmp = Path(tempfile.mkdtemp(prefix="secai_shield_h_"))
         target = tmp / "a.txt"
-        target.write_bytes(b"cyphron")
+        target.write_bytes(b"secai")
         self.assertEqual(shield.sha256_file(target),
-                         hashlib.sha256(b"cyphron").hexdigest())
+                         hashlib.sha256(b"secai").hexdigest())
 
 
 if __name__ == "__main__":

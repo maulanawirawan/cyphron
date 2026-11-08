@@ -46,7 +46,7 @@ import re
 import sys
 from pathlib import Path
 
-SCHEMA = "cyphron.terraform-audit/1"
+SCHEMA = "secai.terraform-audit/1"
 SCAN_EXT = {".tf", ".tfvars"}
 MAX_FILE_BYTES = 4 * 1024 * 1024
 

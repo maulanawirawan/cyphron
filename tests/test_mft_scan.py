@@ -172,7 +172,7 @@ def test_out_file_read_only(tmp_path):
     rc, out = _run(p, "--out", str(tmp_path / "o.json"))
     assert rc == 0 and p.read_bytes() == before
     saved = json.loads((tmp_path / "o.json").read_text(encoding="utf-8"))
-    assert saved["schema"] == "cyphron.mft-scan/1"
+    assert saved["schema"] == "secai.mft-scan/1"
 
 
 def test_filetime_conversion():

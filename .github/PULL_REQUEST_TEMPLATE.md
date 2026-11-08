@@ -1,5 +1,5 @@
 <!--
-Thanks for the PR! cyphron has a few house rules that keep the suite
+Thanks for the PR! secai has a few house rules that keep the suite
 trustworthy. Tick them off — the CI and the guard tests will also check
 several of them, but honest boxes save a review round.
 -->

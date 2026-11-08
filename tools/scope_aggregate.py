@@ -60,7 +60,7 @@ sys.path.insert(0, str(ROOT / "tools"))
 
 import scope_gate as sg  # noqa: E402  (parser kanonik dipakai ulang)
 
-SCHEMA = "cyphron.scope-aggregate/1"
+SCHEMA = "secai.scope-aggregate/1"
 TOOL = "scope_aggregate"
 
 

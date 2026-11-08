@@ -1,4 +1,4 @@
-"""[F72][SAFETY: read-only] benchmark-accuracy — Cyphron Verification
+"""[F72][SAFETY: read-only] benchmark-accuracy — SecAI Verification
 Benchmark: mengukur precision/recall/false-positive-rate terhadap
 ground truth yang diketahui kebenarannya (aplikasi uji lokal).
 
@@ -19,7 +19,7 @@ Pipeline per run (perbaikan sesi benchmark-full-run 2026-10-30):
      disimpan sibling `.headers` (format yang dibaca load_headers skill);
      fetch root gagal = run DIBATALKAN (fail-closed, tanpa metrik);
   3. DUA scan per mode, hasil digabung di sisi harness:
-     a. scan bukti `cyphron scan --evidence <capture>` — 11 skill
+     a. scan bukti `secai scan --evidence <capture>` — 11 skill
         requires_evidence konsumsi capture (kebijakan binary: skill
         1-request di-skip saat --evidence, mode bukti nol-request);
      b. scan live tanpa --evidence — 3 skill 1-request fetch sendiri
@@ -67,7 +67,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
 from benchmark_target import serve  # noqa: E402
 
-UA = "Mozilla/5.0 (compatible; cyphron-benchmark/1.0)"
+UA = "Mozilla/5.0 (compatible; secai-benchmark/1.0)"
 FETCH_TIMEOUT = 15.0
 
 # kondisi ditanam -> skill yang diharapkan menemukannya (vulnerable mode)
@@ -157,11 +157,11 @@ def _capture_evidence(base: str, capture_dir: Path) -> dict:
         raise RuntimeError(f"capture root {base}/ gagal: HTTP {code} "
                            f"(server uji tidak sehat — run dibatalkan, "
                            f"tanpa metrik)")
-    sections = [f"<!-- cyphron-evidence section=0 name=root -->\n{root_body}"]
+    sections = [f"<!-- secai-evidence section=0 name=root -->\n{root_body}"]
     for i, p in enumerate(PROBE_PATHS, start=1):
         code_p, body_p, _ = _fetch(base + p)
         name = p.strip("/").replace("/", "-") or f"probe{i}"
-        sections.append(f"<!-- cyphron-evidence section={i} "
+        sections.append(f"<!-- secai-evidence section={i} "
                         f"name={name} status={code_p} -->\n{body_p}")
     page = capture_dir / "page.html"
     page.write_text("\n".join(sections), encoding="utf-8")
@@ -300,7 +300,7 @@ def main() -> int:
     ap.add_argument("--run", action="store_true",
                     help="jalankan benchmark penuh (dua run scan + repeat)")
     ap.add_argument("--binary", default=str(ROOT / "core-rs" / "target"
-                                            / "release" / "cyphron.exe"))
+                                            / "release" / "secai.exe"))
     ap.add_argument("--out", default=str(ROOT / "findings" / "benchmark"))
     ap.add_argument("--report", default=None,
                     help="cetak metrik dari accuracy.json tanpa scan")

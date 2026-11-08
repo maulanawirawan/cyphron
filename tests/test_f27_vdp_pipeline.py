@@ -1,6 +1,6 @@
 """Test F27 — VDP pipeline + xss-reflect-check (jalur lapor resmi).
 
-Pipa recon klasik (subfinder/httpx/katana/dalfox) versi Cyphron:
+Pipa recon klasik (subfinder/httpx/katana/dalfox) versi SecAI:
 policy-gated, bounded, zero-FP. Yang dikunci (mock, NOL jaringan):
   - xss-reflect-check: marker mentah di HTML = L2 lead; escaped /
     konteks non-HTML / error = bukan temuan; --scope-ack wajib;

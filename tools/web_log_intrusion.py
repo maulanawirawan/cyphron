@@ -43,7 +43,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from urllib.parse import unquote
 
-SCHEMA = "cyphron.web-log-intrusion/1"
+SCHEMA = "secai.web-log-intrusion/1"
 MAX_FILE_BYTES = 256 * 1024 * 1024          # bounded; lebih besar = tolak
 MAX_UNPARSED_SAMPLES = 20
 MAX_EVIDENCE_CHARS = 300

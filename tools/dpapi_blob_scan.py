@@ -34,7 +34,7 @@ import struct
 import sys
 from pathlib import Path
 
-SCHEMA = "cyphron.dpapi-blob-scan/1"
+SCHEMA = "secai.dpapi-blob-scan/1"
 PROVIDER_DPAPI = bytes.fromhex("d08c9ddf0115d1118c7a00c04fc297eb")
 MAGIC = struct.pack("<I", 1) + PROVIDER_DPAPI  # dwVersion=1 + provider GUID
 MAX_BLOBS = 10000

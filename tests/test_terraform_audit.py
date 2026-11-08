@@ -272,7 +272,7 @@ class TestFailClosed(unittest.TestCase):
         rc = tfa.main(["--source", str(p), "--out", str(out)])
         self.assertEqual(rc, 0)
         data = json.loads(out.read_text(encoding="utf-8"))
-        self.assertEqual(data["schema"], "cyphron.terraform-audit/1")
+        self.assertEqual(data["schema"], "secai.terraform-audit/1")
         rc = tfa.main(["--source", str(p), "--fail-on", "critical"])
         self.assertEqual(rc, 1)
 

@@ -8,7 +8,7 @@ Port konsep dari awarexone/Agentic-Bug-Hunter 'triage-validation' skill
 (7-Question Gate + 4 pre-submission gates + never-submit list) —
 atribusi konsep, lisensi sumber MIT. Dibangun FROM SCRATCH: pertanyaan
 dioperasikan jadi cek deterministik atas (a) temuan findings.json,
-(b) profil program --program JSON, (c) keluaran opsional tool cyphron
+(b) profil program --program JSON, (c) keluaran opsional tool secai
 lain sebagai bukti pendukung. Skill sumber = checklist naratif utk
 manusia; tool ini versi yang bisa diaudit dan dijalankan ulang.
 

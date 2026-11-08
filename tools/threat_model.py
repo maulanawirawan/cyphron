@@ -3,7 +3,7 @@
 Terinspirasi pola anthropics/oss-scanner (riset docs/RISET-OSS-SCANNER-
 2026-10.md): pemilik program bisa menyertakan threat_model.md (di mana
 input untrusted masuk, scope, panduan severity, apa yang dibiarkan).
-Cyphron memakainya sebagai KONTEKS TRIAGE OPERATOR + ringkasan laporan —
+SecAI memakainya sebagai KONTEKS TRIAGE OPERATOR + ringkasan laporan —
 TANPA mengubah verdict ladder atau classification (tetap dari bukti).
 
 Aturan fail-closed (pola riset §2):

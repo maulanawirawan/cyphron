@@ -5,7 +5,7 @@ Port konsep dari awarexone/Agentic-Bug-Hunter (MIT) — memory/pattern_db.py
 + memory/rotation.py + commands/remember.md (patterns.jsonl: pola sukses
 terindeks kelas vuln + tech-stack, dedup per triplet, rotasi ukuran file).
 Atribusi konsep, lisensi sumber MIT. Dibangun FROM SCRATCH untuk kontrak
-cyphron: stdlib, argparse + type hints, fail-closed, nol jaringan.
+secai: stdlib, argparse + type hints, fail-closed, nol jaringan.
 
 RANAH EKSPLISIT (mini-program ABH-PORT — anti-tabrakan):
   - session_ledger.py = rantai bukti PER-SESI (fact/intent) — TIDAK

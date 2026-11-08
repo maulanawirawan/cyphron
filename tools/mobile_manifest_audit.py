@@ -13,7 +13,7 @@ sisi statis: allowBackup/debuggable/cleartext + plaintext prefs;
 atribusi konsep, lisensi sumber Apache-2.0). Dibangun FROM SCRATCH:
 parser binary AXML (format AOSP ResStringPool/ResXMLTree) ditulis
 sendiri dgn struct stdlib — skill sumber memakai apktool/drozer/Frida
-(rooted device, detonasi live = di luar kelas tool cyphron; sisi
+(rooted device, detonasi live = di luar kelas tool secai; sisi
 pemangsaan deep link aktif via am start TIDAK dilakukan di sini).
 
 Input -> mekanisme -> output:
@@ -88,7 +88,7 @@ import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
-SCHEMA = "cyphron.mobile-manifest-audit/1"
+SCHEMA = "secai.mobile-manifest-audit/1"
 MAX_FILE_BYTES = 64 * 1024 * 1024
 MAX_EVIDENCE_CHARS = 120
 MAX_UNPARSED_SAMPLES = 10

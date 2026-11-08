@@ -5,7 +5,7 @@ Konsep "three-arm proof" (representative wajib GAGAL di baseline dan LULUS
 di patched; control LULUS di kedua lengan; tiap lengan disimpan sebagai
 receipt) mengacu pada skill prove-patch di repo trailofbits/skills (8k+
 stars, CC-BY-SA-4.0) — dibangun from scratch TANPA kode dari repo itu.
-Lisensi cyphron: PolyForm NC.
+Lisensi secai: PolyForm NC.
 
 Masalah yang dijawab: klaim "bug sudah diperbaiki" sering hanya diuji satu
 sisi (lulus sesudah patch) tanpa membuktikan lengan sebelumnya memang GAGAL
@@ -35,7 +35,7 @@ Putusan (fail-closed, diuji berurutan):
 
 Read-only terhadap repo target: checkout aktif tidak disentuh — pembuktian
 lewat `git worktree add --detach` terpisah yang selalu dibersihkan (finally).
-NOL jaringan. Output: bukti JSON (schema cyphron.patch-proof/1) + ringkasan.
+NOL jaringan. Output: bukti JSON (schema secai.patch-proof/1) + ringkasan.
 Exit: 0 PROVED; 1 NOT_PROVED; 2 input error; 3 INCONCLUSIVE.
 
 Pemakaian:
@@ -54,7 +54,7 @@ import tempfile
 import time
 from pathlib import Path
 
-SCHEMA = "cyphron.patch-proof/1"
+SCHEMA = "secai.patch-proof/1"
 CASE_PREFIX = "PATCH_CASE "
 REACHED_MARKER = "PATCH_REACHED"
 ROLES = ("representative", "control")

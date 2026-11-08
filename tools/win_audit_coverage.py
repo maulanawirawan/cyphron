@@ -8,7 +8,7 @@ Anthropic-Cybersecurity-Skills, skill 'configuring-windows-event-logging-
 for-detection' — advanced audit policy, process creation + command line,
 ukuran log, forwarding; atribusi konsep). Dibangun FROM SCRATCH: parser
 CSV auditpol dan parser blok wevtutil ditulis sendiri — tidak menyalin
-kode sumber. Lisensi cyphron: PolyForm NC.
+kode sumber. Lisensi secai: PolyForm NC.
 
 Input -> mekanisme -> output:
   - Input : (a) output `auditpol /get /category:* /r` (CSV) dan/atau
@@ -59,7 +59,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
-SCHEMA = "cyphron.win-audit-coverage/1"
+SCHEMA = "secai.win-audit-coverage/1"
 
 SEV_ORDER = {"info": 0, "medium": 1, "high": 2}
 SEV_HIGH = "high"

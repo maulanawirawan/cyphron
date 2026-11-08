@@ -4,13 +4,13 @@ bukan hanya working tree.
 Inti keamanan alur "open-sourcing" (konsep dari skill open-sourcing repo
 trailofbits/skills — 8k+ stars, CC-BY-SA-4.0: audit rahasia wajib PALING
 AWAL karena hasilnya menentukan repo dipublikasikan apa dibuat ulang) yang
-belum dipadankan di cyphron: repo-secret-scan melewati direktori .git —
+belum dipadankan di secai: repo-secret-scan melewati direktori .git —
 coverage-nya working tree saja. Rahasia di commit lama tetap bocor begitu
 repo privat dipublikasikan, meski sudah lama dihapus di HEAD. Tool ini
 menutup gap itu. Dibangun from scratch (mekanisme walk-objek git ditulis
 sendiri); kosakata pola DIPAKAI ULANG dari repo-secret-scan supaya disiplin
 zero-FP identik (pola kuat + generik berentropi + penekan placeholder +
-masking nilai). Lisensi cyphron: PolyForm NC.
+masking nilai). Lisensi secai: PolyForm NC.
 
 Mekanisme (NOL jaringan, objek git lokal):
   1. `git rev-list --objects --all` (dibatasi --max-commits commit terbaru,
@@ -23,7 +23,7 @@ Mekanisme (NOL jaringan, objek git lokal):
   5. Blob yang ditandai dipetakan ke commit pengenalnya
      (`git log --all --find-object`, dibatasi --max-intro-commits).
 
-Temuan = make_finding kontrak cyphron: status "confirmed" (blob terbukti
+Temuan = make_finding kontrak secai: status "confirmed" (blob terbukti
 ada di riwayat — bukti sha blob + commit), verdict L2 REPRODUCED (bukti
 path+baris; klaim "terlihat publik" butuh konteks publikasi, bukan L3).
 Nilai rahasia TIDAK pernah dicetak penuh (mask: prefix 6 + panjang).
@@ -47,7 +47,7 @@ sys.path.insert(0, str(ROOT / "core"))
 from findings import make_finding, write_findings  # noqa: E402
 import repo_secret_scan as rss  # noqa: E402  (kosakata pola + shannon + mask)
 
-SCHEMA = "cyphron.secret-history-scan/1"
+SCHEMA = "secai.secret-history-scan/1"
 TOOL_NAME = "secret-history-scan"
 MAX_COMMITS_DEFAULT = 5000
 MAX_BLOBS = 20000

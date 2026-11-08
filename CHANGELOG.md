@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to cyphron are documented here. Dates are UTC.
+All notable changes to secai are documented here. Dates are UTC.
 The format follows [Keep a Changelog](https://keepachangelog.com); the
 project has not adopted semver yet — treat the badge numbers (tests)
 as the compatibility signal.
@@ -10,12 +10,19 @@ as the compatibility signal.
 ### Repo hygiene
 
 - Added community health files: `.github/SECURITY.md` (vulnerability
-  reporting policy for cyphron itself), `.github/CODE_OF_CONDUCT.md`
+  reporting policy for secai itself), `.github/CODE_OF_CONDUCT.md`
   (Contributor Covenant 2.1), `.github/PULL_REQUEST_TEMPLATE.md`
   (house rules as a checklist), `.github/ISSUE_TEMPLATE/` (bug report,
   feature request, and a first-class **false positive report** form —
   FP reports tighten every detector's anti-FP floor).
 - Added this `CHANGELOG.md`.
+- **Project renamed: `cyphron` → `secai`** (SECurity + Agentic/AI —
+  short and searchable). Mechanical rename across 298 files: the CLI,
+  binary, MCP tool names, findings-contract schema strings, docs, and
+  community files. Old repo URLs redirect after the GitHub-side
+  rename. Presentation is now English-first (`README.id.md` removed).
+- Added `## Roadmap` and `install.sh` (one-command build + link).
+
 - `README.md` (+ es/id/zh): capability map (what the port program
   built, grouped by domain), commands cheat-sheet, community section.
 - **ABH mini-program** (concept source: awarexone/Agentic-Bug-Hunter,
@@ -65,5 +72,5 @@ methodology distilled from the 800+ concepts that were not tool-shaped)*
 - GitHub Push Protection lesson codified: test fixtures containing
   secret-shaped strings are built at runtime, never as literals.
 
-[Unreleased]: https://github.com/maulanawirawan/cyphron/compare/v0.1.0...HEAD
-[v0.1.0]: https://github.com/maulanawirawan/cyphron/releases/tag/v0.1.0
+[Unreleased]: https://github.com/maulanawirawan/secai/compare/v0.1.0...HEAD
+[v0.1.0]: https://github.com/maulanawirawan/secai/releases/tag/v0.1.0

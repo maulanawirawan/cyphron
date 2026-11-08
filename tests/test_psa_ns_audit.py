@@ -369,7 +369,7 @@ metadata:
             rc = pna.main(["--source", str(src), "--out", str(out)])
             rep = json.loads(out.read_text(encoding="utf-8"))
             self.assertEqual(rc, 0)
-            self.assertEqual(rep["schema"], "cyphron.psa-ns-audit/1")
+            self.assertEqual(rep["schema"], "secai.psa-ns-audit/1")
 
     def test_list_items_recursed(self):
         import io

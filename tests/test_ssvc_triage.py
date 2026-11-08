@@ -345,7 +345,7 @@ class Cli(unittest.TestCase):
                          + CLI_DEFAULTS + ["--out", str(out)])
             self.assertEqual(rc, 0)
             data = json.loads(out.read_text(encoding="utf-8"))
-            self.assertEqual(data["schema"], "cyphron.ssvc-triage/1")
+            self.assertEqual(data["schema"], "secai.ssvc-triage/1")
             row = data["vulnerabilities"][0]
             self.assertEqual(row["decision"], "act")
             self.assertEqual(row["ssvc_outcome"], "immediate")

@@ -2,7 +2,7 @@
 
 Konsep antrean SKILL-PORT-QUEUE #0030 'firebase-apk-scanner' dari
 trailofbits/skills (CC-BY-SA-4.0, atribusi); dibangun from scratch pakai
-stdlib saja (APK = ZIP — no apktool/jadx). Lisensi cyphron: PolyForm NC.
+stdlib saja (APK = ZIP — no apktool/jadx). Lisensi secai: PolyForm NC.
 
 Yang diperiksa (read-only, NOL jaringan):
   - assets/resources/google-services.json + strings.xml di dalvik path
@@ -30,7 +30,7 @@ import sys
 import zipfile
 from pathlib import Path
 
-SCHEMA = "cyphron.apk-firebase/1"
+SCHEMA = "secai.apk-firebase/1"
 MAX_ENTRY_BYTES = 8 * 1024 * 1024
 
 SENSITIVE_NAMES = re.compile(

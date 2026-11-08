@@ -2,9 +2,9 @@
 dengan jaringan DITOLAK sebelum koneksi (enforced).
 
 Pola anthropics/oss-scanner (docs/RISET-OSS-SCANNER-2026-10.md): build/
-persiapan boleh online, AUDIT berjalan tanpa internet. Cyphron memakai
+persiapan boleh online, AUDIT berjalan tanpa internet. SecAI memakai
 net-guard (Fase 2-B) untuk menegakkan itu: setiap proses skill di-spawn
-runner mewarisi env CYPHRON_NET_GUARD=1 + budget file LIMIT 0 — koneksi
+runner mewarisi env SECAI_NET_GUARD=1 + budget file LIMIT 0 — koneksi
 apapun (TCP/UDP) DITOLAK SEBELUM connect(); yang lolos hanya skill yang
 benar-benar 0-request (needs=source).
 
@@ -31,9 +31,9 @@ sys.path.insert(0, str(ROOT / "tools"))
 # implementasi satu kontrak, pola anthropics/oss-scanner). Tidak
 # di-import: `import net_guard` bisa tertelan namespace package
 # tools/net_guard/ (berisi sitecustomize) alih-alih core/net_guard.py.
-GUARD_ENV = "CYPHRON_NET_GUARD"
-BUDGET_ENV = "CYPHRON_NET_BUDGET_FILE"
-AUDIT_ENV = "CYPHRON_NET_AUDIT"
+GUARD_ENV = "SECAI_NET_GUARD"
+BUDGET_ENV = "SECAI_NET_BUDGET_FILE"
+AUDIT_ENV = "SECAI_NET_AUDIT"
 
 
 def build_env(source_dir: Path, out_dir: Path,
@@ -84,7 +84,7 @@ def main() -> int:
                     help="folder output (findings + bukti enforcement)")
     ap.add_argument("--registry", default=str(ROOT / "skills" / "registry.json"))
     ap.add_argument("--binary", default=str(ROOT / "core-rs" / "target"
-                                            / "release" / "cyphron.exe"))
+                                            / "release" / "secai.exe"))
     ap.add_argument("--evidence", default=None,
                     help="opsional: capture evidence untuk skill read-only")
     args = ap.parse_args()

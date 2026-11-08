@@ -1,6 +1,6 @@
 r"""[AUDIT: read-only] stix_bundle_audit — validasi OFFLINE bundle STIX
 2.1 (struktur, tata bahasa ID, properti wajib, integritas referensi,
-pola indikator) + ekstraksi tabel IOC datar untuk triase cyphron.
+pola indikator) + ekstraksi tabel IOC datar untuk triase secai.
 
 Mengisi antrean port dari mukul975/Anthropic-Cybersecurity-Skills
 'skills/implementing-security-information-sharing-with-stix2' (#0703 —
@@ -16,7 +16,7 @@ Sisi yang TIDAK diport (eksplisit): TAXII 2.1 transport/poll/push
 ops; konsumen feed tinggal menyimpan bundle JSON lalu mengauditnya
 offline di sini (cf. intel_sync untuk freshness feed).
 
-Kenapa cyphron butuh ini: bundle intel eksternal (ISAC/TIP/ATT&CK)
+Kenapa secai butuh ini: bundle intel eksternal (ISAC/TIP/ATT&CK)
 tidak punya jalur masuk — validasi manual = risiko "temuan terbaca
 bersih karena di-skip diam-diam". Tool ini menghitung SEMUA
 ketidakpatuhan (fail-closed) dan mengekstrak IOC datar yang bisa
@@ -39,7 +39,7 @@ Input -> mekanisme -> output:
             stale; (4) ekstraksi IOC dari pattern yang dikenali:
             ipv4-addr/ipv6-addr/domain-name/url/email-addr/file
             (hashes + name)/windows-registry-key.
-  - Output: findings.json (kontrak cyphron) + meta per file +
+  - Output: findings.json (kontrak secai) + meta per file +
             iocs[] datar {type, value, indicator_id, name,
             hash_valid} siap dipakai tool triase lain.
 
@@ -69,7 +69,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "core"))
 from findings import make_finding, write_findings  # noqa: E402
 
-SCHEMA = "cyphron.stix-bundle-audit/1"
+SCHEMA = "secai.stix-bundle-audit/1"
 MAX_FILE_BYTES = 64 * 1024 * 1024
 
 SDO_TYPES = {

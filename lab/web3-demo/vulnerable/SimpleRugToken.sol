@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 // KONTRAK DEMO LIVE-VERIFY (analisis statis; BUKAN untuk deploy).
-// Contoh realistis karya sendiri untuk cyphron W2 — token bergaya meme
+// Contoh realistis karya sendiri untuk secai W2 — token bergaya meme
 // dengan vektor rug yang seharusnya tertangkap tools/token_rug_scan.py.
 // Bukan untuk deploy; pipeline tool ini murni analisis teks/struktur.
 pragma solidity ^0.8.13;

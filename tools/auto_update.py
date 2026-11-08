@@ -35,7 +35,7 @@ import detection_freshness  # noqa: E402
 import intel_sync  # noqa: E402
 from findings import make_finding, write_findings  # noqa: E402
 
-TASK_NAME = "cyphron-intel-daily"
+TASK_NAME = "secai-intel-daily"
 DEFAULT_COMPONENTS = ("nuclei-templates", "kev", "cwe", "watchlist",
                       "nvd-ranges")
 

@@ -9,7 +9,7 @@ lisensi sumber Apache-2.0). Dibangun FROM SCRATCH: daftar cek ditulis
 sendiri dari kontrol hardening publik (non-root, pin digest, tanpa
 secret di ENV, daemon icc/live-restore/log, compose privileged).
 Skill sumber = runbook live (docker-bench/Hadolint/Dockle + docker
-runtime); cyphron memilih audit statis file konfigurasi supaya nol
+runtime); secai memilih audit statis file konfigurasi supaya nol
 jaringan dan dapat dites. Ranah: audit konfigurasi SAAT-DEPLOY; audit
 runtime image teramati (drift T1611) = ranah deteksi runtime (METHODS
 seksi 51), bukan tool ini.
@@ -70,7 +70,7 @@ import re
 import sys
 from pathlib import Path
 
-SCHEMA = "cyphron.docker-audit/1"
+SCHEMA = "secai.docker-audit/1"
 MAX_FILE_BYTES = 4 * 1024 * 1024
 
 _SECRET_NAME = re.compile(

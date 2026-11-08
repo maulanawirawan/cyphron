@@ -138,7 +138,7 @@ class TestCLI(unittest.TestCase):
             r1 = self._run("--log", str(beacon), "--json")
             self.assertEqual(r1.returncode, 1)
             out = json.loads(r1.stdout)
-            self.assertEqual(out["schema"], "cyphron.zeek-beacon-scan/1")
+            self.assertEqual(out["schema"], "secai.zeek-beacon-scan/1")
             self.assertEqual(out["candidates"][0]["port"], 443)
 
             noise = Path(td) / "noise.log"

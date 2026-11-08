@@ -87,7 +87,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from k8s_rbac_audit import parse_documents  # noqa: E402
 
-SCHEMA = "cyphron.psa-ns-audit/1"
+SCHEMA = "secai.psa-ns-audit/1"
 MAX_FILE_BYTES = 4 * 1024 * 1024
 SCAN_EXT = {".yaml", ".yml", ".json"}
 

@@ -11,7 +11,7 @@ sysmon', 'detecting-t1548-abuse-elevation-control-mechanism',
 Apache-2.0). Dibangun FROM SCRATCH: parser XML + taksonomi deteksi
 ditulis sendiri dari konsep deteksi publik (access mask Windows,
 event ID Sysmon, token cmdline alat dump). Skill sumber menyaring
-telemetri via SIEM live (Splunk/KQL/Sigma); cyphron memilih artefak
+telemetri via SIEM live (Splunk/KQL/Sigma); secai memilih artefak
 offline (ekspor XML Sysmon) supaya nol jaringan dan dapat dites.
 
 Input -> mekanisme -> output:
@@ -92,7 +92,7 @@ import xml.etree.ElementTree as ET
 from datetime import datetime, timezone
 from pathlib import Path
 
-SCHEMA = "cyphron.sysmon-triage/1"
+SCHEMA = "secai.sysmon-triage/1"
 MAX_FILE_BYTES = 256 * 1024 * 1024
 
 WATCHED_EIDS = frozenset({1, 7, 8, 10, 12, 13, 19, 20, 21, 25})

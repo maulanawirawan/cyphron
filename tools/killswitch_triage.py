@@ -42,7 +42,7 @@ Input -> mekanisme -> output:
     EXACT case-insensitive (tanpa trailing dot) pada token DNS.
             Indikator bertipe registry/file dihitung sebagai
     "tanpa-kanal" (dilaporkan, TIDAK pernah dianggap bersih).
-  - Output: findings.json (kontrak cyphron) + vaccination_manifest
+  - Output: findings.json (kontrak secai) + vaccination_manifest
     (mutex utk di-pre-create per keluarga) + sinkhole_candidates
     (domain); meta menghitung event/baris ter-parse, indikator
     tanpa-kanal, DB bawaan vs tambahan.
@@ -80,7 +80,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "core"))
 from findings import make_finding, write_findings  # noqa: E402
 
-SCHEMA = "cyphron.killswitch-triage/1"
+SCHEMA = "secai.killswitch-triage/1"
 MAX_FILE_BYTES = 16 * 1024 * 1024
 
 # Benih bawaan — konstanta IOC publik (atribusi konsep #0691, skill

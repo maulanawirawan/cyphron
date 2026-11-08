@@ -2,7 +2,7 @@
 
 Python meng-import module bernama `sitecustomize` secara otomatis saat
 startup. Runner Rust memuat modul ini lewat PYTHONPATH yang memuat
-tools/net_guard. Hanya bertindak bila CYPHRON_NET_GUARD=1 (dilihat
+tools/net_guard. Hanya bertindak bila SECAI_NET_GUARD=1 (dilihat
 core/net_guard.auto_install_from_env); tanpa env itu, Python biasa —
 perilaku skill manual tidak berubah.
 
@@ -17,6 +17,6 @@ try:
     from core.net_guard import auto_install_from_env
     auto_install_from_env()
 except Exception as _exc:  # pragma: no cover — jalur startup
-    if sys.modules.get("cyphron_net_guard_expected"):
+    if sys.modules.get("secai_net_guard_expected"):
         print(f"WARN: sitecustomize net-guard gagal: {_exc}",
               file=sys.stderr)

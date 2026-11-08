@@ -48,7 +48,7 @@ import sys
 from datetime import date, datetime, timezone
 from pathlib import Path
 
-SCHEMA = "cyphron.vuln-exception-check/1"
+SCHEMA = "secai.vuln-exception-check/1"
 MAX_FILE_BYTES = 4 * 1024 * 1024
 
 # kategori -> (maks hari, butuh kontrol kompensasi)

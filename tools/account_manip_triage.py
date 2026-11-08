@@ -10,7 +10,7 @@ Anthropic-Cybersecurity-Skills 'hunting-for-t1098-account-manipulation';
 atribusi konsep, lisensi sumber Apache-2.0). Dibangun FROM SCRATCH:
 parser XML + taksonomi event/deteksi ditulis sendiri dari spesifikasi
 event audit Windows yang terdokumentasi publik. Skill sumber memakai
-SIEM (python-evtx/Splunk); cyphron memilih artefak offline (ekspor XML
+SIEM (python-evtx/Splunk); secai memilih artefak offline (ekspor XML
 Security via Event Viewer/wevtutil) supaya nol jaringan dan dapat
 dites. Ranah logon 4624/4625 TIDAK disentuh (win_logon_triage B16/
 win_auth_triage B15); 4662 replikasi = dcsync_triage B19.
@@ -71,7 +71,7 @@ import xml.etree.ElementTree as ET
 from datetime import datetime, timezone
 from pathlib import Path
 
-SCHEMA = "cyphron.account-manip-triage/1"
+SCHEMA = "secai.account-manip-triage/1"
 MAX_FILE_BYTES = 256 * 1024 * 1024
 
 WATCHED_EIDS = frozenset({4720, 4724, 4738, 4765, 4766, 5136,

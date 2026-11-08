@@ -162,7 +162,7 @@ Format setiap pola: `Celah → Kenapa terjadi → Sinyal deteksi → Perbaikan �
 
 ## Ringkasan pola → kelas CWE
 
-| Pola | CWE | Kelas temuan Cyphron |
+| Pola | CWE | Kelas temuan SecAI |
 |---|---|---|
 | 1 Hardcoded JWT key | CWE-798 | auth-bypass |
 | 2 Middleware key mismatch | CWE-306 | missing-auth |

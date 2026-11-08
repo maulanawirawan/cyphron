@@ -188,7 +188,7 @@ def test_out_file_written(tmp_path):
     rc, _, _ = _run("--probes", str(p), "--out", str(o))
     assert rc == 1 and o.exists()
     rep = json.loads(o.read_text(encoding="utf-8"))
-    assert rep["schema"] == "cyphron.ssti-engine-id/1"
+    assert rep["schema"] == "secai.ssti-engine-id/1"
 
 
 def test_deterministic_output(tmp_path):

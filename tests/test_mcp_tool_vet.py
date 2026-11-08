@@ -221,7 +221,7 @@ class TestCli(unittest.TestCase):
                        "--out", str(out)])
         self.assertEqual(rc, 0)
         data = json.loads(out.read_text(encoding="utf-8"))
-        self.assertEqual(data["schema"], "cyphron.mcp-tool-vet/1")
+        self.assertEqual(data["schema"], "secai.mcp-tool-vet/1")
         self.assertEqual(data["summary"]["findings_total"], 0)
 
     def test_write_pin_lalu_pin_cocok(self):

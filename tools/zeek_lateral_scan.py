@@ -7,11 +7,11 @@ dan penulisan file ke admin share.
 Mengisi antrean port SKILL-PORT-QUEUE #0427 (mukul975/Anthropic-
 Cybersecurity-Skills 'detecting-lateral-movement-with-zeek' — lisensi
 sumber Apache-2.0, atribusi konsep — kode dibangun from scratch TANPA
-menyalin kode sumber; skrip Zeek sumber berjalan live di sensor, cyphron
+menyalin kode sumber; skrip Zeek sumber berjalan live di sensor, secai
 memilih POST-HOC analisis file log sehingga nol jaringan dan dapat
 dites).
 
-Pembagian ranah dgn alat cyphron lain (anti-duplikasi):
+Pembagian ranah dgn alat secai lain (anti-duplikasi):
   - Beaconing/konektivitas DNS dari log Zeek -> tools/zeek_beacon_scan
     (B13) + dns_log_triage (B07); di sini hanya lateral (SMB/DCE-RPC/
     NTLM).
@@ -69,7 +69,7 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 
-SCHEMA = "cyphron.zeek-lateral-scan/1"
+SCHEMA = "secai.zeek-lateral-scan/1"
 MAX_FILE_BYTES = 64 * 1024 * 1024
 
 ADMIN_SHARE_RE = re.compile(r"(?i)(c\$|admin\$|ipc\$)\s*$")

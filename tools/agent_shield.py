@@ -47,7 +47,7 @@ LOCK_PATH = ROOT / "agent-shield.lock.json"
 WATCHED_FILES = (
     "SKILL.md",
     "AGENTS.md",
-    ".claude/skills/cyphron/SKILL.md",
+    ".claude/skills/secai/SKILL.md",
     "docs/AGENT-SAFETY.md",
     "docs/LEGION-METHOD.md",
     "skills/registry.json",

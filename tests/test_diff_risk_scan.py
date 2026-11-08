@@ -151,7 +151,7 @@ class TestCli(unittest.TestCase):
         fd.write_text(DIFF_SAMPLE, encoding="utf-8")
         drs.main(["--file", str(fd), "--out", str(out)])
         d = json.loads(out.read_text(encoding="utf-8"))
-        self.assertEqual(d["schema"], "cyphron.diff-risk/1")
+        self.assertEqual(d["schema"], "secai.diff-risk/1")
 
 
 if __name__ == "__main__":

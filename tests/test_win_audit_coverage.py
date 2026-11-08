@@ -163,7 +163,7 @@ class TestCLI(unittest.TestCase):
         self.assertEqual(wa.main(["--auditpol", str(f), "--wevtutil", str(w),
                                   "--json", str(jf)]), 1)
         data = json.loads(jf.read_text(encoding="utf-8"))
-        self.assertEqual(data["schema"], "cyphron.win-audit-coverage/1")
+        self.assertEqual(data["schema"], "secai.win-audit-coverage/1")
         self.assertEqual(len(data["sources"]), 2)
         self.assertGreater(data["summary"]["medium"], 0)
 

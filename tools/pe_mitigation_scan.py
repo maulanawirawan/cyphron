@@ -11,7 +11,7 @@ mitigasi yang diklaim — berguna untuk (a) memastikan target lab
 benar-benar menguji jalur bypass, (b) inventaris perangkat lunak yang
 belum di-hardening. Ditulis from scratch dari spesifikasi publik
 PE/COFF Microsoft (PE Format, winnt.h IMAGE_OPTIONAL_HEADER) — TANPA
-menyalin kode dari repo sumber. Lisensi cyphron: PolyForm NC.
+menyalin kode dari repo sumber. Lisensi secai: PolyForm NC.
 
 Yang dicek (bit DllCharacteristics, offset 70 optional header — sama
 untuk PE32 dan PE32+):
@@ -47,7 +47,7 @@ import struct
 import sys
 from pathlib import Path
 
-SCHEMA = "cyphron.pe-mitigation-scan/1"
+SCHEMA = "secai.pe-mitigation-scan/1"
 MAX_FILE_BYTES = 512 * 1024 * 1024  # 512 MB — biner besar tetap diurai
 
 # bit DllCharacteristics -> (id mitigasi, deskripsi)

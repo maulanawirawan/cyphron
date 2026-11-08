@@ -2,11 +2,11 @@
 
 Konsep "verification-before-completion" (Iron Law: NO COMPLETION CLAIMS
 WITHOUT FRESH VERIFICATION EVIDENCE) dipopulerkan repo obra/superpowers
-(313k+ stars, MIT). Cyphron sudah punya kontrak "No proof, no report"
+(313k+ stars, MIT). SecAI sudah punya kontrak "No proof, no report"
 untuk temuan; tool ini menutup sisanya — klaim STATUS pekerjaan ("suite
 hijau", "CI lulus", "regresi ditutup") juga wajib bukti. Dibangun
 from scratch (tidak ada kode dari repo tersebut); atribusi konsep di
-docstring ini. Lisensi cyphron: PolyForm NC.
+docstring ini. Lisensi secai: PolyForm NC.
 
 Fail-closed tegas:
   - gate tanpa definisi cek            -> BLOCKED (bukan VERIFIED)
@@ -29,7 +29,7 @@ Mekanisme gate function (lima langkah, semua wajib):
 
 Format gate file (JSON):
   {
-    "claim": "suite cyphron hijau untuk PR ini",
+    "claim": "suite secai hijau untuk PR ini",
     "checks": [
       {
         "name": "unittest inti",
@@ -48,7 +48,7 @@ Pemakaian:
   python tools/verify_gate.py --gate gate.json --out gate-evidence.json
   python tools/verify_gate.py --claim "x" --cmd "python -m pytest -q" \
       --expect-regex "[0-9]+ passed"
-  (mode `gate` di cyphron.py meneruskan ke sini.)
+  (mode `gate` di secai.py meneruskan ke sini.)
 """
 from __future__ import annotations
 
@@ -166,7 +166,7 @@ def run_gate(gate: dict, now: "float | None" = None) -> dict:
     if not gate.get("checks"):
         # fail-closed: gate tanpa cek tidak boleh VERIFIED
         return {
-            "schema": "cyphron.verify-gate/1",
+            "schema": "secai.verify-gate/1",
             "verdict": VERDICT_BLOCKED,
             "claim": str(gate.get("claim", "")),
             "started_utc": time.strftime(
@@ -226,7 +226,7 @@ def run_gate(gate: dict, now: "float | None" = None) -> dict:
         if failures:
             verdict = VERDICT_BLOCKED  # fail-closed: tidak ada short-circuit
     evidence = {
-        "schema": "cyphron.verify-gate/1",
+        "schema": "secai.verify-gate/1",
         "verdict": verdict,
         "claim": gate["claim"],
         "started_utc": started_iso,

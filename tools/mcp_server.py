@@ -1,4 +1,4 @@
-"""MCP server untuk skills cyphron — pakai skills dari Claude Code/Cursor.
+"""MCP server untuk skills secai — pakai skills dari Claude Code/Cursor.
 
 Registry (skills/registry.json) adalah ALLOWLIST: hanya skill yang
 terdaftar yang bisa dijalankan, dan hanya kelas mode tier0 (read-only /
@@ -25,7 +25,7 @@ import sys
 import time
 from pathlib import Path
 
-ROOT = Path(os.environ.get("CYPHRON_ROOT",
+ROOT = Path(os.environ.get("SECAI_ROOT",
                            Path(__file__).resolve().parents[1]))
 sys.path.insert(0, str(ROOT / "core"))
 from findings import validate_finding  # noqa: E402
@@ -177,11 +177,11 @@ def main() -> None:
         print("paket 'mcp' belum terpasang: pip install 'mcp[cli]' — "
               "fail-closed", file=sys.stderr)
         raise SystemExit(2)
-    mcp = FastMCP("cyphron")
+    mcp = FastMCP("secai")
 
     @mcp.tool()
-    def cyphron_list_skills() -> str:
-        """Daftar skill cyphron yang boleh dijalankan (allowlist tier0)."""
+    def secai_list_skills() -> str:
+        """Daftar skill secai yang boleh dijalankan (allowlist tier0)."""
         reg = load_registry()
         return json.dumps({
             "ok": True,
@@ -194,9 +194,9 @@ def main() -> None:
         }, ensure_ascii=False)
 
     @mcp.tool()
-    def cyphron_run_skill(name: str, target: str = "", domain: str = "",
+    def secai_run_skill(name: str, target: str = "", domain: str = "",
                           evidence: str = "") -> str:
-        """Jalankan satu skill cyphron terhadap target/domain. Skill
+        """Jalankan satu skill secai terhadap target/domain. Skill
         read-only/1-request/bounded-requests saja (kelas lab tidak
         diekspos). Hasil divalidasi kontrak sebelum dikembalikan."""
         return run_skill(

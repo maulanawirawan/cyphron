@@ -9,7 +9,7 @@ FROM SCRATCH: detektor + Luhn + ladder severity ditulis sendiri dari
 konsep Macie publik (custom data identifier: regex + keywords +
 maximum-match-distance + severity-levels per occurrencesThreshold;
 allow list utk FP). Skill sumber menjalankan Macie di S3 via boto3;
-cyphron memindai FILE LOKAL (log/CSV/JSON/HTML lab) — kategori sama
+secai memindai FILE LOKAL (log/CSV/JSON/HTML lab) — kategori sama
 (PII, finansial, kredensial), sumber berbeda. Ranah TIDAK diduplikasi:
 secret_history_scan/zeroize_scan/js_secret_scanner_v2 mengejar KREDENSIAL
 di tempat spesifik (git history, memori C/C++, evidence JS) — tool ini

@@ -301,7 +301,7 @@ def test_out_file_read_only(tmp_path):
     rc, out = _run(p, "--out", str(tmp_path / "o.json"))
     assert rc == 0 and p.read_bytes() == before
     saved = json.loads((tmp_path / "o.json").read_text(encoding="utf-8"))
-    assert saved["schema"] == "cyphron.packer-scan/1"
+    assert saved["schema"] == "secai.packer-scan/1"
     assert saved["sha256"] == __import__("hashlib").sha256(
         blob).hexdigest()
 

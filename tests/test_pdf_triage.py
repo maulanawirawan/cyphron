@@ -140,7 +140,7 @@ def test_out_file_read_only(tmp_path):
     assert rc == 0 and p.read_bytes() == before
     assert (tmp_path / "o.json").is_file()
     saved = json.loads((tmp_path / "o.json").read_text(encoding="utf-8"))
-    assert saved["schema"] == "cyphron.pdf-triage/1"
+    assert saved["schema"] == "secai.pdf-triage/1"
 
 
 def test_jbig2decode_high(tmp_path):

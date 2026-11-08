@@ -3,7 +3,7 @@ kerja panjang (nightrun, operator AI, handover antar sesi).
 
 Terinspirasi mekanisme "History" sapper-v2 (fact-intent graph): sesi mati,
 graph-nya yang survive — penerus baca graph dan langsung kerja tanpa
-mengulang dari nol. Dibangun from scratch dengan kontrak cyphron: bukti
+mengulang dari nol. Dibangun from scratch dengan kontrak secai: bukti
 opsional tapi selalu bisa di-drill, baris korup tidak boleh meracuni
 graph secara senyap (fail-closed: dihitung dan dilaporkan).
 

@@ -16,7 +16,7 @@ dibangun di sini (nol jaringan); skor di sini = sinyal awal, bukan
 verdict. Entri #0470 (npm/PyPI registry API) dilayani batasan yang
 sama dan dicatat di meta.
 
-Padanan cyphron yang ada dan TIDAK diduplikasi:
+Padanan secai yang ada dan TIDAK diduplikasi:
   - dep_confusion_check  : nama internal yang klaimable di registry
   - supplychain_check    : pin versi/hash + blocklist paket beracun
   - skills/typosquat_watch (CT drift domain, bukan nama paket)
@@ -67,7 +67,7 @@ import re
 import sys
 from pathlib import Path
 
-SCHEMA = "cyphron.pkg-typosquat-check/1"
+SCHEMA = "secai.pkg-typosquat-check/1"
 MAX_FILE_BYTES = 8 * 1024 * 1024
 MAX_UNPARSED_SAMPLES = 20
 

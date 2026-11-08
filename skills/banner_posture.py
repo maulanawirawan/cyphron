@@ -1,6 +1,6 @@
 """[SAFETY: 1-request] Banner posture audit — SATU GET ke halaman utama.
 
-Skill v2 (produk Cyphron). Batas keras: TEPAT SATU permintaan GET ke
+Skill v2 (produk SecAI). Batas keras: TEPAT SATU permintaan GET ke
 halaman utama host — setara satu kunjungan browser. Tidak ada bruteforce
 path, tidak ada scan direktori, tidak ada probing parameter. Ini kelas
 data yang dilihat siapa pun yang membuka situs di browser.

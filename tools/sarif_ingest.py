@@ -7,9 +7,9 @@ CodeQL menaruh severity di rule, bukan di result, sehingga pembacaan
 `result.level` saja membuat run penuh error terbaca bersih), normalisasi path
 lintas tool, fingerprint stabil untuk dedup, agregasi multi-file. Ditulis dari
 nol dengan stdlib saja (tanpa jaringan); bukan salinan kode pihak lain.
-Lisensi cyphron: PolyForm NC.
+Lisensi secai: PolyForm NC.
 
-Kenapa cyphron butuh ini: exploit_ci_gate.py bisa MENG-EXPORT SARIF, tetapi
+Kenapa secai butuh ini: exploit_ci_gate.py bisa MENG-EXPORT SARIF, tetapi
 temuan scanner eksternal (CodeQL/Semgrep/semacamnya) tidak punya jalur masuk —
 tidak ada ingest. Tool ini satu pintu: SARIF -> findings.json (verdict L0
 OBSERVED — hasil analisis statis = lead, bukan bukti runtime), sehingga bisa
@@ -273,7 +273,7 @@ def ingest(paths: "list[str | Path]", min_level: str = "note",
 def main(argv: "list[str] | None" = None) -> int:
     ap = argparse.ArgumentParser(
         description="sarif_ingest — ingest SARIF 2.1.0 scanner eksternal "
-                    "-> findings.json cyphron (fail-closed; resolusi "
+                    "-> findings.json secai (fail-closed; resolusi "
                     "severity per §3.27.10).")
     ap.add_argument("--sarif", required=True, nargs="+",
                     help="satu/lebih file SARIF 2.1.0")

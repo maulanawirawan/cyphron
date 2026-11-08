@@ -5,9 +5,9 @@ Port konsep dari antrean SKILL-PORT-QUEUE #0095 (trailofbits/skills plugin
 Woodruff, "Brocards for vulnerability triage", vulnbrocards.com 2026).
 Dibangun FROM SCRATCH — mekanisme evaluasi field terstruktur, tangga
 kapabilitas, dan seluruh pola ditulis sendiri; tidak ada kode sumber dari
-repo tersebut. Lisensi cyphron: PolyForm NC.
+repo tersebut. Lisensi secai: PolyForm NC.
 
-Kenapa cyphron butuh ini: pipeline cyphron menghasilkan lead temuan yang
+Kenapa secai butuh ini: pipeline secai menghasilkan lead temuan yang
 lalu dilaporkan; alat verifikasi (verify_gate, novelty_check,
 triage_advisor) menilai bukti & duplikat — tapi TIDAK ADA gerbang yang
 menolak laporan dari SISI logika triase (threat model absen, eksploit
@@ -56,7 +56,7 @@ import json
 import sys
 from pathlib import Path
 
-SCHEMA = "cyphron.brocards-triage/1"
+SCHEMA = "secai.brocards-triage/1"
 
 # ---------------------------------------------------------------- tangga
 # tangga kapabilitas (indeks = kekuatan). Token di luar daftar = tak

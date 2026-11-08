@@ -178,7 +178,7 @@ class IntegrationTest(unittest.TestCase):
                                  "crlf-inject": {"path": "/api/note",
                                                  "param": "text",
                                                  "canary_header":
-                                                 "X-Cyphron-Canary"},
+                                                 "X-SecAI-Canary"},
                                  "reset-enum": {"path": "/api/reset",
                                                 "canary_email":
                                                 "alice@example.com",
@@ -276,7 +276,7 @@ class IntegrationTest(unittest.TestCase):
                              "38/38 playbook harus terbukti dari dalam "
                              "kontainer")
             # target_url harus menunjuk nama kontainer lab (jaringan internal)
-            self.assertTrue(all("cyphron-lab-" in r["target_url"]
+            self.assertTrue(all("secai-lab-" in r["target_url"]
                                 for r in doc["findings"]))
 
 

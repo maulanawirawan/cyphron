@@ -111,7 +111,7 @@ class NvdParseTest(unittest.TestCase):
 
 class NvdSyncTest(unittest.TestCase):
     def setUp(self):
-        self.tmp = Path(tempfile.mkdtemp(prefix="cyphron-f67-"))
+        self.tmp = Path(tempfile.mkdtemp(prefix="secai-f67-"))
         self._old = {k: getattr(intel_sync, k) for k in
                      ("INTEL", "MANIFEST", "NVD_RANGES_OUT",
                       "NVD_POLITE_DELAY")}
@@ -307,7 +307,7 @@ class OsvTest(unittest.TestCase):
 
 class AutoUpdateTest(unittest.TestCase):
     def setUp(self):
-        self.tmp = Path(tempfile.mkdtemp(prefix="cyphron-f67b-"))
+        self.tmp = Path(tempfile.mkdtemp(prefix="secai-f67b-"))
         p = patch.object(detection_freshness, "freshness_report",
                          return_value=([_ok_row()],
                                        {"stale": [], "drift": 0,

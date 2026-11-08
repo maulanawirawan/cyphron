@@ -1,6 +1,6 @@
 <div align="center">
 
-# cyphron
+# secai
 
 **Pruebas, no afirmaciones.**
 
@@ -10,15 +10,15 @@ salida estricto que ambos respetan.
 
 *Sin prueba, no hay informe.*
 
-[![CI](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml/badge.svg)](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml)
+[![CI](https://github.com/maulanawirawan/secai/actions/workflows/ci.yml/badge.svg)](https://github.com/maulanawirawan/secai/actions/workflows/ci.yml)
 [![tests](https://img.shields.io/badge/tools-175-brightgreen)](#qué-incluye)
-[![release](https://img.shields.io/badge/release-v0.1.0-blue)](https://github.com/maulanawirawan/cyphron/releases)
+[![release](https://img.shields.io/badge/release-v0.1.0-blue)](https://github.com/maulanawirawan/secai/releases)
 [![skills](https://img.shields.io/badge/detection%20skills-93-8A2BE2)](#qué-incluye)
 [![python](https://img.shields.io/badge/python-3.12%2B-3776AB)](#inicio-rápido)
 [![rust](https://img.shields.io/badge/rust-stable-orange)](#inicio-rápido)
 [![license](https://img.shields.io/badge/license-PolyForm%20NC%201.0-blue)](LICENSE)
 
-[English](README.md) · [Bahasa Indonesia](README.id.md) · [中文](README.zh.md) · **Español**
+[English](README.md) · [中文](README.zh.md) · **Español**
 
 </div>
 
@@ -26,19 +26,19 @@ salida estricto que ambos respetan.
 
 ## Úsalo desde tu agente
 
-cyphron viene como un CLI de un solo comando con modos, un skill
+secai viene como un CLI de un solo comando con modos, un skill
 cargable para agentes y un servidor MCP — así Claude Code, Cursor,
 ZCode o cualquier agente que ejecute shell puede manejarlo directo.
 
 ```bash
-git clone https://github.com/maulanawirawan/cyphron && cd cyphron
-python cyphron.py                          # tablero de modos
-python cyphron.py <mode> --help            # todas las opciones de un modo
-claude mcp add cyphron -- python tools/mcp_server.py   # MCP (solo tier0)
+git clone https://github.com/maulanawirawan/secai && cd secai
+python secai.py                          # tablero de modos
+python secai.py <mode> --help            # todas las opciones de un modo
+claude mcp add secai -- python tools/mcp_server.py   # MCP (solo tier0)
 ```
 
 Agentes: carguen [SKILL.md](SKILL.md) — el manual que enseña a un agente
-a manejar cyphron con seguridad. Solo objetivos autorizados; sin prueba,
+a manejar secai con seguridad. Solo objetivos autorizados; sin prueba,
 sin reporte.
 
 ## Por qué existe
@@ -48,7 +48,7 @@ y el resto es problema tuyo. Luego el equipo de triage rechaza el
 informe con un *"impacto no demostrado"*, y, siendo sinceros, tienen
 razón.
 
-cyphron va en la dirección contraria. **Un hallazgo que no puedes probar
+secai va en la dirección contraria. **Un hallazgo que no puedes probar
 es una pista, no una afirmación.** Cada resultado ocupa un lugar en una
 escalera de evidencia explícita. Si una herramienta produce una salida
 mal formada, la ejecución se detiene en vez de seguir en silencio. Y una
@@ -58,7 +58,7 @@ El resultado es un informe más corto que de verdad puedes defender.
 
 ## Para qué sirve
 
-cyphron es un proyecto público y abierto construido para trabajo de seguridad real. Usos típicos:
+secai es un proyecto público y abierto construido para trabajo de seguridad real. Usos típicos:
 
 - **Bug bounty y VDP** — enumera la superficie de ataque (headers, CORS,
   GraphQL, docs de API, exposición, cookies) y obtén veredictos que
@@ -67,7 +67,7 @@ cyphron es un proyecto público y abierto construido para trabajo de seguridad r
   de staging/local antes de publicar y atrapa lo básico: headers faltantes,
   páginas de debug, archivos filtrados, endpoints sin auth, CORS permisivo.
 - **Integrar seguridad en tu pipeline** — el contrato findings.json y
-  `cyphron validate` hacen la salida amigable para CI; el núcleo Rust habla
+  `secai validate` hacen la salida amigable para CI; el núcleo Rust habla
   el mismo contrato.
 - **Aprender** — el lab objetivo incluido más `docs/AWARENESS-PATTERNS.md`
   (nueve patrones reales rastreados de principio a fin) son un aula práctica.
@@ -91,7 +91,7 @@ $ python skills/http_security_headers.py \
     --out headers.json
 http-security-headers: 8 temuan (2 AMAN) (0 request) -> headers.json
 
-$ cyphron validate headers.json
+$ secai validate headers.json
 OK: 8 findings valid terhadap kontrak (headers.json)
 ```
 
@@ -145,8 +145,8 @@ flowchart LR
   seguridad declarada (de `read-only` a `state-changing`) y un límite
   estricto de peticiones derivado de ella. El registro es una lista
   blanca: lo que no está listado no se ejecuta.
-- **Un núcleo nativo en Rust** en `core-rs/`: `cyphron validate` revisa
-  el contrato, `cyphron scan` ejecuta escaneos por niveles y genera el
+- **Un núcleo nativo en Rust** en `core-rs/`: `secai validate` revisa
+  el contrato, `secai scan` ejecuta escaneos por niveles y genera el
   informe PDF. También se encarga de la correlación FAO (dedup, quórum,
   hashes de evidencia) y de un presupuesto de peticiones que falla
   cerrado.
@@ -161,7 +161,7 @@ flowchart LR
 - **Ejecuciones nocturnas.** Escaneos programados con detección de
   cambios: pistas nuevas, evidencia debilitada y veredictos que cambian
   se registran por programa.
-- **Servidor MCP** para manejar cyphron desde Claude Code, Cursor o
+- **Servidor MCP** para manejar secai desde Claude Code, Cursor o
   cualquier cliente MCP.
 - **Un nivel de prueba bloqueado** (`tools/exploit_*`) para convertir
   pistas `L1`/`L2` en `L3`/`L4` con PoC reproducibles. Está apagado
@@ -203,14 +203,14 @@ El índice completo está en [CHANGELOG.md](CHANGELOG.md); la metodología desti
 
 | Comando | Qué hace |
 |:---|:---|
-| `cyphron scan --domain example.com --max-requests 32 --report` | Escaneo tier0 completo (datos públicos, presupuesto estricto) + informe PDF |
-| `cyphron validate findings.json` | Verifica cualquier findings.json contra el contrato (núcleo Rust) |
-| `cyphron merge --dedup-id ...` | Fusiona y deduplica conjuntos de hallazgos (correlación FAO) |
+| `secai scan --domain example.com --max-requests 32 --report` | Escaneo tier0 completo (datos públicos, presupuesto estricto) + informe PDF |
+| `secai validate findings.json` | Verifica cualquier findings.json contra el contrato (núcleo Rust) |
+| `secai merge --dedup-id ...` | Fusiona y deduplica conjuntos de hallazgos (correlación FAO) |
 | `python skills/<skill>.py --url … --out f.json` | Ejecuta una skill de detección (93 disponibles, allowlist) |
 | `python tools/code_map.py --repo <path> --out surface.json` | Mapea código fuente a superficie de ataque — cero peticiones |
 | `python tools/chain_planner.py --findings f.json` | Planifica cadenas de explotación A→B→C desde hallazgos |
 | `python tools/submission_gate.py --finding f.json --program p.json` | Compuerta de 7 preguntas antes de enviar un hallazgo |
-| `claude mcp add cyphron -- python tools/mcp_server.py` | Controla cyphron desde Claude Code / cualquier cliente MCP |
+| `claude mcp add secai -- python tools/mcp_server.py` | Controla secai desde Claude Code / cualquier cliente MCP |
 | `python tools/lab_target.py` | Levanta un laboratorio local para practicar |
 
 Night runs (escaneos programados con detección de drift) y sync de intel (CISA KEV / NVD / OSV) están en [docs/](docs/).
@@ -225,10 +225,10 @@ cargo build --release --manifest-path core-rs/Cargo.toml
 python skills/banner_posture.py --url https://example.com --out banner.json
 
 # validar la salida contra el contrato
-core-rs/target/release/cyphron validate banner.json
+core-rs/target/release/secai validate banner.json
 
 # escaneo tier0 completo (solo datos públicos, presupuesto estricto) + informe PDF
-core-rs/target/release/cyphron scan --domain example.com \
+core-rs/target/release/secai scan --domain example.com \
     --max-requests 32 --out findings/scan --report
 ```
 
@@ -256,7 +256,7 @@ La parte aburrida, que también es la importante.
   por clase forman parte de la suite de tests. Si un endpoint de control
   "falla" de la misma forma, la afirmación se cancela en vez de
   confirmarse.
-- **Tráfico saliente honesto.** cyphron se identifica tal cual por
+- **Tráfico saliente honesto.** secai se identifica tal cual por
   defecto. Puedes usar `--ua` o `--proxy` (las credenciales se ocultan),
   pero no hay funciones de evasión, a propósito.
 - **Manifiesto de ejecución.** Cada artefacto de una ejecución tiene su
@@ -286,7 +286,7 @@ pip install "mcp[cli]"
 ```json
 {
   "mcpServers": {
-    "cyphron": {
+    "secai": {
       "command": "python",
       "args": ["tools/mcp_server.py"]
     }
@@ -294,7 +294,7 @@ pip install "mcp[cli]"
 }
 ```
 
-Expone `cyphron_list_skills` y `cyphron_run_skill`. Las clases solo de
+Expone `secai_list_skills` y `secai_run_skill`. Las clases solo de
 laboratorio nunca se exponen, y cada resultado se valida contra el
 contrato antes de devolvértelo.
 
@@ -330,7 +330,7 @@ de regresión de FP.
 
 ## Uso responsable
 
-cyphron es solo para pruebas **autorizadas**: tus propios sistemas o
+secai es solo para pruebas **autorizadas**: tus propios sistemas o
 programas que te den permiso claro. Escanear sistemas ajenos sin permiso
 es ilegal en la mayoría de los lugares. No lo hagas.
 
@@ -339,7 +339,7 @@ es ilegal en la mayoría de los lugares. No lo hagas.
 🐛 **¿Encontraste un bug?** → [reporte de bug](.github/ISSUE_TEMPLATE/bug_report.md)
 🙅 **¿Un detector marcó algo benigno?** → [reporte de falso positivo](.github/ISSUE_TEMPLATE/false_positive.md) — los FP son ciudadanos de primera clase aquí; cada uno endurece el suelo anti-FP
 💡 **Falta una capacidad?** → [solicitud de función](.github/ISSUE_TEMPLATE/feature_request.md)
-🔒 **¿Problema de seguridad en cyphron mismo?** → [SECURITY.md](.github/SECURITY.md) (divulgación privada, sin issue público)
+🔒 **¿Problema de seguridad en secai mismo?** → [SECURITY.md](.github/SECURITY.md) (divulgación privada, sin issue público)
 🤝 [Guía de contribución](CONTRIBUTING.md) · [Código de conducta](.github/CODE_OF_CONDUCT.md) · [Changelog](CHANGELOG.md)
 
 ## Contribuir
@@ -349,11 +349,11 @@ documentación, erratas. Empieza por
 [CONTRIBUTING.md](CONTRIBUTING.md). Un PR aceptado te pone en la lista
 de contribuidores.
 
-Si cyphron te ahorra tiempo, una ⭐ ayuda a que otros lo encuentren.
+Si secai te ahorra tiempo, una ⭐ ayuda a que otros lo encuentren.
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=maulanawirawan/cyphron&type=Date)](https://star-history.com/#maulanawirawan/cyphron&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=maulanawirawan/secai&type=Date)](https://star-history.com/#maulanawirawan/secai&Date)
 
 ## Créditos
 
@@ -367,7 +367,7 @@ modificar y compartir con fines **no comerciales**.
 
 ¿Quieres usarlo comercialmente, por ejemplo dentro de un servicio de
 pago? También se puede, solo pregunta primero y acordamos una licencia.
-Abre un [issue](https://github.com/maulanawirawan/cyphron/issues) o
+Abre un [issue](https://github.com/maulanawirawan/secai/issues) o
 escribe a [@maulanawirawan](https://github.com/maulanawirawan).
 
 Los componentes y fuentes de datos de terceros se acreditan en

@@ -68,7 +68,7 @@ def check_obb_archive(domain: str, timeout: float = 15.0) -> dict:
     url = f"https://www.openbugbounty.org/search/?search={domain}&type=host"
     try:
         req = urllib.request.Request(url, headers={
-            "User-Agent": "cyphron-audit/0.1"})
+            "User-Agent": "secai-audit/0.1"})
         with urllib.request.urlopen(req, timeout=timeout) as r:
             body = r.read(64_000).decode("utf-8", errors="replace")
         # hitung indikasi entri laporan domain tsb di hasil pencarian

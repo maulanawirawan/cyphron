@@ -53,7 +53,7 @@ sys.path.insert(0, str(ROOT / "tools"))
 
 import injection_guard  # noqa: E402  (scan_text — kelas operator-override)
 
-SCHEMA = "cyphron.mcp-tool-vet/1"
+SCHEMA = "secai.mcp-tool-vet/1"
 MAX_FILE_BYTES = 512 * 1024
 SERVER_KEYS = ("mcpServers", "servers")
 

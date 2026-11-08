@@ -1,6 +1,6 @@
 {
  "version": 1,
- "note": "Katalog skill produk (working title: cyphron). Placeholder: @TARGET@ (URL), @DOMAIN@ (domain), @OUT@ (path findings.json), @EVIDENCE@ (bukti mentah tersimpan). safety_class menentukan gerbang orchestrator: mode tier0 hanya menjalankan read-only + 1-request.",
+ "note": "Katalog skill produk (working title: secai). Placeholder: @TARGET@ (URL), @DOMAIN@ (domain), @OUT@ (path findings.json), @EVIDENCE@ (bukti mentah tersimpan). safety_class menentukan gerbang orchestrator: mode tier0 hanya menjalankan read-only + 1-request.",
  "skills": [
   {
    "name": "analytics-tracker-surface",
@@ -1144,7 +1144,7 @@
    ],
    "safety_class": "bounded-requests",
    "needs": "domain",
-   "desc": "github-leak-check — OPT-IN ketat (env CYPHRON_GH_TOKEN; tanpa itu dilewati nol request): kode publik merujuk domain + indikator secret = L1 lead verifikasi manual, konten file tidak diambil (CWE-798)",
+   "desc": "github-leak-check — OPT-IN ketat (env SECAI_GH_TOKEN; tanpa itu dilewati nol request): kode publik merujuk domain + indikator secret = L1 lead verifikasi manual, konten file tidak diambil (CWE-798)",
    "requires_evidence": false
   },
   {

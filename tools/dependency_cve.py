@@ -478,7 +478,7 @@ def _osv_lookup(dep: dict, cache_dir: Path,
     req = urllib.request.Request(
         OSV_URL, data=body,
         headers={"Content-Type": "application/json",
-                 "User-Agent": "cyphron-dependency-cve"})
+                 "User-Agent": "secai-dependency-cve"})
     try:
         with urllib.request.urlopen(req, timeout=30.0) as r:
             doc = json.loads(r.read())

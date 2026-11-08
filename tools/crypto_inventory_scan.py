@@ -67,7 +67,7 @@ import re
 import sys
 from pathlib import Path
 
-SCHEMA = "cyphron.crypto-inventory-scan/1"
+SCHEMA = "secai.crypto-inventory-scan/1"
 MAX_FILES_LISTED = 5
 
 SEVERITY_ORDER = {"high": 3, "medium": 2, "low": 1}

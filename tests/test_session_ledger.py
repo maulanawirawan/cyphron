@@ -20,7 +20,7 @@ import session_ledger as ledger  # noqa: E402
 
 class LedgerLifecycleTest(unittest.TestCase):
     def setUp(self):
-        self.tmp = Path(tempfile.mkdtemp(prefix="cyphron_ledger_"))
+        self.tmp = Path(tempfile.mkdtemp(prefix="secai_ledger_"))
         self.path = self.tmp / "session-ledger.jsonl"
 
     def test_fact_intent_done_roundtrip(self):
@@ -57,7 +57,7 @@ class LedgerLifecycleTest(unittest.TestCase):
 
 class LayerRecallTest(unittest.TestCase):
     def setUp(self):
-        self.tmp = Path(tempfile.mkdtemp(prefix="cyphron_ledger_"))
+        self.tmp = Path(tempfile.mkdtemp(prefix="secai_ledger_"))
         self.path = self.tmp / "ledger.jsonl"
         ledger.add_fact(self.path, "fakta ringkas",
                         summary="ringkasan kalimat",
@@ -93,7 +93,7 @@ class LayerRecallTest(unittest.TestCase):
 
 class FailClosedTest(unittest.TestCase):
     def setUp(self):
-        self.tmp = Path(tempfile.mkdtemp(prefix="cyphron_ledger_"))
+        self.tmp = Path(tempfile.mkdtemp(prefix="secai_ledger_"))
         self.path = self.tmp / "ledger.jsonl"
 
     def test_intent_from_unknown_fact_rejected(self):
@@ -123,7 +123,7 @@ class FailClosedTest(unittest.TestCase):
 
 class CorruptLineTest(unittest.TestCase):
     def test_corrupt_reported_not_crashed(self):
-        self.tmp = Path(tempfile.mkdtemp(prefix="cyphron_ledger_"))
+        self.tmp = Path(tempfile.mkdtemp(prefix="secai_ledger_"))
         self.path = self.tmp / "ledger.jsonl"
         ledger.add_fact(self.path, "fakta sehat")
         with self.path.open("a", encoding="utf-8") as fh:
@@ -140,7 +140,7 @@ class CorruptLineTest(unittest.TestCase):
 
 class LedgerIsJsonlTest(unittest.TestCase):
     def test_file_is_appendable_jsonl(self):
-        self.tmp = Path(tempfile.mkdtemp(prefix="cyphron_ledger_"))
+        self.tmp = Path(tempfile.mkdtemp(prefix="secai_ledger_"))
         self.path = self.tmp / "ledger.jsonl"
         ledger.add_fact(self.path, "satu")
         ledger.add_fact(self.path, "dua")

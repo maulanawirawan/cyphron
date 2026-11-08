@@ -8,7 +8,7 @@ Cybersecurity-Skills 'hunting-for-anomalous-powershell-execution';
 atribusi konsep, lisensi sumber Apache-2.0). Dibangun FROM SCRATCH:
 taksonomi token + mekanisme reassembled ScriptBlockId ditulis sendiri
 dari spesifikasi event logging PowerShell. Skill sumber membaca EVTX
-via python-evtx/lxml; cyphron menerima ekspor XML Event Viewer/
+via python-evtx/lxml; secai menerima ekspor XML Event Viewer/
 wevtutil (XML stdlib) — format yang sama dengan keluarga triase
 Windows repo (sysmon_triage, win_auth_triage). Ranah dibagi eksplisit:
 ps_obf_scan = obfuskasi file .ps1 statis; lolbin_scan/sysmon_triage =
@@ -61,7 +61,7 @@ import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
-SCHEMA = "cyphron.ps-scriptlog-triage/1"
+SCHEMA = "secai.ps-scriptlog-triage/1"
 MAX_FILE_BYTES = 256 * 1024 * 1024
 SNIPPET_MAX = 160
 

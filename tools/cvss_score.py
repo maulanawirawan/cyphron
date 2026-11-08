@@ -3,9 +3,9 @@
 Mengisi antrean port dari trailofbits/skills plugin 'cvss-scoring'
 (antrean SKILL-PORT-QUEUE; atribusi ide). Algoritma = implementasi
 langsung spesifikasi publik CVSS v3.1 (FIRST/CVE.org) — ditulis dari
-spesifikasi, bukan dari kode pihak lain. Lisensi cyphron: PolyForm NC.
+spesifikasi, bukan dari kode pihak lain. Lisensi secai: PolyForm NC.
 
-Kenapa cyphron butuh ini: findings.json punya severity (high/medium/...)
+Kenapa secai butuh ini: findings.json punya severity (high/medium/...)
 dan template nuclei punya cvss-score — tapi tidak ada alat yang
 MENGHITUNG skor dari vektor (laporan harus reproducible: skor
 dihitung dari vektor, bukan diketik manual). Fail-closed:
@@ -26,7 +26,7 @@ import math
 import sys
 from pathlib import Path
 
-SCHEMA = "cyphron.cvss-score/1"
+SCHEMA = "secai.cvss-score/1"
 
 # metric -> {value: (bobot/singkatan)} — dari spesifikasi CVSS v3.1
 AV = {"N": 0.85, "A": 0.77, "L": 0.55, "P": 0.62}

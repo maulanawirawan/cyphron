@@ -48,7 +48,7 @@ import xml.etree.ElementTree as ET
 from datetime import datetime, timezone
 from pathlib import Path
 
-SCHEMA = "cyphron.kerberos-log-triage/1"
+SCHEMA = "secai.kerberos-log-triage/1"
 MAX_FILE_BYTES = 64 * 1024 * 1024
 
 ETYPE_MAP = {

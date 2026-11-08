@@ -56,7 +56,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "core"))
 from findings import make_finding, write_findings  # noqa: E402
 
-SCHEMA = "cyphron.carve-scan/1"
+SCHEMA = "secai.carve-scan/1"
 MAX_BLOB_BYTES = 4 * 1024 * 1024 * 1024  # 4 GB — baca penuh di memori
 DEFAULT_MIN_CARVE = 64
 DEFAULT_MAX_CARVE = 50 * 1024 * 1024

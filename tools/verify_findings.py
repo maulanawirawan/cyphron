@@ -100,7 +100,7 @@ def cross_verify_dns(domain: str) -> dict[str, str]:
         url = CLOUDFLARE_DOH.format(name=urllib.parse.quote(name),
                                     rtype=rtype)
         req = urllib.request.Request(url, headers={
-            "User-Agent": "cyphron-audit/0.1",
+            "User-Agent": "secai-audit/0.1",
             "Accept": "application/dns-json"})
         try:
             with urllib.request.urlopen(req, timeout=timeout) as r:

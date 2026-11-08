@@ -14,7 +14,7 @@ persistence', 'hunting-for-suspicious-scheduled-tasks'; atribusi
 konsep, lisensi sumber Apache-2.0). Dibangun FROM SCRATCH: parser XML +
 taksonomi lokasi persistensi ditulis sendiri dari konsep deteksi publik
 (path autostart terdokumentasi, event ID Sysmon/Windows). Skill sumber
-menanyakan SIEM/EDR live; cyphron memilih artefak offline (ekspor XML
+menanyakan SIEM/EDR live; secai memilih artefak offline (ekspor XML
 Event Viewer/wevtutil) supaya nol jaringan dan dapat dites.
 
 Pembagian ranah (TIDAK diduplikasi):
@@ -100,7 +100,7 @@ import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
-SCHEMA = "cyphron.win-persist-triage/1"
+SCHEMA = "secai.win-persist-triage/1"
 MAX_FILE_BYTES = 256 * 1024 * 1024
 
 WATCHED_EIDS = frozenset({1, 11, 12, 13, 4697, 4698, 4699, 4700, 4702})

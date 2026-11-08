@@ -42,7 +42,7 @@ import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
 
-SCHEMA = "cyphron.hpp-differential/1"
+SCHEMA = "secai.hpp-differential/1"
 MAX_REQUESTS = 5
 TIMEOUT_S = 10.0
 
@@ -110,7 +110,7 @@ def classify(r1: Resp, r2: Resp, r3: Resp, r4: Resp,
 def _fetch(url: str, timeout: float) -> Resp:
     """GET satu URL — tanpa redirect otomatis (bounded, transparan)."""
     req = urllib.request.Request(url, method="GET",
-                                 headers={"User-Agent": "cyphron-hpp/1"})
+                                 headers={"User-Agent": "secai-hpp/1"})
     with urllib.request.urlopen(req, timeout=timeout) as resp:
         return Resp(status=resp.status,
                     body=resp.read(262144).decode("utf-8", errors="replace"))

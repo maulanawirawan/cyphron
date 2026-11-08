@@ -21,7 +21,7 @@ SLA default per outcome (heuristik skill sumber, dibawa keluar sebagai
 default — bukan kebijakan resmi): Act 48 jam, Attend 14 hari, Track* 60
 hari, Track 90 hari.
 
-Kenapa cyphron butuh: keluarga triase kerentanan sudah punya cvss_score
+Kenapa secai butuh: keluarga triase kerentanan sudah punya cvss_score
 (skor teknis CVSS v3.1), owasp_risk_rating (konteks bisnis web),
 risk_matrix_80030 (register 5x5 NIST), brocards_triage (gerbang mutu
 laporan), vuln_sla_aging (aging + SLA severity statis) — belum ada yang
@@ -81,7 +81,7 @@ import re
 import sys
 from pathlib import Path
 
-SCHEMA = "cyphron.ssvc-triage/1"
+SCHEMA = "secai.ssvc-triage/1"
 MAX_FILE_BYTES = 8 * 1024 * 1024
 
 EXPLOITATION = ("none", "poc", "active")

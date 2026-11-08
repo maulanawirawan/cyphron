@@ -324,7 +324,7 @@ def main() -> int:
     ap.add_argument("--block-guide", default=None, metavar="IP|MAC",
                     help="cetak panduan blokir permanen via router")
     ap.add_argument("--out", default=None,
-                    help="tulis findings JSON (kontrak cyphron)")
+                    help="tulis findings JSON (kontrak secai)")
     args = ap.parse_args()
 
     if args.block_guide:

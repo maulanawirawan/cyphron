@@ -181,7 +181,7 @@ class TestCLI(unittest.TestCase):
             r1 = self._run("--log", str(bad_f), "--json")
             self.assertEqual(r1.returncode, 1)
             out = json.loads(r1.stdout)
-            self.assertEqual(out["schema"], "cyphron.cloudtrail-scan/1")
+            self.assertEqual(out["schema"], "secai.cloudtrail-scan/1")
             self.assertIn("root-activity", checks(out["findings"]))
             self.assertIn("logging-impaired", checks(out["findings"]))
 

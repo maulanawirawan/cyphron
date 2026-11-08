@@ -8,7 +8,7 @@ Anthropic-Cybersecurity-Skills 'detecting-insider-data-exfiltration-via-
 dlp' dan 'detecting-insider-threat-with-ueba' — baseline perilaku,
 z-score, peer group; lisensi sumber Apache-2.0, atribusi konsep — kode
 dibangun from scratch TANPA menyalin kode sumber). Skill sumber memakai
-pandas + Elasticsearch (live cluster); cyphron memilih artefak offline:
+pandas + Elasticsearch (live cluster); secai memilih artefak offline:
 SATU CSV aktivitas file/upload yang diekspor dari DLP/file server/EDR,
 dianalisis stdlib csv+statistics supaya dapat dites nol jaringan.
 Deteksi live (streaming watchdog, korelasi ES) tidak di-port.
@@ -67,7 +67,7 @@ from collections import defaultdict
 from datetime import date, datetime
 from pathlib import Path
 
-SCHEMA = "cyphron.insider-baseline-scan/1"
+SCHEMA = "secai.insider-baseline-scan/1"
 MAX_FILE_BYTES = 64 * 1024 * 1024
 REQUIRED_COLS = ("timestamp", "user", "bytes_transferred")
 MAX_BAD_SAMPLES = 10

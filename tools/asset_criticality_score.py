@@ -64,7 +64,7 @@ import math
 import sys
 from pathlib import Path
 
-SCHEMA = "cyphron.asset-criticality-score/1"
+SCHEMA = "secai.asset-criticality-score/1"
 MAX_FILE_BYTES = 8 * 1024 * 1024
 
 # Model sumber: bobot 6 faktor (jumlah = 1.0), skor 1-5 per faktor.

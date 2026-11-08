@@ -215,7 +215,7 @@ class MainExitCodes(unittest.TestCase):
         rc = orr.main(["--source", src, "--out", str(out)])
         self.assertEqual(rc, 0)
         doc = json.loads(out.read_text(encoding="utf-8"))
-        self.assertEqual(doc["schema"], "cyphron.owasp-risk-rating/1")
+        self.assertEqual(doc["schema"], "secai.owasp-risk-rating/1")
         self.assertEqual(doc["summary"]["total"], 1)
         self.assertEqual(doc["findings"][0]["owasp_top10"], "A03")
         self.assertIn("matrix", doc)

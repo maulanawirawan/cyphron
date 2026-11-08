@@ -134,7 +134,7 @@ class TestFilesAndCLI(unittest.TestCase):
                 capture_output=True, text=True, timeout=60)
             self.assertEqual(r1.returncode, 1)
             out = json.loads(r1.stdout)
-            self.assertEqual(out["schema"], "cyphron.ps-obf-scan/1")
+            self.assertEqual(out["schema"], "secai.ps-obf-scan/1")
             self.assertIn("encoded-command",
                           checks(out["results"][0]["findings"]))
 

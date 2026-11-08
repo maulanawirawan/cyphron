@@ -7,7 +7,7 @@ Cybersecurity-Skills 'detecting-broken-object-property-level-
 authorization' — OWASP API3:2023 BOLA/BOPLA; lisensi sumber Apache-2.0,
 atribusi ide — kode dibangun from scratch TANPA menyalin kode sumber).
 Pengujian AKTIF (kirim request mass-assignment ke target, verifikasi
-readback) TIDAK di-port — di cyphron itu tugas MassAssignmentPlaybook/
+readback) TIDAK di-port — di secai itu tugas MassAssignmentPlaybook/
 IdorOrdersPlaybook yang berjalan di lab berizin. Yang diekstrak di sini
 adalah sisi deterministik statisnya:
 
@@ -52,7 +52,7 @@ import re
 import sys
 from pathlib import Path
 
-SCHEMA = "cyphron.api-property-scan/1"
+SCHEMA = "secai.api-property-scan/1"
 MAX_FILE_BYTES = 8 * 1024 * 1024
 
 # Taksonomi sensitivitas nama properti (konsep publik dari skill sumber,

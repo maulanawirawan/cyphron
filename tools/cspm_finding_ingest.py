@@ -1,5 +1,5 @@
 """[INGEST] cspm_finding_ingest — ingest temuan CSPM eksternal (Prowler
-flat/OCSF + ScoutSuite) -> findings.json cyphron.
+flat/OCSF + ScoutSuite) -> findings.json secai.
 
 Mengisi antrean port dari SKILL-PORT-QUEUE #0577 (bagian platform yang
 di-SKIP sebagai OPS) serta #0597 + #0599 (mukul975/
@@ -10,9 +10,9 @@ temuan lintas tool CSPM ke format tunggal (konsep normalize_finding sumber),
 id stabil = sha256(resource|check) (konsep sumber: ResourceId+CheckId),
 dedup by id, hanya FAIL yang masuk (PASS dihitung), urut severity
 CRITICAL>HIGH>MEDIUM>LOW>INFORMATIONAL. Ditulis dari nol dgn stdlib saja;
-bukan salinan kode pihak lain. Lisensi cyphron: PolyForm NC.
+bukan salinan kode pihak lain. Lisensi secai: PolyForm NC.
 
-Kenapa cyphron butuh ini: pemindaian postur cloud (Prowler/ScoutSuite) pada
+Kenapa secai butuh ini: pemindaian postur cloud (Prowler/ScoutSuite) pada
 lab menghasilkan file JSON/JSONL yang belum punya jalur masuk findings.json
 — sarif_ingest hanya menerima SARIF 2.1.0. Tool ini satu pintu untuk keduanya
 (verdict L0 OBSERVED — temuan postur = lead, bukan bukti runtime), sehingga
@@ -30,7 +30,7 @@ Format input yang dikenali (deteksi otomatis per file):
                            findings.*; danger->high, warning->medium,
                            sisanya bukan temuan).
 
-Severity dinormalisasi ke cyphron: critical/high/medium/low/info. Nilai
+Severity dinormalisasi ke secai: critical/high/medium/low/info. Nilai
 severity di luar himpunan -> temuan DITOLAK (dihitung di meta), bukan
 didiam-diamkan (fail-closed ala sarif_ingest).
 
@@ -62,13 +62,13 @@ sys.path.insert(0, str(ROOT / "core"))
 from findings import make_finding, write_findings  # noqa: E402
 
 SEV_ORDER = {"critical": 0, "high": 1, "medium": 2, "low": 3, "info": 4}
-# mapping severity Prowler flat -> cyphron
+# mapping severity Prowler flat -> secai
 FLAT_SEV = {"critical": "critical", "high": "high", "medium": "medium",
             "low": "low", "informational": "info"}
-# mapping OCSF severity_id -> cyphron (OCSF 3.0 event.severity_id)
+# mapping OCSF severity_id -> secai (OCSF 3.0 event.severity_id)
 OCSF_SEV = {0: "info", 1: "info", 2: "low", 3: "medium", 4: "high",
             5: "critical", 6: "critical"}
-# ScoutSuite level -> cyphron (node findings)
+# ScoutSuite level -> secai (node findings)
 SCOUT_SEV = {"danger": "high", "warning": "medium"}
 FAIL_STATUSES = {"fail", "failing", "alarm", "non_compliant", "noncompliant",
                  "error", "alert"}
@@ -261,7 +261,7 @@ def ingest(paths: "list[str | Path]",
             meta["unknown_status"] += 1
         sev = _norm_severity(norm["severity_raw"]) \
             if norm["severity_raw"] is not None else None
-        # OCSF memetakan severity_id langsung ke label cyphron
+        # OCSF memetakan severity_id langsung ke label secai
         if sev is None and norm["severity_raw"] is not None:
             sev = str(norm["severity_raw"]).lower()
         if sev not in SEV_ORDER:
@@ -315,7 +315,7 @@ def main(argv: "list[str] | None" = None) -> int:
     ap = argparse.ArgumentParser(
         description="cspm_finding_ingest — ingest temuan CSPM eksternal "
                     "(Prowler flat/OCSF, ScoutSuite) -> findings.json "
-                    "cyphron (fail-closed; L0 OBSERVED).")
+                    "secai (fail-closed; L0 OBSERVED).")
     ap.add_argument("--input", required=True, nargs="+",
                     help="satu/lebih file JSON/JSONL hasil CSPM")
     ap.add_argument("--out", required=True, help="path findings.json output")

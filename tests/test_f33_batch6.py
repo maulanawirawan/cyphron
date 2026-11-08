@@ -163,7 +163,7 @@ class ErrorOracleTest(unittest.TestCase):
         # path canary — TANPA signature = tetap AMAN
         rows, meta = eo.audit(URL, {"status": 403, "body":
                                     "checking your browser: "
-                                    "/cyphron-err-deadbeef challenge"})
+                                    "/secai-err-deadbeef challenge"})
         self.assertEqual(meta.get("waf"), True)
         self.assertEqual(rows[0]["status"], "unconfirmed")
 

@@ -1,4 +1,4 @@
-//! F6 — Orchestrator native: satu perintah `cyphron scan` menjalankan
+//! F6 — Orchestrator native: satu perintah `secai scan` menjalankan
 //! pipa recon -> findings.json (satu pintu) -> laporan PDF.
 //!
 //! Dibangun dari nol di core (Rust) — pengganti langsung pipa
@@ -279,7 +279,7 @@ pub fn low_profile_env(p: &ScanParams) -> Vec<(String, String)> {
     let mut env: Vec<(String, String)> = Vec::new();
     if let Some(ua) = &p.ua {
         if !ua.trim().is_empty() {
-            env.push(("CYPHRON_UA".into(), ua.trim().into()));
+            env.push(("SECAI_UA".into(), ua.trim().into()));
         }
     }
     if let Some(proxy) = &p.proxy {
@@ -598,7 +598,7 @@ pub fn run_scan(p: &ScanParams) -> Result<ScanResult, String> {
         let doc = serde_json::json!({
             "ok": true,
             "data": {
-                "run": "cyphron-core",
+                "run": "secai-core",
                 "sources": per_skill_sources,
                 "total_findings": all_findings.len(),
                 "mode": p.mode,
@@ -881,7 +881,7 @@ mod tests {
     fn scan_end_to_end_with_fake_registry() {
         // registry sementara dengan dua "skill" python inline yang
         // menulis findings.json valid — tidak menyentuh jaringan
-        let tmp = std::env::temp_dir().join(format!("cyphron_scan_{}", std::process::id()));
+        let tmp = std::env::temp_dir().join(format!("secai_scan_{}", std::process::id()));
         std::fs::create_dir_all(&tmp).unwrap();
         let reg_path = tmp.join("registry.json");
         let script = r#"import json,sys,hashlib
@@ -983,7 +983,7 @@ open(sys.argv[1],"w").write(json.dumps({"ok":True,"data":{},"findings":rows}))
     fn scan_fails_closed_on_budget_overflow() {
         // audit 2026-10: dulu overflow hanya di-WARN dan scan lanjut —
         // sekarang pelanggaran budget menghentikan run (fail-closed)
-        let tmp = std::env::temp_dir().join(format!("cyphron_bof_{}", std::process::id()));
+        let tmp = std::env::temp_dir().join(format!("secai_bof_{}", std::process::id()));
         std::fs::create_dir_all(&tmp).unwrap();
         let reg_path = tmp.join("registry.json");
         let script = r#"import json,sys,hashlib
@@ -1015,7 +1015,7 @@ json.dump({"ok":True,"data":{},"requests":50,
     fn tier0_rejects_untracked_request_skills() {
         // audit 2026-10: skill yang tidak melacak request-nya sendiri
         // = budget tak bisa ditegakkan — tier0 menolak (fail-closed)
-        let tmp = std::env::temp_dir().join(format!("cyphron_untracked_{}", std::process::id()));
+        let tmp = std::env::temp_dir().join(format!("secai_untracked_{}", std::process::id()));
         std::fs::create_dir_all(&tmp).unwrap();
         let reg_path = tmp.join("registry.json");
         let script = r#"import json,sys,hashlib
@@ -1045,7 +1045,7 @@ json.dump({"ok":True,"data":{"requests_untracked":True},"requests":0,
 
     #[test]
     fn scan_fails_closed_on_contract_violation() {
-        let tmp = std::env::temp_dir().join(format!("cyphron_scanbad_{}", std::process::id()));
+        let tmp = std::env::temp_dir().join(format!("secai_scanbad_{}", std::process::id()));
         std::fs::create_dir_all(&tmp).unwrap();
         let reg_path = tmp.join("registry.json");
         let script = r#"import json,sys
@@ -1073,7 +1073,7 @@ json.dump({"ok":True,"data":{},"findings":[{"tool":"t","title":"x",
     fn active_probe_runs_only_in_lab_mode() {
         // dua skill: read-only + active-probe (keduanya valid).
         // tier0: hanya read-only yang boleh jalan. lab: keduanya.
-        let tmp = std::env::temp_dir().join(format!("cyphron_gate_{}", std::process::id()));
+        let tmp = std::env::temp_dir().join(format!("secai_gate_{}", std::process::id()));
         std::fs::create_dir_all(&tmp).unwrap();
         let reg_path = tmp.join("registry.json");
         let script = r#"import json,sys,hashlib
@@ -1109,7 +1109,7 @@ json.dump({"ok":True,"data":{},"findings":[{"tool":"t","title":"ok",
 
     #[test]
     fn dry_run_prints_without_executing() {
-        let tmp = std::env::temp_dir().join(format!("cyphron_dry_{}", std::process::id()));
+        let tmp = std::env::temp_dir().join(format!("secai_dry_{}", std::process::id()));
         std::fs::create_dir_all(&tmp).unwrap();
         let reg_path = tmp.join("registry.json");
         // skill yang would fail if executed — dry-run must not execute it
@@ -1137,7 +1137,7 @@ json.dump({"ok":True,"data":{},"findings":[{"tool":"t","title":"ok",
     fn requests_top_authoritative_data_is_fallback() {
         // Kontrak write_findings menulis angka SAMA di top & data.requests —
         // menghitung keduanya = dobel. Top otoritatif; data hanya fallback.
-        let tmp = std::env::temp_dir().join(format!("cyphron_reqsum_{}", std::process::id()));
+        let tmp = std::env::temp_dir().join(format!("secai_reqsum_{}", std::process::id()));
         std::fs::create_dir_all(&tmp).unwrap();
         let reg_path = tmp.join("registry.json");
         // skill menulis top=3 dan data.requests=3 (angka sama, kasus nyata)
@@ -1212,12 +1212,12 @@ json.dump({"ok":True,"data":{"requests":2},"findings":[{"tool":"t","title":"ok",
     fn low_profile_env_reaches_skill_process() {
         // F20: --ua/--proxy diinjeksikan sebagai env ke proses skill;
         // skill mencatat nilai env itu ke data.meta — diverifikasi balik.
-        let tmp = std::env::temp_dir().join(format!("cyphron_ua_{}", std::process::id()));
+        let tmp = std::env::temp_dir().join(format!("secai_ua_{}", std::process::id()));
         std::fs::create_dir_all(&tmp).unwrap();
         let reg_path = tmp.join("registry.json");
         let script = r#"import json,sys,os,hashlib
 h=hashlib.sha256(f"t|ok|x.id||".encode()).hexdigest()[:16]
-json.dump({"ok":True,"data":{"ua":os.environ.get("CYPHRON_UA","(none)"),
+json.dump({"ok":True,"data":{"ua":os.environ.get("SECAI_UA","(none)"),
   "https_proxy":os.environ.get("HTTPS_PROXY","(none)")},"requests":0,
   "findings":[{"tool":"t","title":"ok","severity":"info","description":"d",
   "target_url":"x.id","evidence_kind":"dns","finding_class":"posture",
@@ -1247,7 +1247,7 @@ json.dump({"ok":True,"data":{"ua":os.environ.get("CYPHRON_UA","(none)"),
         ).unwrap();
         assert!(skill_doc["data"]["ua"].as_str().unwrap_or("")
                     .starts_with("browser"),
-                "env CYPHRON_UA (nilai mentah --ua) harus sampai ke skill; \
+                "env SECAI_UA (nilai mentah --ua) harus sampai ke skill; \
                  ekspansi profil browser terjadi di skills/ua.py");
         assert_eq!(skill_doc["data"]["https_proxy"],
                    serde_json::json!("http://127.0.0.1:18080"));
@@ -1264,7 +1264,7 @@ json.dump({"ok":True,"data":{"ua":os.environ.get("CYPHRON_UA","(none)"),
         // F20b: dua skill, dua proxy -> masing-masing skill melihat
         // HTTPS_PROXY berbeda (round-robin deterministik) + audit
         // per-skill tercatat di data.sources (kredensial direduksi).
-        let tmp = std::env::temp_dir().join(format!("cyphron_pxrot_{}", std::process::id()));
+        let tmp = std::env::temp_dir().join(format!("secai_pxrot_{}", std::process::id()));
         std::fs::create_dir_all(&tmp).unwrap();
         let reg_path = tmp.join("registry.json");
         let script = r#"import json,sys,os,hashlib
@@ -1323,7 +1323,7 @@ http://10.0.0.2:9002
     #[test]
     fn proxy_pool_fail_closed_and_conflict() {
         // file berisi baris tidak valid -> error keras
-        let tmp = std::env::temp_dir().join(format!("cyphron_pxfail_{}", std::process::id()));
+        let tmp = std::env::temp_dir().join(format!("secai_pxfail_{}", std::process::id()));
         std::fs::create_dir_all(&tmp).unwrap();
         let bad = tmp.join("bad.txt");
         std::fs::write(&bad, "http://ok:1
@@ -1364,7 +1364,7 @@ garbage-tanpa-skema
     fn budget_skips_skill_with_audit_line() {
         // dua skill 1-request, cap = 1 -> skill kedua di-skip dengan baris
         // audit + tercatat di data.budget.skipped
-        let tmp = std::env::temp_dir().join(format!("cyphron_budget_{}", std::process::id()));
+        let tmp = std::env::temp_dir().join(format!("secai_budget_{}", std::process::id()));
         std::fs::create_dir_all(&tmp).unwrap();
         let reg_path = tmp.join("registry.json");
         let script = r#"import json,sys,hashlib
@@ -1403,7 +1403,7 @@ json.dump({"ok":True,"data":{"requests":1},"requests":1,"findings":[{"tool":"t",
     fn budget_exhausting_all_skills_fails_closed() {
         // satu skill bounded-requests (est 5), cap 1 -> di-skip semua ->
         // run gagal (bukan sukses kosong yang menyesatkan triage)
-        let tmp = std::env::temp_dir().join(format!("cyphron_budgetall_{}", std::process::id()));
+        let tmp = std::env::temp_dir().join(format!("secai_budgetall_{}", std::process::id()));
         std::fs::create_dir_all(&tmp).unwrap();
         let reg_path = tmp.join("registry.json");
         std::fs::write(

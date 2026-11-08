@@ -150,7 +150,7 @@ class CarveScanTest(unittest.TestCase):
         doc = __import__("json").loads(out.read_text(encoding="utf-8"))
         self.assertEqual(doc["data"]["total_hits"], 0)
         self.assertTrue(all(
-            f.get("schema") == "cyphron.carve-scan/1"
+            f.get("schema") == "secai.carve-scan/1"
             for f in doc["findings"]))
 
     def test_fail_closed_missing_and_small_and_bad_params(self) -> None:

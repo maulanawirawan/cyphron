@@ -41,7 +41,7 @@ Mekanisme:
      (timestamp mudah dipalsukan — TIDAK pernah jadi temuan berdiri
      sendiri di atas low).
 
-Anti-FP (disiplin NO-FP cyphron):
+Anti-FP (disiplin NO-FP secai):
   - klaster network umum (WSAStartup/connect/getaddrinfo) TIDAK masuk
     tabel — hanya wininet/winhttp/URLDownloadToFile yang ber-sinyal;
   - klaster crypto sah banyak di aplikasi DRM/backup — crypto sendirian
@@ -72,7 +72,7 @@ import struct
 import sys
 from pathlib import Path
 
-SCHEMA = "cyphron.pe-import-scan/1"
+SCHEMA = "secai.pe-import-scan/1"
 MAX_FILE_BYTES = 64 * 1024 * 1024
 DOS_MAGIC = 0x5A4D          # "MZ"
 PE_SIGNATURE = 0x00004550   # "PE\0\0"

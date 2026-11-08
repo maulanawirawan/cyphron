@@ -53,7 +53,7 @@ import re
 import sys
 from pathlib import Path
 
-SCHEMA = "cyphron.eml-phish-triage/1"
+SCHEMA = "secai.eml-phish-triage/1"
 
 _RE_URL = re.compile(r"https?://[^\s<>\"']+")
 _RE_HREF = re.compile(

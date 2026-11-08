@@ -43,7 +43,7 @@ Input -> mekanisme -> output:
             kunci privat (Windows: dilewati, dicatat di meta).
             parse-gagal         (dihitung di meta, bukan temuan;
             fail-closed — TIDAK pernah dianggap "bukan kunci = aman").
-  - Output: findings.json (kontrak cyphron) + meta distribusi ukuran
+  - Output: findings.json (kontrak secai) + meta distribusi ukuran
             kunci; setiap temuan membawa poc ringkas (bit-length,
             eksponen, format) = bukti parse aritmetika.
 
@@ -76,7 +76,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "core"))
 from findings import make_finding, write_findings  # noqa: E402
 
-SCHEMA = "cyphron.rsa-key-audit/1"
+SCHEMA = "secai.rsa-key-audit/1"
 MAX_FILE_BYTES = 8 * 1024 * 1024
 MIN_BITS_DEFAULT = 2048
 RE_2030 = 3072  # NIST 800-57: >=3072 utk 128-bit (pasca-2030)

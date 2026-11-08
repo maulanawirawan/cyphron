@@ -61,7 +61,7 @@ import json
 import sys
 from pathlib import Path
 
-SCHEMA = "cyphron.slsa-provenance-audit/1"
+SCHEMA = "secai.slsa-provenance-audit/1"
 MAX_FILE_BYTES = 32 * 1024 * 1024
 MAX_MATERIALS = 20
 MAX_SUBJECTS = 64

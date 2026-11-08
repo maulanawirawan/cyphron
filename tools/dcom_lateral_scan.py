@@ -65,7 +65,7 @@ import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
-SCHEMA = "cyphron.dcom-lateral-scan/1"
+SCHEMA = "secai.dcom-lateral-scan/1"
 MAX_FILE_BYTES = 256 * 1024 * 1024
 WATCHED_EIDS = frozenset({1, 3})
 

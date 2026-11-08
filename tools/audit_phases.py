@@ -3,9 +3,9 @@
 Konsep pipeline audit multi-fase dengan findings machine-readable +
 jalur needs-validation terinspirasi cloudflare/security-audit-skill
 (65k+ stars, MIT) — dibangun from scratch TANPA kode dari repo itu;
-atribusi konsep di docstring ini. Lisensi cyphron: PolyForm NC.
+atribusi konsep di docstring ini. Lisensi secai: PolyForm NC.
 
-Yang diambil konsepnya dan diadaptasi kontrak cyphron:
+Yang diambil konsepnya dan diadaptasi kontrak secai:
   - fase audit berurutan yang bisa diaudit ulang;
   - findings machine-readable (JSON) bukan prosa;
   - kandidat tanpa bukti TIDAK PERNAH status confirmed (fail-closed);
@@ -61,7 +61,7 @@ from exploit_engine import redact as _redact  # noqa: E402  (fungsi engine)
 
 import exploit_playbooks as ep  # noqa: E402
 
-SCHEMA = "cyphron.audit-phases/1"
+SCHEMA = "secai.audit-phases/1"
 MAX_TIER_AUTOMATIC = 2  # tier-3/destructive tidak pernah otomatis
 
 

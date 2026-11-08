@@ -1,8 +1,8 @@
 """Gabung beberapa findings.json menjadi SATU findings.json (satu pintu).
 
 [rapikan] Sejak dedup lintas-mode, SEMANTIK dedup ada DUA implementasi
-setara (tools ini + `cyphron merge --dedup-id`). Tool ini kini THIN
-WRAPPER: delegasikan merge+dedup ke binary `cyphron merge` (satu
+setara (tools ini + `secai merge --dedup-id`). Tool ini kini THIN
+WRAPPER: delegasikan merge+dedup ke binary `secai merge` (satu
 implementasi), lalu normalkan meta balik ke bentuk kontrak tool ini
 (run label, sources [{file,findings,meta}], requests jumlahan) agar
 konsumen lama (report_pdf dkk.) tidak berubah.
@@ -16,7 +16,7 @@ Pemakaian (flag lama dipertahankan):
   python tools/merge_findings.py --out findings/t/findings.json \
       findings/t/a.json findings/t/b.json [--run label] [--dedup-id]
 
-Env: CYPHRON_EXE = path binary (default core-rs/target/release/cyphron).
+Env: SECAI_EXE = path binary (default core-rs/target/release/secai).
 """
 from __future__ import annotations
 
@@ -35,11 +35,11 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def resolve_exe() -> Path | None:
-    env = os.environ.get("CYPHRON_EXE")
+    env = os.environ.get("SECAI_EXE")
     if env:
         p = Path(env)
         return p if p.exists() else None
-    exe = "cyphron.exe" if sys.platform == "win32" else "cyphron"
+    exe = "secai.exe" if sys.platform == "win32" else "secai"
     p = ROOT / "core-rs" / "target" / "release" / exe
     return p if p.exists() else None
 
@@ -68,10 +68,10 @@ def load_sources(inputs: list[str]) -> tuple[list[dict], list[Path]]:
 
 def merge_via_binary(exe: Path, usable: list[Path], dedup_id: bool
                      ) -> list[dict] | None:
-    """Delegasi ke `cyphron merge` (validasi kontrak + dedup dedup_by_id).
+    """Delegasi ke `secai merge` (validasi kontrak + dedup dedup_by_id).
     Return daftar findings gabungan, None bila binary gagal (caller
     memutuskan: fallback hanya bila binary tidak ada)."""
-    with tempfile.TemporaryDirectory(prefix="cyphron-merge_") as td:
+    with tempfile.TemporaryDirectory(prefix="secai-merge_") as td:
         tmp_out = Path(td) / "merged.json"
         argv = [str(exe), "merge", "--out", str(tmp_out)]
         if dedup_id:
@@ -80,7 +80,7 @@ def merge_via_binary(exe: Path, usable: list[Path], dedup_id: bool
         r = subprocess.run(argv, capture_output=True, text=True,
                            cwd=str(ROOT), timeout=600)
         if r.returncode != 0 or not tmp_out.exists():
-            print(f"ERROR: cyphron merge gagal (rc={r.returncode}): "
+            print(f"ERROR: secai merge gagal (rc={r.returncode}): "
                   f"{(r.stderr or r.stdout)[-400:]}", file=sys.stderr)
             return None
         doc = json.loads(tmp_out.read_text(encoding="utf-8"))
@@ -159,7 +159,7 @@ def main() -> int:
     atomic_write_text(p, json.dumps(out_doc, indent=2, ensure_ascii=False))
     dup_note = (f" (dedup: {dedup_dropped} duplikat dibuang)"
                 if args.dedup_id else "")
-    engine = "cyphron merge" if exe is not None else "python murni"
+    engine = "secai merge" if exe is not None else "python murni"
     print(f"merged: {len(findings)} findings{dup_note} -> {p} [{engine}]")
     return 0
 

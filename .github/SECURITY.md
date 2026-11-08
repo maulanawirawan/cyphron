@@ -6,9 +6,9 @@ Only the latest `main` and the latest tagged release receive security
 fixes. If you are pinned to an older release, upgrade first — the
 project moves fast and the test suite is the compatibility contract.
 
-## Reporting a vulnerability in cyphron itself
+## Reporting a vulnerability in secai itself
 
-cyphron is a security tool, so a bug in cyphron is itself a potential
+secai is a security tool, so a bug in secai is itself a potential
 security issue (for example: a gated proof-tier technique that fires
 outside `exploit_allowed`, evidence redaction that leaks a secret, a
 tool that talks to the network when it must not).
@@ -36,12 +36,12 @@ tool that talks to the network when it must not).
 
 ## Safe harbor
 
-Good-faith research against your own instance of cyphron, following
+Good-faith research against your own instance of secai, following
 this policy, is welcome and will not be met with legal action under the
 repository license. Findings in *targeted* systems are out of scope for
 this policy — always test targets you are authorized to test.
 
 ## Scope note
 
-This policy covers the cyphron codebase and its distributions. It does
-not cover the systems you point cyphron at.
+This policy covers the secai codebase and its distributions. It does
+not cover the systems you point secai at.

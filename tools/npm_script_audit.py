@@ -7,7 +7,7 @@ preinstall/install/postinstall/prepare adalah permukaan eksekusi kode pihak
 ketiga di mesin pengembang (gelombang kompromi 2026 — Tensorlake ber-worm,
 Shai-Hulud — menular lewat jalur ini). Kriteria lain skill sumber (advisory
 sweep, publisher concentration, repo staleness) butuh jaringan/gh dan SUDAH
-diliput alat cyphron lain (dependency_cve: rentang CVE; supplychain_check:
+diliput alat secai lain (dependency_cve: rentang CVE; supplychain_check:
 blocklist + pin/hash) — tidak diduplikasi di sini. Ditulis dari nol, stdlib
 saja, tanpa jaringan; bukan salinan kode pihak lain. Lisensi: PolyForm NC.
 

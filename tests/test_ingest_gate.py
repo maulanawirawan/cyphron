@@ -142,7 +142,7 @@ def test_cli_block_and_summary(tmp_path):
     out_file = tmp_path / "gate.json"
     rc, payload = _run("--file", str(p), "--out", str(out_file))
     assert rc == 0
-    assert payload["schema"] == "cyphron.ingest-gate/1"
+    assert payload["schema"] == "secai.ingest-gate/1"
     assert payload["summary"] == {"block": 1, "flag": 0, "allow": 0}
     assert out_file.read_text(encoding="utf-8").startswith("{")
 

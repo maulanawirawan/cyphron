@@ -58,7 +58,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-SCHEMA = "cyphron.ct-baseline-diff/1"
+SCHEMA = "secai.ct-baseline-diff/1"
 MAX_FILE_BYTES = 16 * 1024 * 1024
 MAX_PERMUTATIONS = 600
 

@@ -1,4 +1,4 @@
-# Intel Auto-Update — mesin "selalu tahu" milik Cyphron (F67)
+# Intel Auto-Update — mesin "selalu tahu" milik SecAI (F67)
 
 > Tujuan: setiap kali ada CVE/patch baru, produk **mengetahuinya tanpa
 > operator menyentuh apa pun**, dan saat client menjalankan scan, hasil
@@ -69,7 +69,7 @@ OSV (mesin, per ekosistem), atau KB operator (manusia, wajib
 - Hanya `cpeMatch` dengan `vulnerable: true` **dan** constraint
   eksplisit (`versionStart/EndIncluding/Excluding` atau versi exact);
   wildcard murni dilewati.
-- Retensi **4 tahun** (default; override `CYPHRON_NVD_RETAIN_DAYS`);
+- Retensi **4 tahun** (default; override `SECAI_NVD_RETAIN_DAYS`);
   dedup by (cve, vendor, product, range); atomic write; manifest
   mencatat `entry_count`, `delta_from_prev`, `window_days`.
 - **Backfill historis**:
@@ -155,7 +155,7 @@ python tools/auto_update.py --install-schedule 01:30 --interval-hours 6
 python tools/auto_update.py --remove-schedule
 ```
 
-- Task Windows: **`cyphron-intel-daily`** (interactive-only, tanpa
+- Task Windows: **`secai-intel-daily`** (interactive-only, tanpa
   password), **tiap 6 jam mulai 01:30** — feed cepat (KEV/watchlist/
   nvd-ranges) punya TTL 6 jam, jadi tiap run benar-benar menyegarkan;
   nuclei 12 jam; CWE 168 jam. Nightrun 02:00 memakai intel paling segar.

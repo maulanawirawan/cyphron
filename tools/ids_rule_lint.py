@@ -8,7 +8,7 @@ detection' — penulisan/tuning rule, sid lokal, threshold) dan #0352
 disable.conf). Dibangun FROM SCRATCH: tokenizer rule, daftar keyword
 sticky-buffer, dan seluruh cek ditulis sendiri — tidak menyalin kode
 sumber (bukan pulledpork/suricata-update; hanya audit statis file).
-Lisensi cyphron: PolyForm NC.
+Lisensi secai: PolyForm NC.
 
 Input -> mekanisme -> output:
   - Input : file .rules/.conf/.txt atau direktori (read-only, NOL
@@ -63,7 +63,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
-SCHEMA = "cyphron.ids-rule-lint/1"
+SCHEMA = "secai.ids-rule-lint/1"
 RULE_EXTS = {".rules"}
 
 SEV_ORDER = {"info": 0, "medium": 1, "high": 2}

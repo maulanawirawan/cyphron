@@ -167,7 +167,7 @@ left-pad
 
 class SupplychainTest(unittest.TestCase):
     def setUp(self):
-        self.tmp = Path(tempfile.mkdtemp(prefix="cyphron-f65-"))
+        self.tmp = Path(tempfile.mkdtemp(prefix="secai-f65-"))
         self.bl = self.tmp / "blocklist.json"
         self.bl.write_text(json.dumps(BLOCKLIST), encoding="utf-8")
         self.old = sc.BLOCKLIST_PATH

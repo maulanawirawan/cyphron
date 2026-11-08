@@ -169,7 +169,7 @@ class FilterCandidatesTest(unittest.TestCase):
 
 class StateFileTest(unittest.TestCase):
     def test_roundtrip_and_append(self):
-        with tempfile.TemporaryDirectory(prefix="cyphron_sweep_") as tmp:
+        with tempfile.TemporaryDirectory(prefix="secai_sweep_") as tmp:
             state = Path(tmp) / "nested" / "state.txt"
             self.assertEqual(cve_sweep.load_state(state), set())
             cve_sweep.update_state(state, ["CVE-B", "CVE-A", "CVE-B"])
@@ -180,7 +180,7 @@ class StateFileTest(unittest.TestCase):
                              {"CVE-A", "CVE-B", "CVE-C"})
 
     def test_load_ignores_blank_lines(self):
-        with tempfile.TemporaryDirectory(prefix="cyphron_sweep_") as tmp:
+        with tempfile.TemporaryDirectory(prefix="secai_sweep_") as tmp:
             state = Path(tmp) / "state.txt"
             state.write_text("CVE-A\n\n  \nCVE-B\n", encoding="utf-8")
             self.assertEqual(cve_sweep.load_state(state), {"CVE-A", "CVE-B"})

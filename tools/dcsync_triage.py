@@ -9,7 +9,7 @@ Anthropic-Cybersecurity-Skills 'hunting-for-dcsync-attacks'; atribusi
 konsep, lisensi sumber Apache-2.0). Dibangun FROM SCRATCH: parser XML
 + taksonomi GUID replikasi ditulis sendiri dari spesifikasi deteksi
 publik (GUID extended-right AD terdaftar terbuka, access mask Windows).
-Skill sumber menanyakan SIEM live (Splunk/Sentinel); cyphron memilih
+Skill sumber menanyakan SIEM live (Splunk/Sentinel); secai memilih
 artefak offline (ekspor XML Security via Event Viewer/wevtutil) supaya
 nol jaringan dan dapat dites. Metodologi pendahulunya didistilasi di
 docs/PORT-AGENT-METHODS.md seksi 55; tool ini mengekstraksi inti
@@ -67,7 +67,7 @@ import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
-SCHEMA = "cyphron.dcsync-triage/1"
+SCHEMA = "secai.dcsync-triage/1"
 MAX_FILE_BYTES = 256 * 1024 * 1024
 
 WATCHED_EIDS = frozenset({4662})

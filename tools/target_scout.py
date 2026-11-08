@@ -3,7 +3,7 @@
 Terinspirasi pola "scout" sapper-v2: 4 menit pertama dipakai mengukur
 kesulitan target, lalu keputusan tenaga ikut hasil ukur — prajurit
 (mass, murah) atau jenderal (assault, mahal). Dibangun from scratch untuk
-cyphron: scout TIDAK mengeksploitasi, TIDAK menebak — dia mengirim
+secai: scout TIDAK mengeksploitasi, TIDAK menebak — dia mengirim
 maksimal 2 permintaan GET jinak (/, /robots.txt), mencatat bukti mentah
 per target, dan memetakan ke tier tenaga:
 
@@ -37,7 +37,7 @@ import urllib.parse
 import urllib.request
 from pathlib import Path
 
-USER_AGENT = "cyphron-target-scout/1.0"
+USER_AGENT = "secai-target-scout/1.0"
 CONNECT_TIMEOUT = 5.0
 READ_TIMEOUT = 8.0
 PROBE_PATHS = ("/", "/robots.txt")

@@ -58,7 +58,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "core"))
 from findings import make_finding, write_findings  # noqa: E402
 
-SCHEMA = "cyphron.graphql-depth-audit/1"
+SCHEMA = "secai.graphql-depth-audit/1"
 MAX_DEPTH_REPORT = 64  # batas panjang path di poc (bisa ratusan)
 
 

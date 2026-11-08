@@ -66,7 +66,7 @@ import json
 import sys
 from pathlib import Path
 
-SCHEMA = "cyphron.owasp-risk-rating/1"
+SCHEMA = "secai.owasp-risk-rating/1"
 MAX_FILE_BYTES = 4 * 1024 * 1024
 
 LIKELIHOOD_FACTORS = (

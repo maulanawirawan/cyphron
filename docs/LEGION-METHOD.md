@@ -2,26 +2,26 @@
 
 *(Bahasa Indonesia — bahasa kerja repo ini.)*
 
-Dokumen ini mendokumentasikan tiga mekanisme yang diadopsi cyphron dari
+Dokumen ini mendokumentasikan tiga mekanisme yang diadopsi secai dari
 metode "legion" — cara kerja multi-agen yang terbukti di kompetisi
-offensive-security — dibangun from scratch di atas kontrak cyphron
+offensive-security — dibangun from scratch di atas kontrak secai
 (bukti dulu, klaim belakangan; fail-closed).
 
 **Atribusi**: metode ini terinspirasi [sapper-v2](https://github.com/N1nEmAn/sapper-v2)
 (MIT) — pasukan AI otonom juara 1 kualifikasi online Tencent Intelligent
 Attack-Defense Challenge (634 tim, 8 jam tanpa pengawasan, 1B token).
 Tidak ada kode yang disalin; yang diambil adalah pola kerjanya, dan
-implementasinya tunduk pada lisensi serta rambu cyphron.
+implementasinya tunduk pada lisensi serta rambu secai.
 
-## Peta mekanisme → alat cyphron
+## Peta mekanisme → alat secai
 
-| Mekanisme (sapper) | Implementasi cyphron | Status |
+| Mekanisme (sapper) | Implementasi secai | Status |
 |---|---|---|
 | **Scout** — recon murah menentukan tebal tipisnya tenaga | `tools/target_scout.py` — maks. 2 GET jinak per target → tier `SOFT / GUARDED / UNREACHABLE` + bukti | ✅ alat |
 | **History** — fact-intent graph 3 lapis (judul/ringkasan/bukti) | `tools/session_ledger.py` — ledger JSONL append-only; sesi mati, graph survive; intent harus bertumpu fakta | ✅ alat |
 | **Watchdog zero-strategy** — keep-alive terpisah dari keputusan | `schtasks` + `tools/nightrun.py` (exit code jujur untuk scheduler) | ✅ sudah ada |
 | **Endgame reconciliation** — akhir sesi: semua temuan sudah dilaporkan? | `tools/verdict_audit.py` + gerbang bukti "No proof, no report" | ✅ sudah ada |
-| **Economy** — model tiering (otak besar memutuskan, otak murah mengerjakan) | belum dibutuhkan — cyphron tidak meng-orkestrasi LLM saat ini | 💡 catatan desain |
+| **Economy** — model tiering (otak besar memutuskan, otak murah mengerjakan) | belum dibutuhkan — secai tidak meng-orkestrasi LLM saat ini | 💡 catatan desain |
 | **Family transfer** — satu pola pecah, seluruh keluarga soal di-garap | `docs/AWARENESS-PATTERNS.md` + `tools/exploit_playbooks.py` | ✅ sudah ada |
 
 ## Cara pakai pasangan scout → scan → ledger

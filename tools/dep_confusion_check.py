@@ -10,7 +10,7 @@ sisi defensifnya — memeriksa manifest + konfigurasi registry sebuah
 proyek dan menandai konfigurasi yang membuat nama internal bisa jatuh
 ke registry publik. Aturan ditulis sendiri dari mekanisme resolusi yang
 didokumentasikan publik (npm, pip, NuGet) — TANPA menyalin kode sumber.
-Lisensi cyphron: PolyForm NC.
+Lisensi secai: PolyForm NC.
 
 Pemeriksaan (offline, NOL jaringan secara default):
   npm   — package.json: dependency @scope tanpa pemetaan
@@ -52,8 +52,8 @@ import urllib.request
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
-SCHEMA = "cyphron.dep-confusion-check/1"
-UA = "cyphron-dep-confusion-check/1 (read-only; authorized lab use)"
+SCHEMA = "secai.dep-confusion-check/1"
+UA = "secai-dep-confusion-check/1 (read-only; authorized lab use)"
 NPM_DEFAULT_HOSTS = {"registry.npmjs.org", "registry.yarnpkg.com"}
 SEVERITY_ORDER = {"INFO": 0, "LOW": 1, "MEDIUM": 2, "HIGH": 3}
 

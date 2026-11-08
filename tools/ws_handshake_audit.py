@@ -7,7 +7,7 @@ Cybersecurity-Skills 'exploiting-websocket-vulnerabilities'; atribusi
 konsep, lisensi sumber Apache-2.0). Dibangun FROM SCRATCH: taksonomi
 temuan handshake ditulis sendiri dari spesifikasi RFC 6455 + konsep
 pengujian publik (differential Origin, key konforman, subprotokol).
-Skill sumber = runbook live (wscat/Burp/python websockets); cyphron
+Skill sumber = runbook live (wscat/Burp/python websockets); secai
 menganalisis BUKTI probe handshake (export Burp/DevTools/curl -I) —
 tool ini TIDAK membuka koneksi.
 
@@ -65,7 +65,7 @@ import re
 import sys
 from pathlib import Path
 
-SCHEMA = "cyphron.ws-handshake-audit/1"
+SCHEMA = "secai.ws-handshake-audit/1"
 MAX_FILE_BYTES = 16 * 1024 * 1024
 
 _TOKEN_QUERY = re.compile(r"[?&](token|key|auth|secret|jwt|session)=", re.I)

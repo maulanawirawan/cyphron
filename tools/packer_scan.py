@@ -48,7 +48,7 @@ import sys
 from collections import Counter
 from pathlib import Path
 
-SCHEMA = "cyphron.packer-scan/1"
+SCHEMA = "secai.packer-scan/1"
 
 VERDICTS = ("CLEAN", "INCONCLUSIVE", "SUSPICIOUS", "PACKED-LIKELY")
 MAX_FILE_BYTES = 64 * 1024 * 1024

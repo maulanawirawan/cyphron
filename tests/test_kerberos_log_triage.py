@@ -156,7 +156,7 @@ def test_cli_end_to_end(tmp_path):
     rc, payload = _run("--log", str(p), "--enforce-aes",
                        "--out", str(out))
     assert rc == 0
-    assert payload["schema"] == "cyphron.kerberos-log-triage/1"
+    assert payload["schema"] == "secai.kerberos-log-triage/1"
     assert payload["stats"]["tgs_4769"] == 1
     assert out.read_text(encoding="utf-8").startswith("{")
 

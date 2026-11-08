@@ -1,6 +1,6 @@
 """[SAFETY: read-only] Certificate Transparency subdomain inventory.
 
-Skill v2 (produk Cyphron). Membaca CT log via API publik SSLMate Cert
+Skill v2 (produk SecAI). Membaca CT log via API publik SSLMate Cert
 Spotter (fallback terbukti lapangan; crt.sh sering 502). Murni data
 sertifikat publik — NOL trafik ke target. Hasil: inventaris nama dari
 sertifikat yang menerbitkan untuk domain (permukaan aset), plus temuan

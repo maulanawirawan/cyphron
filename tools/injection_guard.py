@@ -9,7 +9,7 @@ membaca bukti itu, termasuk AI agent yang diminta meringkas temuan.
 Ini pola OWASP LLM01 (Prompt Injection), dan bukti scan adalah jalur
 masuknya yang paling licin.
 
-Tiga lapis pertahanan cyphron (dokumen lengkap: docs/AGENT-SAFETY.md):
+Tiga lapis pertahanan secai (dokumen lengkap: docs/AGENT-SAFETY.md):
   1. Kode — gerbang NEVER-LIST & kelas lab: paling kuat, survives even
      if a prompt is stripped, because it is code, not prose.
   2. SKILL.md — panduan terbuka untuk agent yang patuh.

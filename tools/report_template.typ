@@ -1,4 +1,4 @@
-// Template laporan kategorial Cyphron — Typst.
+// Template laporan kategorial SecAI — Typst.
 // Data disuntik dari data.json (dihasilkan tools/report_pdf.py) sehingga
 // teks temuan TIDAK pernah diinterpretasi sebagai markup typst.
 #let data = json("data.json")
@@ -9,7 +9,7 @@
   numbering: "1", header: context {
     if counter(page).get().first() > 1 [
       #set text(size: 8pt, fill: rgb("6b7280"))
-      #data.title #h(1fr) Cyphron — laporan internal · LOCAL-ONLY
+      #data.title #h(1fr) SecAI — laporan internal · LOCAL-ONLY
     ]
   })
 #set text(font: "Libertinus Serif", size: 10pt)

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""cyphron — satu pintu: mode dengan pilihan masing-masing.
+"""secai — satu pintu: mode dengan pilihan masing-masing.
 
 Alat di repo ini berdiri sendiri (skills/, tools/, core-rs/). File ini
 bukan mesin baru — dia papan nama: satu command, beberapa mode, dan tiap
@@ -7,11 +7,11 @@ mode punya --help sendiri yang merinci pilihannya. Tanpa argumen, papan
 nama ini yang tampil.
 
 Pemakaian:
-  python cyphron.py                       # papan mode + contoh
-  python cyphron.py <mode> --help         # pilihan lengkap satu mode
-  python cyphron.py scout https://lab.lokal
-  python cyphron.py contrib sweep --since 2026-11-06T00:00:00
-  python cyphron.py skills --class read-only --text cors
+  python secai.py                       # papan mode + contoh
+  python secai.py <mode> --help         # pilihan lengkap satu mode
+  python secai.py scout https://lab.lokal
+  python secai.py contrib sweep --since 2026-11-06T00:00:00
+  python secai.py skills --class read-only --text cors
 
 Mode:
   scan      scan tier0 via core native (butuh build Rust; ada pesan bantuan)
@@ -41,7 +41,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 CORE_BIN = ROOT / "core-rs" / "target" / "release"
-CORE_NAME = "cyphron.exe" if sys.platform == "win32" else "cyphron"
+CORE_NAME = "secai.exe" if sys.platform == "win32" else "secai"
 REGISTRY = ROOT / "skills" / "registry.json"
 TIER0_CLASSES = ("read-only", "1-request", "bounded-requests")
 
@@ -159,7 +159,7 @@ def validate_python_fallback(args: list[str]) -> int:
     core native tetap validator kanonik untuk gerbang CI.
     """
     if not args:
-        print("pakai: python cyphron.py validate findings.json", file=sys.stderr)
+        print("pakai: python secai.py validate findings.json", file=sys.stderr)
         return 2
     sys.path.insert(0, str(ROOT / "core"))
     from findings import validate_finding  # noqa: E402
@@ -228,7 +228,7 @@ def mode_contrib(args: list[str], runner=None) -> int:
     if not args or args[0] in ("-h", "--help"):
         print("mode contrib — pilih submode:")
         for name, (desc, _) in CONTRIB_SUBMODES.items():
-            print(f"  python cyphron.py contrib {name:<8} # {desc}")
+            print(f"  python secai.py contrib {name:<8} # {desc}")
         print("tiap submode punya --help sendiri.")
         return 0
     sub, rest = args[0], args[1:]
@@ -243,15 +243,15 @@ def mode_contrib(args: list[str], runner=None) -> int:
 def dispatch(argv: list[str], runner=None) -> int:
     """Papan nama -> mode. Tanpa argumen = menu."""
     if not argv:
-        print("cyphron — proof, not claims. Pilih mode:\n")
+        print("secai — proof, not claims. Pilih mode:\n")
         width = max(len(name) for name in MODES)
         for name, entry in MODES.items():
             print(f"  {name:<{width}}  {entry['desc']}")
         print("\nlanjutan:")
-        print(f"  python cyphron.py <mode> --help   # pilihan lengkap mode")
-        print("  python cyphron.py skills --class read-only --text cors")
-        print("  python cyphron.py contrib sweep --since 2026-11-06T00:00:00")
-        print("  python cyphron.py scout https://lab.lokal")
+        print(f"  python secai.py <mode> --help   # pilihan lengkap mode")
+        print("  python secai.py skills --class read-only --text cors")
+        print("  python secai.py contrib sweep --since 2026-11-06T00:00:00")
+        print("  python secai.py scout https://lab.lokal")
         print("\nrambu: target berizin saja · fail-closed · no proof, no report")
         return 0
     mode, rest = argv[0], argv[1:]

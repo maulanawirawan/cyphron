@@ -18,7 +18,7 @@ sys.path.insert(0, str(ROOT / "core"))
 import mcp_server as ms  # noqa: E402
 
 # output run_skill diarahkan ke direktori sementara — repo tetap bersih
-_ms_tmp = pathlib.Path(tempfile.mkdtemp(prefix="cyphron_mcp_out_"))
+_ms_tmp = pathlib.Path(tempfile.mkdtemp(prefix="secai_mcp_out_"))
 ms.OUT_DIR = _ms_tmp
 
 # skrip skill inline: tulis findings.json valid (pola sama test Rust)
@@ -44,7 +44,7 @@ json.dump({"ok":True,"data":{"requests":0},"requests":0,"findings":[
 
 
 def fake_registry(script: str) -> pathlib.Path:
-    tmp = pathlib.Path(tempfile.mkdtemp(prefix="cyphron_mcp_"))
+    tmp = pathlib.Path(tempfile.mkdtemp(prefix="secai_mcp_"))
     reg = {"version": 1, "skills": [
         {"name": "fake-read", "cmd": ["python", "-c", script, "@OUT@"],
          "safety_class": "read-only", "needs": "none"},

@@ -30,7 +30,7 @@ File JSON (contoh `nightrun.json` di root repo, TIDAK ikut release):
 
 ```
 python tools/nightrun.py --config nightrun.json [--out findings/night-run]
-cyphron nightrun --config nightrun.json --dry-run   # rencana tanpa scan
+secai nightrun --config nightrun.json --dry-run   # rencana tanpa scan
 ```
 
 Output per run (`findings/night-run/<run-id>/`): `nightrun-summary.json`
@@ -47,14 +47,14 @@ bisa alert); 2 config error.
 Jalankan manual sekali di PowerShell (dari root repo):
 
 ```powershell
-schtasks /Create /TN "cyphron-nightrun" /SC DAILY /ST 02:00 /TR `
+schtasks /Create /TN "secai-nightrun" /SC DAILY /ST 02:00 /TR `
   "python tools\nightrun.py --config nightrun.json --out findings\night-run --no-pdf"
 ```
 
 Catatan:
 - `/TR` maks ~260 karakter — kalau path repo panjang, bungkus di
   `run-nightrun.cmd` satu baris lalu pakai path .cmd di `/TR`.
-- Cek log: `schtasks /Query /TN "cyphron-nightrun" /V`; hasil run
+- Cek log: `schtasks /Query /TN "secai-nightrun" /V`; hasil run
   selalu ada di `nightrun-summary.json` (exit code != 0 = gagal).
-- Hapus: `schtasks /Delete /TN "cyphron-nightrun" /F`.
+- Hapus: `schtasks /Delete /TN "secai-nightrun" /F`.
 - PDF butuh typst (lihat docs/INSTALL.md); `--no-pdf` kalau tidak perlu.

@@ -137,7 +137,7 @@ class TestRunGate(unittest.TestCase):
              "cmd": [PY, "-c", "import sys; sys.exit(0)"],
              "timeout_sec": 5}]}
         # executable tak ada: pakai nama yang pasti gagal di semua OS
-        gate["checks"][0]["cmd"] = ["cyphron-tidak-ada-exec-xyz"]
+        gate["checks"][0]["cmd"] = ["secai-tidak-ada-exec-xyz"]
         ev = verify_gate.run_gate(gate)
         self.assertEqual(ev["verdict"], verify_gate.VERDICT_BLOCKED)
 
@@ -236,7 +236,7 @@ class TestCli(unittest.TestCase):
                                f'"{PY}" -c "pass"', "--out", out])
         self.assertEqual(rc, 0)
         data = json.loads(Path(out).read_text(encoding="utf-8"))
-        self.assertEqual(data["schema"], "cyphron.verify-gate/1")
+        self.assertEqual(data["schema"], "secai.verify-gate/1")
         self.assertEqual(data["verdict"], "VERIFIED")
 
     def test_gate_invalid_exit2(self):

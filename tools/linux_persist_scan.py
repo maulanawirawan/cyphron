@@ -91,7 +91,7 @@ import re
 import sys
 from pathlib import Path
 
-SCHEMA = "cyphron.linux-persist-scan/1"
+SCHEMA = "secai.linux-persist-scan/1"
 MAX_FILE_BYTES = 8 * 1024 * 1024
 
 SEV_ORDER = {"info": 0, "low": 1, "medium": 2, "high": 3, "critical": 4}

@@ -201,7 +201,7 @@ class NetGuardTest(unittest.TestCase):
 
     def test_sitecustomize_menyala_via_subprocess_env(self):
         """Integrasi mirip runner: subprocess Python dengan
-        CYPHRON_NET_GUARD=1 + PYTHONPATH root + tools/net_guard harus
+        SECAI_NET_GUARD=1 + PYTHONPATH root + tools/net_guard harus
         ter-gate (budget habis -> connect ditolak)."""
         self.budget.write_text(json.dumps({"limit": 0, "used": 0}),
                                encoding="utf-8")
@@ -215,9 +215,9 @@ class NetGuardTest(unittest.TestCase):
         env = {
             "PATH": __import__("os").environ["PATH"],
             "SYSTEMROOT": __import__("os").environ.get("SYSTEMROOT", ""),
-            "CYPHRON_NET_GUARD": "1",
-            "CYPHRON_NET_BUDGET_FILE": str(self.budget),
-            "CYPHRON_NET_AUDIT": str(self.audit),
+            "SECAI_NET_GUARD": "1",
+            "SECAI_NET_BUDGET_FILE": str(self.budget),
+            "SECAI_NET_AUDIT": str(self.audit),
             "PYTHONPATH": f"{ROOT}{__import__('os').pathsep}{ROOT / 'tools' / 'net_guard'}",
         }
         proc = subprocess.run([sys.executable, "-c", code],

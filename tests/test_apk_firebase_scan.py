@@ -111,7 +111,7 @@ class TestCli(Base):
         rc = afs.main(["--source", str(apk), "--out", str(out)])
         self.assertEqual(rc, 1)
         d = json.loads(out.read_text(encoding="utf-8"))
-        self.assertEqual(d["schema"], "cyphron.apk-firebase/1")
+        self.assertEqual(d["schema"], "secai.apk-firebase/1")
 
 
 if __name__ == "__main__":

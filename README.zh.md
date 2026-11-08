@@ -1,6 +1,6 @@
 <div align="center">
 
-# cyphron
+# secai
 
 **要证据，不要断言。**
 
@@ -9,15 +9,15 @@ Rust，两边遵守同一份严格的输出契约。
 
 *无证据，不报告。*
 
-[![CI](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml/badge.svg)](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml)
+[![CI](https://github.com/maulanawirawan/secai/actions/workflows/ci.yml/badge.svg)](https://github.com/maulanawirawan/secai/actions/workflows/ci.yml)
 [![tests](https://img.shields.io/badge/tools-175-brightgreen)](#包含什么)
-[![release](https://img.shields.io/badge/release-v0.1.0-blue)](https://github.com/maulanawirawan/cyphron/releases)
+[![release](https://img.shields.io/badge/release-v0.1.0-blue)](https://github.com/maulanawirawan/secai/releases)
 [![skills](https://img.shields.io/badge/detection%20skills-93-8A2BE2)](#包含什么)
 [![python](https://img.shields.io/badge/python-3.12%2B-3776AB)](#快速开始)
 [![rust](https://img.shields.io/badge/rust-stable-orange)](#快速开始)
 [![license](https://img.shields.io/badge/license-PolyForm%20NC%201.0-blue)](LICENSE)
 
-[English](README.md) · [Bahasa Indonesia](README.id.md) · **中文** · [Español](README.es.md)
+[English](README.md) · **中文** · [Español](README.es.md)
 
 </div>
 
@@ -25,26 +25,26 @@ Rust，两边遵守同一份严格的输出契约。
 
 ## 从你的 Agent 使用
 
-cyphron 既是单命令多模式的 CLI，也提供可加载的 agent skill 与 MCP
+secai 既是单命令多模式的 CLI，也提供可加载的 agent skill 与 MCP
 服务器 —— Claude Code、Cursor、ZCode 或任何能执行 shell 的 agent
 都可以直接驱动它。
 
 ```bash
-git clone https://github.com/maulanawirawan/cyphron && cd cyphron
-python cyphron.py                          # 模式面板
-python cyphron.py <mode> --help            # 查看某个模式的全部选项
-claude mcp add cyphron -- python tools/mcp_server.py   # MCP（仅 tier0 白名单）
+git clone https://github.com/maulanawirawan/secai && cd secai
+python secai.py                          # 模式面板
+python secai.py <mode> --help            # 查看某个模式的全部选项
+claude mcp add secai -- python tools/mcp_server.py   # MCP（仅 tier0 白名单）
 ```
 
-Agent 请先阅读 [SKILL.md](SKILL.md) —— 教 agent 安全驱动 cyphron 的
+Agent 请先阅读 [SKILL.md](SKILL.md) —— 教 agent 安全驱动 secai 的
 手册。仅限授权目标；无证明，不出报告。
 
-## 为什么做 cyphron
+## 为什么做 secai
 
 大多数扫描器会丢给你几百条"可能存在"的问题，剩下的全靠你自己。
 报告一交上去，分诊团队回一句"未证明影响"就退回了。说实话，他们没错。
 
-cyphron 反其道而行：**证明不了的发现只是线索，不是结论。** 每条结果
+secai 反其道而行：**证明不了的发现只是线索，不是结论。** 每条结果
 都在一个明确的证据阶梯上有自己的位置。任何工具输出格式不对，整个运行
 就会停下，而不是悄悄继续。只有当多个独立来源一致时，线索才会升级。
 
@@ -52,13 +52,13 @@ cyphron 反其道而行：**证明不了的发现只是线索，不是结论。*
 
 ## 用途
 
-cyphron 是面向真实安全工作的公开开源项目。典型用法：
+secai 是面向真实安全工作的公开开源项目。典型用法：
 
 - **漏洞赏金与 VDP** — 枚举攻击面（headers、CORS、GraphQL、API 文档、
   暴露面、Cookie 作用域），得到能通过分诊的判定，而不是一堆"可能有问题"。
 - **对自己编码项目的渗透测试** — 在发布前把技能指向 staging/本地构建，
   抓住常见问题：缺失的安全头、调试页面、泄露文件、无鉴权端点、宽松 CORS。
-- **把安全集成进流水线** — findings.json 契约与 `cyphron validate` 让输出
+- **把安全集成进流水线** — findings.json 契约与 `secai validate` 让输出
   适合 CI；Rust 核心说同一套契约。
 - **学习** — 内置 lab 目标与 `docs/AWARENESS-PATTERNS.md`（九种真实漏洞
   模式的端到端剖析）是很好的实践课堂。
@@ -80,7 +80,7 @@ $ python skills/http_security_headers.py \
     --out headers.json
 http-security-headers: 8 temuan (2 AMAN) (0 request) -> headers.json
 
-$ cyphron validate headers.json
+$ secai validate headers.json
 OK: 8 findings valid terhadap kontrak (headers.json)
 ```
 
@@ -130,8 +130,8 @@ flowchart LR
 - **93 个检测技能**，位于 `skills/`，覆盖侦察、配置态势和暴露面。每个
   都是独立 CLI，声明了安全等级（从 `read-only` 到 `state-changing`），
   并据此设定硬性请求上限。注册表是白名单，未登记的技能不会运行。
-- **原生 Rust 核心**（`core-rs/`）：`cyphron validate` 校验契约，
-  `cyphron scan` 执行分级扫描，并生成 PDF 报告。它还负责 FAO 关联
+- **原生 Rust 核心**（`core-rs/`）：`secai validate` 校验契约，
+  `secai scan` 执行分级扫描，并生成 PDF 报告。它还负责 FAO 关联
   （去重、仲裁、证据哈希）以及失败即关闭的请求预算。
 - **一份契约，两种语言。** `findings.json` 在 Python 和 Rust 中各有
   实现，并互相交叉测试。
@@ -142,7 +142,7 @@ flowchart LR
 - **夜间运行。** 定时扫描并检测变化：新线索、证据减弱、结论变化都会
   按项目记录。
 - **MCP 服务器**，可以从 Claude Code、Cursor 或任何 MCP 客户端驱动
-  cyphron。
+  secai。
 - **受控的证明层**（`tools/exploit_*`），用可复现的 PoC 把 `L1`/`L2`
   线索提升为 `L3`/`L4`。默认关闭，只有目标被显式标记为
   `exploit_allowed` 时才会启用，面向实验室和预发布环境。部分技术
@@ -180,14 +180,14 @@ triage 家族是一组独立的离线 CLI：输入证据（日志、导出、清
 
 | 命令 | 作用 |
 |:---|:---|
-| `cyphron scan --domain example.com --max-requests 32 --report` | 完整 tier0 扫描（仅公开数据，严格预算）+ PDF 报告 |
-| `cyphron validate findings.json` | 用 Rust 核心校验任何 findings.json 是否符合契约 |
-| `cyphron merge --dedup-id ...` | 合并并去重发现集（FAO 关联） |
+| `secai scan --domain example.com --max-requests 32 --report` | 完整 tier0 扫描（仅公开数据，严格预算）+ PDF 报告 |
+| `secai validate findings.json` | 用 Rust 核心校验任何 findings.json 是否符合契约 |
+| `secai merge --dedup-id ...` | 合并并去重发现集（FAO 关联） |
 | `python skills/<skill>.py --url … --out f.json` | 运行单个检测 skill（共 93 个，注册表白名单管理） |
 | `python tools/code_map.py --repo <path> --out surface.json` | 把代码库映射为攻击面 —— 零请求 |
 | `python tools/chain_planner.py --findings f.json` | 从已有发现规划 A→B→C 利用链 |
 | `python tools/submission_gate.py --finding f.json --program p.json` | 对单个发现执行提交前七问门禁 |
-| `claude mcp add cyphron -- python tools/mcp_server.py` | 从 Claude Code / 任意 MCP 客户端驱动 cyphron |
+| `claude mcp add secai -- python tools/mcp_server.py` | 从 Claude Code / 任意 MCP 客户端驱动 secai |
 | `python tools/lab_target.py` | 启动本地靶场练习 |
 
 夜间运行（定时扫描 + 漂移检测）与情报同步（CISA KEV / NVD / OSV）见 [docs/](docs/)。
@@ -202,10 +202,10 @@ cargo build --release --manifest-path core-rs/Cargo.toml
 python skills/banner_posture.py --url https://example.com --out banner.json
 
 # 按契约校验输出
-core-rs/target/release/cyphron validate banner.json
+core-rs/target/release/secai validate banner.json
 
 # 完整 tier0 扫描（仅公开数据，严格预算）并生成 PDF 报告
-core-rs/target/release/cyphron scan --domain example.com \
+core-rs/target/release/secai scan --domain example.com \
     --max-requests 32 --out findings/scan --report
 ```
 
@@ -257,7 +257,7 @@ pip install "mcp[cli]"
 ```json
 {
   "mcpServers": {
-    "cyphron": {
+    "secai": {
       "command": "python",
       "args": ["tools/mcp_server.py"]
     }
@@ -265,7 +265,7 @@ pip install "mcp[cli]"
 }
 ```
 
-对外提供 `cyphron_list_skills` 和 `cyphron_run_skill`。仅限实验室的
+对外提供 `secai_list_skills` 和 `secai_run_skill`。仅限实验室的
 等级永远不会暴露，每个结果在返回前都会按契约校验。
 
 ## 常见问题
@@ -294,7 +294,7 @@ cargo test --release --manifest-path core-rs/Cargo.toml
 
 ## 负责任地使用
 
-cyphron 仅用于**已授权**的测试：你自己的系统，或明确给予许可的项目。
+secai 仅用于**已授权**的测试：你自己的系统，或明确给予许可的项目。
 未经许可扫描他人系统在大多数地方都是违法的。请不要这样做。
 
 ## 社区
@@ -302,7 +302,7 @@ cyphron 仅用于**已授权**的测试：你自己的系统，或明确给予�
 🐛 **发现 bug？** → [bug 报告](.github/ISSUE_TEMPLATE/bug_report.md)
 🙅 **检测器误报了？** → [误报报告](.github/ISSUE_TEMPLATE/false_positive.md) — 误报报告在这里是一等公民，每一份都会收紧反误报底线
 💡 **缺少某项能力？** → [功能请求](.github/ISSUE_TEMPLATE/feature_request.md)
-🔒 **cyphron 本身的安全问题？** → [SECURITY.md](.github/SECURITY.md)（私下披露，不要开公开 issue）
+🔒 **secai 本身的安全问题？** → [SECURITY.md](.github/SECURITY.md)（私下披露，不要开公开 issue）
 🤝 [贡献指南](CONTRIBUTING.md) · [行为准则](.github/CODE_OF_CONDUCT.md) · [更新日志](CHANGELOG.md)
 
 ## 贡献
@@ -311,11 +311,11 @@ cyphron 仅用于**已授权**的测试：你自己的系统，或明确给予�
 [CONTRIBUTING.md](CONTRIBUTING.md) 开始。合并的 PR 会让你进入贡献者
 列表。
 
-如果 cyphron 帮你省了时间，点个 ⭐ 能让更多人发现它。
+如果 secai 帮你省了时间，点个 ⭐ 能让更多人发现它。
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=maulanawirawan/cyphron&type=Date)](https://star-history.com/#maulanawirawan/cyphron&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=maulanawirawan/secai&type=Date)](https://star-history.com/#maulanawirawan/secai&Date)
 
 ## 致谢
 
@@ -328,7 +328,7 @@ cyphron 仅用于**已授权**的测试：你自己的系统，或明确给予�
 使用、学习、修改和分享。
 
 想商用，比如集成进付费服务？也可以，先问一声，我们来商量授权。可以开
-一个 [issue](https://github.com/maulanawirawan/cyphron/issues) 或联系
+一个 [issue](https://github.com/maulanawirawan/secai/issues) 或联系
 [@maulanawirawan](https://github.com/maulanawirawan)。
 
 第三方组件和数据来源见

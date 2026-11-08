@@ -40,7 +40,7 @@ import sys
 import zlib
 from pathlib import Path
 
-SCHEMA = "cyphron.pdf-triage/1"
+SCHEMA = "secai.pdf-triage/1"
 
 VERDICTS = ("CLEAN", "INCONCLUSIVE", "SUSPICIOUS", "MALICIOUS-LIKELY")
 MAX_EVIDENCE = 240

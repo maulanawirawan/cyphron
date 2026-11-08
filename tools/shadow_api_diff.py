@@ -8,7 +8,7 @@ Cybersecurity-Skills 'detecting-shadow-api-endpoints' — bandingkan
 traffic live vs OpenAPI spec utk menemukan endpoint tak terdokumentasi;
 atribusi konsep, lisensi sumber Apache-2.0). Dibangun FROM SCRATCH:
 parser CLF/JSONL + pencocokan template-path ditulis sendiri; skill
-sumber memakai pandas + yaml, cyphron stdlib murni.
+sumber memakai pandas + yaml, secai stdlib murni.
 
 Input -> mekanisme -> output:
   - Input : --spec openapi.json (dokumen OpenAPI 2/3 versi JSON) ATAU
@@ -59,7 +59,7 @@ import sys
 from pathlib import Path
 from urllib.parse import unquote
 
-SCHEMA = "cyphron.shadow-api-diff/1"
+SCHEMA = "secai.shadow-api-diff/1"
 MAX_FILE_BYTES = 256 * 1024 * 1024
 MAX_UNPARSED_SAMPLES = 20
 

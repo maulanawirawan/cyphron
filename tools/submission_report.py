@@ -7,12 +7,12 @@ manusia, BUKAN submission-ready, dan TIDAK ada pengiriman apa pun
 Port konsep dari awarexone/Agentic-Bug-Hunter (MIT) — skills/report-
 writing/SKILL.md + commands/report.md (rumus judul, impact-first, empat
 seksi inti, disiplin "prove it or don't claim it"). Atribusi konsep,
-lisensi sumber MIT. Dibangun FROM SCRATCH untuk kontrak cyphron: stdlib,
+lisensi sumber MIT. Dibangun FROM SCRATCH untuk kontrak secai: stdlib,
 argparse + type hints, fail-closed, nol jaringan.
 
 RANAH EKSPLISIT (mini-program ABH-PORT — anti-tabrakan):
   - report_pack.py / report_pdf.py = pengemasan bukti + render laporan
-    cyphron — TIDAK disentuh; tool ini hanya MENGAHASILKAN draf teks.
+    secai — TIDAK disentuh; tool ini hanya MENGAHASILKAN draf teks.
   - submission_gate.py = gerbang 7-pertanyaan pra-submission — TIDAK
     disentuh; jalankan gate DULU, tool ini menyusun draf temuan yang
     sudah lolos disiplin.

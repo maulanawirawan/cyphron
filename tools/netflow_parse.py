@@ -41,7 +41,7 @@ import struct
 import sys
 from pathlib import Path
 
-SCHEMA = "cyphron.netflow-parse/1"
+SCHEMA = "secai.netflow-parse/1"
 
 HEADER_LEN = 24
 RECORD_LEN = 48

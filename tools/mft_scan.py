@@ -37,7 +37,7 @@ import struct
 import sys
 from pathlib import Path
 
-SCHEMA = "cyphron.mft-scan/1"
+SCHEMA = "secai.mft-scan/1"
 
 MFT_MAGIC = b"FILE"
 EPOCH_DIFF_1601_1970 = 11644473600_0000000  # 100ns

@@ -1,9 +1,9 @@
-// Dashboard cyphron — tanpa build step, tanpa dependency.
+// Dashboard secai — tanpa build step, tanpa dependency.
 // Audit 2026-10: data scan dirender via textContent + DOM terstruktur —
 // nama path dari findings tidak boleh ditafsirkan sebagai markup.
 // F2: auth header-only - token diambil dari sessionStorage (diisi
 // operator), tidak pernah lewat query string.
-const AUTH = sessionStorage.getItem('cyphron_token') || '';
+const AUTH = sessionStorage.getItem('secai_token') || '';
 fetch('/api/runs', {headers: AUTH ? {'Authorization': AUTH} : {}})
   .then(r=>r.json()).then(rows=>{
   const b=document.querySelector('#t tbody');

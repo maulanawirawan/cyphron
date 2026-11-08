@@ -357,7 +357,7 @@ class MainExitCodes(unittest.TestCase):
             rc = self._run(["--source", str(src), "--out", str(out)])
             self.assertEqual(rc, 0)
             doc = json.loads(out.read_text(encoding="utf-8"))
-            self.assertEqual(doc["schema"], "cyphron.pe-import-scan/1")
+            self.assertEqual(doc["schema"], "secai.pe-import-scan/1")
             self.assertEqual(doc["summary"]["total"], 0)
             self.assertEqual(doc["results"][0]["checked"],
                              ["imports", "resources", "overlay",

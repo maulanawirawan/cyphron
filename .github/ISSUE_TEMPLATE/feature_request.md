@@ -16,7 +16,7 @@ assignees: ""
 
 **Proposed input → mechanism → output**
 
-<!-- cyphron tools follow the shape: what evidence comes in, what
+<!-- secai tools follow the shape: what evidence comes in, what
      deterministic mechanism decides, what findings.json comes out.
      If your idea needs live probing, say why an offline variant
      wouldn't work — most should be offline-first. -->

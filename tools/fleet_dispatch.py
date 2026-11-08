@@ -3,7 +3,7 @@
 Konsep "dispatching parallel agents" (tugas dipecah ke worker independen
 dengan kontrak hasil dan kegagalan yang tercatat — populer di framework
 agentic seperti obra/superpowers) diadaptasi ke bentuk yang jujur untuk
-cyphron: WORKER POOL PROSES (multiprocessing), bukan "agent LLM" —
+secai: WORKER POOL PROSES (multiprocessing), bukan "agent LLM" —
 setiap worker menjalankan job nyata (playbook exploit / skill CLI) di
 subprocess, dengan gerbang config yang sama seperti engine.
 
@@ -38,7 +38,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
-SCHEMA = "cyphron.fleet-dispatch/1"
+SCHEMA = "secai.fleet-dispatch/1"
 DEFAULT_TIMEOUT_SEC = 900
 MAX_WORKERS = 16
 

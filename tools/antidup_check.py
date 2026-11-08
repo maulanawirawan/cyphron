@@ -48,7 +48,7 @@ from pathlib import Path
 
 SEARCH_URL = "https://api.github.com/search/issues"
 REPO_URL = "https://api.github.com/repos"
-USER_AGENT = "cyphron-antidup/1.0"
+USER_AGENT = "secai-antidup/1.0"
 RECENT_DAYS = 14
 MAX_KEYWORD_QUERIES = 3  # hemat rate limit search API
 

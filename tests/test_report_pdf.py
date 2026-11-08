@@ -20,8 +20,8 @@ sys.path.insert(0, str(ROOT / "tools"))
 
 import report_pdf as rp  # noqa: E402
 
-# render end-to-end butuh typst (env CYPHRON_TYPST / vendored / PATH)
-TYPST_OK = bool(os.environ.get("CYPHRON_TYPST")
+# render end-to-end butuh typst (env SECAI_TYPST / vendored / PATH)
+TYPST_OK = bool(os.environ.get("SECAI_TYPST")
                 or (ROOT / "tools/bin/typst-x86_64-pc-windows-msvc/typst.exe"
                     ).exists()
                 or shutil.which("typst"))
@@ -217,7 +217,7 @@ class PlainLanguageTest(unittest.TestCase):
 
 
 @unittest.skipUnless(
-    TYPST_OK, "typst tidak tersedia (CYPHRON_TYPST / tools/bin / PATH)")
+    TYPST_OK, "typst tidak tersedia (SECAI_TYPST / tools/bin / PATH)")
 class RenderTest(unittest.TestCase):
     """Render end-to-end via typst — butuh fixture findings.json."""
 
@@ -397,7 +397,7 @@ class RenderTest(unittest.TestCase):
 
 
 @unittest.skipUnless(
-    TYPST_OK, "typst tidak tersedia (CYPHRON_TYPST / tools/bin / PATH)")
+    TYPST_OK, "typst tidak tersedia (SECAI_TYPST / tools/bin / PATH)")
 class ExposureRenderTest(RenderTest):
     """F54 — temuan bundle-exposure ter-render jadi PDF client dgn
     lapisan bahasa awam (alur docs/EXPOSURE-AUDIT.md)."""

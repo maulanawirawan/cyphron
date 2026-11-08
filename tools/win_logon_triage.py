@@ -7,7 +7,7 @@ Cybersecurity-Skills 'detecting-rdp-brute-force-attacks' — parse log
 keamanan Windows utk pola tebak kredensial RDP; atribusi konsep,
 lisensi sumber Apache-2.0). Dibangun FROM SCRATCH: parser XML +
 logika window geser ditulis sendiri. Skill sumber memakai python-evtx
-(biner EVTX); cyphron memilih ekspor XML (Event Viewer "Export XML"
+(biner EVTX); secai memilih ekspor XML (Event Viewer "Export XML"
 atau `wevtutil /x`) supaya parser stdlib murni dan nol dependensi.
 
 Input -> mekanisme -> output:
@@ -56,7 +56,7 @@ import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-SCHEMA = "cyphron.win-logon-triage/1"
+SCHEMA = "secai.win-logon-triage/1"
 MAX_FILE_BYTES = 256 * 1024 * 1024
 
 EID_FAILED = 4625

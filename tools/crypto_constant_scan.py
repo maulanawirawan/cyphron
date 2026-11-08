@@ -68,7 +68,7 @@ import struct
 import sys
 from pathlib import Path
 
-SCHEMA = "cyphron.crypto-constant-scan/1"
+SCHEMA = "secai.crypto-constant-scan/1"
 MAX_FILE_BYTES = 64_000_000
 MAX_HITS_PER_CONST = 8
 MAX_IMPORTS = 4096

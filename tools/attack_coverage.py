@@ -53,7 +53,7 @@ import re
 import sys
 from pathlib import Path
 
-SCHEMA = "cyphron.attack-coverage/1"
+SCHEMA = "secai.attack-coverage/1"
 MAX_FILE_BYTES = 16 * 1024 * 1024
 RE_TECH = re.compile(r"\bT\d{4}(?:\.\d{3})?\b", re.I)
 

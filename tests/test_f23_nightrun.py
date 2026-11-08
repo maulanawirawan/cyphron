@@ -1,5 +1,5 @@
 """Test F23 — night-run orchestrator + drift detection. NOL jaringan:
-`cyphron scan` disimulasikan lewat mock run_cmd yang menulis
+`secai scan` disimulasikan lewat mock run_cmd yang menulis
 findings.json kontrak ke --out yang diminta (pola test orchestrator).
 """
 from __future__ import annotations
@@ -24,7 +24,7 @@ def _finding(i: str, title: str, verdict: int = 1) -> dict:
 
 
 class _FakeScan:
-    """Simulasi `cyphron scan`: tulis findings.json ke dir --out."""
+    """Simulasi `secai scan`: tulis findings.json ke dir --out."""
 
     def __init__(self, per_domain: dict[str, list[dict]], fail_domains=()):
         self.per_domain = per_domain

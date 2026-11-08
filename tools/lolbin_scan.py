@@ -7,10 +7,10 @@ Anthropic-Cybersecurity-Skills 'detecting-living-off-the-land-attacks',
 'detecting-living-off-the-land-with-lolbas', 'detecting-malicious-
 scheduled-tasks-with-sysmon' — lisensi sumber Apache-2.0, atribusi
 konsep — kode dibangun from scratch TANPA menyalin kode sumber). Skill
-sumber memakai SIEM/EDR live + Sigma; cyphron memilih artefak offline:
+sumber memakai SIEM/EDR live + Sigma; secai memilih artefak offline:
 file XML ekspor Sysmon, parser stdlib, nol jaringan.
 
-Pembagian ranah dgn alat cyphron lain (anti-duplikasi):
+Pembagian ranah dgn alat secai lain (anti-duplikasi):
   - EID 8/10/25 (injection/lsass/tampering), EID 7, dump-cmdline
     (comsvcs MiniDump/procdump/reg save/mimikatz), WMI 19/20/21,
     UAC-hijack EID 12/13 -> tools/sysmon_triage.py (#0466 #0467 #0468
@@ -71,7 +71,7 @@ import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
-SCHEMA = "cyphron.lolbin-scan/1"
+SCHEMA = "secai.lolbin-scan/1"
 MAX_FILE_BYTES = 64 * 1024 * 1024
 RELEVANT_EIDS = frozenset({1, 11})
 

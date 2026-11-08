@@ -64,7 +64,7 @@ sys.path.insert(0, str(ROOT / "tools"))
 
 from ioc_defang import defang_text  # noqa: E402
 
-SCHEMA = "cyphron.rust-binary-triage/1"
+SCHEMA = "secai.rust-binary-triage/1"
 MAX_FILE_BYTES = 64_000_000
 MAX_SYMBOLS = 2000
 MAX_SYMBOL_LEN = 512

@@ -135,7 +135,7 @@ def test_e2e_alg_none_exit_1():
                                           sig=""),
                           "--now", str(NOW))
     assert code == 1
-    assert out["schema"] == "cyphron.jwt-token-audit/1"
+    assert out["schema"] == "secai.jwt-token-audit/1"
     assert {"alg-none", "signature-empty"} <= _checks(out)
 
 

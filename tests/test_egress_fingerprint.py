@@ -29,7 +29,7 @@ def all_valid(rows):
 class ConfigAuditTest(unittest.TestCase):
     def test_returns_two_tuple_and_valid_rows(self):
         with patch.dict("os.environ", {}, clear=False):
-            for k in ("CYPHRON_UA", "HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY"):
+            for k in ("SECAI_UA", "HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY"):
                 __import__("os").environ.pop(k, None)
             rows, meta = efc.audit(None, None)
         self.assertIsInstance(rows, list)
@@ -46,7 +46,7 @@ class ConfigAuditTest(unittest.TestCase):
 
     def test_browser_ua_on_mismatched_os_is_lead(self):
         # lesi lintas-lapisan dari review: UA Chrome Windows di host lain
-        with patch.dict("os.environ", {"CYPHRON_UA": "browser"}), \
+        with patch.dict("os.environ", {"SECAI_UA": "browser"}), \
                 patch.object(efc.platform, "system", return_value="Linux"):
             rows, _ = efc.audit(None, None)
         hits = [r for r in rows if "tidak cocok OS host" in r["title"]]
@@ -55,7 +55,7 @@ class ConfigAuditTest(unittest.TestCase):
         self.assertTrue(all_valid(rows))
 
     def test_browser_ua_on_windows_is_aman(self):
-        with patch.dict("os.environ", {"CYPHRON_UA": "browser"}), \
+        with patch.dict("os.environ", {"SECAI_UA": "browser"}), \
                 patch.object(efc.platform, "system",
                              return_value="Windows"):
             rows, _ = efc.audit(None, None)

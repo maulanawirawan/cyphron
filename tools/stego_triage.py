@@ -35,7 +35,7 @@ Mekanisme per format:
   BMP   : BITMAPFILEHEADER + BITMAPINFOHEADER (bpp 24/32): LSB pixel
           array (row stride padded, bottom-up) -> rasio + signature.
 
-Anti-FP (disiplin NO-FP cyphron):
+Anti-FP (disiplin NO-FP secai):
   - magic probe minimal 4 byte (MZ/gzip 2-b TIDAK diprobe — FP pada
     data acak); signature hanya dicari di trailing, dan di LSB hanya
     di 64-b pertama (payload LSB selalu mulai dari byte 0-nya);
@@ -70,7 +70,7 @@ import sys
 import zlib
 from pathlib import Path
 
-SCHEMA = "cyphron.stego-triage/1"
+SCHEMA = "secai.stego-triage/1"
 MAX_FILE_BYTES = 32 * 1024 * 1024
 MAX_IDAT_RAW = 64 * 1024 * 1024      # batas dekompresi IDAT (bounded)
 LSB_MIN_BITS_FOR_RATIO = 4096        # di bawah ini rasio tak dinilai

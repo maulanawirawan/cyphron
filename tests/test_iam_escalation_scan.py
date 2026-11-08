@@ -199,7 +199,7 @@ class TestCLI(unittest.TestCase):
             r1 = self._run("--auth", str(buruk), "--json")
             self.assertEqual(r1.returncode, 1)
             out = json.loads(r1.stdout)
-            self.assertEqual(out["schema"], "cyphron.iam-escalation-scan/1")
+            self.assertEqual(out["schema"], "secai.iam-escalation-scan/1")
             self.assertIn("admin-wildcard", checks(out["findings"]))
 
             bersih = Path(td) / "bersih.json"

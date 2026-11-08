@@ -74,7 +74,7 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-SCHEMA = "cyphron.ransom-artifact-triage/1"
+SCHEMA = "secai.ransom-artifact-triage/1"
 MAX_NOTE_BYTES = 1024 * 1024
 
 SEVERITY_ORDER = {"high": 3, "medium": 2, "low": 1}

@@ -335,7 +335,7 @@ class MainExitCodes(unittest.TestCase):
             rc = st.main(["--source", str(src), "--out", str(out)])
             self.assertEqual(rc, 0)
             doc = json.loads(out.read_text(encoding="utf-8"))
-            self.assertEqual(doc["schema"], "cyphron.stego-triage/1")
+            self.assertEqual(doc["schema"], "secai.stego-triage/1")
             self.assertEqual(doc["results"][0]["checked"],
                              ["trailing-data", "archive-signature",
                               "lsb-plane", "structure-integrity"])

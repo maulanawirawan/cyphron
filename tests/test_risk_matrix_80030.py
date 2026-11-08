@@ -162,7 +162,7 @@ class Cli(unittest.TestCase):
                  "residual_impact": "moderate"}]})),
              "--out", out_path])
         self.assertEqual(code, 0)
-        self.assertEqual(data["schema"], "cyphron.risk-matrix-80030/1")
+        self.assertEqual(data["schema"], "secai.risk-matrix-80030/1")
         self.assertEqual(data["matrix"][4][4], "very_high")
         row = data["register"][0]
         self.assertEqual(row["risk_level"], "very_high")

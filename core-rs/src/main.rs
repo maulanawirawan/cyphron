@@ -1,10 +1,10 @@
-//! Cyphron core CLI (working title) — engine runner + kontrak findings.
+//! SecAI core CLI (working title) — engine runner + kontrak findings.
 //!
 //! Perintah:
-//!   cyphron validate <file.json>            — validasi findings.json vs kontrak
-//!   cyphron run --out <file> <skill...>     — jalankan skill (subproses),
+//!   secai validate <file.json>            — validasi findings.json vs kontrak
+//!   secai run --out <file> <skill...>     — jalankan skill (subproses),
 //!     placeholder @OUT@ di argv diganti path output absolut
-//!   cyphron info                            — kontrak ringkas + versi
+//!   secai info                            — kontrak ringkas + versi
 //!
 //! Fail-closed: exit != 0 kalau kontrak dilanggar.
 
@@ -33,7 +33,7 @@ fn main() {
         Some("export") => cmd_export(&args[1..]),
         Some("info") | None => cmd_info(),
         Some("--version") | Some("-V") => {
-            println!("cyphron/0.1.0 core-findings");
+            println!("secai/0.1.0 core-findings");
         }
         Some(other) => {
             eprintln!("unknown command: {other}");
@@ -71,7 +71,7 @@ fn cmd_merge(args: &[String]) {
         }
     }
     let out = out.unwrap_or_else(|| {
-        eprintln!("usage: cyphron merge --out <file> [--dedup-id] <input1.json> <input2.json> ...");
+        eprintln!("usage: secai merge --out <file> [--dedup-id] <input1.json> <input2.json> ...");
         exit(2);
     });
     let mut findings: Vec<contract::Finding> = Vec::new();
@@ -116,13 +116,13 @@ fn cmd_merge(args: &[String]) {
     println!("merged: {} findings{note} -> {}", findings.len(), out.display());
 }
 
-/// F23 — delegasi `cyphron nightrun` ke tools/nightrun.py (orchestrator
+/// F23 — delegasi `secai nightrun` ke tools/nightrun.py (orchestrator
 /// Python: config + budget per target + drift by ID + weekly + PDF).
 /// Logika orchestrator tinggal di satu tempat (Python, teruji); binari
 /// Rust hanya titik masuk CLI. Fail-closed: script tidak ada / python
 /// tidak bisa di-spawn = exit 1 dengan pesan jelas.
 fn cmd_nightrun(args: &[String]) {
-    let python = std::env::var("CYPHRON_PYTHON").unwrap_or_else(|_| "python".into());
+    let python = std::env::var("SECAI_PYTHON").unwrap_or_else(|_| "python".into());
     let script = PathBuf::from("tools").join("nightrun.py");
     if !script.exists() {
         eprintln!(
@@ -136,7 +136,7 @@ fn cmd_nightrun(args: &[String]) {
         .args(args)
         .status()
         .unwrap_or_else(|e| {
-            eprintln!("ERROR: tidak bisa spawn '{python}': {e} — set env CYPHRON_PYTHON");
+            eprintln!("ERROR: tidak bisa spawn '{python}': {e} — set env SECAI_PYTHON");
             exit(1);
         });
     exit(status.code().unwrap_or(1));
@@ -308,7 +308,7 @@ fn cmd_export(args: &[String]) {
             other => { eprintln!("unknown flag: {other}"); exit(2); }
         }
     }
-    let fp = findings_path.unwrap_or_else(|| { eprintln!("usage: cyphron export --findings <f.json> --format csv|json --out <file>"); exit(2); });
+    let fp = findings_path.unwrap_or_else(|| { eprintln!("usage: secai export --findings <f.json> --format csv|json --out <file>"); exit(2); });
     let raw = std::fs::read_to_string(&fp).unwrap_or_else(|e| { eprintln!("ERROR: {e}"); exit(1); });
     let doc: contract::FindingsDoc = serde_json::from_str(&raw)
         .unwrap_or_else(|e| { eprintln!("ERROR: bukan findings.json: {e}"); exit(1); });
@@ -341,7 +341,7 @@ fn cmd_export(args: &[String]) {
 
 fn cmd_info() {
     println!(
-        "cyphron core 0.1.0 — findings contract satu pintu
+        "secai core 0.1.0 — findings contract satu pintu
 verdict ladder: 0 OBSERVED, 1 SUSPECTED, 2 REPRODUCED, 3 DETERMINISTICALLY_VERIFIED,
                 4 IMPACT_VERIFIED, 5 BLIND_VALIDATED, -1 REJECTED
 min report level: {MIN_REPORT_LEVEL} (di bawahnya = LEAD)
@@ -356,7 +356,7 @@ fn cmd_validate(path: Option<&String>) {
     let p = match path {
         Some(p) => PathBuf::from(p),
         None => {
-            eprintln!("usage: cyphron validate <file.json>");
+            eprintln!("usage: secai validate <file.json>");
             exit(2);
         }
     };
@@ -378,7 +378,7 @@ fn cmd_validate(path: Option<&String>) {
 }
 
 fn cmd_run(args: &[String]) {
-    // Parser: flag cyphron hanya SEBELUM `--` (atau sebelum token pertama
+    // Parser: flag secai hanya SEBELUM `--` (atau sebelum token pertama
     // perintah skill). Semua setelahnya verbatim milik skill — flag skill
     // (mis. --out @OUT@) TIDAK boleh diinterpretasi ulang (bug #1: arm
     // "--out" tanpa guard menelan flag skill dan mengosongkan output).
@@ -405,7 +405,7 @@ fn cmd_run(args: &[String]) {
     }
     let skill: Vec<String> = args[i.min(args.len())..].to_vec();
     let out = out.unwrap_or_else(|| {
-        eprintln!("usage: cyphron run --out <file> <skill...> (pakai @OUT@ placeholder)");
+        eprintln!("usage: secai run --out <file> <skill...> (pakai @OUT@ placeholder)");
         exit(2);
     });
     if skill.is_empty() {

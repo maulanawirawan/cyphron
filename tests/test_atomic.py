@@ -19,7 +19,7 @@ from atomic import atomic_write_bytes, atomic_write_text, single_writer_lock  # 
 
 class AtomicWriteTest(unittest.TestCase):
     def setUp(self):
-        self.tmp = Path(tempfile.mkdtemp(prefix="cyphron_atomic_"))
+        self.tmp = Path(tempfile.mkdtemp(prefix="secai_atomic_"))
 
     def test_write_and_read_back(self):
         p = self.tmp / "sub" / "out.json"
@@ -64,7 +64,7 @@ class AtomicWriteTest(unittest.TestCase):
 
 class SingleWriterLockTest(unittest.TestCase):
     def setUp(self):
-        self.tmp = Path(tempfile.mkdtemp(prefix="cyphron_lock_"))
+        self.tmp = Path(tempfile.mkdtemp(prefix="secai_lock_"))
         self.lock = self.tmp / ".lock"
 
     def test_acquire_and_release(self):
