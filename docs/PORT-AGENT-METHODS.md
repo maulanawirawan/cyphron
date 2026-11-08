@@ -3811,3 +3811,104 @@ tools/sqlite_forensics.py; sisanya didistilasi di bawah (seksi 221-232).
       bulan, bukan snapshot); gap assessment -> POA&M ber-owner (cf.
       seksi 94 #0478 NIST RMF); otomatisasi bukti (AWS/Okta/GitHub
       API) = live ops ber-kunci — bukan tool audit
+
+---
+Blok B33 (#0961-#0990, 8 Nov) — sumber mukul975/Anthropic-Cybersecurity-
+Skills (Apache-2.0 — konsep, bukan teks). Dua entri diekstrak jadi tool
+(#0976 -> tools/prompt_leak_probe.py, #0983 -> tools/oauth_redirect_audit.py);
+sisanya didistilasi di bawah / padanan eksisting / luar domain (addendum).
+
+## 233. OWASP API Top-10 2023 — peta cakupan cyphron (dari mukul975/testing-api-security-with-owasp-top-10, -testing-api-authentication-weaknesses, -testing-for-broken-access-control)
+Checklist peta API1-API10 -> alat cyphron yang sudah ada (jangan bangun ulang):
+- [ ] API1 BOLA: playbook idor-orders/idor-mass (live L3) + api_property_scan
+      (offline API3) — differential dua-sesi tetap baku emas: objek milik
+      user lain harus dibaca TANPA sesi pemilik; satu temuan = idor, bukan
+      "akses kontrol rusak" generik
+- [ ] API2 Broken auth: playbook api-version-auth (regresi antar versi —
+      endpoint lama terbuka saat baru ditutup), jwt_token_audit + playbook
+      jwt-weak-secret/jwt-alg-confusion, lockout-canary (brute force)
+- [ ] API3 BOPLA: api_property_scan — properti respons yang tak didefinisi
+      spesifikasi = kandidat bocor; request mass-assignment live = playbook
+      mass-assignment
+- [ ] API4/6 unrestricted resource/flow: rate-limit-validator + dasar
+      anti-klaim: tekanan rate TIDAK boleh dilakukan tanpa budget eksplisit
+- [ ] API5 BFLA: playbook admin-access (fungsi admin dipanggil tanpa role)
+- [ ] API7 SSRF: playbook ssrf-callback/ssrf-chain (canary OOB milik sendiri)
+- [ ] API8 misconfig: registry checkers (debug-page, directory-listing,
+      http-method-allow) + error-oracle
+- [ ] API9 inventory: api-docs-surface, api-version-surface, shadow_api_diff
+- [ ] API10 unsafe consumption: ssrf-chain + validasi respons pihak-ketiga
+- [ ] Autentikasi API lemah (dari skill auth-weaknesses): default cred,
+      token di URL (bocor ke log/Referer), lifetime token panjang,
+      missing rotation — jwt_token_audit menutup higiene klaim; yang
+      tersisa = disiplin review, bukan scanner
+
+## 234. Business logic — metodologi uji (dari mukul975/testing-for-business-logic-vulnerabilities)
+Kelas bisnis-logika tidak punya signature — yang bisa diotomasi adalah
+DIFFERENTIAL keadaan, sisanya disiplin pemetaan:
+- [ ] peta dulu alur uang/entitlement (state machine: order->pay->deliver)
+      sebelum menguji; lompat langkah = bandingkan state akhir vs sah
+- [ ] harga/kuantitas: nilai negatif, nol, desimal ganda, integer overflow,
+      currency mismatch — uji via replay transfer (playbook replay-transfer)
+- [ ] race: dua request paralel klaim resource sekali-pakai (playbook
+      race-coupon); butuh jendela nyata — target flaky = catat, jangan klaim
+- [ ] referral/reward: self-referral, loop pendaftaran, batas per-identitas
+      (email+device+payment) — differential identitas, bukan payload
+- [ ] role logic: aksi lintas-tenant (cf. API1) + abai batas kuota
+- [ ] anti-FP: temuan bisnis-logika WAJIB bawa state-before/state-after;
+      tanpa itu = lead L0-L1 (cf. brocards_triage utk disiplin bukti)
+
+## 235. Mobile API authentication (dari mukul975/testing-mobile-api-authentication)
+- [ ] token di shared_prefs/UserDefaults = plaintext storage (padanan
+      mobile_manifest_audit export shared_prefs) — di iOS cek juga keychain
+      accessibility class
+- [ ] debuggable/cleartext di manifest = precondition transport lemah
+      (padanan mobile_manifest_audit)
+- [ ] certificate pinning: BYPASS runtime (Frida) = luar jangkauan statis;
+      yang bisa diaudit = ADA/TIDAKnya pinning di manifest/network config
+      (network_security_config) — absen pinning + handle kredensial = lead
+- [ ] flow OAuth mobile (custom scheme callback): scheme hijackable =
+      code interception (padanan seksi deep link mobile_manifest_audit;
+      redirect/PKCE = oauth_redirect_audit)
+- [ ] uji IDOR sama dengan web (API1) — jangan perlakukan beda hanya karena
+      client mobile
+
+## 236. RAG indirect prompt injection — permukaan retrieval (dari mukul975/testing-prompt-injection-in-rag-pipelines)
+Retriever = kanal injeksi tak langsung: teks yang di-chunk lalu dikutip
+diperlakukan otoritatif oleh model. Playbook rag-poisoning menutup jalur
+ingest; checklist program:
+- [ ] peta SUMBER corpus: dokumen user-upload, tiket, wiki, email — tiap
+      sumber = trust boundary; jalur tanpa review = kandidat poisoning
+- [ ] payload canary di dokumen (instruksi benign "sebut <marker>") ->
+      jawaban retrieval yang mengutip marker = jalur terbukti L3 (determinis);
+      jawaban non-deterministik = pola F59 (trials>=3, cap L2)
+- [ ] delimiter/format: chunk yang memecah template sistem (markdown,
+      code fence) = lead; uji dengan dokumen ber-format ekstrem
+- [ ] mitigasi yang bisa diverifikasi: quote-attribution (kutipan dijawab
+      dgn sumber), pemisahan konteks (instruksi vs data), filter pola
+      instruksi pada chunk — padanan injection_guard utk sisi bukti
+- [ ] cleanup WAJIB: dokumen canary dihapus + diverifikasi tak lagi
+      ter-retrieve (cf. disiplin cleanup playbook rag-poisoning)
+
+## 237. Triage insiden & IR playbook (dari mukul975/triaging-security-incident, -triaging-security-incident-with-ir-playbook, cf. triage_advisor, -triaging-security-alerts-in-splunk [ops produk])
+Checklist triase yang menyatukan alert -> keputusan -> serah terima:
+- [ ] prioritas antrian = dampak x urgensi (severity matrix: pengaruh
+      bisnis + sebaran + tahap kill-chain), BUKAN urutan kedatangan
+- [ ] klasifikasi tipe dulu (malware/phishing/akun/DoS/insider) — tiap
+      tipe punya bukti minimum berbeda; alert tanpa klasifikasi = tidak
+      bisa dieskalasi
+- [ ] enrichment minimum sebelum keputusan: identitas pemilik aset,
+      kepekaan data, keberadaan IOC di intel lokal (cf. ioc_defang,
+      campaign_correlate untuk pivot infrastruktur)
+- [ ] containment HOLD terpisah dari eradication: tahan dulu (isolasi,
+      disable akun) — dokumentasikan justifikasi; aksi destruktif butuh
+      approval eksplisit (cf. killswitch_triage utk sisi jaringan)
+- [ ] playbook IR = struktur pilihan, bukan naskah: deteksi -> containment
+      -> eradication -> recovery -> lessons; tiap fase punya OWNER dan
+      exit-criteria tertulis
+- [ ] serah terima: temuan triase wajib bawa timeline, bukti mentah
+      (tak disanitasi untuk internal), dan keputusan+alasan (cf.
+      verdict_audit); metrik triase (MTTA/MTTD) dipakai utk tuning
+      deteksi, bukan target performa individu
+- [ ] #0988 Splunk = ops produk (notable event, risk-based alerting) —
+      konsep di atas dipakai apa pun SIEM-nya
