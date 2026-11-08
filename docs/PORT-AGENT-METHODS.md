@@ -4255,3 +4255,77 @@ setelah 248 milik B32.
       private rules) sudah diterjemahkan di lint-nya
 - [ ] #0930 STIX/TAXII feeds: padanan stix_bundle_audit + seksi 188
       (validasi bundle offline); taxii2-client = jaringan/live ops
+
+---
+Blok B34 (#0991-#0995, 8 Nov) — blok PENUTUP program (antrean tuntas
+995 entri). Sumber mukul975 (Apache-2.0 — konsep, bukan teks). Dua entri
+diekstrak jadi tool: #0991 -> tools/ssvc_triage.py (tabel keputusan
+resmi SSVC v2.0 deployer CERT/CC + map kosakata CISA Guide),
+#0995 -> tools/slsa_provenance_audit.py (ikatan digest subjek + kebijakan
+builder/sumber); tiga entri di bawah didistilasi. Catatan penomoran:
+seksi 249-253 ternyata sudah dipakai B31 (19675ef) — seksi B34
+dilanjutkan 254-256.
+
+## 254. Triage Windows dengan KAPE — runbook koleksi, parsing sudah ada (dari mukul975/triaging-windows-with-kape) — distilasi B34
+- [ ] KAPE = dua fase terpisah: TARGETS (.tkape = APA yang dikumpulkan:
+      hive registry, $MFT, event log, prefetch, browser, LNK via akses
+      NTFS mentah — file terkunci ikut) dan MODULES (.mkape = BAGAIMANA
+      diparse via EZ Tools PECmd/MFTECmd/RECmd); compound target
+      KapeTriage = set triage siap-pakai — cf. seksi 252
+- [ ] urutan disiplin: sync config dulu (parser match format artefak
+      terbaru) -> inventory --tlist/--mlist sebelum menentukan scope ->
+      koleksi --tflush ke tujuan write-protected -> VSS (--vss) bila
+      butuh state HISTORIS artefak -> kemas VHDX/ZIP + hashing utk
+      chain of custody -> parse (!EZParser) -> periksa CopyLog/
+      ConsoleLog/SkipLog (yang GAGAL disalin = celah bukti, dicatat)
+- [ ] fleet: _kape.cli satu baris = satu run penuh (%%d dir KAPE, %%m
+      nama mesin) — pola yang dipinjam: koleksi ulang-ulang harus
+      IDENTIS dan bernama-host agar bisa didiff antar waktu
+- [ ] padanan cyphron: parsing artefak statisnya sudah dimiliki —
+      mft_scan ($MFT), sqlite_forensics, sysmon_triage, win_auth_triage,
+      win_logon_triage, win_persist_triage, dpapi_blob_scan,
+      browser_history_triage, timestomp_triage; yang di luar kelas =
+      akses volume mentah live (admin, Windows-native, .NET) = ops
+      koleksi DFIR, bukan alat audit offline
+
+## 255. Integritas backup untuk recovery — padanan ada, disiplinnya yang dibawa (dari mukul975/validating-backup-integrity-for-recovery) — distilasi B34
+- [ ] tiga bukti berbeda, JANGAN dicampur: (1) integritas ARSIP
+      (gzip -t / restic check) — tar.gz valid bisa berisi isi rusak;
+      (2) integritas ISI per-file (hash manifest sha256 baseline vs
+      hasil restore); (3) KETERPULIHAN (restore test ke lingkungan
+      terisolasi — satu-satunya bukti backup benar-benar bisa dipakai)
+- [ ] manifest hash: sha256 BUKAN MD5 (broken); bandingkan SETELAH
+      sort — diff manifest vs manifest, bukan diff direktori; file
+      hilang/tambahan = temuan sejajar dgn hash mismatch
+- [ ] backup bisa BERISI ransomware (infeksi pra-date backup): scan
+      hasil restore SEBELUM dipercaya — ekstensi ransom, nama note,
+      entropi tinggi; padanan cyphron: ransom_artifact_triage +
+      packer_scan (entropi)
+- [ ] rantai inkremental: SATU inkremental rusak memutus seluruh
+      restore chain — verifikasi berantai, bukan hanya full terakhir
+- [ ] konsep proses: 3-2-1 (3 salinan, 2 media, 1 offsite), immutable/
+      air-gap utk anti-T1485+T1490, validasi jadwal + alert kegagalan
+      (validasi senyap = tidak ada), NIST CSF RC.RP-03 — cf. seksi 28
+- [ ] padanan cyphron: aide_change_triage (perbandingan manifest hash
+      baseline vs state), log_chain_verify (rantai hash),
+      ransom_artifact_triage (scan ransom), carve_scan/
+      sqlite_forensics (artefak); restore test sendiri = runbook ops
+      infrastruktur backup
+
+## 256. Di luar domain — TPM measured boot attestation (dari mukul975/validating-tpm-measured-boot-attestation) — cf. seksi 42 UEFI #0272, distilasi B34
+- [ ] domain hardware-firmware-security (subdomain skill sumber juga
+      menyebutnya): butuh TPM 2.0 fisik (/dev/tpm0), root, tpm2-tools
+      — di luar fokus web/app/infra cyphron, preseden seksi 42
+- [ ] inti yang layak diingat utk membaca bukti boot: PCR hanya bisa
+      DI-EXTEND (new = H(old || measurement)) — nilai akhir = ringkasan
+      tamper-evident seluruh boot chain; peta PCR TCG: 0-7 firmware
+      (7 = kebijakan Secure Boot), 8-9 bootloader/kernel, 10 IMA
+- [ ] dua verifikasi berbeda: lokal = replay event log
+      (binary_bios_measurements) harus mereproduksi PCR live (log
+      autentik; mismatch = tampering ATAU log basi); remote attestation
+      = quote AK signed + nonce fresh (anti-replay) diverifikasi
+      verifier + dibandingkan golden baseline (drift PCR = T1542
+      bootkit/firmware)
+- [ ] penyegelan secret ke PCR policy = unseal hanya saat boot
+      terpercaya — konsepnya mirip DPAPI gating (dpapi_blob_scan
+      membaca artefaknya, bukan menilai boot-nya)
