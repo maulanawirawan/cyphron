@@ -139,11 +139,13 @@ flowchart LR
 
 ## Qué incluye
 
-- **92 skills de detección** en `skills/` para recon, postura y
-  exposición. Cada una es una CLI independiente con una clase de
-  seguridad declarada (de `read-only` a `state-changing`) y un límite
-  estricto de peticiones derivado de ella. El registro es una lista
-  blanca: lo que no está listado no se ejecuta.
+- **271 scripts de capacidades** en dos familias: **93 skills de
+  detección registradas** en `skills/` (recon, postura y exposición —
+  cada una es una CLI independiente con clase de seguridad declarada,
+  de `read-only` a `state-changing`, y un límite estricto de
+  peticiones derivado de ella; el registro es una lista blanca: lo que
+  no está listado no se ejecuta) y **175 herramientas offline** en
+  `tools/` (triage de evidencia — 120 portadas de 995 conceptos).
 - **Un núcleo nativo en Rust** en `core-rs/`: `secai validate` revisa
   el contrato, `secai scan` ejecuta escaneos por niveles y genera el
   informe PDF. También se encarga de la correlación FAO (dedup, quórum,
@@ -205,7 +207,7 @@ El índice completo está en [CHANGELOG.md](CHANGELOG.md); la metodología desti
 | `secai scan --domain example.com --max-requests 32 --report` | Escaneo tier0 completo (datos públicos, presupuesto estricto) + informe PDF |
 | `secai validate findings.json` | Verifica cualquier findings.json contra el contrato (núcleo Rust) |
 | `secai merge --dedup-id ...` | Fusiona y deduplica conjuntos de hallazgos (correlación FAO) |
-| `python skills/<skill>.py --url … --out f.json` | Ejecuta una skill de detección (93 disponibles, allowlist) |
+| `python skills/<skill>.py --url … --out f.json` | Ejecuta una de las 93 skills de detección registradas (allowlist) |
 | `python tools/code_map.py --repo <path> --out surface.json` | Mapea código fuente a superficie de ataque — cero peticiones |
 | `python tools/chain_planner.py --findings f.json` | Planifica cadenas de explotación A→B→C desde hallazgos |
 | `python tools/submission_gate.py --finding f.json --program p.json` | Compuerta de 7 preguntas antes de enviar un hallazgo |

@@ -127,9 +127,11 @@ flowchart LR
 
 ## 包含什么
 
-- **93 个检测技能**，位于 `skills/`，覆盖侦察、配置态势和暴露面。每个
-  都是独立 CLI，声明了安全等级（从 `read-only` 到 `state-changing`），
-  并据此设定硬性请求上限。注册表是白名单，未登记的技能不会运行。
+- **271 个能力脚本**，分两族：**93 个注册检测技能**（`skills/`，覆盖
+  侦察、配置态势和暴露面 —— 每个都是独立 CLI，声明安全等级（从
+  `read-only` 到 `state-changing`）并据此设定硬性请求上限；注册表是
+  白名单，未登记的技能不会运行）+ **175 个离线工具**（`tools/`，证据
+  分诊，其中 120 个移植自 995 个技能概念）。
 - **原生 Rust 核心**（`core-rs/`）：`secai validate` 校验契约，
   `secai scan` 执行分级扫描，并生成 PDF 报告。它还负责 FAO 关联
   （去重、仲裁、证据哈希）以及失败即关闭的请求预算。
@@ -183,7 +185,7 @@ triage 家族是一组独立的离线 CLI：输入证据（日志、导出、清
 | `secai scan --domain example.com --max-requests 32 --report` | 完整 tier0 扫描（仅公开数据，严格预算）+ PDF 报告 |
 | `secai validate findings.json` | 用 Rust 核心校验任何 findings.json 是否符合契约 |
 | `secai merge --dedup-id ...` | 合并并去重发现集（FAO 关联） |
-| `python skills/<skill>.py --url … --out f.json` | 运行单个检测 skill（共 93 个，注册表白名单管理） |
+| `python skills/<skill>.py --url … --out f.json` | 运行 93 个注册检测技能之一（注册表白名单管理） |
 | `python tools/code_map.py --repo <path> --out surface.json` | 把代码库映射为攻击面 —— 零请求 |
 | `python tools/chain_planner.py --findings f.json` | 从已有发现规划 A→B→C 利用链 |
 | `python tools/submission_gate.py --finding f.json --program p.json` | 对单个发现执行提交前七问门禁 |
@@ -239,7 +241,7 @@ python tools/code_map.py --repo <path> --out surface.json --reconcile f.json
 ```
 core/findings.py   契约（Python 端）
 core-rs/           原生核心：契约、编排器、FAO、serve
-skills/            93 个检测技能 + registry.json（白名单）
+skills/            93 个注册检测技能 + registry.json
 tools/             规划器、代码地图、夜间运行、情报同步、
                    PDF 报告、MCP 服务器、受控证明层、实验靶场
 tests/             Python 测试套件，含误报回归与守卫测试

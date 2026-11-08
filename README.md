@@ -141,11 +141,13 @@ flowchart LR
 
 ## What's inside
 
-- **93 detection skills** in `skills/` covering recon, posture, and
-  exposure. Each one is a standalone CLI with a declared safety class
-  (`read-only` up to `state-changing`) and a hard request budget that
-  follows from it. The registry is an allowlist, so nothing runs unless
-  it's listed.
+- **271 capability scripts** in two families: **93 registered
+  detection skills** in `skills/` (recon, posture, exposure — each a
+  standalone CLI with a declared safety class, `read-only` up to
+  `state-changing`, and a hard request budget that follows from it;
+  the registry is an allowlist, so nothing runs unless it's listed)
+  and **175 offline tools** in `tools/` (evidence triage — 120 of
+  them ported from 995 skill concepts).
 - **A native Rust core** in `core-rs/`: `secai validate` checks the
   contract, `secai scan` runs tiered scans, and it renders the PDF
   report. It also handles FAO correlation (dedup, quorum, evidence
@@ -206,7 +208,7 @@ distilled from non-tool-shaped concepts (250 sections) lives in
 | `secai scan --domain example.com --max-requests 32 --report` | Full tier0 scan (public data only, strict budget) + PDF report |
 | `secai validate findings.json` | Check any findings.json against the contract (Rust core) |
 | `secai merge --dedup-id ...` | Merge + dedup finding sets (FAO correlation) |
-| `python skills/<skill>.py --url … --out f.json` | Run a single detection skill (93 available, allowlist-gated) |
+| `python skills/<skill>.py --url … --out f.json` | Run one of the 93 registered detection skills (allowlist-gated) |
 | `python tools/code_map.py --repo <path> --out surface.json` | Map a codebase to an attack surface — zero requests |
 | `python tools/chain_planner.py --findings f.json` | Plan A→B→C exploit chains from existing findings |
 | `python tools/submission_gate.py --finding f.json --program p.json` | 7-question pre-submission gate for a finding |
@@ -266,7 +268,7 @@ The boring part, which is also the important part.
 ```
 core/findings.py   the contract, Python side
 core-rs/           native core: contract, orchestrator, FAO, serve
-skills/            93 detection skills + registry.json (the allowlist)
+skills/            93 registered detection skills + registry.json
 tools/             planner, code map, night runs, intel sync,
                    PDF report, MCP server, gated proof tier, lab target
 tests/             Python suite, incl. FP regression and guard tests
