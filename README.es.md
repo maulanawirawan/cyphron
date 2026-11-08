@@ -13,7 +13,7 @@ salida estricto que ambos respetan.
 [![CI](https://github.com/maulanawirawan/secai/actions/workflows/ci.yml/badge.svg)](https://github.com/maulanawirawan/secai/actions/workflows/ci.yml)
 [![tests](https://img.shields.io/badge/tools-175-brightgreen)](#qué-incluye)
 [![release](https://img.shields.io/badge/release-v0.1.0-blue)](https://github.com/maulanawirawan/secai/releases)
-[![skills](https://img.shields.io/badge/detection%20skills-93-8A2BE2)](#qué-incluye)
+[![skills](https://img.shields.io/badge/capabilities-271-8A2BE2)](#qué-incluye)
 [![python](https://img.shields.io/badge/python-3.12%2B-3776AB)](#inicio-rápido)
 [![rust](https://img.shields.io/badge/rust-stable-orange)](#inicio-rápido)
 [![license](https://img.shields.io/badge/license-PolyForm%20NC%201.0-blue)](LICENSE)

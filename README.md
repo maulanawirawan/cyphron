@@ -4,18 +4,18 @@
 
 **Proof, not claims.**
 
-**secai** is an evidence-first **agentic cybersecurity** engine:
-93 detection skills + 175 offline tools (120 ported from 995 skill
-concepts), a native Rust core, one strict findings contract, and an
-MCP server — so Claude Code, Cursor, ZCode, or any shell-capable agent
-can drive it.
+**secai** is an evidence-first **agentic cybersecurity** engine with
+**271 capability scripts** — 93 registered detection skills + 175
+offline tools (120 ported from 995 skill concepts), a native Rust
+core, one strict findings contract, and an MCP server — so Claude
+Code, Cursor, ZCode, or any shell-capable agent can drive it.
 
 *No proof, no report.*
 
 [![CI](https://github.com/maulanawirawan/secai/actions/workflows/ci.yml/badge.svg)](https://github.com/maulanawirawan/secai/actions/workflows/ci.yml)
 [![tools](https://img.shields.io/badge/tools-175-brightgreen)](#whats-inside)
 [![release](https://img.shields.io/badge/release-v0.1.0-blue)](https://github.com/maulanawirawan/secai/releases)
-[![skills](https://img.shields.io/badge/detection%20skills-93-8A2BE2)](#whats-inside)
+[![skills](https://img.shields.io/badge/capabilities-271-8A2BE2)](#whats-inside)
 [![python](https://img.shields.io/badge/python-3.12%2B-3776AB)](#quick-start)
 [![rust](https://img.shields.io/badge/rust-stable-orange)](#quick-start)
 [![license](https://img.shields.io/badge/license-PolyForm%20NC%201.0-blue)](LICENSE)
