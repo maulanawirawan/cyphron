@@ -3366,9 +3366,12 @@ bukan teks). Lima entri diekstrak jadi tool: #0817+#0818 -> tools/
 carve_scan.py, #0823+#0825 -> tools/graphql_depth_audit.py, #0830+#0833
 -> tools/ioc_lifecycle_score.py, #0839 -> tools/kubebench_ingest.py,
 #0840 -> tools/etcd_config_audit.py; sisanya didistilasi di bawah
-(seksi 195-207). Nomor seksi 195+ menyusul 190-194 blok B27.
+(seksi 208-220). CATATAN PENOMORAN: nomor 195-207 bertabrakan dgn
+apendiks blok B29 (195-201) yang terlanjur terbit terpisah — seksi B28
+direnumber 208-220 mengikuti preseden renumber B24; menyusul 195-201
+blok B29.
 
-## 195. Sandbox analisis dinamis interaktif (dari #0811 performing-dynamic-analysis-with-any-run) — distilasi B28
+## 208. Sandbox analisis dinamis interaktif (dari #0811 performing-dynamic-analysis-with-any-run) — distilasi B28
 - [ ] sandbox interaktif dipilih bila perilaku sample TERGANTUNG klik
       (macro "Enable Content", installer, UAC) — sandbox pasif buta
       terhadap jalur ini; interaksi = variabel analisis, dicatat apa
@@ -3385,7 +3388,7 @@ carve_scan.py, #0823+#0825 -> tools/graphql_depth_audit.py, #0830+#0833
       pdf_triage, packer_scan) — detonasi live = ops sandbox, bukan
       tool repo
 
-## 196. Forensik endpoint — order of volatility & rantai bukti (dari #0812 performing-endpoint-forensics-investigation) — cf. seksi 100/169/178
+## 209. Forensik endpoint — order of volatility & rantai bukti (dari #0812 performing-endpoint-forensics-investigation) — cf. seksi 100/169/178
 - [ ] urutan pengambilan TIDAK bisa ditawar: memori dulu (fileless
       tidak menyisakan artefak disk), lalu koneksi/proses, disk,
       removable, log — yang paling volatil paling dulu
@@ -3401,7 +3404,7 @@ carve_scan.py, #0823+#0825 -> tools/graphql_depth_audit.py, #0830+#0833
       cyphron: mft_scan, sysmon_triage, win_persist_triage,
       timestomp_triage; analisis memori (volatility) = ops live
 
-## 197. Remediasi endpoint & prioritas EPSS (dari #0813 performing-endpoint-vulnerability-remediation) — cf. seksi 183, padanan vuln_sla_aging/kev_gap/asset_criticality_score
+## 210. Remediasi endpoint & prioritas EPSS (dari #0813 performing-endpoint-vulnerability-remediation) — cf. seksi 183, padanan vuln_sla_aging/kev_gap/asset_criticality_score
 - [ ] matriks prioritas P1-P4: P1 = CVSS>=9 ATAU KEV ATAU exploit-
       in-the-wild + CVSS>=7 (SLA 14 hari); P2 = CVSS 7-8.9 + EPSS>0.5
       (30); P3 = CVSS 4-6.9 (60); P4 = sisanya (90) — EPSS & KEV
@@ -3419,7 +3422,7 @@ carve_scan.py, #0823+#0825 -> tools/graphql_depth_audit.py, #0830+#0833
       vuln_sla_aging; kev_gap utk KEV; asset_criticality_score utk
       bobot aset)
 
-## 198. Reduksi false-positive SIEM — disiplin tuning (dari #0816 performing-false-positive-reduction-in-siem) — cf. seksi 187
+## 211. Reduksi false-positive SIEM — disiplin tuning (dari #0816 performing-false-positive-reduction-in-siem) — cf. seksi 187
 - [ ] ukur dulu: FP-rate per rule = FP/(FP+TP) dari status closure —
       target <20%, prioritaskan rule >30%; sampling 20 FP per rule
       utk kategori akar-masalah sebelum menyentuh logika
@@ -3437,7 +3440,7 @@ carve_scan.py, #0823+#0825 -> tools/graphql_depth_audit.py, #0830+#0833
       terukur; siklus: mingguan identifikasi, dua-mingguan tuning,
       bulanan validasi, kuartalan laporan
 
-## 199. Triage filesystem firmware ter-embed (dari #0819 performing-firmware-malware-analysis) — padanan carve_scan + binary_strings_surface
+## 212. Triage filesystem firmware ter-embed (dari #0819 performing-firmware-malware-analysis) — padanan carve_scan + binary_strings_surface
 - [ ] ekstraksi dulu (intinya di carve_scan #0817/#0818: signature +
       entropi), lalu triase isi: skrip startup (/etc/init.d/rcS,
       inittab), cron, authorized_keys, iptables rule asing, SUID
@@ -3453,7 +3456,7 @@ carve_scan.py, #0823+#0825 -> tools/graphql_depth_audit.py, #0830+#0833
       cf. cve_matcher; patch vendor firmware biasanya datang sebagai
       image utuh, bukan patch per-paket
 
-## 200. Fuzzing coverage-guided AFL++ (dari #0820 performing-fuzzing-with-aflplusplus) — live ops
+## 213. Fuzzing coverage-guided AFL++ (dari #0820 performing-fuzzing-with-aflplusplus) — live ops
 - [ ] rantai kerja: instrumentasi (afl-clang-fast; QEMU mode utk
       binary-only) -> seed corpus MINIMAL valid -> afl-cmin (buang
       seed redundan) -> afl-fuzz paralel (-M/-S per core) -> triase
@@ -3467,7 +3470,7 @@ carve_scan.py, #0823+#0825 -> tools/graphql_depth_audit.py, #0830+#0833
       tersimpan, dianalisis tool lain — fuzzing live = infrastruktur
       lab terpisah
 
-## 201. Audit GCP: sisi offline cyphron vs alat live (dari #0821 gcpbucketbrute, #0822 forseti) — padanan cloud_bucket_exposure/gcp_fw_audit/gcp_orgpolicy_audit
+## 214. Audit GCP: sisi offline cyphron vs alat live (dari #0821 gcpbucketbrute, #0822 forseti) — padanan cloud_bucket_exposure/gcp_fw_audit/gcp_orgpolicy_audit
 - [ ] enumerasi bucket = tebakan nama + GET status; sisi cyphron:
       cloud_bucket_exposure (pola sama, S3); permutations keyword
       (org-nama, produk, lingkungan) = daftar kandidat, bukan temuan
@@ -3481,7 +3484,7 @@ carve_scan.py, #0823+#0825 -> tools/graphql_depth_audit.py, #0830+#0833
       primitive role owner/editor, binding allUsers (cf.
       iam_escalation_scan utk pola eskalasi IAM)
 
-## 202. Audit kata sandi berotorisasi — hashcat (dari #0827 performing-hash-cracking-with-hashcat) — live ops
+## 215. Audit kata sandi berotorisasi — hashcat (dari #0827 performing-hash-cracking-with-hashcat) — live ops
 - [ ] JANGAN crack tanpa surat tugas eksplisit; hash dari ekspor
       audit/lab sendiri; laporan = distribusi kelas sandi (kosong/
       default/kamus/kebijakan-putus), bukan daftar sandi plaintext —
@@ -3496,7 +3499,7 @@ carve_scan.py, #0823+#0825 -> tools/graphql_depth_audit.py, #0830+#0833
 - [ ] hasil -> temuan kebijakan sandi (panjang/entropy), bukan
       penghukuman pengguna; rotasi wajib utk yang tercrack
 
-## 203. HPP — peta parser & lintas-lapis (dari #0828 performing-http-parameter-pollution-attack) — padanan hpp_differential
+## 216. HPP — peta parser & lintas-lapis (dari #0828 performing-http-parameter-pollution-attack) — padanan hpp_differential
 - [ ] akar masalah: front-end (WAF/proxy) dan back-end mem-parse
       parameter duplikat BERBEDA (PHP last, ASP concat koma, Tomcat
       first, Express array) — uji perilaku server dulu dgn probe
@@ -3510,7 +3513,7 @@ carve_scan.py, #0823+#0825 -> tools/graphql_depth_audit.py, #0830+#0833
 - [ ] perbaikan: satu kebijakan parse di semua lapis (reject duplikat
       / gabung eksplisit) + validasi server-side final
 
-## 204. Investigasi ancaman insider — bukti kovert & otorisasi (dari #0832 performing-insider-threat-investigation) — cf. seksi 169, padanan insider_baseline_scan
+## 217. Investigasi ancaman insider — bukti kovert & otorisasi (dari #0832 performing-insider-threat-investigation) — cf. seksi 169, padanan insider_baseline_scan
 - [ ] GATE otorisasi sebelum koleksi: kasus terdokumentasi, legal
       sign-off, HR liaison, SCOPE eksplisit (sistem + rentang waktu) —
       investigasi insider menyentuh privasi karyawan; tanpa gate =
@@ -3523,9 +3526,9 @@ carve_scan.py, #0823+#0825 -> tools/graphql_depth_audit.py, #0830+#0833
       _scan; perbandingan kuartal, bukan momen tunggal
 - [ ] motive-samping (notice period, embargo saham/kinerja) = konteks
       kasus, bukan bukti; kesimpulan digariskan bukti digital + rantai
-      custodi (cf. seksi 196)
+      custodi (cf. seksi 209)
 
-## 205. Statis iOS — apa yang terbaca dari IPA (dari #0834 performing-ios-app-security-assessment) — padanan mobile_manifest_audit + binary_strings_surface
+## 218. Statis iOS — apa yang terbaca dari IPA (dari #0834 performing-ios-app-security-assessment) — padanan mobile_manifest_audit + binary_strings_surface
 - [ ] IPA = ZIP; lapis statis yang bisa diaudit offline: Info.plist
       (CFBundleURLSchemes custom, ATS exception NSAllowsArbitraryLoads,
       associated domains), entitlements, embedded.mobileprovision
@@ -3540,7 +3543,7 @@ carve_scan.py, #0823+#0825 -> tools/graphql_depth_audit.py, #0830+#0833
       terpisah); perbedaan dgn Android: cyphron punya apk_firebase_
       scan, iOS tercakup jalur plist di mobile_manifest_audit
 
-## 206. Reputasi IP — konteks bukan vonis (dari #0836 performing-ip-reputation-analysis-with-shodan) — cf. intel_sync
+## 219. Reputasi IP — konteks bukan vonis (dari #0836 performing-ip-reputation-analysis-with-shodan) — cf. intel_sync
 - [ ] reputasi = KOMPOSIT: port tidak lazim terbuka, layanan rentan
       (CVE dari banner), tipe hosting (residential/VPN/bulletproof),
       tag riwayat — bukan angka tunggal dari satu API
@@ -3553,7 +3556,7 @@ carve_scan.py, #0823+#0825 -> tools/graphql_depth_audit.py, #0830+#0833
       ioc_lifecycle_score utk peluruhan)
 - [ ] live API lookup = ops jaringan; cyphron memakai HASIL tersimpan
 
-## 207. Di luar domain + padanan — catatan bidang blok B28 (cf. seksi 141/161/172/180)
+## 220. Di luar domain + padanan — catatan bidang blok B28 (cf. seksi 141/161/172/180)
 - [ ] #0814 SailPoint IIQ entitlement review = IGA-ops (cf. seksi 141):
       konsep lintas-produk yang layak diingat — kampanye ber-default-
       revoke (tak direview = dicabut), SOD constraint dua sisi, dan
@@ -3573,7 +3576,7 @@ carve_scan.py, #0823+#0825 -> tools/graphql_depth_audit.py, #0830+#0833
       sisi deteksi & remediasinya sudah didistilasi seksi 180 (B26):
       MFA-dilewati-bukan-diloloskan + cabut-sesi
 - [ ] #0835 IoT assessment = lapis perangkat keras (UART/JTAG/SPI/
-      flashrom) di luar domain; sisi firmware-nya = seksi 199 +
+      flashrom) di luar domain; sisi firmware-nya = seksi 212 +
       carve_scan; default-cred & command-injection = pola web biasa
 - [ ] #0837 JWT alg=none live = padanan jwt_token_audit (varian none,
       jwk/jku/x5u/kid sudah dicek offline dari token tersimpan);
