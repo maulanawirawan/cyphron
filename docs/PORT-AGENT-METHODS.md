@@ -2465,3 +2465,255 @@ di bawah (150-161).
       validasi alternatif dgn Targeted Risk Analysis — tata kelola
       kepatuhan (cf. seksi 42 #0324); kontrol teknisnya sudah dilayani
       tool cyphron (waf/ssl/log)
+
+---
+Blok B25 (#0721-#0750, 8 Nov) — sumber mukul975 (Apache-2.0 — konsep,
+bukan teks). Dua entri diekstrak jadi tool: #0740 -> tools/
+ransom_artifact_triage.py, #0746 -> tools/crypto_inventory_scan.py;
+sisanya didistilasi di bawah (162-175). Gelombang "implementing/
+integrating/managing" mayoritas = panduan kontrol + konsol vendor;
+keluarga zero-trust (#0727-#0734) distilasi jadi satu seksi (166).
+
+## 162. VQL artifact inventory — Velociraptor (dari mukul975/implementing-velociraptor-for-ir-collection) — cf. seksi 100
+- [ ] nilai yang layak dipinjam dari skill ini = PETA "artefak mana
+      menjawab pertanyaan mana" di endpoint Windows: EvtxHunter
+      (IDRegex 4624/4625/4648/4672/4688/4698/4769/7045) utk autentikasi,
+      Prefetch utk bukti eksekusi, AppCompatCache/Shimcache + Amcache
+      utk riwayat program, UserAssist utk aktivitas GUI, NTFS.MFT dgn
+      FileRegex .(exe|dll|ps1|bat|cmd) utk timeline file — kumpulkan
+      dari artefak paling murah yang menjawab hipotesis
+- [ ] tiga mode koleksi: hunt fleet-wide (pola hipotesis->VQL->fan-out
+      ->agregasi = fleet_dispatch), per-client targeted, dan OFFLINE
+      collector utk host terisolasi (hasil tetap diimpor server)
+- [ ] deployment (server config generate, repack MSI client, port
+      8000/8001/8889) = platform ops; di cyphron sisi artefak statis
+      dilayani mft_scan/dpapi_blob_scan/browser_history_triage/
+      ransom_artifact_triage (#0740); runbook live tetap milik sumber
+
+## 163. Program SLA remediasi — pelengkap vuln_sla_aging (dari mukul975/implementing-vulnerability-remediation-sla, implementing-vulnerability-sla-breach-alerting)
+- [ ] padanan cyphron: vuln_sla_aging (#0307) sudah memegang matriks
+      severity->hari, modifier internet-facing, override KEV, umur/
+      overdue, dan tangga eskalasi 50/75/100% — dua skill ini versi
+      PROGRAM-nya; tambahan yang layak diingat saat menyetel kebijakan:
+- [ ] matriks dgn ASSET TIER (Tier1 24-48 jam utk critical; Tier3 7
+      hari) — tier dari criticality bisnis+eksposur, bukan perasaan;
+      accelerator: EPSS > 0.5, exploit publik, riwayat breach tipe
+      serupa (potong SLA 50% — pola sama dgn modifier x0.5 tool)
+- [ ] exception process yang sehat: justifikasi tertulis + dampak
+      bisnis, compensating controls TERDOKUMENTASI, approval asset
+      owner DAN security, durasi maksimum 90 hari (renewable dgn
+      re-approval) — exception tanpa tanggal kedaluwarsa = celah
+- [ ] KPI target eksplisit: SLA compliance > 90%, backlog overdue <
+      5%, exception rate < 10%, recurrence < 5%, MTTR per severity —
+      metrik tanpa target = pajangan
+- [ ] breach alerting (DB schema, dispatch SMTP/Slack/PagerDuty,
+      runner cron) = ops infrastruktur; logika deteksinya (umur vs
+      SLA + grace period) sudah dieksekusi vuln_sla_aging
+
+## 164. ZKP autentikasi — Schnorr (dari mukul975/implementing-zero-knowledge-proof-for-authentication) — cf. seksi 132
+- [ ] protokol inti (logaritma diskrit): publik y = g^x mod p;
+      commitment t = g^r (r acak); verifier kirim challenge c acak;
+      respons s = r + c*x mod q; verifikasi g^s == t * y^c mod p —
+      server TIDAK PERNAH menerima x
+- [ ] non-interactive = Fiat-Shamir: c = H(t, konteks) — hash
+      collision-resistant, konteks disertakan agar proof tak
+      dipindahkan antar-sesi (replay)
+- [ ] validasi implementasi: completeness (honest prover lolos
+      selalu), soundness (respons acak tanpa rahasia ditolak), ZK
+      (transkrip berbeda tiap sesi — verifikator tak belajar x),
+      challenge dari CSPRNG, ZKP bukan pengganti TLS (cf. seksi 132
+      "review pilihan mode/kunci", bukan tool)
+- [ ] padanan cyphron: tidak ada tool kripto-engineer — checklist ini
+      dipakai saat REVIEW implementasi autentikasi lab; cek sederhana
+      yang bisa dieksekusi: server tidak mengirim/menyimpan hash
+      eksplisit kredensial (ranah zeroize_scan/secret scanning)
+
+## 165. Koridor ModSecurity/CRS (dari mukul975/implementing-web-application-logging-with-modsecurity)
+- [ ] rollout yang benar: SecRuleEngine DetectionOnly dulu -> tune FP
+      (SecRuleRemoveById per rule-id dgn alasan, exclusions per
+      aplikasi) -> On; SecAuditEngine RelevantOnly (bukan On penuh —
+      volume, bukan Off — kehilangan bukti); audit log serial vs
+      parallel dipilih konsisten utk parser downstream
+- [ ] CRS paranoia level PL1-PL4 = knob FP-vs-coverage eksplisit:
+      naik bertahap, tiap kenaikan disertai review FP window tetap;
+      response body limit & inspect sesuaikan ukuran app
+- [ ] sisi log di cyphron = waf_sqli_triage (#0461 mem-parse audit log
+      ModSecurity); audit konfigurasi modsec.conf milik lab = checklist
+      manual (pola nilai-eksplisit ala linux_cis_audit bila kelak
+      dibutuhkan — tanpa ekspor konfig, tak ada yang bisa disimpulkan)
+
+## 166. Keluarga zero-trust — pola lintas vendor (dari mukul975/implementing-zero-standing-privilege-with-cyberark, -zero-trust-dns-with-nextdns, -zero-trust-for-saas-applications, -zero-trust-in-cloud, -zero-trust-network-access, -zero-trust-network-access-with-zscaler, -zero-trust-with-beyondcorp, -zero-trust-with-hashicorp-boundary) — cf. seksi 70/131/138/148/157
+- [ ] delapan skill ini = SATU pola berulang: akses per-aplikasi
+      diperantarai identitas (GCP IAP, AWS Verified Access, Zscaler
+      ZPA app segments, HashiCorp Boundary) — user TIDAK masuk
+      jaringan; access level = atribut user + device posture +
+      konteks (lokasi/jam), bukan IP tepercaya (cf. allowlist
+      berkedaluwarsa seksi 74)
+- [ ] zero standing privilege: TEA framework CyberArk SCA (Time/
+      Entitlements/Approvals) = bentuk vendor dari JIT seksi 138 —
+      role ephemeral scoped per sesi, approval gate, auto-expire;
+      sesi terekam (cf. PSM seksi 157)
+- [ ] Boundary tambahan yang layak diingat: hierarchy org/project/
+      host-set, credential brokering via Vault (kredensial tak pernah
+      ke client), session recording di worker; OIDC/LDAP di auth
+      method, bukan di target
+- [ ] SaaS (#0729): federasi IdP + conditional access + CASB shadow-IT
+      discovery + OAuth app governance (cf. seksi 91) + session DLP
+      (block download di device unmanaged) — konsol tenant = live ops
+- [ ] NextDNS (#0728): DoH/DoT + blokir kategori/threat feed + deteksi
+      DNS rebinding (jawaban private-IP utk domain publik) & CNAME
+      cloaking (first-party domain mengarah ke tracker) — sisi query
+      offline di cyphron = dns_log_triage; resolusi live = ops
+      (cf. seksi 117 audit zona)
+- [ ] semua = konsol/tenant ber-kredensial — bukan tool audit;
+      checklist dipakai saat MENDESAIN/meninjau arsitektur lab
+
+## 167. Pipeline CI: DAST ZAP & SAST CodeQL/Semgrep (dari mukul975/integrating-dast-with-owasp-zap-in-pipeline, integrating-sast-into-github-actions-pipeline) — padanan seksi 19/101/146
+- [ ] ZAP tiga mode sesuai tujuan: baseline (passive-scan, cepat,
+      cocok tiap PR), full scan (aktif — hanya staging stabil), API
+      scan (dari OpenAPI spec — padanan openapi_spec_audit sbg sumber
+      path); jangan full-scan produksi
+- [ ] mekanisme rules.tsv (rule-id + IGNORE/WARN/FAIL + alasan) =
+      penyesuaian yang AUDITABLE — pola sama dgn .trivyignore
+      berkedaluwarsa (seksi 146): pengecualian harus punya pemilik
+      dan alasan, bukan silent
+- [ ] gate: FAIL menolak merge (branch protection) — gate yang tidak
+      memblokir = pelaporan, bukan gating (fail-closed, cf. seksi 19)
+- [ ] SAST: CodeQL default GHA + Semgrep custom rules (pola
+      organisasi) + SARIF upload (padanan sarif_ingest); tuning FP:
+      suppression inline harus ber-alasan — tumpukan "exclude"
+      tanpa konteks = celah yang disembunyikan rapi
+- [ ] padanan cyphron: exploit_ci_gate + gha_workflow_audit (#0463)
+      + sarif_ingest (#0289); ZAP/Semgrep/CodeQL live = alat
+      eksternal ops CI
+
+
+## 168. MITM trafik mobile (dari mukul975/intercepting-mobile-traffic-with-burpsuite) — live ops
+- [ ] inti teknis: proxy listener + instal CA Burp; Android 7+ TIDAK
+      mempercayai CA user utk app default — butuh
+      network_security_config.xml (debug-overrides/trust anchors)
+      yang butuh rebuild APK, ATAU app target yang tak set
+      certificate pinning; iOS = profile trust manual
+- [ ] yang dianalisis: API plaintext, token di header, respons
+      berisi data berlebih (cf. api_property_scan), TLS bypass via
+      pinning yang lemah — pembuktian butuh sesi live
+- [ ] di cyphron: sisi statis APK dilayani apk_firebase_scan +
+      mobile_manifest_audit (#0491/#0495); intersepsi live = lab
+      berizin, bukan bentuk tool
+
+## 169. Koridor IR: insider, phishing, ransomware (dari mukul975/investigating-insider-threat-indicators, investigating-phishing-email-incident, investigating-ransomware-attack-artifacts) — cf. seksi 49/66/76/28/84
+- [ ] insider (#0738): legal/HR authorization DULU (investigasi
+      insider = ranah hukum), timeline lintas sumber (SIEM + DLP +
+      proxy), korelasi fisik-logis: badge access vs logon remote —
+      "di dua tempat sekaligus" = lead kuat; event HR (resign,
+      review buruk) = pemicu window pengawasan (cf. seksi 76
+      pre-departure); chain of custody per bukti (seksi 40) —
+      padanan: insider_baseline_scan
+- [ ] phishing (#0739): header bottom-up Received + SPF/DKIM/DMARC
+      (eml_phish_triage), detonasi URL/lampiran via layanan (live),
+      scope: cari penerima lain by subject/sender (message trace),
+      siapa klik = proxy log, siapa submit kredensial = POST ke
+      domain phishing; containment: purge mailbox + REVOKE SESSION
+      (cf. seksi 66: reset password saja tidak cukup)
+- [ ] ransomware (#0740): JANGAN restart — kunci enkripsi masih di
+      memori (urutan volatilitas seksi 40); identifikasi varian dari
+      ekstensi + isi note + sampel (offline: ransom_artifact_triage
+      — tabel ekstensi keluarga, IOC note BTC/XMR/onion, window
+      waktu enkripsi dari mtime); cek VSS selamat/terhapus (T1490 =
+      ranah sysmon_triage/lolbin_scan); decryptor cek No More
+      Ransom (live); cek eksfiltrasi sebelum keputusan pembayaran
+      (double extortion, cf. seksi 28)
+- [ ] ketiganya = koridor IR; pelaksanaan live (EDR, mail purge,
+      memory capture) = ops, tool cyphron melayani sisi artefak
+      statis yang dibawa pulang
+
+## 170. Identitas Okta & lifecycle intel & OpenCTI (dari mukul975/managing-cloud-identity-with-okta, managing-intelligence-lifecycle, modeling-threats-with-opencti) — cf. seksi 24/122/135/156
+- [ ] Okta: IdP pusat lintas cloud (OIDC/SAML/Workforce Identity),
+      phishing-resistant MFA (FIDO2 — cf. seksi 135/156; SMS =
+      T1111), lifecycle otomatis (joiner-mover-leaver cf. seksi 34),
+      ThreatInsight + system log streaming ke SIEM — tenant live;
+      pola MEMBACA lognya = seksi 122 (session token abuse,
+      deviceToken divergen)
+- [ ] intel lifecycle (#0742): direction (collection requirement
+      eksplisit — seksi 38) -> collection -> processing/normalisasi
+      -> analysis -> dissemination per audiens (seksi 102) ->
+      feedback (bila laporan tak dipakai, matikan koleksinya) —
+      siklus tanpa feedback = arsip tumbuh tanpa arah
+- [ ] OpenCTI (#0747): docker stack + pycti; model STIX 2.1 SDO/SRO
+      (threat-actor/intrusion-set/campaign/indicator + uses/
+      attributed-to/targets) — graph relationship = konsep
+      campaign_correlate (#0360); platform = TIP ops (seksi 24)
+
+## 171. TPRM — risiko vendor pihak ketiga (dari mukul975/managing-third-party-vendor-risk)
+- [ ] koridor program: inventaris -> tier inherent risk (data yang
+      dipegang + integrasi + kritisnya layanan) -> due diligence per
+      tier (SOC 2/ISO cert, pentest summary, DPA) -> review bukti
+      KRITIS (lingkup sertifikat penuh atau satu DC saja? tanggal
+      kedaluwarsa? temuan diperbaiki?) -> codify di kontrak (breach
+      notification SLA, audit right, sub-processor) -> monitoring
+      berkala + nth-party & concentration risk -> offboard (akun,
+      data, integrasi dicabut TERVERIFIKASI)
+- [ ] tata kelola, bukan pengujian teknis (cf. seksi 42 #0324) —
+      checklist dipakai saat MENYUSUN rekomendasi kebijakan di
+      laporan; padanan teknis cyphron utk permukaan vendor web:
+      third_party_script_risk + sri_checker
+
+## 172. BloodHound CE & NetExec — AD ofensif (dari mukul975/mapping-attack-paths-with-bloodhound-ce, moving-laterally-with-netexec) — di luar domain, cf. seksi 42/116
+- [ ] BloodHound CE: SharpHound (LDAP-only utk stealth; loop session
+      collection utk menangkap Tier-0 logon) / AzureHound -> ingest
+      -> cypher attack paths (shortest-path ke Domain Admin/tenant)
+      — kolektor = eksekusi di infra AD live; konsep graf jalur
+      versi cloud sudah di iam_escalation_scan
+- [ ] NetExec (nxc): validasi kredensial/hash lintas protokol (SMB/
+      WinRM/LDAP/MSSQL/SSH), enum share/user/policy, password spray
+      dgn DISIPLIN: baca lockout policy DULU (--pass-pol), satu
+      password per window di bawah ambang lockout, catat hit lalu
+      tunggu — spray tanpa baca policy = lockout massal = insiden
+      sendiri; dump SAM/LSA/NTDS = post-exploit berizin
+- [ ] sisi deteksi yang menyertai: 4624/4625 volume per sumber
+      (win_logon_triage), 4769 volume/RC4 (kerberos_log_triage),
+      7045 service install (win_auth_triage) — eksekusi ofensifnya
+      di luar fokus web/app cyphron
+
+## 173. ATT## 173. ATT&CK coverage mapping — padanan attack_coverage (dari mukul975/mapping-mitre-attack-techniques) — cf. seksi 150sCK coverage mapping — padanan attack_coverage (dari mukul975/mapping-mitre-attack-techniques)
+- [ ] padanan cyphron: attack_coverage (#0660) — rule export ->
+      matriks teknik x state (covered/partial/gap) -> prioritas gap;
+      skill ini menambah dua konsep utk MENYUSUN prioritas: gap
+      dinilai terhadap teknik yang AKTIF dipakai aktor relevan ke
+      sektor kita (intel-driven, bukan angka besar) dan output
+      eksekutif = layer Navigator + persentase coverage per tactic,
+      bukan daftar rule
+- [ ] disiplin: data ATT&CK enterprise-attack STIX diunduh resmi
+      (versi eksplisit — mapping lintas versi = drift); mapping
+      rule->teknik disimpan sbg DATA yang bisa diaudit, bukan di
+      kepala analis
+
+## 174. Darkweb monitoring (dari mukul975/monitoring-darkweb-sources)
+- [ ] mekanisme: keyword monitoring (brand/domain/email/eksekutif)
+      via layanan komersial + manual ber-OPSEC (Tor + VM disposabel);
+      target: forum/marketplace, paste sites (API), ransom leak
+      sites (cari nama organisasi di blog korban), credential dumps
+      (korelasi domain email)
+- [ ] respons berjenjang: kredensial bocor = reset + revoke session
+      SEKARANG (cf. seksi 50); data internal muncul di leak site =
+      insiden aktif, bukan sekadar intel
+- [ ] butuh jaringan/Tor/layanan berbayar = ops; permukaan pasif
+      cyphron (rdap-whois/ct-inventory/wayback/github-leak-checker,
+      cf. seksi 38) menutup sisi publik — checklist ini utk MENYUSUN
+      keyword list & SOP eskalasinya
+
+## 175. Di luar domain — Modbus/SCADA monitor (dari mukul975/monitoring-scada-modbus-traffic-anomalies) — cf. seksi 48/63/83/161
+- [ ] domain OT (SPAN/TAP jaringan industri milik sendiri) — di luar
+      fokus web/app/infra cyphron; inti teknis yang layak diingat:
+      MBAP header TCP/502 (transaction 2B, protocol-id 2B=0, length
+      2B, unit-id 1B, function-code 1B) — parser protokol industri =
+      kelas alat lain
+- [ ] baseline per pasangan master/slave yang sah: daftar function
+      code yang boleh (read 1-4 vs write 5/6/15/16 — cf. seksi 83),
+      rentang register, interval poling; anomali = tulisan tanpa
+      wewenang, enumerasi register/read burst, deviasi interval,
+      unit-id/MAC/slave baru — pola "baseline sah -> deviasi"
+      berlaku generik (cf. seksi 76/151)
+- [ ] skenario dampak (manipulasi parameter water treatment,
+      enumerasi dari engineering workstation) = motivasi segmentasi
+      + monitoring OT terpisah — bukan tool cyphron
