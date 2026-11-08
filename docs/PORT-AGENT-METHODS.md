@@ -3585,3 +3585,229 @@ blok B29.
       TGS + crack offline; sisi deteksi = padanan kerberos_log_triage
       (RC4 0x17 pada 4769, tgs-tanpa-tgt); mitigasi = gMSA/panjang
       sandi >25 + audit RC4
+
+---
+Blok B30 (#0871-#0900, 8 Nov) — sumber mukul975 (Apache-2.0 — konsep,
+bukan teks). Tiga entri diekstrak jadi tool: #0876 -> tools/
+linux_privesc_audit.py, #0890 -> tools/lambda_config_audit.py, #0896 ->
+tools/sqlite_forensics.py; sisanya didistilasi di bawah (seksi 221-232).
+
+## 221. Privesc lintas-OS — pelengkap linux_privesc_audit (dari mukul975/performing-privilege-escalation-assessment + performing-privilege-escalation-on-linux)
+- [ ] sisi Linux deterministik diekstrak jadi linux_privesc_audit
+      (#0876); yang tinggal live-ops: kernel exploit (Dirty Cow CVE-
+      2016-5195, Dirty Pipe CVE-2022-0847, PwnKit CVE-2021-4034,
+      GameOver(lay)) — patch level = kontrol utamanya, bukan tool;
+      lookup GTFOBins = referensi live, tabel lokal tool = kurasi sendiri
+- [ ] sisi Windows (cf. seksi 77/104): unquoted service path + service
+      binary writable (ops service config — pola bisa masuk
+      win_audit_coverage bila kelak dibutuhkan), AlwaysInstallElevated
+      (2 registry HKLM/HKCU), AutoRun registry writable
+      (win_persist_triage), token privilege SeImpersonate/
+      SeAssignPrimaryToken (potato-class = live lab), UAC
+      (sysmon_triage uac-registry-hijack)
+- [ ] disiplin laporan: vektor yang DITEMUKAN != vektor yang BERHASIL
+      dieksekusi — dua kategori berbeda; klaim eskalasi butuh bukti
+      shell root/SYSTEM (session_ledger)
+- [ ] padanan cyphron: linux_privesc_audit (misconfig), lolbin_scan +
+      sysmon_triage (cmdline/uac), kev_gap (kernel CVE prioritas)
+
+## 222. PQC migration — padanan crypto_inventory_scan + program (dari mukul975/performing-post-quantum-cryptography-migration)
+- [ ] padanan cyphron: crypto_inventory_scan (#0746 — CBOM-lite,
+      klasifikasi quantum-vulnerable/weak-legacy/post-quantum + Mosca);
+      skill ini = versi PROGRAM-nya, delta yang layak diingat:
+- [ ] FIPS 203 (ML-KEM/Kyber — key exchange), FIPS 204 (ML-DSA/
+      Dilithium — signature), FIPS 205 (SLH-DSA/SPHINCS+ — fallback
+      hash-based); output inventaris harus memetakan usage -> tiga
+      peran itu
+- [ ] hybrid TLS = jalur transisi (X25519MLKEM768 di handshake):
+      hybrid sah diterima; downgrade ke klasik-murni di endpoint
+      sensitif = temuan program
+- [ ] validasi kesiapan = uji LIVE (oqs-provider OpenSSL) — paket
+      "terpasang" != negosiasi PQC berhasil; sertifikat PQC & jalur
+      HSM = risiko tersendiri (infra crypto, cf. seksi 132)
+- [ ] urutan migrasi: data jangka-panjang / harvest-now-decrypt-later
+      DULU (backup, arsip, log terenkripsi), lalu transit TLS, terakhir
+      signature internal — klaim selesai tanpa data-at-rest = salah
+      prioritas
+
+## 223. Gubernansi akun privilese & service account (dari mukul975/performing-privileged-account-access-review, -privileged-account-discovery, -service-account-audit, -service-account-credential-rotation)
+- [ ] discovery dulu, review kemudian: inventaris dari SEMUA sumber —
+      grup AD (Domain Admins/Enterprise Admins), role Entra, IAM AWS
+      (admin policy), cluster-admin k8s, local admin per host, DBA,
+      akun aplikasi; inventaris parsial = sisi buta (fail-closed)
+- [ ] tiering by blast radius (tier-0 = kontrol domain/forest) ->
+      cadensi review berbeda per tier; akun tanpa owner = orphan,
+      disable BUKAN delete (jejak audit, cf. seksi 73)
+- [ ] review = bukti JUSTIFIKASI, bukan daftar: pemilik, tujuan,
+      terakhir-dipakai (lastLogon/servicePrincipalName), status MFA;
+      privilese tinggi + tak dipakai > 90 hari = kandidat cabut
+- [ ] service account (cf. seksi 88): gMSA/managed identity > password
+      statis; rotasi otomatis WAJIB dgn peta dependensi dulu (rotasi
+      tanpa peta = outage massal — urutan: inventaris konsumen ->
+      window -> rotasi -> verifikasi service hidup); password servis
+      evergreen di log = ranah linux_auth_triage/win_logon_triage
+- [ ] padanan cyphron: k8s_rbac_audit (cluster), iam_escalation_scan
+      (AWS), oauth_grant_audit (Entra); checklist ini utk MENYUSUN
+      program recertification lab, bukan tool
+
+## 224. Purple team — emulasi terkendali & validasi deteksi (dari mukul975/performing-purple-team-atomic-testing, -purple-team-exercise) — cf. seksi 108/130
+- [ ] Atomic Red Team = eksekusi uji per-teknik ATT&CK (Invoke-
+      AtomicRedTeam) = ops ber-izin di host lab; nilai yang dipinjam:
+      uji SATU teknik, deterministik, prasyarat eksplisit
+- [ ] loop validasi deteksi: jalankan uji -> rule deteksi memicu?
+      -> tidak = GAP -> tulis/tuning rule -> uji ulang; hasil disimpan
+      per-teknik (covered/detected/missed) — pola sama dgn
+      attack_coverage; validasi pasca-tuning wajib atomic test masih
+      memicu (cf. seksi 211)
+- [ ] output eksekutif = layer ATT&CK Navigator + persentase deteksi
+      per tactic (cf. seksi 173), bukan log eksekusi mentah
+- [ ] korelasi Sigma: tiap atomic test memetakan rule Sigma terkait —
+      mapping disimpan sbg DATA yang bisa diaudit (cf. seksi 18/173)
+- [ ] exercise (bukan testing tunggal): objective -> scenario ->
+      deconfliction SOC (seksi 108) -> ukur MTTD/MTTC per fase -> AAR;
+      kegagalan deteksi = temuan biru, bukan kegagalan merah
+
+## 225. Koridor ransomware: respons, negosiasi, tabletop (dari mukul975/performing-ransomware-response, -ransomware-tabletop-exercise, -soc-tabletop-exercise) — cf. seksi 28/29/66/84/125/160/169
+- [ ] respons: koridor CISA sudah di seksi 28; delta keputusan yang
+      layak diingat: pembayaran = keputusan BISNIS/HUKUM (konsultasi
+      legal + penegak hukum + cek sanksi OFAC sebelum kontak; decryptor
+      keluarga lama cek No More Ransom dulu — cf. seksi 169); notifikasi
+      regulator punya tenggat per-yurisdiksi (GDPR 72 jam — timeline
+      dihitung dari KETAHUAN, bukan dari kontain)
+- [ ] verifikasi backup SEBELUM percaya restore: hash/scan sampel
+      cadangan + boot test terisolasi — cadangan yang terjangkit =
+      jalur re-infeksi (cf. seksi 160 3-2-1-1-0)
+- [ ] tabletop ransomware: skenario dari aktor NYATA (injects LockBit/
+      ALPHV: double extortion, penghapusan backup, tekanan deadline),
+      cadensi inject terjadwal (jangan semua di menit pertama),
+      evaluasi vs NIST CSF/CISA; keputusan yang diuji: bayar/tidak,
+      isolate/tidak, notifikasi siapa-kapan
+- [ ] tabletop SOC generik: tujuan terukur (uji playbook X), fasilitator
+      + scribe terpisah, peserta = yang BAKAL menangani insiden (bukan
+      manajemen saja), diskusi > teori; AAR = action item ber-owner +
+      tenggat yang mengubah playbook (cf. seksi 67)
+- [ ] cyphron: ransom_artifact_triage (artefak), sysmon_triage/
+      lolbin_scan (T1490 vssadmin), win_persist_triage; eksekusi
+      respons live = ops IR
+
+## 226. Infrastruktur red team — kampanye phishing & C2 (dari mukul975/performing-red-team-phishing-with-gophish, -red-team-with-covenant) — cf. seksi 14/30/68/182/200
+- [ ] GoPhish = platform kampanye ber-izin (sending profile/template/
+      group/campaign + metrik delivered/open/click/submit) — runbook
+      ops; etika & metrik kesehatan (report rate > click rate) cf.
+      seksi 200; padanan analisis sisi email: eml_phish_triage +
+      spf_dmarc_posture
+- [ ] Covenant = C2 .NET (listeners, grunts, lateral tracking) —
+      padanan distilasi C2 lain (seksi 14/30/182): deteksi = deviasi
+      profil + artefak in-memory, bukan signature; tanpa inti
+      deterministik baru utk cyphron
+
+## 227. SCA — program di atas padanan dependency_cve (dari mukul975/performing-sca-dependency-scanning-with-snyk) — cf. seksi 19/80/101/146
+- [ ] padanan cyphron: dependency_cve (lockfile/SBOM -> CVE),
+      supplychain_check, dep_confusion_check, pkg_typosquat_check,
+      exploit_ci_gate; Snyk = produk SCA (ops CI)
+- [ ] delta program yang layak diingat: fix-PR otomatis tetap WAJIB
+      review (patch versi bisa pecah behavior — gate test tetap
+      jalan); license compliance = gate TERPISAH dari gate CVE
+      (GPL/SSPL di produk komersial = temuan kebijakan); continuous
+      monitoring = re-scan saat DB CVE terbaru (cf. seksi 101
+      re-scan-on-db-update)
+
+## 228. Second-order SQL injection — metodologi stored payload (dari mukul975/performing-second-order-sql-injection)
+- [ ] mekanisme: payload disimpan TANPA error (diterima validasi
+      input), lalu DIGUNAKAN lagi di operasi/query BERBEDA yang tak
+      meng-escape konten — tidak ada respons langsung di titik injeksi;
+      uji = dua fase (simpan -> picu)
+- [ ] titik simpan: registrasi/profil (username, nama, alamat), email,
+      header UA/referer yang tersimpan (cf. seksi 109); titik picu:
+      query admin/listing, pencarian, ekspor CSV, laporan
+- [ ] payload: quote-break dgn konteks escaping ASIMETRIS (tersimpan
+      ter-escape lalu di-unescape tak sengaja saat dipakai ulang);
+      fase simpan 200-normal adalah ciri, bukan ketenangan
+- [ ] disiplin uji: payload unik ber-marker per titik (atribusi hasil),
+      uji juga update-profile (read-modify-write merusak escaping
+      kedua), bandingkan data tersimpan (dump DB bila sah) vs tampilan
+- [ ] padanan cyphron: SqliProducts/SqliError/SqliTimePlaybook (fase-1
+      live), waf_sqli_triage (sisi log); fase-2 = urutan playbook
+      manual dua-langkah di lab, bukan tool
+
+## 229. Postur headers & SSL/TLS — padanan + program lifecycle (dari mukul975/performing-security-headers-audit, -ssl-certificate-lifecycle-management, -ssl-stripping-attack, -ssl-tls-inspection-configuration, -ssl-tls-security-assessment)
+- [ ] #0889 padanan SUDAH ADA: http-security-headers, csp-analyzer,
+      clickjacking-protection-checker, hsts-preload-checker, xss-
+      protection-header-checker (registry) — skill ini checklist yang
+      sama; tambahan evaluasi: atribut cookie Secure/HttpOnly/SameSite
+      per kelas (session vs preferensi), dan header di SEMUA respons
+      (404/error kerap tanpa headers — audit per-halaman, bukan
+      beranda saja)
+- [ ] #0897 lifecycle sertifikat: issuance/renewal OTOMATIS via ACME
+      (jendela renewal 30 hari sebelum expiry), monitoring expiry di
+      SEMUA endpoint (internal/mTLS ikut, bukan publik saja), revokasi
+      + OCSP stapling, private key di HSM/vault (cf. seksi 75/136);
+      padanan: cert_chain_audit (validasi rantai dari artefak) +
+      ssl-tls-analyzer (live)
+- [ ] #0898 SSL stripping = MITM live (sslstrip/bettercap) — lab
+      berizin saja; yang dipakai cyphron = sisi pencegahan: HSTS
+      max-age panjang + includeSubDomains + preload (padanan
+      hsts-preload-checker), redirect http->https server-side bukan
+      client-side
+- [ ] #0899 TLS inspection: break-and-inspect punya BIAYA eksplisit —
+      bypass list wajib (app certificate-pinned, banking/health utk
+      privasi, update binary yang gagal pin), fail-open vs fail-closed
+      saat engine mati = keputusan tercatat (cf. seksi 155), CA
+      inspeksi di trust store TERKENDALI (tidak disebar luas)
+- [ ] #0900 padanan: ssl-tls-analyzer + tls-cipher-suites-checker
+      (registry) + sslyze/testssl = alat eksternal; tambahan checklist:
+      OCSP must-staple, versi minimum TLS 1.2/1.3 (cf. seksi 72),
+      monitoring certificate transparency utk wildcard bocor
+      (ct-inventory)
+
+## 230. SOAP/WSDL — urutan uji (dari mukul975/performing-soap-web-service-security-testing)
+- [ ] recon: ?wsdl -> parse operations/bindings/soap:address (XML
+      stdlib), versi (SOAP 1.1 vs 1.2 namespace), operasi sensitif;
+      WSDL yang mengekspos operasi internal tak terpakai = lead
+      shadow-API (cf. shadow_api_diff)
+- [ ] kelas uji: XXE di envelope (padanan XxeCallbackPlaybook), XML/
+      SOAP injection di parameter (CDATA/escape), SOAPAction spoofing
+      (action tak divalidasi = panggil operasi admin via action lain),
+      XPath injection di parameter yang diinterpolasi ke query XML,
+      WS-SecurityPolicy ABSEN = lead (tanpa signature/encryption
+      meski transport TLS)
+- [ ] idempotensi & replay: tanpa WS-Addressing/timestamp = replay
+      sah; SOAP fault bocor stack/class (faultstring detail) = temuan
+- [ ] pustaka sumber (zeep/requests) = non-stdlib; di cyphron: uji
+      manual dgn template XML di lab berizin — checklist ini
+      urutannya, bukan tool
+
+## 231. Di luar domain — OT/energi cluster (dari mukul975/performing-plc-firmware-security-analysis, -power-grid-cybersecurity-assessment, -s7comm-protocol-security-analysis, -scada-hmi-security-assessment) — cf. seksi 48/63/83/161/175
+- [ ] #0871 firmware PLC: ekstraksi butuh akses fisik (UART/JTAG/
+      vendor tool) — bidang hardware; yang bersinggungan dgn cyphron:
+      hardcoded kredensial & string di image = carve_scan +
+      binary_strings_surface; diff vs firmware resmi = hash baseline
+      (seksi 212); mekanisme update tak bertanda tangan = temuan
+      proses vendor
+- [ ] #0873 power grid: NERC CIP (cf. seksi 161), IEC 61850 GOOSE/MMS
+      (publish-subscribe tanpa auth native), PMU C37.118,
+      Industroyer/CrashOverride (destructive protokol-native) — butuh
+      jaringan substation tersegmentasi milik sendiri
+- [ ] #0885 S7comm: stack TPKT(102) -> COTP -> S7 (function 0xf0
+      handshake, 0x1a/0x1b program download, 0x28/0x29 read/write
+      var, PUD/CPU-STOP berbahaya); S7CommPlus (S7-1200/1500) punya
+      integritas tapi sudah direverse publik; deteksi = baseline per
+      fungsi + alert tulisan/stop — parser protokol = kelas alat lain
+- [ ] #0887 SCADA HMI: HMI web-based = permukaan web biasa (default
+      cred, auth lemah, upload tak tervalidasi — padanan playbook
+      cyphron) tapi konteks OT (dampak fisik); IEC 62443 zone/conduit
+      + thin-client session hijack — bidang OT (cf. seksi 161);
+      yang bisa diport = lapisan audit konfigurasi web-nya bila kelak
+      ada ekspor
+
+## 232. Kepatuhan & privasi (dari mukul975/performing-privacy-impact-assessment, -soc2-type2-audit-preparation) — cf. seksi 42/141
+- [ ] PIA/DPIA (GDPR Art. 35): pemicu = pemrosesan besar/sensitif/
+      profiling; metode NIST PRAM: map data flow -> identifikasi
+      risiko -> keputusan (avoid/transfer/mitigate/accept) ->
+      dokumentasi; tata kelola, bukan pengujian teknis; padanan
+      teknis: data_class_scan (temuan PII), retensi = review kode
+- [ ] SOC 2 Type II: TSC CC1-CC9 (Security wajib; A/PI/C/P
+      opsional); bukti = SAMPEL PERIODE (log kontrol berjalan 3-12
+      bulan, bukan snapshot); gap assessment -> POA&M ber-owner (cf.
+      seksi 94 #0478 NIST RMF); otomatisasi bukti (AWS/Okta/GitHub
+      API) = live ops ber-kunci — bukan tool audit
