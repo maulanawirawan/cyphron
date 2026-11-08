@@ -1601,3 +1601,166 @@ Ranah playbooks live TIDAK diperluas — tool triase pasif saja.
       SqliError/SqliTime + waf_sqli_triage (#0461); sqlmap = alat
       eksternal — prinsip yang diambil: injeksi juga di COOKIE/
       header (bukan hanya param) + level/risk bertingkat
+test-append
+
+---
+Blok B19 (#0541-#0570, 8 Nov) — sumber mukul975 (Apache-2.0 — konsep,
+bukan teks). Enam entri-grup diekstrak jadi tool: #0541 -> tools/
+dcsync_triage.py, #0542 -> tools/timestomp_triage.py, #0545 -> tools/
+zeek_front_scan.py, #0551+#0554+#0555+#0556+#0559+#0561 -> tools/
+win_persist_triage.py, #0562 -> tools/account_manip_triage.py,
+#0565 -> tools/webshell_triage.py; sisanya didistilasi di bawah
+(117-126).
+
+## 117. DNS persistence & tunneling — pelengkap dns_log_triage (dari mukul975/hunting-for-dns-based-persistence, hunting-for-dns-tunneling-with-zeek)
+- [ ] #0543 persistence DNS hidup di ZONE, bukan di log query: record
+      A/CNAME baru tak sah, wildcard record, delegasi NS yang diganti,
+      TXT update — bertahan lintas rotasi kredensial & reimage host;
+      audit = diff zona saat ini vs baseline + riwayat pasif-DNS
+- [ ] sumber utamanya API pasif-DNS (SecurityTrails) + audit log
+      provider (Route53/Azure DNS/Cloudflare) = live ops ber-kunci;
+      di cyphron sisi QUERY dilayani dns_log_triage — checklist ini
+      utk AUDIT zona milik lab secara manual
+- [ ] #0544 tunneling DNS tercakup dns_log_triage (panjang label,
+      entropi, subdomain unik, volume TXT, timing); yang layak
+      diingat: distribusi panjang query PER DOMAIN (mean+stdev),
+      ambang entropi 3.5 bit/karakter, >100 query/jam per sumber,
+      korelasi conn.log utk proses asal, iodine/dnscat2/DNS-over-
+      HTTPS sebagai kelas ancaman
+
+## 118. Living off the cloud (dari mukul975/hunting-for-living-off-the-cloud-techniques)
+- [ ] T1102/T1567/T1537: C2 via webhook (Discord/Telegram), fungsi
+      cloud sebagai relay dinamis, staging data di storage/SaaS sah —
+      traffic "terlihat normal" karena keluar ke domain reputasi
+      tinggi; signature IP tidak berguna
+- [ ] deteksi bergantung pada KONTEN & POLA, bukan reputasi: volume
+      upload ke satu tenant baru, token bot di header, payload di
+      user-agent yang jarang, endpoint webhook dipanggil dari host
+      server (bukan browser user)
+- [ ] sisi log AWS statis dilayani cloudtrail_scan; egress filtering
+      + allowlist per kategori = kontrol utamanya (ops jaringan)
+
+## 119. WMI lateral & service install — pelengkap (dari mukul975/hunting-for-lateral-movement-via-wmi, hunting-for-unusual-service-installations)
+- [ ] #0546 tiga sudut deteksi WMI: jaringan (dce_rpc svcctl/wbem =
+      zeek_lateral_scan), cmdline (wmic /node: = lolbin_scan), dan
+      endpoint PARENT (WmiPrvSE.exe spawning cmd/powershell di EID 1/
+      4688) — sudut ketiga belum ada toolnya; saat membaca ekspor
+      Sysmon, cari ParentImage=WmiPrvSE.exe dgn child interpreter
+      + cmdline /q /c atau redirect output ke share admin
+- [ ] WMI-Activity/Operational 5857/5860/5861 = sumber tambahan
+      subscription; 5861 mencatat konfigurasi consumer baru
+- [ ] #0564: padanan cyphron win_auth_triage (7045 psexec-service +
+      suspicious-service UNC/Temp/Public); varian 4697 (Security log)
+      diperiksa win_persist_triage — mekanisme sama, log berbeda
+
+## 120. WMI subscription & shadow copy — pelengkap sysmon_triage (dari mukul975/hunting-for-persistence-via-wmi-subscriptions, hunting-for-shadow-copy-deletion)
+- [ ] #0552: padanan sysmon_triage wmi-consumer/binding/filter-timer
+      (EID 19/20/21); pelengkap saat triase manual: sistem bersih
+      nyaris TIDAK punya permanent subscription — anomali mudah
+      terlihat; consumer berbahaya = ActiveScriptEventConsumer &
+      CommandLineEventConsumer; trigger Win32_ProcessStartTrace /
+      logon / timer; mofcomp.exe = kompilasi subscription
+      programatik (lead kuat di EID 1)
+- [ ] #0557: padanan sysmon_triage dump-cmdline (vssadmin create/
+      delete shadows); pola pelengkap yang layak dicari: wmic
+      shadowcopy delete, PowerShell Remove-CimInstance / WMI
+      Win32_ShadowCopy.Delete(), bcdedit /set recoveryenabled no,
+      event 1105 VSS dalam System log
+
+## 121. Koneksi jaringan tak lazim — berbasis baseline (dari mukul975/hunting-for-unusual-network-connections)
+- [ ] "unusual" = deviasi dari baseline per host/proses: proses yang
+      TIDAK biasa bicara jaringan (cmd.exe/powershell/w3wp), port
+      non-standar (T1571), beacon berkala (cf. seksi 62/106)
+- [ ] padanan cyphron: netflow_parse (flow statis) + zeek_beacon_scan;
+      baseline proses:port milik ORGANISASI — alat generik tidak bisa
+      memutuskan; checklist ini dipakai saat MEMBACA ekspor Sysmon
+      EID 3/netflow lab
+- [ ] pola konkrit: DNS exfil ke nameserver baru (cf. seksi 117),
+      scanning internal (banyak host/port per sumber, cf. seksi 78),
+      koneksi ke pool mining (port stratum, cf. seksi 53)
+
+## 122. SaaS SSO token abuse (dari mukul975/hunting-saas-sso-token-abuse)
+- [ ] T1550.001: MFA diloloskan dgn mencuri artefak SETELAH auth
+      sukses — session cookie, access/refresh token, PRT; replay
+      mewarisi sesi tanpa menyentuh kredensial
+- [ ] identitas kunci: Entra SessionId/UniqueTokenIdentifier
+      menyambungkan semua artefak satu root-auth — SATU sesi dipakai
+      dari IP/ASN/device berbeda = replay; tabel non-interactive
+      (AADNonInteractiveUserSignInLogs) tempat refresh replay
+      muncul; Okta: user.session.start dgn deviceToken dari IP
+      divergen, ITP "suspected session hijacking"
+- [ ] pola: impossible travel DENGAN SATU session id, refresh-token
+      reuse (reuse = cabut rantai, cf. seksi 71), ASN hosting/VPS
+      sebagai sumber, akses SaaS dari device yang tak pernah dipakai
+      user
+- [ ] remediasi = cabut sesi/token (revoke session, revoke refresh),
+      bukan reset password saja (cf. seksi 50/66/81); sumbernya API
+      Entra/Okta = live ops, checklist ini utk MEMBACA ekspor lognya
+
+## 123. Implementasi enkripsi at-rest (dari mukul975/implementing-aes-encryption-for-data-at-rest)
+- [ ] panduan implementasi (bukan deteksi) — yang layak diaudit saat
+      review kode/enkripsi lab: mode AEAD (GCM) sebagai default, CBC/
+      CTR tanpa MAC = jangan, IV/nonce 96-bit UNIK per pesan (reuse
+      GCM = fatal), kunci jangan raw password — KDF: PBKDF2 >=600k
+      iterasi / Argon2id (memory-hard), AAD dipakai utk menyatukan
+      konteks, streaming utk file besar (jangan seluruh file ke RAM)
+- [ ] manajemen kunci: rotasi, penyimpanan terpisah dari data
+      (KMS/enclave, cf. seksi 75/86), zeroize di memori (padanan
+      cyphron zeroize_scan utk artefak)
+- [ ] padanan cyphron saat AUDIT: cert_chain_audit (sertifikat),
+      secret_history_scan/zeroize_scan (kunci bocor) — pemilihan
+      mode/KDF sendiri = review kode manual dgn checklist ini
+
+## 124. Kurasi alert & program anti-phishing (dari mukul975/implementing-alert-fatigue-reduction, implementing-anti-phishing-training-program)
+- [ ] #0568 kurasi bekerja pada DATA disposisi 90 hari per rule:
+      fp_rate, tp_rate, signal_to_noise, volume per analyst —
+      kandidat tuning = fp_rate >70% atau volume >1000; urutan
+      tindakan: higiene (hapus duplikat/low-signal) -> tuning
+      (threshold/exception) -> agregasi RBA (skor risiko, bukan
+      alert per event) -> SUPPRESSION terakhir; melumpuhkan rule
+      tanpa analisis = menciptakan blind spot (eksplisit di sumber)
+- [ ] #0569 program awareness: baseline -> kurikulum per-role
+      (finance=BEC, IT=kredensial, eksekutif=whaling) -> simulasi
+      berkala berjenjang -> just-in-time training saat gagal ->
+      penghargaan utk pelapor; metrik kesehatan = REPORT RATE
+      (cf. seksi 27/68), bukan click rate; maturity SANS L1-L5
+      sbg peta program
+- [ ] cyphron: keduanya tata kelola program — dipakai saat MENYUSUN
+      rekomendasi di laporan, bukan tool
+
+## 125. GPO anti-ransomware — checklist hardening (dari mukul975/implementing-anti-ransomware-group-policy)
+- [ ] sasaran GPO (yang diaudit di konfigurasi lab): blokir eksekusi
+      di path user-writable (AppLocker/WDAC), ASR rules Defender,
+      Controlled Folder Access utk folder kritis, macro diblokir
+      dari internet (Office), LSA protection + Credential Guard,
+      USB tak di-whitelist ditolak, PowerShell Constrained Language
+      + script block logging, RDP dibatasi (NLA + allowlist)
+- [ ] sisi T1490: deny vssadmin/shadowcopy via SRP/AppLocker (cf.
+      seksi 120), backup offline + immutable + DIUJI restore (cf.
+      seksi 28), rbac admin terbatas (cf. seksi 70 tiered model)
+- [ ] GPO bukan pertahanan tunggal — melengkapi EDR/segmentasi/
+      backup (eksplisit di sumber); verifikasi = baca hasil GPO
+      (gpresult) saat audit lab, bukan tool
+
+## 126. Padanan tool ada — catatan blok B19
+- [ ] #0548/#0549 LOLBin (living off the land): padanan lolbin_scan
+      (EID 1/11, pola certutil/mshta/rundll32/bitsadmin/wmic/schtasks
+      + ps-encoded/office-spawn) — daftar LOLBAS terbuka; variabel
+      baseline per lingkungan (proses sah) = --allow-parent/
+      --allow-path
+- [ ] #0550 NTLM relay: padanan win_auth_triage relay-mismatch
+      (WorkstationName vs inventory IP) + ntlm-v1-downgrade +
+      zeek_lateral_scan ntlm-spray; pelengkap: audit enforcement
+      SMB/LDAP signing (relay hanya sukses bila signing longgar),
+      EID 5145 named pipe Spoolss/lsarpc/netlogon/samr (cf. seksi 77)
+- [ ] #0553 process injection: padanan sysmon_triage cross-process-
+      write/remote-thread/process-tampering (EID 8/10/25, T1055)
+- [ ] #0558 spearphishing attachment/link/service: padanan
+      eml_phish_triage (header/SPF/DKIM/Reply-To) + seksi 49 (BEC
+      identitas) & 66 (corong dampak); HTML smuggling/ISO-LNK/QR di
+      PDF = prosedur manual pada eml yang sudah ditandai (cf.
+      seksi 82 quishing)
+- [ ] #0560 supply chain compromise (T1195): padanan supplychain_check
+      + gha_workflow_audit + dep_confusion_check + pkg_typosquat_check
+      + sekret secret_history_scan (cf. seksi 80); sisi build-server
+      tamper = kebijakan CI (cf. seksi 19)
