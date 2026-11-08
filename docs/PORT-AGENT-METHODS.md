@@ -3023,3 +3023,157 @@ pihak ketiga, SARIF-nya masuk lewat sarif_ingest).
 
 ## 189. Ops produk & di luar domain — catatan bidang blok B24 (cf. seksi 42, 48, 136, 137, 130)
 - [ ] #0700 Vault secrets m
+---
+Blok B27 (#0781-#0810, 8 Nov) — sumber mukul975 (Apache-2.0 — konsep,
+bukan teks). Satu entri diekstrak jadi tool: #0783 -> tools/
+brand_lookalike_scan.py; sisanya didistilasi di bawah (4 seksi) +
+catatan bidang. Web-offense cluster (#0781 #0784 #0797 #0800 #0804)
+jadi seksi 190; cluster cloud-forensics/IR (#0785-#0789 #0791 #0793)
+jadi seksi 191-192; container cluster (#0790 #0794-#0796 #0809) seksi
+193; sisanya seksi 194.
+
+## 190. Taksonomi bypass web — SSRF, CSP, CSRF, traversal, clickjacking (dari mukul975/performing-blind-ssrf-exploitation, -clickjacking-attack-test, -content-security-policy-bypass, -csrf-attack-simulation, -directory-traversal-testing) — distilasi B27
+- [ ] blind SSRF: OOB callback (Collaborator/interact.sh) = bukti lebih
+      kuat daripada timing; bypass filter = tabela representasi IP
+      (hex 0x7f000001, desimal 2130706433, oktal 0177.0.0.1, short
+      127.1, IPv6 [::1], @-auth confusion target.com@127.0.0.1,
+      fragment #), DNS rebinding utk metadata 169.254.169.254 —
+      padanan cyphron: SsrfCallbackPlaybook + SsrfChainPlaybook +
+      payload_lab (kelas ssrf); remediasi: allowlist + blok RFC1918 +
+      IMDSv2 + matikan scheme gopher/file/dict
+- [ ] CSP bypass kelas: 'unsafe-inline'/'unsafe-eval' = kekalahan
+      langsung; script-src whitelists host dgn endpoint JSONP/Angular
+      = sandbox escape via host sah; base-uri tak dibatasi = <base>
+      injeksi; form-action tak dibatasi = eksfil via form; CSP
+      report-only = TIDAK ditegakkan; nonce membuat 'unsafe-inline'
+      diabaikan (CSP3) — padanan cyphron: csp_analyzer (unsafe-
+      inline/wildcard); checklist di atas utk review manual header
+- [ ] CSRF token-enforcement matriks diferensial: token dihapus ->
+      kosong -> acak -> kadaluarsa -> milik sesi lain — semua varian
+      DITERIMA = enforcement cacat; cek juga SameSite cookie, Origin/
+      Referer validation, method override (HEAD/OPTIONS lolos) —
+      padanan cyphron: form_csrf_checker (keberadaan token), 
+      OauthStatePlaybook (state anti-CSRF); tanpa playbook CSRF penuh,
+      matriks ini = panduan uji manual lab
+- [ ] traversal: matriks encoding (URL-encode, double-encode %252f,
+      ....//, ..;\ utk IIS, overlong UTF-8, null byte lama) — target
+      file kanonik: /etc/passwd, win.ini, boot.ini; marker respons
+      "root:" — padanan cyphron: LfiTraversalPlaybook + payload_lab
+      (kelas traversal + rantai encoder); filter stripping ".." dua
+      kali = "....//" lolos (sisi remediasi)
+- [ ] clickjacking: XFO DENY/SAMEORIGIN + CSP frame-ancestors
+      'none'/'self'; ALLOW-FROM deprecated; frame-busting JS = lemah;
+      dites per halaman-sensitif (transfer/delete/change-password),
+      bukan hanya beranda — padanan cyphron: 
+      clickjacking_protection_checker
+
+## 191. Program monitoring impersonasi merek (dari mukul975/performing-brand-monitoring-for-impersonation) — inti diekstrak brand_lookalike_scan
+- [ ] kanal impersonasi: domain (typosquat/homoglyph/TLD-variasi),
+      situs kloning, profil medsos eksekutif, app store palsu, spoof
+      email, darkweb — tiap kanal sumber dan tempo berbeda
+- [ ] klasifikasi nama (diekstrak -> tools/brand_lookalike_scan):
+      permutasi ala dnstwist + skel confusable + jarak edit + token
+      curiga + embed-subdomain; faktor risiko: konten aktif, sertifikat
+      ada, MX terpasang, registrasi baru — di tool: hanya metadata dari
+      input, TIDAK diquery live (kepemilikan = rdap lanjutan)
+- [ ] kanal LIVE yang tak diport: dnstwist --registered (query DNS
+      massal), Safe Browsing API, scraping Play Store, Twitter API —
+      semuanya butuh jaringan/kunci; pipeline cyphron: generator
+      kandidat (typoswat_watch) -> klasifikasi (brand_lookalike_scan)
+      -> verifikasi kepemilikan (rdap-whois/rdap_enrichment)
+- [ ] takedown: laporan abuse butuh bukti (teknik klasifikasi, IP,
+      tanggal deteksi) dan jalur registrar/hosting — alat ini menyediakan
+      bukti klasifikasi, keputusan takedown = manusia
+
+## 192. Cluster forensik & IR cloud (dari mukul975/performing-cloud-forensics-investigation, -cloud-forensics-with-aws-cloudtrail, -cloud-incident-containment-procedures, -cloud-log-forensics-with-athena, -cloud-asset-inventory-with-cartography, -cloud-native-threat-hunting-with-aws-detective, -cloud-storage-forensic-acquisition) — runbook ops, distilasi B27
+- [ ] urutan preservasi cloud: snapshot EBS/disk/VM SEBELUM isolate;
+      isolate via security-group forensik (bukan terminate — jejak
+      hilang); kumpulkan metadata instance/SG/ENI + ekspor log window
+      insiden (CloudTrail lookup-events 90 hari, S3 utk lebih lama)
+- [ ] containment kredensial cloud: deactivate access key -> deny-all
+      policy -> revoke sesi (RevokeOldSessions dgn aws:TokenIssueTime)
+      -> invalidate assume-role policy — hentikan PEMAKAIAN dulu, cari
+      jejak kemudian (cf. seksi 50/73)
+- [ ] pola query forensik CloudTrail/Athena yang reusable: filter
+      sourceIPAddress di luar CIDR internal, userAgent tak lazim
+      (tool ofensif), massal DeleteItem/GetObject, CreateUser/
+      CreateAccessKey/AssumeRole = persistence — padanan offline
+      cyphron: cloudtrail_scan (parser + pola), iam_escalation_scan
+- [ ] tabel Athena partition-projection = pola "log besar": partisi
+      per tanggal menghindari full-scan biaya; bukti-grade = query
+      deterministik + hasil diarsipkan (cf. seksi 17 pola SIEM)
+- [ ] graf aset (Cartography/Neo4j, Detective behavior-graph): nilai
+      konseptual = relasi (IAM chain, trust antar-akun, jalur network)
+      bukan inventaris datar; query khas: bucket publik, prinsipal
+      dgn akses admin lintas akun, EC2 dgn IAM role sensitif —
+      cyphron: aws_config_audit + cspm_finding_ingest + 
+      asset_criticality_score melayani potongan statisnya
+- [ ] cloud storage personal (Drive/OneDrive/Dropbox): artefak sinkron
+      endpoint (cache DB, log) vs API akuisisi; chain of custody cf.
+      seksi 40; butuh otorisasi legal eksplisit — forensik-ops, bukan
+      kelas tool cyphron
+
+## 193. Container cluster — Falco, escape, hardening, scanner, docker-bench (dari mukul975/performing-cloud-native-forensics-with-falco, -container-escape-detection, -container-image-hardening, -container-security-scanning-with-trivy, -docker-bench-security-assessment) — padanan ada, distilasi B27
+- [ ] Falco = sensor runtime (eBPF); yang dipakai = anatomi rule-nya
+      (spawned_process + container + exception list, cf. seksi 51);
+      JSONL alert-nya trivial diparse — tidak layak tool terpisah
+- [ ] escape vector pod: privileged, CAP_SYS_ADMIN, hostPID/Network/
+      IPC, hostPath writable ke / atau /etc, mount docker.sock —
+      padanan cyphron: k8s_podsec_audit (16 cek vector) + k8s_audit_
+      triage; runtime-side (nsenter/cgroup/release_agent) = seksi 51
+- [ ] image hardening: multi-stage, distroless/slim, purge package
+      manager, USER nonroot, pin digest, HEALTHCHECK — padanan:
+      docker_audit (cek Dockerfile/daemon/compose) + seksi 131
+- [ ] Trivy/dockle = scanner eksternal (ops CI): SARIF-nya masuk via
+      sarif_ingest; gate severity = pola exploit_ci_gate; SBOM cf.
+      seksi 101
+- [ ] docker-bench = CIS benchmark LIVE host+daemon; kategori PASS/
+      FAIL/WARN + remediasi utama (icc=false, no-new-privileges,
+      cap-drop, read-only rootfs) sudah dicakup cek statis
+      docker_audit; menjalankan bench = ops host
+
+## 194. Di luar domain + ops — catatan bidang blok B27
+- [ ] #0782 BLE/Bluetooth: enumerasi GATT live (bleak) butuh adapter
+      radio + perangkat fisik — di luar web/app/infra (cf. seksi 63
+      BLE #0391); inti yang layak diingat: characteristic read/write
+      tanpa auth pada UUID sensitif (heart-rate 0x2A37, device info)
+      = kandidat; pairing Just Works/TK=0 = lemah
+- [ ] #0792 Pacu: framework ofensif cloud live (butuh kredensial
+      target berizin, CloudTrail utk post-review) — pelaksanaan =
+  
+      engagement ofensif penuh (cf. seksi 42); padanan statis:
+      iam_escalation_scan + cloudtrail_scan
+- [ ] #0798 LaZagne: credential harvesting post-exploitation (T1555)
+      — NEVER-LIST adjacent; sisi deteksi: cmdline lazagne.exe di
+      lolbin_scan/sysmon_triage; prinsip defensif: credential manager
+      terenkripsi + least-privilege di endpoint
+- [ ] #0810 dynamic analysis Android: Frida/objection/emulator = kelas
+      alat lain (cf. seksi 81); padanan statis cyphron: apk_firebase_
+      scan + mobile_manifest_audit; indikator yang dicari saat hook:
+      root-detection bypass, crypto hook, pinning bypass
+- [ ] #0802 darkweb monitoring: Tor SOCKS5 + vendor API (Flare/
+      SpyCloud) = ops jaringan + persona OPSEC (VM terpisah, tanpa
+      identitas) — distilasi program sudah ada di seksi 174
+- [ ] #0803 deception deployment: platform produk (Thinkst/Attivo),
+      peta penempatan per segmen, honeytoken AD — konsep cf. seksi
+      45/139/154; "interaksi = suspicious by definition" tetap prinsip
+      kunci
+- [ ] #0805 disk forensics: imaging E01/dcfldd + chain of custody +
+      Autopsy = forensik-ops hardware (cf. seksi 40); padanan parsing
+      artefak statis cyphron: mft_scan; hash ganda + write blocker =
+      disiplin yang tak berubah
+- [ ] #0801 KEV prioritization: matriks KEV/EPSS/CVSS/aset -> P1-P5
+      SLA — padanan cyphron: kev_gap + vuln_sla_aging +
+      asset_criticality_score (+ intel_sync feed); tabel SLA cf.
+      seksi 26/163 (KEV = 24-48 jam); EPSS = API jaringan (ops)
+- [ ] #0806 DMARC rollout: fase p=none -> quarantine (pct naik
+      bertahap) -> reject; inventory pengirim sah dulu; alignment
+      adkim/aspf relaxed vs strict — padanan: spf_dmarc_posture;
+      distilasi config cf. seksi 133
+- [ ] #0807 DNS enumeration/AXFR: dig record-types + AXFR per NS —
+      padanan: dns_axfr_check (live AXFR) + subdomain_enum_surface +
+      dns_light; IXFR incremental jarang dites — tambahan runbook saja
+- [ ] #0808 DNS tunneling: entropi label >3.5, panjang >50, volume TXT
+      per domain, unique-subdomain count — padanan penuh:
+      dns_log_triage (+ seksi 62/117); scapy pcap = parser lain,
+      polanya sama
