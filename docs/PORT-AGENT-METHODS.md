@@ -3912,3 +3912,168 @@ Checklist triase yang menyatukan alert -> keputusan -> serah terima:
       deteksi, bukan target performa individu
 - [ ] #0988 Splunk = ops produk (notable event, risk-based alerting) —
       konsep di atas dipakai apa pun SIEM-nya
+
+---
+Blok B32 (#0931-#0960, 8 Nov) — sumber mukul975/Anthropic-Cybersecurity-
+Skills (Apache-2.0 — konsep, bukan teks). Dua entri diekstrak jadi tool
+(#0941 + konsep FindCrypt #0940 -> tools/crypto_constant_scan.py,
+#0942 -> tools/rust_binary_triage.py); 28 entri sisanya didistilasi di
+bawah (nomor seksi sengaja mulai 241 — buffer 238-240 utk hindari
+tabrakan penomoran live dgn blok tetangga, celah dijaga mengikuti
+preseden koordinator).
+
+## 241. Profil aktor & gap deteksi sebagai prioritas (dari mukul975/profiling-threat-actor-groups) — cf. seksi 35
+- [ ] dimensi profil standar: identitas (ATT&CK G-ID + alias lintas
+      vendor — BEAR/PANDA/KITTEN/CHOLLIMA = penamaan negara, BUKAN
+      organisasi yang sama), motivasi, targeting (sektor/geografi/
+      teknologi), kapabilitas, riwayat kampanye, TTP per fase
+- [ ] profil ber-TTP, bukan ber-IOC: infrastruktur rotasi dalam
+      minggu; TTP bertahan kuartal — profil ber-IOC basi sebelum
+      dibaca (cf. seksi 35 ACH)
+- [ ] nilai praktis profil = LANGKAH 4-nya: bandingkan daftar teknik
+      aktor vs matriks cakupan deteksi sendiri -> teknik tanpa deteksi
+      = gap kritis, logging-tanpa-alerting = parsial, kontrol
+      kompensasi dicatat bila deteksi tak layak
+- [ ] padanan cyphron: attack_coverage (#0660) melayani sisi gap;
+      checklist ini dipakai saat MENULIS profil/briefing dari bukti
+      (confidence eksplisit, tidak pernah atribusi tunggal-bukti)
+- [ ] higiene umur: profil tidak diperbarui kuartal = aset intel yang
+      menipu; klasifikasi distribusi TLP ditulis di dokumen
+
+## 242. Pemulihan data & ransomware — padanan, bukan tool baru (dari mukul975/recovering-deleted-files-with-photorec, -recovering-from-ransomware-attack) — cf. seksi 28/29/66/225
+- [ ] #0932 PhotoRec/foremost/scalpel = alat carving eksternal; inti
+      signature+entropi sudah diekstrak carve_scan (#0817/#0818) dan
+      pemulihan sadar-struktur SQLite = sqlite_forensics (#0896);
+      katalog hasil carving (hash, tipe-vs-ekstensi mismatch, NSRL
+      filter) = disiplin chain-of-custody seksi 40
+- [ ] #0933 runbook recovery: fasa pemulihan bergantung-dependensi
+      (identitas dulu — AD/DC sebelum domain member), validasi backup
+      PRA-kompromi (timestamp backup vs tanggal kompromi terawal),
+      krbtgt reset 2x interval 12 jam (cf. seksi 73), validasi
+      persistence pada sistem pulih sebelum reconnect bertahap
+- [ ] padanan cyphron: ransom_artifact_triage (triase manifest+note),
+      win_persist_triage/sysmon_triage (cek persistence hasil pulih);
+      eksekusi restore (Veeam/wbadmin) = ops di luar kelas tool
+
+## 243. Red team LLM — taksonomi probe & hit-rate (dari mukul975/red-teaming-llms-with-garak) — cf. seksi 74
+- [ ] anatomi scanner LLM: probe (payload adversarial per keluarga) ->
+      generator (konektor target) -> detector (penilai sukses/gagal)
+      per percobaan; hasil per baris = laporan mesin (jsonl), ringkasan
+      per probe = hit-rate ok/N
+- [ ] keluarga probe inti -> OWASP LLM: promptinject (LLM01), latent
+      injection (indirekt via konten, LLM01), dan jailbreak (bypass
+      guardrail), leakreplay (memorisasi/system-prompt, LLM02/07),
+      encoding (bypass filter ber-enkode), xss (eksfil markdown/HTML)
+- [ ] disiplin pengukuran: --generations menaikkan keyakinan statistik
+      dan biaya; baseline SEBELUM kontrol vs re-run IDENTIK sesudah =
+      bukti reduksi risiko (pola two-arm patch_proof); hit-string
+      sukses disimpan sbg bukti PoC
+- [ ] di cyphron: eksekusi probe = live ops ber-token (di luar kelas
+      offline); lapisan deteksi statisnya = injection_guard (seksi 44),
+      gate programnya = seksi 74 (CI per kategori, regresi = blokir)
+
+## 244. Metodologi RE malware — triase statis Android/.NET/Ghidra (dari mukul975/reverse-engineering-android-malware-with-jadx, -reverse-engineering-dotnet-malware-with-dnspy, -reverse-engineering-malware-with-ghidra) — inti diekstrak crypto_constant_scan (#0941) + rust_binary_triage (#0942)
+- [ ] urutan triase selalu: identifikasi format/packer DULU (packer_
+      scan, binary_strings_surface, crypto_constant_scan) -> dekompilasi
+      (JADX/dnSpy/Ghidra = alat eksternal live, di luar kelas cyphron)
+      -> ekstraksi konfigurasi/IOC -> rule deteksi (YARA)
+- [ ] Android (#0937): izin berbahaya dipetakan perilaku (SMS=intersep
+      2FA, SYSTEM_ALERT_WINDOW=overlay banking, BIND_ACCESSIBILITY=
+      kontrol penuh, BIND_DEVICE_ADMIN=anti-uninstall); penanda kode:
+      DexClassLoader (muat DEX runtime = sembunyikan inti), string
+      ter-enkode dgn dekriptor, daftar package bank di aset; jebakan:
+      logic asli sering di .so native — jangan berhenti di DEX
+- [ ] .NET (#0938): kenali obfuscator dulu (ConfuserEx/SmartAssembly/
+      Reactor) -> de4dot sebelum analisis manual; konfigurasi C2 pola
+      tetap: kelas Config statis (host/port/key/mutex), string XOR
+      runtime, resource ter-enkripsi; breakpoint pada fungsi dekriptor
+      = semua string terbuka sekaligus (dinamis, di VM lab)
+- [ ] Ghidra (#0940): alur hemat — auto-analysis dulu -> entry point ->
+      XREF API berbahaya (VirtualAlloc/CreateRemoteThread/Crypt*/
+      InternetOpen) -> dekompilasi fungsi terkait -> konstanta kripto
+      via FindCrypt — konsep FindCrypt inilah yang diekstrak jadi
+      crypto_constant_scan (S-box/sigma/init-state/API import) sehingga
+      lapisan pertama identifikasi algoritma jalan TANPA buka Ghidra
+- [ ] keluaran RE standar: peta fungsi, protokol C2 (metode/endpoint/
+      enkripsi/komando), kebutuhan-eva (anti-VM/anti-debug), IOC +
+      kandidat rule — dgn atribusi konsep (Apache-2.0) tanpa salin kode
+
+## 245. Di luar domain — catatan bidang blok B32 (cf. seksi 42/48/63/161/175/231)
+- [ ] #0935 NTLM relay -> AD CS ESC8: serangan AD ofensif (coercion
+      MS-EFSRPC/MS-RPRN + relay ke /certsrv/ tanpa EPA -> cert DC ->
+      PKINIT -> DCSync) — di luar fokus web/app cyphron dan kelas
+      read-only; sisi defensif yang layak diingat: EPA+HTTPS wajib di
+      endpoint enrollment, matikan Web Enrollment tak terpakai,
+      monitor enrollment sertifikat machine-account anomali (T1649)
+- [ ] #0939 Frida iOS: butuh perangkat jailbroken/gadget + hooking
+      runtime (ObjC.classes, CCCrypt hook, FairPlay dump) — bidang
+      perangkat keras/mobile dinamis, di luar kelas tool offline; cf.
+      seksi 199 (pinning) & 218 (statis iOS)
+- [ ] #0959 historian OT (OSIsoft PI/PHD): hardening server + DMZ
+      replikasi — domain OT, di luar fokus web/app; prinsip generik:
+      kredensial bawaan, layanan tak terpakai, jalur replikasi
+      satu-arah ke DMZ
+
+## 246. Scanner eksternal & CI gate — padanan ada, jangan bangun ulang (dari mukul975/scanning-container-images-with-grype, -scanning-containers-with-trivy-in-cicd, -scanning-docker-images-with-trivy, -scanning-iac-and-images-with-trivy, -scanning-infrastructure-with-nessus, -scanning-kubernetes-manifests-with-kubesec, -scanning-network-with-nmap-advanced)
+- [ ] grype/trivy (keluarga #0943-#0946): scanner CVE/misconfig pihak
+      ketiga ber-DB; padanan cyphron: dependency_cve (paket), docker_
+      audit (konfigurasi image), terraform_audit (IaC), exploit_ci_gate
+      (gate), sarif_ingest (hasil SARIF) — pola yang dipinjam: gate
+      severity cutoff fail-closed, --ignore dgn ALASAN terdokumentasi,
+      scan ulang berkala (temuan CVE berubah tanpa kode berubah)
+- [ ] #0947 Nessus: runbook scanner live ber-lisensi; padanan keluarga
+      ingest offline = cspm_finding_ingest/sarif_ingest; disiplin
+      prioritasnya (VPR/EPSS di atas CVSS mentah) sudah di seksi 210
+- [ ] #0948 kubesec: scoring manifest (privileged/hostPID/hostNetwork/
+      SYS_ADMIN negatif; readOnlyRootFilesystem/runAsNonRoot/seccomp
+      positif) — padanan k8s_podsec_audit (#0653) mengaudit spec pod
+      vs PSS dengan aturan sendiri; skor numerik = komunikasi, bukan
+      vonis keamanan
+- [ ] #0949 nmap advanced: pemindaian aktif = kelas lain (izin per-
+      engagement, seksi 64); yang layak diingat: simpan output XML/-oA
+      selalu (struktur = bahan triase), UDP jangan terlewat (SNMP/
+      DNS/TFTP), timing agresif di produksi = risiko sendiri
+
+## 247. Kontrol pemanggilan tool agentic (dari mukul975/securing-agentic-ai-tool-invocation) — padanan mcp_tool_vet/agent_tool_audit
+- [ ] lima lapis pada boundary tool-call: allowlist deny-by-default ->
+      validasi skema argumen (field ekstra ditolak) -> identitas
+      scoped-berumur-pendek per sesi (bukan service-account tuhan) ->
+      gerbang keputusan allow/require-approval/deny -> audit log
+      (aktor, tool, HASH argumen, keputusan, alasan)
+- [ ] HITL fail-closed: aksi berdampak tinggi menunggu persetujuan;
+      timeout/non-approval = DENY, bukan lolos
+- [ ] sinyal deteksi: lonjakan deny/require-approval = kandidat
+      injection berjalan (AML.T0053/0051)
+- [ ] di cyphron: mcp_tool_vet mem-vet tool SEBELUM dipasang, agent_
+      tool_audit memindai kode pemanggil; checklist ini = kebijakan
+      runtime saat DESAIN agent lab (session_ledger mewadahi jejak)
+
+## 248. Cloud, WAF, registry, helm, k8s-cloud — padanan & konsep (dari mukul975/remediating-s3-bucket-misconfiguration, -securing-api-gateway-with-aws-waf, -securing-aws-iam-permissions, -securing-aws-lambda-execution-roles, -securing-azure-with-microsoft-defender, -securing-container-registry-images, -securing-container-registry-with-harbor, -securing-github-actions-workflows, -securing-helm-chart-deployments, -securing-kubernetes-on-cloud) — cf. seksi 182/193/223
+- [ ] #0936 S3: urutan remediasi = stop-exposure dulu (Block Public
+      Access) -> BucketOwnerEnforced (matikan ACL legacy) -> enkripsi
+      default -> logging; kunci preventif = SCP yang menolak
+      put-public-access-block; padanan cloud_bucket_exposure +
+      aws_config_audit; jangan remediasi sebelum ambil log akses
+      (bukti kebocoran hilang setelah ditutup)
+- [ ] #0951 WAF: konsep yang pinjam-lapis — rate-based rule per ident,
+      managed rule group + custom rule, logging ke tujuan tunggal;
+      padanan registry: waf_fingerprint + rate-limit-validator
+- [ ] #0952/#0953 IAM & lambda roles: least-privilege berbasis
+      AKTIVITAS (CloudTrail 90 hari -> policy generated), permission
+      boundary + SCP sebagai pagar; padanan iam_escalation_scan +
+      lambda_config_audit (wildcard role) — cf. seksi 223
+- [ ] #0954 Defender for Cloud / #0956 Harbor / #0955 ECR-ACR-GCR:
+      CNAPP & registry = produk ops; konsep yang bertahan: scan-on-
+      push, tag immutability, digest-pin (bukan tag mutable), verifikasi
+      tanda tangan sebelum deploy (cf. seksi 193)
+- [ ] #0957 GHA workflows: padanan gha_workflow_audit (#0463 — pin
+      SHA, token permission minimal, script injection, fork PR)
+- [ ] #0958 helm: yang statis-layar — values.yaml BUKAN tempat secret
+      (secret di values = temuan keluarga secret-scan), default
+      securityContext di values, pin chart versi + verifikasi provenance
+      (.prov) = live-ops; manifest TER-RENDER diaudit k8s_podsec_audit
+- [ ] #0960 k8s managed cloud: PSS (k8s_podsec_audit), netpol
+      (netpol_audit), RBAC (k8s_rbac_audit), PSA namespace
+      (psa_ns_audit); workload identity (IRSA/Workload Identity/
+      Managed Identity) = eliminasi kredensial statis di pod — konfigur
+      cloud-side = ops, prinsipnya: SA pod tanpa rahasia tertanam
