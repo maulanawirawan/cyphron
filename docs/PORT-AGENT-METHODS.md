@@ -3359,3 +3359,226 @@ paste_triage.py; sisanya didistilasi di bawah (seksi 195-201).
       = ops; yang bisa diport dari OT = lapisan ingest/parse laporan
       (cf. kubebench_ingest utk kube-bench) bila kelak ada keluaran
       format teks yang stabil
+
+---
+Blok B28 (#0811-#0840, 8 Nov) — sumber mukul975 (Apache-2.0 — konsep,
+bukan teks). Lima entri diekstrak jadi tool: #0817+#0818 -> tools/
+carve_scan.py, #0823+#0825 -> tools/graphql_depth_audit.py, #0830+#0833
+-> tools/ioc_lifecycle_score.py, #0839 -> tools/kubebench_ingest.py,
+#0840 -> tools/etcd_config_audit.py; sisanya didistilasi di bawah
+(seksi 195-207). Nomor seksi 195+ menyusul 190-194 blok B27.
+
+## 195. Sandbox analisis dinamis interaktif (dari #0811 performing-dynamic-analysis-with-any-run) — distilasi B28
+- [ ] sandbox interaktif dipilih bila perilaku sample TERGANTUNG klik
+      (macro "Enable Content", installer, UAC) — sandbox pasif buta
+      terhadap jalur ini; interaksi = variabel analisis, dicatat apa
+      yang diklik agar reprodusibel
+- [ ] sebelum detonasi: timeout 2-5x dugaan (malware slow-acting),
+      MITM proxy ON bila butuh isi HTTPS C2, fake-net bila sample cek
+      konektivitas — konfigurasi salah = hasil "bersih" palsu
+- [ ] sampel sensitif/organisasi TIDAK ke sandbox awan publik —
+      on-prem saja (privasi task URL publik vs privat)
+- [ ] artefak yang WAJIB diekspor per analisis: process tree (parent-
+      child abnormal), IOC (file/domain/mutex/registry), PCAP, ATT&CK
+      mapping — feed ke kampanye (cf. campaign_correlate, ioc_defang)
+- [ ] ranah cyphron: triase statis offline dulu (maldoc_triage,
+      pdf_triage, packer_scan) — detonasi live = ops sandbox, bukan
+      tool repo
+
+## 196. Forensik endpoint — order of volatility & rantai bukti (dari #0812 performing-endpoint-forensics-investigation) — cf. seksi 100/169/178
+- [ ] urutan pengambilan TIDAK bisa ditawar: memori dulu (fileless
+      tidak menyisakan artefak disk), lalu koneksi/proses, disk,
+      removable, log — yang paling volatil paling dulu
+- [ ] IMAGING sebelum analisis (alat di sistem hidup mengubah
+      timestamp & memori); hash MD5+SHA256 saat akuisisi; write
+      blocker utk disk sumber; chain of custody per artefak — tanpa
+      itu bukti tak terpakai di forum hukum
+- [ ] peta artefak Windows (cf. seksi 178): prefetch = eksekusi,
+      shimcache = keberadaan (JEBAKAN: hadiran != eksekusi), amcache =
+      SHA1 + instalasi, $MFT/UsnJrnl = filesystem, EVTX = event
+- [ ] super-timeline (plaso) lalu filter jendela insiden — tunnel
+      vision satu artefak = cerita bocor; padanan parsing statis
+      cyphron: mft_scan, sysmon_triage, win_persist_triage,
+      timestomp_triage; analisis memori (volatility) = ops live
+
+## 197. Remediasi endpoint & prioritas EPSS (dari #0813 performing-endpoint-vulnerability-remediation) — cf. seksi 183, padanan vuln_sla_aging/kev_gap/asset_criticality_score
+- [ ] matriks prioritas P1-P4: P1 = CVSS>=9 ATAU KEV ATAU exploit-
+      in-the-wild + CVSS>=7 (SLA 14 hari); P2 = CVSS 7-8.9 + EPSS>0.5
+      (30); P3 = CVSS 4-6.9 (60); P4 = sisanya (90) — EPSS & KEV
+      MEMBALIK urutan CVSS: 9.8 dgn EPSS 0.01 kalah urgensinya dari
+      7.5 dgn EPSS 0.95
+- [ ] kelas remediasi berurutan: patch > config-change (mis. matikan
+      SMBv1/Spooler/LLMNR) > upgrade > workaround ber-tanggal-kedalu-
+      warsa > compensating control > accept-risk ber-sign-off —
+      workaround TANPA tanggal kedaluwarsa = exception abadi
+- [ ] patch tanpa uji ring = BSOD massal; group uji dulu, jendela
+      maintenance utk server "tak boleh reboot" (stok vuln kritis
+      menumpuk di server itu)
+- [ ] verifikasi = re-scan/konfirmasi KB terpasang, BUKAN "patch sudah
+      didistribusikan"; metrik program: MTTR + %SLA + overdue (cf.
+      vuln_sla_aging; kev_gap utk KEV; asset_criticality_score utk
+      bobot aset)
+
+## 198. Reduksi false-positive SIEM — disiplin tuning (dari #0816 performing-false-positive-reduction-in-siem) — cf. seksi 187
+- [ ] ukur dulu: FP-rate per rule = FP/(FP+TP) dari status closure —
+      target <20%, prioritaskan rule >30%; sampling 20 FP per rule
+      utk kategori akar-masalah sebelum menyentuh logika
+- [ ] desain ulang ambang, bukan hanya naikkan: single-event "5 failed
+      logins" -> multi-sinyal "20+ kegagalan, >=3 akun unik, 10 menit"
+      — ambang naik MURNI membunuh deteksi, korelasi mempertahankannya
+- [ ] allowlist ber-disiplin: field (src_ip/proses), ALASAN, APPROVER,
+      TANGGAL KEDALUWARSA — allowlist tanpa kedaluwarsa = celah abadi
+      (spirit baseline secret_report_ingest: bukan allowlist abadi)
+- [ ] eksklusi waktu (window maintenance, jadwal batch) + baseline
+      perilaku (mean+3*stdev per pengguna) + intel enrichment dgn
+      ambang confidence — jangan tambat ke satu sumber
+- [ ] validasi PASCA-tuning wajib: atomic test (red team) masih
+      memicu rule yang dituning — tuning yang membunuh TP = blind spot
+      terukur; siklus: mingguan identifikasi, dua-mingguan tuning,
+      bulanan validasi, kuartalan laporan
+
+## 199. Triage filesystem firmware ter-embed (dari #0819 performing-firmware-malware-analysis) — padanan carve_scan + binary_strings_surface
+- [ ] ekstraksi dulu (intinya di carve_scan #0817/#0818: signature +
+      entropi), lalu triase isi: skrip startup (/etc/init.d/rcS,
+      inittab), cron, authorized_keys, iptables rule asing, SUID
+      di luar baseline, file .so lebih baru dari busybox (flag
+      modifikasi)
+- [ ] pencarian kredensial keras: passwd/shadow, grep "password|secret
+      |token|key" di /etc — padanan: binary_strings_surface utk
+      string+offset, repo-secret-scan utk pola layanan
+- [ ] diff hash terhadap firmware baseline resmi (sha256 per binari)
+      — yang berbeda = kandidat backdoor, analisis RE terpisah
+      (ghidra = ops RE, di luar tool)
+- [ ] verifikasi versi komponen (busybox/dropbear/dnsmasq) vs CVE —
+      cf. cve_matcher; patch vendor firmware biasanya datang sebagai
+      image utuh, bukan patch per-paket
+
+## 200. Fuzzing coverage-guided AFL++ (dari #0820 performing-fuzzing-with-aflplusplus) — live ops
+- [ ] rantai kerja: instrumentasi (afl-clang-fast; QEMU mode utk
+      binary-only) -> seed corpus MINIMAL valid -> afl-cmin (buang
+      seed redundan) -> afl-fuzz paralel (-M/-S per core) -> triase
+      crash (afl-tmin + dedup)
+- [ ] persistent mode utk target hot-loop (throughput naik orde
+      magnitude); build ASAN/UBSAN = crashnya bug nyata, bukan noise
+- [ ] disiplin: fuzz HANYA target berizin/lab; crash unik dilaporkan
+      dgn langkah reproduksi, bukan klaim CVE dini; map density rendah
+      = corpus/entry-point salah, bukan target aman
+- [ ] ranah cyphron: hasil fuzz (crash + input pemicu) jadi EVIDENCE
+      tersimpan, dianalisis tool lain — fuzzing live = infrastruktur
+      lab terpisah
+
+## 201. Audit GCP: sisi offline cyphron vs alat live (dari #0821 gcpbucketbrute, #0822 forseti) — padanan cloud_bucket_exposure/gcp_fw_audit/gcp_orgpolicy_audit
+- [ ] enumerasi bucket = tebakan nama + GET status; sisi cyphron:
+      cloud_bucket_exposure (pola sama, S3); permutations keyword
+      (org-nama, produk, lingkungan) = daftar kandidat, bukan temuan
+- [ ] TestIamPermissions / get-iam-policy = opsi live berotorisasi;
+      yang terport ke cyphron = AUDIT FILE konfigurasi: gcp_fw_audit
+      (0.0.0.0/0, SSH/RDP terbuka, flow log mati) & gcp_orgpolicy_
+      audit — ekspor gcloud -> triase offline di sini, cf.
+      aws_config_audit
+- [ ] Forseti = produk terdeprekasi; SCC = real-time vendor — bukan
+      target port; checklist CIS GCP yang relevan: SA key >90 hari,
+      primitive role owner/editor, binding allUsers (cf.
+      iam_escalation_scan utk pola eskalasi IAM)
+
+## 202. Audit kata sandi berotorisasi — hashcat (dari #0827 performing-hash-cracking-with-hashcat) — live ops
+- [ ] JANGAN crack tanpa surat tugas eksplisit; hash dari ekspor
+      audit/lab sendiri; laporan = distribusi kelas sandi (kosong/
+      default/kamus/kebijakan-putus), bukan daftar sandi plaintext —
+      nilai sandi TIDAK PERNAH di-output (redaksi, spirit secret
+      tools)
+- [ ] mode serangan naik bertahap: kamus -> kamus+rule (best64) ->
+      mask (dari pola kebijakan) -> kombinasi; mulai dgn hash type
+      SALAH = kampanye sia-sia (identifikasi format dulu)
+- [ ] anti-lockout: cracking OFFLINE atas hash TIDAK menyentuh domain
+      — validasi kredensial hasil = spray pelan dgn lockout-awareness
+      (cf. disiplin spray seksi 172)
+- [ ] hasil -> temuan kebijakan sandi (panjang/entropy), bukan
+      penghukuman pengguna; rotasi wajib utk yang tercrack
+
+## 203. HPP — peta parser & lintas-lapis (dari #0828 performing-http-parameter-pollution-attack) — padanan hpp_differential
+- [ ] akar masalah: front-end (WAF/proxy) dan back-end mem-parse
+      parameter duplikat BERBEDA (PHP last, ASP concat koma, Tomcat
+      first, Express array) — uji perilaku server dulu dgn probe
+      netral sebelum eksploitasi; padanan cyphron: hpp_differential
+- [ ] kelas dampak: bypass validasi (payload terbelah dua parameter),
+      override parameter keamanan (price/role), client-side (query
+      yang direfleksikan ke href dgn %26) — yang terakhir = inject
+      link, bukan hanya input
+- [ ] WAF-split buktinya harus END-TO-END: respons menunjukkan polusi
+      diterapkan back-end, bukan sekadar WAF tidak menolak request
+- [ ] perbaikan: satu kebijakan parse di semua lapis (reject duplikat
+      / gabung eksplisit) + validasi server-side final
+
+## 204. Investigasi ancaman insider — bukti kovert & otorisasi (dari #0832 performing-insider-threat-investigation) — cf. seksi 169, padanan insider_baseline_scan
+- [ ] GATE otorisasi sebelum koleksi: kasus terdokumentasi, legal
+      sign-off, HR liaison, SCOPE eksplisit (sistem + rentang waktu) —
+      investigasi insider menyentuh privasi karyawan; tanpa gate =
+      risiko hukum sendiri
+- [ ] koleksi kovert dulu (log server-side, DLP, proxy) — jangan
+      gelisahkan subjek sebelum bukti cukup; forensik endpoint baru
+      kalau log mengarah ke sana
+- [ ] analisis = baseline vs anomali: jam akses, volume, pola
+      perangkat, USB/cloud-upload — padanan cyphron: insider_baseline
+      _scan; perbandingan kuartal, bukan momen tunggal
+- [ ] motive-samping (notice period, embargo saham/kinerja) = konteks
+      kasus, bukan bukti; kesimpulan digariskan bukti digital + rantai
+      custodi (cf. seksi 196)
+
+## 205. Statis iOS — apa yang terbaca dari IPA (dari #0834 performing-ios-app-security-assessment) — padanan mobile_manifest_audit + binary_strings_surface
+- [ ] IPA = ZIP; lapis statis yang bisa diaudit offline: Info.plist
+      (CFBundleURLSchemes custom, ATS exception NSAllowsArbitraryLoads,
+      associated domains), entitlements, embedded.mobileprovision
+      (expired? devices?), daftar framework tertaut — padanan:
+      mobile_manifest_audit (jalur plist)
+- [ ] strings binary + pola rahasia (api_key/secret/firebase) —
+      padanan: binary_strings_surface; LC_ENCRYPTION ada = FairPlay
+      (binary app-store terenkripsi — analisis statis terbatas,
+      catat, bukan gagal senyap)
+- [ ] Frida/objection/SSL-pinning-bypass/keychain dump = dinamis
+      ber-perangkat jailbreak — di luar bentuk tool repo (lab
+      terpisah); perbedaan dgn Android: cyphron punya apk_firebase_
+      scan, iOS tercakup jalur plist di mobile_manifest_audit
+
+## 206. Reputasi IP — konteks bukan vonis (dari #0836 performing-ip-reputation-analysis-with-shodan) — cf. intel_sync
+- [ ] reputasi = KOMPOSIT: port tidak lazim terbuka, layanan rentan
+      (CVE dari banner), tipe hosting (residential/VPN/bulletproof),
+      tag riwayat — bukan angka tunggal dari satu API
+- [ ] InternetDB (tanpa kunci) utk volume tinggi, API penuh utk
+      detail; rate limit = antre, bukan naikkan laju
+- [ ] skor reputasi = PRIORITAS triase, bukan vonis blokir — CDN/
+      pemindai sah bisa "gudang port"; konteks jaringan sumber
+      (asset owner?) menimbang; hasil enrichment disimpan sbg evidence
+      ber-timestamp (usia intel, cf. intel_sync freshness,
+      ioc_lifecycle_score utk peluruhan)
+- [ ] live API lookup = ops jaringan; cyphron memakai HASIL tersimpan
+
+## 207. Di luar domain + padanan — catatan bidang blok B28 (cf. seksi 141/161/172/180)
+- [ ] #0814 SailPoint IIQ entitlement review = IGA-ops (cf. seksi 141):
+      konsep lintas-produk yang layak diingat — kampanye ber-default-
+      revoke (tak direview = dicabut), SOD constraint dua sisi, dan
+      VERIFIKASI cabut-akses benar-benar ter-provision ke target
+      (approve di kertas = akses masih hidup)
+- [ ] #0824 GraphQL introspection live = padanan cyphron graphql_
+      schema_map (1-request inventory) + graphql_surface_detector
+      (0-request); endpoint discovery & clairvoyance = probing live
+      (target berizin); sisi statis skema = graphql_depth_audit
+      (#0823/#0825)
+- [ ] #0826 HSM PKCS#11 = operasi perangkat keras/FIPS (SoftHSM/
+      CloudHSM/YubiHSM) — di luar bentuk tool; konsep: keygen & sign
+      DI-DEVICE, audit mechanism list, kunci tak pernah keluar
+- [ ] #0829 Claroty xDome ICS asset discovery = OT (cf. seksi 161):
+      pasif dulu (SPAN), aktif butuh izin vendor PLC — bukan ranah IT
+- [ ] #0831 EvilGinx3 AiTM = operasi ofensif phishing (di luar domain);
+      sisi deteksi & remediasinya sudah didistilasi seksi 180 (B26):
+      MFA-dilewati-bukan-diloloskan + cabut-sesi
+- [ ] #0835 IoT assessment = lapis perangkat keras (UART/JTAG/SPI/
+      flashrom) di luar domain; sisi firmware-nya = seksi 199 +
+      carve_scan; default-cred & command-injection = pola web biasa
+- [ ] #0837 JWT alg=none live = padanan jwt_token_audit (varian none,
+      jwk/jku/x5u/kid sudah dicek offline dari token tersimpan);
+      forging+replay = uji hidup target berizin
+- [ ] #0838 Kerberoasting = AD ofensif (cf. seksi 172): SPN enum +
+      TGS + crack offline; sisi deteksi = padanan kerberos_log_triage
+      (RC4 0x17 pada 4769, tgs-tanpa-tgt); mitigasi = gMSA/panjang
+      sandi >25 + audit RC4
