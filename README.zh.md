@@ -10,7 +10,7 @@ Rust，两边遵守同一份严格的输出契约。
 *无证据，不报告。*
 
 [![CI](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml/badge.svg)](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml)
-[![tests](https://img.shields.io/badge/tests-3093%20python%20%2B%2059%20rust-brightgreen)](#开发)
+[![tests](https://img.shields.io/badge/tools-175%20%2896%20ported%29-brightgreen)](#包含什么)
 [![release](https://img.shields.io/github/v/release/maulanawirawan/cyphron)](https://github.com/maulanawirawan/cyphron/releases)
 [![skills](https://img.shields.io/badge/detection%20skills-93-8A2BE2)](#包含什么)
 [![python](https://img.shields.io/badge/python-3.12%2B-3776AB)](#快速开始)
@@ -157,7 +157,7 @@ flowchart LR
 triage 家族是一组独立的离线 CLI：输入证据（日志、导出、清单、二进制），输出确定性的 findings.json，fail-closed，零网络。按领域划分的亮点：
 
 <details>
-<summary><b>9 个领域共 88+ 个移植工具 — 点击展开</b></summary>
+<summary><b>9 个领域共 96 个移植工具（tools/ 下共 175 个）— 点击展开</b></summary>
 <br>
 
 | 领域 | 回答的问题… | 示例 |
@@ -175,6 +175,22 @@ triage 家族是一组独立的离线 CLI：输入证据（日志、导出、清
 </details>
 
 完整索引见 [CHANGELOG.md](CHANGELOG.md)；从非工具型概念提炼的方法论（250 节）见 [docs/PORT-AGENT-METHODS.md](docs/PORT-AGENT-METHODS.md)。
+
+## 命令
+
+| 命令 | 作用 |
+|:---|:---|
+| `cyphron scan --domain example.com --max-requests 32 --report` | 完整 tier0 扫描（仅公开数据，严格预算）+ PDF 报告 |
+| `cyphron validate findings.json` | 用 Rust 核心校验任何 findings.json 是否符合契约 |
+| `cyphron merge --dedup-id ...` | 合并并去重发现集（FAO 关联） |
+| `python skills/<skill>.py --url … --out f.json` | 运行单个检测 skill（共 93 个，注册表白名单管理） |
+| `python tools/code_map.py --repo <path> --out surface.json` | 把代码库映射为攻击面 —— 零请求 |
+| `python tools/chain_planner.py --findings f.json` | 从已有发现规划 A→B→C 利用链 |
+| `python tools/submission_gate.py --finding f.json --program p.json` | 对单个发现执行提交前七问门禁 |
+| `claude mcp add cyphron -- python tools/mcp_server.py` | 从 Claude Code / 任意 MCP 客户端驱动 cyphron |
+| `python tools/lab_target.py` | 启动本地靶场练习 |
+
+夜间运行（定时扫描 + 漂移检测）与情报同步（CISA KEV / NVD / OSV）见 [docs/](docs/)。
 
 ## 快速开始
 
@@ -300,6 +316,11 @@ cyphron 仅用于**已授权**的测试：你自己的系统，或明确给予�
 ## Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=maulanawirawan/cyphron&type=Date)](https://star-history.com/#maulanawirawan/cyphron&Date)
+
+## 致谢
+
+- [Agentic-Bug-Hunter](https://github.com/awarexone/Agentic-Bug-Hunter)（MIT）—— scope/chain/web3/记忆/报告 小型移植计划的概念来源（`scope_gate`、`chain_planner`、`solidity_static_audit`、`hunt_pattern_db` 等）。
+- 995 概念移植计划使用了四个公开安全 skill 集合（trailofbits/skills、SnailSploit/Claude-Red、mukul975/Anthropic-Cybersecurity-Skills、NVIDIA-SkillSpector）—— 每个工具均为从头实现，docstring 中注明概念出处。
 
 ## 许可证
 

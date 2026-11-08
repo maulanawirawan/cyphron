@@ -11,7 +11,7 @@ salida estricto que ambos respetan.
 *Sin prueba, no hay informe.*
 
 [![CI](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml/badge.svg)](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml)
-[![tests](https://img.shields.io/badge/tests-3093%20python%20%2B%2059%20rust-brightgreen)](#desarrollo)
+[![tests](https://img.shields.io/badge/tools-175%20%2896%20ported%29-brightgreen)](#qué-incluye)
 [![release](https://img.shields.io/github/v/release/maulanawirawan/cyphron)](https://github.com/maulanawirawan/cyphron/releases)
 [![skills](https://img.shields.io/badge/detection%20skills-93-8A2BE2)](#qué-incluye)
 [![python](https://img.shields.io/badge/python-3.12%2B-3776AB)](#inicio-rápido)
@@ -180,7 +180,7 @@ skill.
 La familia de triaje son CLIs offline independientes: entra evidencia (logs, exportaciones, manifiestos, binarios), sale un findings.json determinístico, fail-closed, sin red. Aspectos por dominio:
 
 <details>
-<summary><b>88+ herramientas portadas en 9 dominios — clic para expandir</b></summary>
+<summary><b>96 herramientas portadas en 9 dominios (175 en total en tools/) — clic para expandir</b></summary>
 <br>
 
 | Dominio | Responde a… | Ejemplos |
@@ -198,6 +198,22 @@ La familia de triaje son CLIs offline independientes: entra evidencia (logs, exp
 </details>
 
 El índice completo está en [CHANGELOG.md](CHANGELOG.md); la metodología destilada de conceptos no-tool (250 secciones) en [docs/PORT-AGENT-METHODS.md](docs/PORT-AGENT-METHODS.md).
+
+## Comandos
+
+| Comando | Qué hace |
+|:---|:---|
+| `cyphron scan --domain example.com --max-requests 32 --report` | Escaneo tier0 completo (datos públicos, presupuesto estricto) + informe PDF |
+| `cyphron validate findings.json` | Verifica cualquier findings.json contra el contrato (núcleo Rust) |
+| `cyphron merge --dedup-id ...` | Fusiona y deduplica conjuntos de hallazgos (correlación FAO) |
+| `python skills/<skill>.py --url … --out f.json` | Ejecuta una skill de detección (93 disponibles, allowlist) |
+| `python tools/code_map.py --repo <path> --out surface.json` | Mapea código fuente a superficie de ataque — cero peticiones |
+| `python tools/chain_planner.py --findings f.json` | Planifica cadenas de explotación A→B→C desde hallazgos |
+| `python tools/submission_gate.py --finding f.json --program p.json` | Compuerta de 7 preguntas antes de enviar un hallazgo |
+| `claude mcp add cyphron -- python tools/mcp_server.py` | Controla cyphron desde Claude Code / cualquier cliente MCP |
+| `python tools/lab_target.py` | Levanta un laboratorio local para practicar |
+
+Night runs (escaneos programados con detección de drift) y sync de intel (CISA KEV / NVD / OSV) están en [docs/](docs/).
 
 ## Inicio rápido
 
@@ -338,6 +354,11 @@ Si cyphron te ahorra tiempo, una ⭐ ayuda a que otros lo encuentren.
 ## Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=maulanawirawan/cyphron&type=Date)](https://star-history.com/#maulanawirawan/cyphron&Date)
+
+## Créditos
+
+- [Agentic-Bug-Hunter](https://github.com/awarexone/Agentic-Bug-Hunter) (MIT) — fuente de conceptos del mini-programa scope/chain/web3/memoria/informe (`scope_gate`, `chain_planner`, `solidity_static_audit`, `hunt_pattern_db`, etc.).
+- El programa de 995 conceptos usó cuatro colecciones públicas de skills de seguridad (trailofbits/skills, SnailSploit/Claude-Red, mukul975/Anthropic-Cybersecurity-Skills, NVIDIA-SkillSpector) — cada herramienta se construyó from-scratch con atribución de concepto en su docstring.
 
 ## Licencia
 

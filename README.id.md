@@ -11,7 +11,7 @@ kontrak output yang ketat.
 *Tanpa bukti, tanpa laporan.*
 
 [![CI](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml/badge.svg)](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml)
-[![tests](https://img.shields.io/badge/tests-3093%20python%20%2B%2059%20rust-brightgreen)](#development)
+[![tests](https://img.shields.io/badge/tools-175%20%2896%20ported%29-brightgreen)](#isinya-apa-aja)
 [![release](https://img.shields.io/github/v/release/maulanawirawan/cyphron)](https://github.com/maulanawirawan/cyphron/releases)
 [![skills](https://img.shields.io/badge/detection%20skills-93-8A2BE2)](#isinya-apa-saja)
 [![python](https://img.shields.io/badge/python-3.12%2B-3776AB)](#mulai-cepat)
@@ -174,7 +174,7 @@ cara build, test, dan menambah skill.
 Keluarga triase adalah kumpulan CLI offline yang berdiri sendiri: bukti masuk (log, ekspor, manifest, biner), findings.json deterministik keluar, fail-closed, nol jaringan. Sorotan per domain:
 
 <details>
-<summary><b>88+ tool hasil port di 9 domain — klik untuk membuka</b></summary>
+<summary><b>96 tool hasil port di 9 domain (175 total di tools/) — klik untuk membuka</b></summary>
 <br>
 
 | Domain | Menjawab pertanyaan… | Contoh |
@@ -192,6 +192,22 @@ Keluarga triase adalah kumpulan CLI offline yang berdiri sendiri: bukti masuk (l
 </details>
 
 Indeks lengkap ada di [CHANGELOG.md](CHANGELOG.md); metodologi hasil distilasi konsep non-tool (250 seksi) ada di [docs/PORT-AGENT-METHODS.md](docs/PORT-AGENT-METHODS.md).
+
+## Perintah
+
+| Perintah | Fungsinya |
+|:---|:---|
+| `cyphron scan --domain example.com --max-requests 32 --report` | Scan tier0 penuh (data publik, anggaran ketat) + laporan PDF |
+| `cyphron validate findings.json` | Cek findings.json apa pun terhadap kontrak (core Rust) |
+| `cyphron merge --dedup-id ...` | Gabung + dedup kumpulan temuan (korelasi FAO) |
+| `python skills/<skill>.py --url … --out f.json` | Jalankan satu skill deteksi (93 tersedia, diizinkan registry) |
+| `python tools/code_map.py --repo <path> --out surface.json` | Petakan kode sumber ke permukaan serangan — nol request |
+| `python tools/chain_planner.py --findings f.json` | Rencanakan rantai eksploitasi A→B→C dari temuan ada |
+| `python tools/submission_gate.py --finding f.json --program p.json` | Gerbang 7-pertanyaan pra-submission utk satu temuan |
+| `claude mcp add cyphron -- python tools/mcp_server.py` | Kendalikan cyphron dari Claude Code / klien MCP mana pun |
+| `python tools/lab_target.py` | Nyalakan lab lokal untuk latihan |
+
+Night run (scan terjadwal dgn deteksi drift) dan sinkron intel (CISA KEV / NVD / OSV) didokumentasikan di [docs/](docs/).
 
 ## Mulai cepat
 
@@ -329,6 +345,11 @@ menemukannya.
 ## Riwayat Bintang
 
 [![Star History Chart](https://api.star-history.com/svg?repos=maulanawirawan/cyphron&type=Date)](https://star-history.com/#maulanawirawan/cyphron&Date)
+
+## Kredit
+
+- [Agentic-Bug-Hunter](https://github.com/awarexone/Agentic-Bug-Hunter) (MIT) — sumber konsep mini-program scope/chain/web3/memori/laporan (`scope_gate`, `chain_planner`, `solidity_static_audit`, `hunt_pattern_db`, dkk.).
+- Program port 995 konsep memakai empat koleksi skill keamanan publik (trailofbits/skills, SnailSploit/Claude-Red, mukul975/Anthropic-Cybersecurity-Skills, NVIDIA-SkillSpector) — tiap tool dibangun from-scratch dgn atribusi konsep di docstring.
 
 ## Lisensi
 

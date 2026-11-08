@@ -16,6 +16,14 @@ as the compatibility signal.
   feature request, and a first-class **false positive report** form —
   FP reports tighten every detector's anti-FP floor).
 - Added this `CHANGELOG.md`.
+- `README.md` (+ es/id/zh): capability map (what the port program
+  built, grouped by domain), commands cheat-sheet, community section.
+- **ABH mini-program** (concept source: awarexone/Agentic-Bug-Hunter,
+  MIT): 8 new offline tools — `scope_gate`, `scope_aggregate`,
+  `solidity_static_audit`, `token_rug_scan`, `hunt_pattern_db`,
+  `submission_report` (worker wave) + `chain_planner`,
+  `submission_gate` (coordinator). Web3 is a brand-new domain for the
+  repo. Suite 3090 → 3254 (+31 subtests).
 - `README.md`: added a capability map (what the port program built,
   grouped by domain) and a community section.
 

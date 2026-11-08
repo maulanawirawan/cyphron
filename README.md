@@ -11,7 +11,7 @@ agree on.
 *No proof, no report.*
 
 [![CI](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml/badge.svg)](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml)
-[![tests](https://img.shields.io/badge/tests-3093%20python%20%2B%2059%20rust-brightgreen)](#development)
+[![tools](https://img.shields.io/badge/tools-175%20%2896%20ported%29-brightgreen)](#whats-inside)
 [![release](https://img.shields.io/github/v/release/maulanawirawan/cyphron)](https://github.com/maulanawirawan/cyphron/releases)
 [![skills](https://img.shields.io/badge/detection%20skills-93-8A2BE2)](#whats-inside)
 [![python](https://img.shields.io/badge/python-3.12%2B-3776AB)](#quick-start)
@@ -176,7 +176,7 @@ The triage family is a set of standalone offline CLI tools: evidence in
 fail-closed, zero network. Highlights by domain:
 
 <details>
-<summary><b>88+ ported tools across 9 domains — click to expand</b></summary>
+<summary><b>96 ported tools across 9 domains (175 total in tools/) — click to expand</b></summary>
 <br>
 
 | Domain | Answers the question… | Examples |
@@ -196,6 +196,23 @@ fail-closed, zero network. Highlights by domain:
 The full index lives in [CHANGELOG.md](CHANGELOG.md); the methodology
 distilled from non-tool-shaped concepts (250 sections) lives in
 [docs/PORT-AGENT-METHODS.md](docs/PORT-AGENT-METHODS.md).
+
+## Commands
+
+| Command | What it does |
+|:---|:---|
+| `cyphron scan --domain example.com --max-requests 32 --report` | Full tier0 scan (public data only, strict budget) + PDF report |
+| `cyphron validate findings.json` | Check any findings.json against the contract (Rust core) |
+| `cyphron merge --dedup-id ...` | Merge + dedup finding sets (FAO correlation) |
+| `python skills/<skill>.py --url … --out f.json` | Run a single detection skill (93 available, allowlist-gated) |
+| `python tools/code_map.py --repo <path> --out surface.json` | Map a codebase to an attack surface — zero requests |
+| `python tools/chain_planner.py --findings f.json` | Plan A→B→C exploit chains from existing findings |
+| `python tools/submission_gate.py --finding f.json --program p.json` | 7-question pre-submission gate for a finding |
+| `claude mcp add cyphron -- python tools/mcp_server.py` | Drive cyphron from Claude Code / any MCP client |
+| `python tools/lab_target.py` | Start a local lab target to practice on |
+
+Night runs (scheduled scans with drift detection) and intel sync
+(CISA KEV / NVD / OSV) are documented in [docs/](docs/).
 
 ## Quick start
 
@@ -330,6 +347,18 @@ If cyphron saves you some time, a ⭐ helps other people find it.
 ## Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=maulanawirawan/cyphron&type=Date)](https://star-history.com/#maulanawirawan/cyphron&Date)
+
+## Credits
+
+- [Agentic-Bug-Hunter](https://github.com/awarexone/Agentic-Bug-Hunter)
+  (MIT) — concept source for the scope/chain/web3/memory/report
+  mini-program (`scope_gate`, `chain_planner`, `solidity_static_audit`,
+  `hunt_pattern_db`, and friends).
+- The 995-concept skill-port program drew on four public security-skill
+  collections (trailofbits/skills, SnailSploit/Claude-Red,
+  mukul975/Anthropic-Cybersecurity-Skills, NVIDIA-SkillSpector) — every
+  ported tool is built from scratch with concept attribution in its
+  docstring.
 
 ## License
 
