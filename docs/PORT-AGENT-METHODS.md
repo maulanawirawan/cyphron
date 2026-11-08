@@ -4595,5 +4595,55 @@ dilanjutkan 254-256.
       confusion = dep_confusion_check (B05, #0144); verifikasi hash
       paket = slsa_provenance_audit (B34); pip-audit = alat eksternal
 
+## 273. Timeline forensik, UEBA, authoring YARA, STIX/TAXII (dari mukul975/performing-timeline-reconstruction-with-plaso, -performing-user-behavior-analytics, -performing-yara-rule-development-for-detection, -processing-stix-taxii-feeds) — distilasi G6-delta-4
+- [ ] Plaso log2timeline/psort = alat eksternal DFIR (super-timeline
+      lintas sumber); konsep timeline lintas-sumber = padanan seksi
+      268 (parser artefak eksisting + korrelasi analyst)
+- [ ] UEBA (impossible travel, baseline perilaku, insider) = SIEM
+      live; preseden #0378 (METHODS 46: GeoIP = data eksternal);
+      sisi offline = win_auth_triage/win_audit_coverage
+- [ ] authoring rule YARA/YARA-X (string unik, PE traits, minim FP) =
+      metodologi; sisi secai = yara_rule_lint (B04) memeriksa MUTU
+      rule; engine scan = eksternal
+- [ ] STIX 2.1 / TAXII 2.1 feed pipeline = koneksi server live (ops);
+      sisi offline = stix_bundle_audit (B24: struktur bundle, STIX
+      pattern, objek) + ioc_defang utk normalisasi IOC; validasi
+      bundle rusak fail-closed sudah dipadankan
+
+## 274. Wireless/L2 aktif & padanan web-cache (dari mukul975/performing-vlan-hopping-attack, -performing-web-cache-deception-attack, -performing-web-cache-poisoning-attack, -performing-wifi-password-cracking-with-aircrack, -performing-wireless-network-penetration-test, -performing-wireless-security-assessment-with-kismet) — distilasi G6-delta-4
+- [ ] VLAN hopping (switch spoofing, 802.1Q double-tag) = serangan
+      aktif L2 (seksi 259); mitigasi = disable DTP, native VLAN
+      terpisah — konfigurasi switch
+- [ ] web cache DECEPTION + POISONING (unkeyed header, path
+      normalization) = playbook cache-deception + cache-poison(ing)
+      di exploit_playbooks; probe CDN aktif = di luar kontrak
+      nol-jaringan
+- [ ] aircrack-ng/hashcat handshake crack + wireless pentest penuh =
+      aktif + eksternal (preseden seksi 259; pcap defensif =
+      deauth_pcap_scan)
+- [ ] Kismet RF monitoring = butuh radio hardware + live capture —
+      ops; deteksi rogue-AP offline = bukan artefak secai
+
+## 275. Kluster trailofbits dev-workflow/meta & blockchain (dari trailofbits/audit-prep-assistant, -chrome-mcp-troubleshooting, -code-improver, -code-maturity-assessor, -devcontainer-setup, -dimensional-analysis, -entry-point-analyzer, -guidelines-advisor, -interpreting-culture-index, -pr-improver, -secure-workflow-guide, -skill-improver, -token-integration-analyzer) — distilasi G6-delta-4
+- [ ] karakter kluster: 13 sisa tob = workflow agent (audit-prep-
+      assistant, code-improver, pr-improver, skill-improver: loop
+      review-and-fix + ledger + escalation — bukan alat keamanan),
+      tooling dev (devcontainer-setup, chrome-mcp-troubleshooting),
+      HR (interpreting-culture-index), dan BLOCKCHAIN (code-maturity-
+      assessor, dimensional-analysis [unit/scale DeFi], entry-point-
+      analyzer, guidelines-advisor, secure-workflow-guide, token-
+      integration-analyzer)
+- [ ] blockchain = kandidat ekspansi mandiri (protokol antrean
+      asli); yang SUDAH disentuh secai: ABH-W2 solidity_static_audit
+      + token_rug_scan (10 kelas + 9 vektor rug) — checklist weird-
+      token (fee-on-transfer, rebasing, blocklist) & unit/scale
+      DeFi tetap ranah ekspansi web3, bukan gap web/app/infra
+- [ ] Slither/CodeQL/Semgrep di beberapa skill = alat eksternal
+      (seksi 246); entry-point-analyzer eksplisit memakai Slither
+      printer — integrasi alat, bukan alat stdlib
+- [ ] ANTREAN G6 TUNTAS di blok ini — delta gelombang 6 selesai
+      (113 entri: 2 build broken_link_scan #1010 + 111 skip)
+
+
 
 
