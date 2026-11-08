@@ -2222,3 +2222,246 @@ bawah (142-149; nomor seksi lanjutan B21/B22 yang menulis duluan).
       VALIDITY announce sendiri turun menjadi INVALID — bisa dievaluasi
       offline dari dump `routinator vrps --format json` bila kelak
       dibutuhkan; tanpa data VRP tidak ada yang bisa disimpulkan
+
+---
+Blok B23 (#0661-#0690, 8 Nov) — sumber mukul975 (Apache-2.0 — konsep,
+bukan teks). Dua entri diekstrak jadi tool: #0668 -> tools/
+netpol_audit.py, #0683 -> tools/psa_ns_audit.py; sisanya didistilasi
+di bawah (150-161).
+
+## 150. Policy-as-code OPA/Gatekeeper (dari mukul975/implementing-opa-gatekeeper-for-policy-enforcement, implementing-policy-as-code-with-open-policy-agent)
+- [ ] lifecycle constraint yang sehat: ConstraintTemplate (blueprint
+      Rego + CRD) -> Constraint instansiasi (match + parameters) —
+      rollout WAJIB enforcementAction: dryrun dulu, review .status
+      .violations, baru deny; constraint "dryrun" yang tersisa berminggu-
+      minggu = kebijakan teater (audit: grep enforcementAction)
+- [ ] pairing eksplisit: kind Constraint harus punya ConstraintTemplate
+      dgn crd.spec.names.kind sama; tanpa itu constraint tidak pernah
+      aktif (silent no-op)
+- [ ] higiene match/excludedNamespaces: kube-system & gatekeeper-system
+      exclude eksplisit; match kinds per apiGroups — constraint Pod
+      saja TIDAK mengenai Deployment template (evaluasi expanded pod,
+      baca dulu bentuk match sebelum menilai cakupan)
+- [ ] policy disimpan di Git + diuji: opa test utk unit Rego, conftest
+      utk lint IaC di CI — gate gagal = temuan critical (fail-closed,
+      cf. seksi 19); library resmi gatekeeper-library sbg titik awal,
+      jangan tulis ulang
+- [ ] Gatekeeper = lapisan DI ATAS PSA (bukan pengganti): PSS bawaan
+      utk baseline, Gatekeeper utk kebijakan kustom (label wajib,
+      registry allowlist, latest-tag blokir) — padanan cyphron:
+      k8s_podsec_audit/psa_ns_audit/netpol_audit; evaluasi Rego live =
+      admission webhook cluster (di luar tool)
+
+## 151. Baselining traffic & alat NTA (dari mukul975/implementing-network-traffic-baselining, implementing-network-traffic-analysis-with-arkime)
+- [ ] disiplin baseline flow (cf. seksi 76 UEBA & 107 eksfil): minimum
+      7 hari data, profil per sumber (mean/median/stdev), z-score +
+      IQR ganda (z-score utk lonjakan, IQR utk distribusi miring),
+      lantai minimum volume sebelum menilai (host kecil = rasio bohong)
+- [ ] profil yang dibangun: distribusi jam/hari (jam kerja eksplisit),
+      rasio protokol/port, top-N talkers — anomali dinilai TERHADAP
+      profil itu, bukan ambang global
+- [ ] beacon butuh interval+jitter (cf. zeek_beacon_scan): avg interval
+      stabil + jitter < 5% = high confidence; Arkime/Moloch = alat
+      query sesi (deploy + API live = ops) — pola deteksinya sudah
+      dilayani zeek_beacon_scan/dns_log_triage/netflow_parse
+- [ ] "tidak ada baseline" bukan status netral: tanpa profil 7 hari,
+      z-score tak bisa dihitung — catat telemetri kurang (fail-closed),
+      jangan menyimpulkan normal
+
+## 152. mTLS antar-servis (dari mukul975/implementing-mtls-for-zero-trust-services)
+- [ ] arsitektur: internal CA terpisah dari CA publik, sertifikat
+      servis berumur pendek (<= 1 tahun, idealnya rotasi otomatis
+      ala mesh), verify_mode CERT_REQUIRED DI KEDUA arah — "TLS dgn
+      sertifikat" satu arah bukan mTLS
+- [ ] yang diaudit saat review: CA cert BasicConstraints ca=true
+      eksplisit, key 4096 utk CA root, SAN dipakai (bukan CN saja),
+      tanggal not-before/not-after dihitung UTC (utcnow deprecated —
+      timezone-aware), CA key di luar host servis
+- [ ] implementasi python sumber = pustaka cryptography (non-stdlib)
+      — di cyphron: cert_chain_audit memverifikasi rantai/validity
+      dari luar; ssl_tls_analyzer melihat negosiasi endpoint; pembuatan
+      CA/sertifikat = ops PKI lab
+- [ ] zero-trust service-to-service: identitas workload (SAN/spiffe)
+      bukan IP — IP berpindah, identitas tidak; rotasi kunci servis =
+      konsumen cert_chain_audit
+
+## 153. NAC 802.1X & RADIUS (dari mukul975/implementing-network-access-control, implementing-network-access-control-with-cisco-ise)
+- [ ] tiga pemeran: supplicant (endpoint) -> authenticator (switch/
+      WLC) -> auth server (RADIUS/ISE); urutan kekuatan metode:
+      EAP-TLS (cert) > PEAP-MSCHAPv2 (password via AD) > MAB (MAC =
+      identitas yang MENIRU, bukan yang diautentikasi — MAB terakhir
+      dan selalu dianggap jalur lemah)
+- [ ] kegagalan harus FAIL-CLOSED: authentication event fail -> VLAN
+      karantina (bukan VLAN akses); critical VLAN saat RADIUS mati =
+      trade-off availability eksplisit — device fallback VLAN yang
+      sama dgn VLAN produksi = kebijakan mati
+- [ ] port kontrol: dot1x pae authenticator + order dot1x mab + host-
+      mode multi-auth; PRE-AUTH ACL hanya DHCP/DNS/portal — sisanya
+      deny; CoA (Change of Authorization) = mekanisme re-authorization
+      saat posture berubah (quarantine/uncarantine tanpa re-auth fisik)
+- [ ] dACL + SGT (TrustSec) = segmentasi mengikuti identitas, bukan
+      port; posture non-compliant -> VLAN remediasi terpisah — konsep
+      identitas-mengikuti-perangkat ini yang dipinjam, konfigurasi
+      switch/ISE = jaringan fisik (cf. seksi 75 #0348/#0350)
+
+## 154. Deception honeypot ops (dari mukul975/implementing-network-deception-with-honeypots) — cf. seksi 45 & 139
+- [ ] kelas: low-interaction (OpenCanary/Cowrie — emulasi protokol,
+      aman) vs high-interaction (T-Pot/full OS — tangkap TTP, risiko
+      pivot); honeypot = deteksi DI ATAS EDR karena TIDAK ADA alasan
+      sah menyentuh (FP ~ nol, cf. seksi 139)
+- [ ] placement: VLAN terpisah, "nilai bohong" (file kredensial decoy,
+      share, token DNS); setiap interaksi = insiden kandidat, bukan
+      statistik — format alert berstandar (service, source, creds
+      dipakai, command dieksekusi) menentukan triase
+- [ ] integrasi SIEM (syslog/webhook) wajib SEBELUM go-live — honeypot
+      tanpa jalur alert = dekorasi; eksekusi deployment = live ops
+      (cf. seksi 45 MITRE Engage utk desain goal-nya)
+
+## 155. Suricata IPS deployment (dari mukul975/implementing-network-intrusion-prevention-with-suricata) — cf. seksi 78
+- [ ] mode: IDS pasif (TAP/SPAN) vs IPS inline (NFQUEUE/AF-PACKET
+      bridge) — inline = pilihan FAIL-CLOSED vs FAIL-OPEN eksplisit:
+      `--queue-bypass` dan `fail-open: yes` menjamin traffic lewat saat
+      engine mati (availability) tapi berarti IPS bisa diam-diam
+      dimatikan; catat pilihan itu saat audit
+- [ ] vars yang menentukan validitas rule: HOME_NET/EXTERNAL_NET salah
+      = rule melayang (EXTERNAL_NET "!$HOME_NET"); EVE JSON = sumber
+      kebenaran (alert/http/dns/tls/files dgn hash) — padanan analisis
+      post-hoc cyphron: parser log zeek/web_log
+- [ ] anatomi rule: action proto src -> dst (options) — action drop/
+      reject aktif; mutu rule = ids_rule_lint (B12); ruleset ET-open/
+      ET-pro via suricata-update = ops
+- [ ] deployment sensor = ops infrastruktur (cf. seksi 78); nilai
+      ekstrak untuk cyphron: kategori rule, EVE-log schema, pilihan
+      fail-open/fail-closed sebagai temuan konfigurasi
+
+## 156. Passwordless FIDO2/Entra rollout (dari mukul975/implementing-passwordless-auth-with-microsoft-entra, implementing-passwordless-authentication-with-fido2) — cf. seksi 135
+- [ ] ruang konfigurasi enterprise yang diaudit: key restrictions
+      AAGUID allowlist (hanya kunci vendor terdaftar), isAttestation-
+      Enforced (kunci tiruan lolos tanpa itu), authentication strengths
+      CA (phishing-resistant wajib utk admin), migrasi keluar SMS/voice
+      (T1111 — interceptable)
+- [ ] hybrid: Windows Hello for Business/passkey — registrasi self-
+      service dijalankan DGN approval; legacy auth (NTLM/basic) harus
+      mati dulu — passwordless di atas jalur legacy = pintu tetap
+      terbuka
+- [ ] recovery = penentu assurance (cf. seksi 135): dua kunci fisik +
+      recovery codes enrolment; jalur recovery SMS/email = bypass
+      phishing-resistance; Graph API live = ops ber-kunci — checklist
+      ini utk REVIEW kebijakan metode autentikasi lab
+
+## 157. Program PAM: vault, session proxy, PAW (dari mukul975/implementing-pam-for-database-access, implementing-privileged-access-management-with-cyberark, implementing-privileged-access-workstation, implementing-privileged-session-monitoring) — cf. seksi 70, 136, 138
+- [ ] arsitektur PAM inti: vault (kredensial TIDAK pernah dilihat
+      admin), CPM (rotasi+verifikasi otomatis), PSM (proxy session —
+      kredensial tak ekspos, sesi terekam), reconciliation (re-sync
+      saat vault vs target beda) — target "zero standing credential"
+      (cf. seksi 138 JIT)
+- [ ] jaminan arsitektural PSM: firewall MENOLAK RDP/SSH langsung ke
+      target, hanya dari IP PSM; bypass jalur = temuan kebijakan, bukan
+      preferensi — storage rekaman dihitung (RDP 50-250 KB/menit)
+      sebelum go-live
+- [ ] PAW (cf. seksi 70 tiered): workstation khusus admin, tanpa
+      email/browser, tier-N admin TIDAK logon ke tier-N-1; hardening:
+      AppLocker, Credential Guard, VBS; compliance PAW dinilai per
+      device, bukan per user
+- [ ] database PAM: proxy query (bukan hanya vault koneksi), akun DB
+      dinamis on-demand (cf. seksi 136 lease TTL), least-privilege per
+      role; vendor PAM (CyberArk/BeyondTrust/Delinea) = live ops ber-
+      kunci — yang dipinjam: model routing+rekam+rotasi sbg checklist
+      audit lab
+
+## 158. SEG Proofpoint & MAM Intune (dari mukul975/implementing-proofpoint-email-security-gateway, implementing-mobile-application-management) — cf. seksi 49, 90, 133, 140
+- [ ] SEG tiga model deploy: MX-based (semua mail lewat gateway), API
+      (integrasi M365/Workspace tanpa MX, cepat), hybrid — pola
+      validasi lintas produk: uji lookalike/spoof nyata sebelum
+      produksi (cf. seksi 140), time-of-click URL rewrite, TRAP/
+      retraction pasca-delivery
+- [ ] BEC = kelas tanpa URL/lampiran: impostor classifier (ML) + label
+      reputasi pengirim — deteksi sisi isi per-pesan di cyphron tetap
+      eml_phish_triage (Reply-To/Return-Path/homoglyph, cf. seksi 49)
+- [ ] MAM (BYOD tanpa MDM): proteksi per-APLIKASI (Intune App
+      Protection Policy) — transfer antar app dibatasi managed-only,
+      clipboard level, selective wipe (data korporat hilang, personal
+      tetap), offline grace period eksplisit, CA "require app protection
+      policy" sbg gate
+- [ ] matriks uji MAM deterministik: copy dari managed -> paste di
+      unmanaged (harus gagal), save-as (harus gagal), backup OS (harus
+      gagal), wipe (data korporat hilang dgn cepat) — rollout per-tier
+      data (email < finansial < PII/legal); konsol Intune = live ops;
+      cyphron: apk_firebase_scan sisi statis APK
+
+## 159. Firewall zone & NGFW design (dari mukul975/implementing-network-segmentation-with-firewall-zones, implementing-next-generation-firewall-with-palo-alto) — cf. seksi 75
+- [ ] tabel zone standar dgn trust level eksplisit (Internet/DMZ/Guest/
+      Corporate/Servers/PCI-CDE/Management/OT): kebijakan ditulis PER
+      PASANGAN zone, deny-by-default antar-zone; intra-zone deny utk
+      zone besar (lateral movement dalam zone sering dilupakan);
+      rule default-deny any-any LOG di paling bawah wajib ada
+- [ ] yang diaudit dari konfigurasi firewall: rule permissive any-to-
+      any tanpa log, management zone tercapai dari user zone (harusnya
+      jump-box saja), PCI-CDE dikejar dari zone umum, native VLAN dipakai
+      production + trunk tanpa nonegotiate (VLAN hopping)
+- [ ] NGFW di atas port: App-ID (klasifikasi aplikasi, bukan port) +
+      User-ID (mapping IP->user dari event 4624/4768/syslog) + Content-
+      ID (IPS/AV/URL) — Policy Optimizer migrasi port-based ->
+      app-based; SSL decrypt = keputusan privasi eksplisit (exclude
+      banking/health)
+- [ ] zone protection profile: SYN flood (alert/activate/maximal rate +
+      SYN cookies), scan detection threshold — konfigurasi appliance =
+      jaringan fisik (di luar bentuk tool cyphron; cf. seksi 75
+      #0350); checklist ini utk REVIEW desain zone di lab
+
+## 160. Backup tahan-ransomware 3-2-1-1-0 (dari mukul975/implementing-ransomware-backup-strategy) — cf. seksi 28, 137
+- [ ] 3-2-1-1-0 didefinisikan eksplisit: 3 salinan, 2 media, 1 offsite,
+      1 immutable/air-gapped, 0 error restore-test — salinan immutable
+      (Object Lock compliance/hardened repo chattr +i) TIDAK BISA
+      dihapus bahkan admin; ransomware modern mencari infrastruktur
+      backup DULU (del VSS + hapus job)
+- [ ] tiering RPO/RTO per tingkat bisnis (Tier1 1 jam/4 jam — DC, ERP,
+      DB; Tier2 4/12; Tier3 24/48) + urutan pemulihan dependensi (DNS/
+      DC sebelum app); RPO target vs frekuensi job backup dicocokkan
+      eksplisit — target tanpa cadensi job = klaim bohong
+- [ ] isolasi kredensial backup: akun admin backup DI LUAR AD produksi
+      (domain terpisah / lokal), MFA hardware di konsol, RDP mati,
+      repo hardened = SSH password off + kredensial single-use —
+      kompromi AD tidak boleh menghapus jalur pemulihan
+- [ ] bukti = restore test: SureBackup/restore berkala (Tier1 mingguan,
+      Tier2/3 bulanan), verifikasi boot+app health; "backup sukses"
+      (job hijau) TIDAK sama dgn "bisa restore" (cf. seksi 28 & 137);
+      di cyphron: checklist utk AUDIT strategi backup lab, eksekusi
+      infrastruktur = ops
+
+## 161. Di luar domain — OT/ICS & kepatuhan blok B23 (cf. seksi 48, 63, 83, 134, 141)
+- [ ] #0663 NERC CIP: regulasi kelistrikan BES — kategorisasi CIP-002
+      Attachment 1 (control center RC/BA/TOP = high; >= 3000 MW = high;
+      >= 1500 MW generation = medium), ESP + EAP (CIP-005), patch 35
+      hari (CIP-007), supply chain (CIP-013) — kepatuhan regulasi +
+      bidang grid, bukan pengujian teknis; kategorisasi dampak ->
+      kontrol bertingkat cf. seksi 70/104
+- [ ] #0669/#0689 segmentasi OT & Purdue model: klasifikasi level 0-5 +
+      DMZ IT/OT (3.5) wajib — TIDAK ADA jalur langsung Level 4 ->
+      Level 1; konduitor melalui DMZ (historian mirror, jump server,
+      patch server), quarantine VLAN, SIS (safety) diisolasi dari
+      BPCS; aturan allow DIBANGUN dari baseline traffic 2-4 minggu
+      (default-deny per pasangan zone) — bidang OT (butuh TAP/SPAN
+      milik sendiri)
+- [ ] #0675 OT IR playbook: severity OT berbeda (SEV1-SAFETY = kompromi
+      safety system), containment DILARANG power-off tanpa approval
+      ops (isolasi di firewall industri), PLC ke mode LOCAL/MANUAL saat
+      manipulasi jarak jauh dicurigai, eradikasi = diff program PLC
+      berjalan vs backup known-good — PICERL-nya sama (cf. seksi 22/
+      28), ranah OT-nya di luar domain
+- [ ] #0676 Nozomi (+Dragos seksi 134): sensor pasif SPAN utk visibilitas
+      asset OT tanpa scan aktif; korpus alert/asset = produk vendor
+      (API live ber-kunci) — pola yang layak: validasi coverage sensor
+      per segment, asset baru di jaringan OT = lead
+- [ ] #0680 patch OT: lifecycle dgn deadline regulasi (CIP-007 evaluasi
+      35 hari), test/staging meniru produksi, window maintenance
+      mengikuti shutdown proses, compensating controls EKSPLISIT utk
+      sistem tak bisa di-patch (virtual patching via firewall DPI) —
+      cf. seksi 26 (ring IT), bidang OT
+- [ ] #0682 PCI DSS 4.0.1: 12 requirement / 6 objektif — CDE scoping
+      (segmentasi mengecilkan scope), MFA semua akses CDE (8.4.2),
+      authenticated internal scan (11.3.1.1), anti-phishing teknis
+      (5.4.1), automated log review (10.4.1.1), customized approach =
+      validasi alternatif dgn Targeted Risk Analysis — tata kelola
+      kepatuhan (cf. seksi 42 #0324); kontrol teknisnya sudah dilayani
+      tool cyphron (waf/ssl/log)
