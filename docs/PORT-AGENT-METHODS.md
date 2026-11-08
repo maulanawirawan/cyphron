@@ -1764,3 +1764,205 @@ win_persist_triage.py, #0562 -> tools/account_manip_triage.py,
       + gha_workflow_audit + dep_confusion_check + pkg_typosquat_check
       + sekret secret_history_scan (cf. seksi 80); sisi build-server
       tamper = kebijakan CI (cf. seksi 19)
+
+---
+Blok B21 (#0601-#0630, 8 Nov) — sumber mukul975 (Apache-2.0 — konsep,
+bukan teks). Tiga entri diekstrak jadi tool: #0630 -> tools/
+gcp_fw_audit.py, #0629 -> tools/gcp_orgpolicy_audit.py, #0626 ->
+tools/aide_change_triage.py; sisanya didistilasi di bawah (127-134).
+
+## 127. Postur firewall & org policy GCP — padanan tool + runbook (dari mukul975/implementing-gcp-vpc-firewall-rules, implementing-gcp-organization-policy-constraints, implementing-gcp-binary-authorization)
+- [ ] audit firewall = klasifikasi eksplisit dari ekspor: world
+      (0.0.0.0/0 / ::/0) -> port manajemen (22/23/3389/5985/5986) & DB
+      (3306/5432/6379/27017/dst.) = critical; entry protokol "all" atau
+      tcp-tanpa-ports = semua port; port web 80/443 dari world sering
+      DISENGAJA — medium review via flow logs, bukan temuan pasti
+- [ ] dua penanda risiko yang sering meleset: rule world-open TANPA
+      targetTags/targetServiceAccounts (berlaku utk SEMUA instance) dan
+      rule disabled (drift); postur egress: tanpa deny-all EGRESS =
+      implied allow-all-egress tetap berlaku; logConfig per rule =
+      syarat validasi efektivitas via flow logs
+- [ ] org policy = guardrail tertinggi; baseline esensial
+      (vmExternalIpAccess list-deny, resourceLocations,
+      disableServiceAccountKeyCreation, automaticIamGrants untuk default
+      SA, requireOsLogin, disableSerialPortAccess,
+      uniformBucketLevelAccess, sql.restrictPublicIp); status: enforced
+      / dry-run (Policy Intelligence — rollout sah tapi belum enforce)
+      / weak (enforced=false, allValues=ALLOW, restoreDefault) /
+      exceptions (daftar nilai = pengecualian sah, wajib ada owner)
+- [ ] Binary Authorization: default-admission REQUIRE_ATTESTATION +
+      ENFORCED_BLOCK_AND_AUDIT_LOG; staging = ALWAYS_ALLOW + DRYRUN
+      AUDIT_LOG_ONLY; break-glass = annotation terdokumentasi (tiket);
+      attestor = KMS asymmetric-signing key + Container Analysis note;
+      Continuous Validation = monitor pod berjalan
+- [ ] ekspor read-only: `firewall-rules list --format=json` &
+      `org-policies list --format=json` -> gcp_fw_audit /
+      gcp_orgpolicy_audit; firewall-policies hierarkis org/folder &
+      violation CV = cek manual gcloud (di luar ekspor)
+- [ ] ranah dibagi: IaC Terraform = terraform_audit (B09), IAM
+      escalation = iam_escalation_scan (B13), log CloudTrail =
+      cloudtrail_scan (B13) — tool ini khusus konfigurasi firewall/policy
+
+## 128. FIM Linux — parser laporan AIDE (dari mukul975/implementing-file-integrity-monitoring-with-aide)
+- [ ] padanan cyphron: aide_change_triage (#0626) — parser laporan
+      `aide --check` + klasifikasi severity; AIDE sendiri = alat host
+      (aide --init baseline, --check banding, cron terjadwal, alert)
+- [ ] disiplin baseline (cf. seksi 70): baseline diambil SETELAH
+      hardening & SEBELUM exposure; baseline usang = semua temuan
+      noise; re-init hanya via change window (update paket massal)
+      dgn owner eksplisit
+- [ ] parser dua format: klasik "Added/Removed/Changed entries:" dan
+      ringkas "added: N"; angka Summary wajib = jumlah ter-parse —
+      mismatch = fail-closed (parser melewatkan sesuatu), bukan bersih
+- [ ] klasifikasi: attr HASH berubah = perubahan ISI (sinyal terkuat,
+      di atas lokasi); path biner/boot/lib+/root/.ssh kritis; /etc =
+      config; /tmp & /dev/shm = staging; metadata saja (mtime/perm) =
+      low — higiene biasa
+- [ ] verifikasi manual sebelum menyebut kompromi: bandingkan hash
+      dgn package manager (rpm -V / dpkg --verify); entry berubah
+      saat window update sah = allowlist path, dicatat bukan dipendam
+
+## 129. Program DLP (dari mukul975/implementing-data-loss-prevention-with-microsoft-purview, implementing-endpoint-dlp-controls)
+- [ ] rollout WAJIB berjenjang: TestWithNotifications (audit) 2-4
+      minggu -> review Activity Explorer -> tune SIT/ambang -> baru
+      enforce; enforce langsung = mass blocking & produksi lumpuh
+- [ ] override rate > ~20% = aturan terlalu agresif ATAU konten tak
+      sensitif — koreksi threshold dgn bukti, jangan paksa blokir;
+      override justification dianalisis per rule (business requirement
+      vs false positive)
+- [ ] custom SIT: regex TANPA anchor ^$ (evaluasi per konten, bukan
+      per baris), corroboration keyword + proximity (~300 char)
+      menaikkan confidence (85 -> 95); MinCount memisahkan blok (5+
+      kartu kredit) vs warn (1-4 dgn override)
+- [ ] endpoint DLP: aksi per aktivitas (USB / print / clipboard /
+      upload cloud / unallowed app) masing-masing audit|warn|block;
+      exception USB by vendor/product ID; unallowed apps = browser
+      pribadi + sink cloud
+- [ ] EDM (exact data match) utk data terstruktur — tanpa FP regex;
+      Purview/Graph = live ops ber-kunci; checklist ini utk MENYUSUN
+      rekomendasi kebijakan di laporan, bukan tool
+
+## 130. Validasi kontrol berkelanjutan — BAS (dari mukul975/implementing-continuous-security-validation-with-bas)
+- [ ] rumus inti: Control Effectiveness = (prevented + detected) /
+      total simulasi; prevention rate & detection rate DIPISAH —
+      terdeteksi tapi tidak dicegah tetap celah (gabung melembutkan)
+- [ ] peta kontrol -> teknik ATT&CK eksplisit (email gateway <- T1566.*,
+      EDR <- T1059/T1003/T1547, SIEM <- T1053/T1021, DLP <-
+      T1048/T1567, NDR <- T1071/T1021) — skenario tanpa pemetaan tak
+      bisa menunjukkan gap per kontrol
+- [ ] deconfliction SOC WAJIB sebelum simulasi (cf. seksi 108);
+      perubahan kontrol (rule firewall, update EDR policy) = pemicu
+      re-run — regresi deteksi terjadi saat perubahan, bukan saat
+      jadwal
+- [ ] BAS = komplemen pentest, bukan pengganti (emulasi aman, tanpa
+      exploit nyata); di cyphron tidak ada platform BAS — rumus skor
+      dipakai saat MEMBACA hasil uji purple-team lab & menyusun
+      rekomendasi coverage
+
+## 131. Runtime sensor & postur endpoint (dari mukul975/implementing-ebpf-security-monitoring, implementing-cloud-workload-protection, implementing-device-posture-assessment-in-zero-trust, implementing-disk-encryption-with-bitlocker, implementing-container-image-minimal-base-with-distroless)
+- [ ] eBPF/Tetragon = sensor kernel (CAP_BPF/CAP_SYS_ADMIN + BTF):
+      TracingPolicy = kprobe + selector (matchArgs/matchBinaries) +
+      action (Post/Sigkill); reverse-shell = tcp_connect DARI
+      interpreter (bash/python/nc/perl); escape = akses /proc/1/root,
+      sysrq-trigger, mount; Sigkill enforcement hanya utk daftar
+      tertutup — risiko FP produksi
+- [ ] CWPP (boto3 SSM) = runbook live: proses miner (xmrig/minerd/
+      cryptonight), reverse shell, `ss -tunlp` C2, FIM hash biner,
+      CPU anomaly — sisi log statis dilayani cloudtrail_scan (seksi 53)
+- [ ] device posture: skor ZTA per tier akses (basic >= 50, sensitive
+      >= 80); drift (EDR mati, enkripsi off, OS downgrade) -> revoke
+      akses; grace period remediasi eksplisit; BYOD = jalur browser
+      terbatas, bukan trust penuh; data stale = false trust (ditulis
+      eksplisit di sumber)
+- [ ] BitLocker: XTS-AES 256; escrow recovery key SEBELUM enkripsi
+      (TPM gagal = data hilang); TPM-only rentan cold-boot/evil-maid
+      (laptop = +PIN); used-space-only pada drive bekas = data lama
+      tetap plaintext; removable drive = vektor yang sering terlupa
+- [ ] distroless: tanpa shell/package-manager/coreutils = vektor exec
+      & instal-runtime mati (drift T1611 tertahan, cf. seksi 51);
+      debug via image :debug / kubectl debug ephemeral, jangan di
+      produksi; pin digest — padanan cyphron: docker_audit (B18)
+
+## 132. Kripto terapan & penandatanganan artefak (dari mukul975/implementing-code-signing-for-artifacts, implementing-digital-signatures-with-ed25519, implementing-end-to-end-encryption-for-messaging, implementing-envelope-encryption-with-aws-kms)
+- [ ] pipeline tanda: checksums.sha256 + detached signature; keyless
+      Sigstore (cert short-lived dari OIDC) > kunci jangka-panjang di
+      CI secrets; verifikasi WAJIB di jalur deployment (reject
+      unsigned), bukan hanya di release; SLSA L2 = provenance
+      tersigning, L3 = build terisolasi
+- [ ] Ed25519: deterministic (tanpa nonce — tak ada kegagalan RNG),
+      key 32B / sig 64B; VALIDASI public key (low-order point) sebelum
+      pakai; verifikasi pesan penuh (hash internal), bukan hash luar
+- [ ] E2EE Signal-style: X3DH (X25519) untuk initial key agreement +
+      Double Ratchet (chain HMAC-SHA256 -> per-message key ->
+      AES-256-GCM); forward secrecy = hapus message key setelah pakai;
+      out-of-order delivery = jendela skip-keys terbatas; safety
+      number = verifikasi identitas out-of-band
+- [ ] envelope encryption: data di-encrypt DEK lokal (AES-256-GCM),
+      DEK di-encrypt KEK di KMS/HSM — KMS langsung max 4KB vs envelope
+      unlimited; encryption context = AAD, wajib divalidasi saat
+      decrypt; plaintext DEK jangan disimpan & di-zeroize (cf.
+      zeroize_scan); key caching = trade-off latensi vs blast radius
+- [ ] di cyphron: tidak ada tool kripto-engineer — checklist utk
+      REVIEW pilihan mode/kunci di kode lab (cf. seksi 123 AEAD/KDF)
+
+## 133. Email & identitas — konfigurasi gateway/DMARC/CA (dari mukul975/implementing-dmarc-dkim-spf-email-security, implementing-email-sandboxing-with-proofpoint, implementing-conditional-access-policies-azure-ad)
+- [ ] rollout DMARC berjenjang: p=none (monitor, rua ke mailbox khusus)
+      -> quarantine pct=25 -> reject pct=100; SPF -all (hard fail)
+      setelah stabil; DKIM 2048-bit RSA per selector; audit awal =
+      dig TXT — padanan cyphron: spf_dmarc_posture + eml_phish_triage
+- [ ] SEG sandbox: detonate utk .exe/.doc(m)/.xls(m)/.pdf/.iso/.zip;
+      block-langsung utk .bat/.cmd/.ps1/.vbs/.js/.wsf/.hta (eksekusi
+      nyata, tak perlu detonasi); dynamic delivery = body dulu,
+      attachment ditahan sampai verdict; evasive (archive ter-password,
+      time-bomb, VM-detect) — verdict sandbox = SATU sinyal (cf. seksi
+      13/90)
+- [ ] Conditional Access Entra: sinyal (user, risk, device compliance,
+      location) -> grant MFA / compliant-device ATAU block; break-glass
+      = grup exclude EKSPLISIT dan dimonitor; sign-in frequency +
+      persistent browser never utk app sensitif; named location bukan
+      trust abadi (cf. allowlist berkedaluwarsa seksi 74)
+- [ ] ketiganya = live-ops portal/API ber-kunci; checklist utk AUDIT
+      konfigurasi lab; sisi per-pesan dilayani eml_phish_triage
+
+## 134. Di luar domain + padanan — catatan bidang blok B21
+- [ ] OT/ICS (#0604 conduit remote access IEC 62443, #0618 Dragos):
+      zone/conduit SL3, jump server + MFA + approval-based access +
+      session recording + vendor escort; Dragos = sensor SPAN jaringan
+      OT dgn knowledge pack — bidang OT (cf. seksi 48/63/83), butuh
+      TAP/SPAN milik sendiri
+- [ ] produk identitas/PAM/jaringan (#0611 Delinea Secret Server,
+      #0612 device posture CrowdStrike/Intune/Jamf, #0606 Calico
+      GlobalNetworkPolicy/HostEndpoint): vaulting, Remote Password
+      Changing + heartbeat, dual control, discovery akun; MDM
+      compliance -> CA; CNI tier/DNS egress — integrasi produk pihak
+      ketiga (konsep di seksi 70/131); audit gMSA vs password statis
+      diingat (cf. seksi 88)
+- [ ] #0614 Diamond Model: padanan SUDAH ADA — campaign_correlate
+      (#0360) menerapkan 4-pivot (infrastruktur/kapabilitas/temporal/
+      viktimologi) + FP-guard CDN/hosting; skill ini versi struktur
+      data (activity thread chronological linking) — gunakan
+      campaign_correlate, thread = urutan waktu event id
+- [ ] #0625 EPSS: skor probabilistik eksplloitasi 30 hari + percentile;
+      matriks EPSS x CVSS -> P0-P4 (epss>0.7 & cvss>=9 = P0; epss>0.7 &
+      cvss>=7 = P1; epss>0.4 & cvss>=7 = P2; epss>0.1 ATAU cvss>=7 =
+      P3; sisanya P4); lonjakan >= 0.3 antar hari = emergensi; API &
+      dataset harian = jaringan (di luar disiplin repo) — padanan
+      offline: vuln_sla_aging + kev_gap + dependency_cve; pola matriks
+      dipakai saat MEMPRIORITASKAN backlog manual
+- [ ] #0617 DMARC audit: padanan spf_dmarc_posture; #0613 DevSecOps
+      pipeline: padanan exploit_ci_gate + secret_history_scan +
+      dependency_cve + gha_workflow_audit (seksi 19/101); #0622 Wazuh:
+      deteksi endpoint = alat ops (agent/decoder/rule XML) — lint rule
+      XML Wazuh tak di-build tanpa korpus (ids_rule_lint = IDS umum)
+- [ ] #0621 E2EE messaging & #0627 AFL++: desain kripto messaging dan
+      fuzzing C/C++ (harness persistent __AFL_LOOP, build ASAN+CmpLog,
+      corpus cache + afl-cmin, triage crash stack-hash) — butuh
+      toolchain C/target terkompilasi, di luar bentuk tool cyphron
+      (repo stdlib Python); konsep harness & triage = checklist review
+      manual bila lab punya target C
+- [ ] #0609 Cloudflare DDoS: proxy-all + sembunyikan origin IP +
+      authenticated origin pulls (mTLS) + rate-limit per characteristic
+      (ip.src/colo) + rule uji dengan Log dulu sebelum Block; #0610
+      canarytoken: laporan coverage per tipe token (web/DNS/doc/AWS) &
+      lokasi penempatan = baris program deception (cf. seksi 45);
+      alert-on-touch = nilai utamanya, bukan alat pembuat token
