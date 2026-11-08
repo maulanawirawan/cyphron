@@ -1966,3 +1966,116 @@ tools/aide_change_triage.py; sisanya didistilasi di bawah (127-134).
       canarytoken: laporan coverage per tipe token (web/DNS/doc/AWS) &
       lokasi penempatan = baris program deception (cf. seksi 45);
       alert-on-touch = nilai utamanya, bukan alat pembuat token
+---
+Blok B22 (#0631-#0660, 8 Nov) — sumber mukul975 (Apache-2.0 — konsep,
+bukan teks). Tiga entri diekstrak jadi tool: #0653 -> tools/
+k8s_podsec_audit.py, #0656 -> tools/log_chain_verify.py, #0660 ->
+tools/attack_coverage.py; sisanya didistilasi di bawah (135-141).
+
+## 135. WebAuthn/FIDO2 relying party (dari mukul975/implementing-hardware-security-key-authentication)
+- [ ] RP ID = registrable domain suffix dari origin (example.com sah
+      untuk auth.example.com; domain lain tidak) — RP ID salah =
+      credential terbit dengan scope salah; cek konfigurasi RP dulu
+- [ ] sign_count assertion TIDAK naik dari nilai tersimpan = kandidat
+      authenticator klon — flag security event, jangan diam-diam pass
+- [ ] user verification (PIN/biometrik) = required untuk assurance
+      tinggi; attestation AAGUID diverifikasi vs daftar vendor saat
+      enterprise deployment (kunci tiruan lolos tanpa itu)
+- [ ] recovery yang tidak membatalkan phishing-resistance: dua kunci
+      fisik terdaftar + recovery codes saat enrolment; recovery via
+      SMS/email saja = jalur bypass yang mengalahkan seluruh FIDO2
+- [ ] python-fido2/py_webauthn = dependensi non-stdlib + butuh browser
+      & perangkat — checklist ini dipakai saat REVIEW implementasi RP
+      di lab, bukan tool
+
+## 136. Vault dynamic secrets (dari mukul975/implementing-hashicorp-vault-dynamic-secrets)
+- [ ] prinsip inti: hapus secret statis — kredensial DB/cloud/PKI
+      dibuat on-demand dengan lease TTL dan auto-revoke; bocor =
+      menunggu kedaluwarsa, bukan rotasi manual selamanya
+- [ ] yang diaudit saat review lab: TTL lease pendek, policy
+      least-privilege per path (bukan root policy), AppRole utk
+      aplikasi (bukan token panjang), audit device MENYALA (semua
+      baca secret tercatat — tanpa itu tidak ada jejak pencurian)
+- [ ] dynamic ≠ semua: secret yang tak bisa dibuat programatik tetap
+      KV — inventaris mana yang dinamis mana yang statis = bagian
+      auditnya
+- [ ] Vault = infrastruktur ops; sisi artefak cyphron:
+      zeroize_scan/secret_history_scan menangkap kredensial yang
+      telanjur statis di file/riwayat git
+
+## 137. Provenance image & backup immutable (dari mukul975/implementing-image-provenance-verification-with-cosign, implementing-immutable-backup-with-restic)
+- [ ] cosign: tanda/verifikasi image (key-based atau keyless OIDC via
+      Fulcio+Rekor); enforcement = admission policy
+      verified-images-only — verify SEBELUM deploy, bukan laporan
+      pasca (cf. docker_audit base-not-digest-pin utk pin digest)
+- [ ] attestasi SLSA = dokumen provenance TERPISAH dari signature;
+      subjectRegExp mengikat identitas builder yang sah — tanpa itu
+      signature hanya membuktikan "sesuatu pernah ditandatangani"
+- [ ] restic + S3 Object Lock (mode governance/compliance) = salinan
+      WORM anti-ransomware; compliance mode tak bisa dibatalkan
+      bahkan admin — pilih sadar-risiko; restore test berkala =
+      bukti, bukan asumsi (cf. seksi 28)
+- [ ] keduanya ops infrastruktur (registry/cluster/object store);
+      checklist untuk MENILAI konfigurasi lab, bukan tool
+
+## 138. JIT access — zero standing privilege (dari mukul975/implementing-just-in-time-access-provisioning)
+- [ ] akses time-bound dengan approval + auto-expire + jejak; angka
+      yang ditulis eksplisit: durasi maksimum per role, justifikasi
+      wajib, dan siapa approver-nya
+- [ ] sinyal penyalahgunaan: window JIT yang di-extend berulang =
+      standing privilege terselubung; aktivitas di dalam window
+      harus masih diperiksa (JIT bukan absolved)
+- [ ] akun break-glass tetap ada, dipantau, dan diuji — JIT yang
+      gagal membuka saat insiden = stagnasi respons
+- [ ] cf. seksi 70 (tiered model) & iam_escalation_scan (sisi cloud)
+
+## 139. Deception deployment = ops (dari mukul975/implementing-honeypot-for-ransomware-detection, implementing-honeytokens-for-breach-detection)
+- [ ] ranah konsep deception = seksi 45 (MITRE Engage); B20 melaporkan
+      canarytoken (#0594/#0604/#0610, cf. seksi 134 B21)
+      — sisa nilai dari dua skill ini: honeypot ransomware punya FP
+      mendekati nol (tidak ada alasan sah menyentuh decoy file/share)
+      sehingga jadi deteksi DI ATAS EDR utk varian yang lolos
+      signature; penempatan = direktori share/file yang dikenai lebih
+      dulu oleh enumerate-then-encrypt
+- [ ] eksekusi (Canarytokens API, webhook, appliance) = live ops
+      ber-jaringan — tidak di-port
+
+## 140. SaaS & email gateway — konfigurasi produk (dari mukul975/implementing-google-workspace-admin-security, -phishing-protection, -sso-configuration, implementing-mimecast-targeted-attack-protection, implementing-microsegmentation-with-guardicore, implementing-log-forwarding-with-fluentd, implementing-identity-verification-for-zero-trust)
+- [ ] semuanya runbook konsol vendor (Admin Console, Mimecast TTP,
+      Guardicore, Fluentd, Entra CA) — butuh tenant + kredensial live;
+      pola validasi yang reusable lintas produk: uji SPOOF lookalike
+      nyata, dry-run/Reveal mode SEBELUM enforce, rollout per-OU
+      berjenjang, threshold FP diperiksa setelah tiap gelombang
+- [ ] Workspace SSO: Workspace = SP, ACS google.com/a/{domain}/acs;
+      sisi audit = rotasi cert signing IdP + penutupan password
+      native (cf. seksi 20 SAML)
+- [ ] padanan analisis cyphron: eml_phish_triage + spf_dmarc_posture
+      (email), seksi 46/59 (anomali identitas), seksi 90 (SEG),
+      seksi 70 (disiplin microsegmentation monitor->enforce)
+
+## 141. Di luar domain + padanan — catatan bidang blok B22
+- [ ] kepatuhan/privasi (#0631 #0632 #0639 #0649): GDPR controls/
+      DSAR, HIPAA Security Rule, ISO 27001 ISMS — tata kelola
+      kepatuhan (cf. seksi 42 #0324); inti teknis GDPR Art.32
+      (enkripsi at-rest/transit, pseudonymization, retention) =
+      review kode manual; PII regex discovery di DSAR = konsep,
+      NER = dependensi non-stdlib
+- [ ] OT/hardware (#0642 Tofino ICS firewall, #0645 IEC 62443 zones):
+      DPI protokol industri + zone/conduit + SL-T assignment (cf.
+      seksi 48/63/83); konsep diode: aliran satu arah, REVERSE FLOW =
+      bypass dinyatakan sebagai temuan
+- [ ] IGA (#0643 SailPoint): joiner-mover-leaver + SOD + certification
+      campaign (cf. seksi 34 #0285) — administrasi identitas
+- [ ] padanan tool ada: #0633 GHAS code scanning (sarif_ingest +
+      gha_workflow_audit + secret_history_scan), #0648 IaC scanning
+      checkov/tfsec/KICS (terraform_audit #0270), #0651 JWT
+      signing/verification (jwt_token_audit + JwtAlgConfusion/
+      JwtWeakSecretPlaybook), #0657 DEP/ASLR (pe_mitigation_scan
+      #0131 — skill ini versi konfigurasi OS bcdedit/
+      Get-ProcessMitigation = ops endpoint, cf. seksi 75)
+- [ ] padanan konsep: #0654 LLM guardrails (seksi 44 + injection_
+      guard; NeMo/Guardrails AI = produk runtime), #0652 Calico
+      NetworkPolicy (install CNI = ops; AUDIT manifest NetworkPolicy
+      = ranah entri #0668 blok lain — sengaja tidak dibangun utk
+      anti-tabrakan; disiplin yang diambil: default-deny baseline
+      dulu, verifikasi enforcement via dry-run)
