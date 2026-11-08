@@ -26,7 +26,7 @@ Rust，两边遵守同一份严格的输出契约。
 ## 从你的 Agent 使用
 
 secai 既是单命令多模式的 CLI，也提供可加载的 agent skill 与 MCP
-服务器 —— Claude Code、Cursor、ZCode 或任何能执行 shell 的 agent
+服务器 —— Claude Code、Cursor 或任何能执行 shell 的 agent
 都可以直接驱动它。
 
 ```bash

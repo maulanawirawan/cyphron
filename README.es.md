@@ -27,8 +27,7 @@ salida estricto que ambos respetan.
 ## Úsalo desde tu agente
 
 secai viene como un CLI de un solo comando con modos, un skill
-cargable para agentes y un servidor MCP — así Claude Code, Cursor,
-ZCode o cualquier agente que ejecute shell puede manejarlo directo.
+cargable para agentes y un servidor MCP — así Claude Code, Cursor o cualquier agente que ejecute shell puede manejarlo directo.
 
 ```bash
 git clone https://github.com/maulanawirawan/secai && cd secai
