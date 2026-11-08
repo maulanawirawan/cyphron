@@ -3177,3 +3177,185 @@ jadi seksi 191-192; container cluster (#0790 #0794-#0796 #0809) seksi
       per domain, unique-subdomain count — padanan penuh:
       dns_log_triage (+ seksi 62/117); scapy pcap = parser lain,
       polanya sama
+
+---
+Blok B29 (#0841-#0870, 8 Nov) — sumber mukul975 (Apache-2.0 — konsep,
+bukan teks). Lima entri diekstrak jadi tool: #0844 -> tools/
+linux_auth_triage.py, #0849 (sisi Linux; Windows = win_persist_triage)
+-> tools/linux_persist_scan.py, #0855 + #0856 + #0857 -> tools/
+pcap_triage.py, #0860 -> tools/oauth_grant_audit.py, #0868 -> tools/
+paste_triage.py; sisanya didistilasi di bawah (seksi 195-201).
+
+## 195. Kubernetes penetration testing — permukaan serangan & peta fase (dari mukul975/performing-kubernetes-penetration-testing) — distilasi B29
+- [ ] permukaan serangan per komponen: API server 6443 (anonymous auth,
+      RBAC abuse), kubelet 10250/10255 (unauthenticated /pods, exec),
+      etcd 2379 (read tanpa auth = semua Secret), dashboard 8443
+      (default cred), NodePort 30000-32767, CoreDNS 53 — tiap port =
+      cek berbeda, jangan scan satu port lalu simpulkan
+- [ ] peta fase ATT&CK-for-Kubernetes: akses awal (dashboard terekspos/
+      kubeconfig dicuri) -> eksekusi (exec container, CronJob, pod
+      privileged) -> persistensi (container backdoor, mutating webhook)
+      -> eskalasi (privileged pod, RBAC abuse) -> kredensial (SA token,
+      Secret) -> lateral (container escape, service internal)
+- [ ] cek RBAC ofensif yang valid: kubectl auth can-i create pods /
+      get secrets / create clusterrolebindings / '*' '*'; binding dgn
+      subjek system:anonymous/system:unauthenticated = red flag
+- [ ] ranah cyphron: sisi API/hardening = k8s_rbac_audit,
+      k8s_audit_triage, k8s_podsec_audit, netpol_audit, psa_ns_audit,
+      kube-bench = kubebench_ingest (B28), etcd config =
+      etcd_config_audit (B28); EKSEKUSI pentest live (kube-hunter,
+      peirates, deploy pod pentest) = ops cluster berizin — runbook,
+      bukan tool audit
+- [ ] higiene uji: pod uji diberi nama jelas + dihapus setelah uji;
+      uji network policy dgn probe wget timeout pendek, JANGAN sweep
+      metadata 169.254.169.254 tanpa persetujuan eksplisit (kredensial
+      cloud)
+
+## 196. Deteksi lateral movement Windows & WMI (#0842 + #0843) — distilasi B29
+- [ ] pola deteksi inti per teknik: PtH = 4624 LogonType-3 NTLM ke >3
+      host oleh user sama; overpass-the-hash = 4769 encryption RC4
+      (0x17) volume tinggi; golden ticket = 4769 lifetime > 10 jam +
+      TicketOptions anomali; PsExec = 7045 PSEXESVC + pipe
+      \PSEXESVC* (Sysmon 17); WMI = WmiPrvSE.exe mem-lahirkan
+      cmd/powershell + WMI-Activity 5857/5860/5861; WinRM =
+      wsmprovhost parent; RDP = 4624 LogonType-10 fan-out; admin
+      share = 5140 ShareName C$/ADMIN$/IPC$ fan-out; remote task =
+      4698 dari non-SYSTEM dgn isi XML http/powershell/temp
+- [ ] korrelasi graf: edge = (src_ip -> host, user, logon_type)
+      agregat 24 jam; NetFlow port 445/135/3389/5985 memperkuat jejak
+      host-to-host yang di log terlihat terputus
+- [ ] WMIExec (offense): Win32_Process.Create via DCOM/WinRM TIDAK
+      menciptakan service (lebih senyap dari PsExec), output via file
+      temp di ADMIN$ — sisi deteksinya justru file temp di share
+      admin + proses anak WmiPrvSE; persistensi WMI = pasangan
+      __EventFilter + CommandLineEventConsumer + FilterToConsumerBinding
+      di root\subscription (OBJECTS.DATA bisa dipindai regex offline)
+- [ ] ranah cyphron: kerberos_log_triage (4769 RC4/golden),
+      win_logon_triage (4624/4625), dcom_lateral_scan (DCOM),
+      zeek_lateral_scan (fan-out jaringan), account_manip_triage,
+      win_persist_triage (4698/4697); koridor eksekusi live =
+      ops red team berizin
+
+## 197. Forensik log lintas sumber & onboarding SIEM (#0845 + #0846) — distilasi B29
+- [ ] disiplin koleksi forensik: struktur direktori kasus per sumber,
+      HASH semua log yang dikumpulkan (sha256sum) SEBELUM analisis;
+      Event ID prioritas Windows: 4624/4625/4648/4672/4688/4697/4698/
+      4720/4732/1102 (log cleared = anti-forensik, selalu temuan);
+      Linux: auth.log/secure + auditd EXECVE/USER_AUTH
+- [ ] korrelasi = normalisasi timestamp + urutkan + window: brute
+      force (4625 beruntun) -> 4624 sukses dari sumber sama -> 4688/
+      4697 sesudahnya; log tanpa NTP sinkron = korrelasi palsu — cek
+      dulu konsistensi jam antar sumber
+- [ ] onboarding SIEM ber-tier: Tier-1 dulu (AD, firewall, EDR, VPN,
+      DNS, email gateway) karena nilai-deteksi per GB paling tinggi;
+      tiap sumber: format + EPS estimasi + parser + pemetaan CIM
+      (src->src_ip dst->dest_ip) + coverage field target >= 80-90%
+- [ ] validasi kualitas ingest: event datang (count per sourcetype/
+      host), coverage field (count(src)/count total), LAG timestamp
+      (_indextime - _time) > 300s = masalah jam/parsing — jangan
+      onboarding lalu tinggal
+- [ ] ranah cyphron: triase log = win_logon_triage/sysmon_triage/
+      linux_auth_triage; integritas jalur = log_chain_verify;
+      keputusan onboarding = proses SOC (checklist ini), bukan tool
+
+## 198. Triage malware & enrichment intel (#0847 + #0848 + #0850 + #0851 + #0852) — distilasi B29
+- [ ] VT hash enrichment (jaringan): verdict dari last_analysis_stats
+      — ratio malicious: >70% engine = critical, >40% high, >10%
+      medium; JANGAN hanya andalkan ratio: lihat popular_threat_
+      classification, crowdsourced YARA, sandbox behavior (proses/
+      file/registry/mutex/dns); pivot: hash -> contacted_ips/domains/
+      urls -> IOC; free tier 4 req/menit = batch wajib throttle;
+      kirim hash aman, JANGAN kirim sample sensitif ke scanner publik
+- [ ] ekstraksi IOC dari sample: hash file (md5/sha1/sha256) + imphash
+      + string ASCII/UTF-16LE + pola (url/ip/domain/registry path/
+      mutex Global\|Local\, PDB path, BTC address, user-agent);
+      FILTER IP privat (10/8, 172.16/12, 192.168/16, 127/8) dari IOC
+      C2; render STIX indicator [file:hashes.'SHA-256' = '...']
+- [ ] ranah cyphron: string+offset = binary_strings_surface;
+      klasifikasi/defang IOC teks = ioc_defang; konsumsi/validasi
+      STIX = stix_bundle_audit; mutex = killswitch_triage; entropi
+      section = packer_scan — ekstraksi terfragmentasi BUKAN hilang;
+      YARA: menulis/menjalankan rule = runtime yara pihak ketiga,
+      yang diport = yara_rule_lint (lint statis rule); disiplin
+      authoring: uji dulu di korpus BERSIH (FP test), hindari string
+      generik (OpenSSL/mozilla), batasi filesize, hex wildcard utk
+      varian — rule terlalu spesifik = lewatkan varian, terlalu
+      generik = alarm massal
+- [ ] Volatility 3 (ops, pip install + symbol ISF): urutan triase
+      memori: info/banners -> pslist+pstree -> psscan CROSS-VIEW
+      (PID di psscan tapi tidak di pslist = hidden/unlinked) ->
+      malfind (VAD RWX + kode) -> netscan (C2) -> cmdline/envars ->
+      dumpfiles; modscan vs modules = driver tersembunyi; credential
+      dump (hashdump/lsadump) hanya di lab/berizin; YARA-in-memory
+      dgn rule keluarga = klasifikasi cepat
+- [ ] ranah cyphron: config RAT dari sample = rat_config_scan; triase
+      dokumen = maldoc_triage/pdf_triage; artefak ransom =
+      ransom_artifact_triage; dump memori = kerangka ops (tool eksternal)
+
+## 199. Mobile assessment — pinning bypass & forensik perangkat (#0853 + #0854) — distilasi B29
+- [ ] sisi STATIS pinning (audit): Android network_security_config.xml
+      <pin-set> + trust anchors + cleartextTrafficPermitted; OkHttp
+      CertificatePinner; iOS ATS + plist; ranah cyphron:
+      mobile_manifest_audit membaca AXML/XML/plist/prefs — cek
+      pinning di sana dulu SEBELUM uji dinamis
+- [ ] sisi DINAMIS (ops, berizin): Frida/Objection hook TrustManagerImpl/
+      OkHttp check/SecTrustEvaluate; multi-layer pinning = bypass
+      SEMUA layer (OkHttp + custom TrustManager + CT check); binary-
+      level pinning (C/C++) butuh Interceptor native — hati-hati
+      klaim "sudah bypass" saat satu layer belum tersentuh
+- [ ] forensik mobile: urutan akuisisi logical -> file system ->
+      physical; Faraday bag / airplane mode SEBELUM apa pun (remote
+      wipe); dokumentasi IMEI/OS/lock state + hash akuisisi = chain
+      of custody; UFED/Cellebrite = hardware+lisensi (ops); alternatif
+      open: ALEAPP/iLEAPP/libimobiledevice; WAL SQLite = sumber
+      pesan terhapus
+- [ ] ranah cyphron: apk_firebase_scan, mobile_manifest_audit (statik);
+      ekstraksi pesan/location = kerangka ops perangkat fisik
+
+## 200. Monitoring jaringan & program social-engineering (#0858 + #0862 + #0863 + #0867 + #0869) — distilasi B29
+- [ ] Zeek deployment: TAP > SPAN (packet loss), 1 worker per 1 Gbps,
+      AF_PACKET lb untuk multi-core, pantau capture_loss.log (loss =
+      blind spot terukur), JSON logs utk SIEM, intel framework
+      (indicator -> notice) refresh harian; log yang dibaca triage:
+      conn/dns/http/ssl (JA3)/files/notice/weird
+- [ ] OSINT (jaringan): 6 kategori — domain (CT log, subdomain),
+      personel (LinkedIn, pola email), kredensial (breach db,
+      paste, GitHub), teknologi (job posting, Wappalyzer, Shodan),
+      fisik (Maps), dokumen (metadata); SpiderFoot modes: footprint
+      (peta aset), investigate (IOC tertentu), passive (tanpa sentuh
+      target) — pilih mode sesuai izin; cf. seksi 35/38/39
+- [ ] packet injection (live, lab saja): Scapy SYN/XMAS/NULL utk uji
+      IDS/firewall + anti-spoofing (BCP38/uRPF); verifikasi sisi
+      penerima dgn capture; NEVER-LIST: bukan DoS; sisi cyphron =
+      deteksi offline artefaknya (pcap_triage: SYN-only anomali,
+      flag aneh)
+- [ ] phishing simulation (GoPhish, ops): komponen = sending profile/
+      template {{.URL}}/{{.Tracker}}/landing/group/campaign; metrik =
+      delivered/open/click/submit rate + time-to-click; etika: izin
+      tertulis, halaman redirect ke training, JANGAN kredensial
+      nyata tersimpan tanpa rotasi; cf. seksi 66 (playbook phishing)
+- [ ] ranah cyphron: analisis hasil = lewat ingest log/triase
+      eml_phish_triage (sisi email), eksekusi campaign = ops
+
+## 201. Kepatuhan & di luar domain — catatan bidang blok B29 (#0859 + #0861 + #0864-#0866 + #0870)
+- [ ] NIST CSF 2.0 (#0859): 6 fungsi (GV baru: Organizational Context/
+      Risk Mgmt/Roles/Policy/Oversight/Supply Chain) x 4 tier (Partial/
+      Risk-Informed/Repeatable/Adaptive); metodologi: profil-saat-ini
+      -> profil-target -> gap -> roadmap 0-3/3-12/12-24 bulan;
+      jebakan: menilai teknologi saja tanpa govern, target tier
+      tanpa resource, CSF tidak sinkron ISO 27001/SOC 2 yang sudah ada
+      — governance methodology, bukan tool audit
+- [ ] Di luar domain cyphron (fokus web/app/infra):
+      #0861 oil & gas (API 1164/TSA SD-02/IEC 62443 — konsep layak
+      dicatat: custody transfer metering tanpa auth = fraud finansial
+      langsung; remote site tanpa IDS fisik), #0864 OT network
+      (Purdue L0-L4, safety exclusion SIS/ESD dulu baru scan),
+      #0865 Claroty xDome (produk komersial), #0866 Tenable OT
+      (passive-first: pindai native protocol yang aman, aktif hanya
+      window maintenance + profil teruji lab), #0870 physical
+      intrusion (tailgating/RFID/lock — bukan ranah cyber tool;
+      izin tertulis + alat dokumentasi = prasyarat mutlak)
+- [ ] pola lintas-blok: produk OT komersial (Claroty/Tenable/Dragos)
+      = ops; yang bisa diport dari OT = lapisan ingest/parse laporan
+      (cf. kubebench_ingest utk kube-bench) bila kelak ada keluaran
+      format teks yang stabil
