@@ -16,6 +16,11 @@ as the compatibility signal.
   feature request, and a first-class **false positive report** form —
   FP reports tighten every detector's anti-FP floor).
 - Added this `CHANGELOG.md`.
+- **G6 delta-port wave opened** (source repos grew; 113 unported
+  concepts found via a 3-tier evidence diff). Block 1 (#1001-#1030):
+  `broken_link_scan` (#1010 — 23 tests, live-verified with real DoH +
+  RDAP double evidence) + 6 METHODS sections (257-262). Suite
+  3254 → 3277; badges follow the tool count.
 - **Project renamed: `cyphron` → `secai`** (SECurity + Agentic/AI —
   short and searchable). Mechanical rename across 298 files: the CLI,
   binary, MCP tool names, findings-contract schema strings, docs, and

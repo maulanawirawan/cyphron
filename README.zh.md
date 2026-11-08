@@ -10,9 +10,9 @@ Rust，两边遵守同一份严格的输出契约。
 *无证据，不报告。*
 
 [![CI](https://github.com/maulanawirawan/secai/actions/workflows/ci.yml/badge.svg)](https://github.com/maulanawirawan/secai/actions/workflows/ci.yml)
-[![tests](https://img.shields.io/badge/tools-175-brightgreen)](#包含什么)
+[![tests](https://img.shields.io/badge/tools-176-brightgreen)](#包含什么)
 [![release](https://img.shields.io/badge/release-v0.1.0-blue)](https://github.com/maulanawirawan/secai/releases)
-[![skills](https://img.shields.io/badge/capabilities-271-8A2BE2)](#包含什么)
+[![skills](https://img.shields.io/badge/capabilities-272-8A2BE2)](#包含什么)
 [![python](https://img.shields.io/badge/python-3.12%2B-3776AB)](#快速开始)
 [![rust](https://img.shields.io/badge/rust-stable-orange)](#快速开始)
 [![license](https://img.shields.io/badge/license-PolyForm%20NC%201.0-blue)](LICENSE.md)
@@ -127,11 +127,11 @@ flowchart LR
 
 ## 包含什么
 
-- **271 个能力脚本**，分两族：**93 个注册检测技能**（`skills/`，覆盖
+- **272 个能力脚本**，分两族：**93 个注册检测技能**（`skills/`，覆盖
   侦察、配置态势和暴露面 —— 每个都是独立 CLI，声明安全等级（从
   `read-only` 到 `state-changing`）并据此设定硬性请求上限；注册表是
-  白名单，未登记的技能不会运行）+ **175 个离线工具**（`tools/`，证据
-  分诊，其中 120 个移植自 995 个技能概念）。
+  白名单，未登记的技能不会运行）+ **176 个离线工具**（`tools/`，证据
+  分诊，其中 121 个移植自 995 个技能概念）。
 - **原生 Rust 核心**（`core-rs/`）：`secai validate` 校验契约，
   `secai scan` 执行分级扫描，并生成 PDF 报告。它还负责 FAO 关联
   （去重、仲裁、证据哈希）以及失败即关闭的请求预算。

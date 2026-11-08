@@ -5,17 +5,17 @@
 **Proof, not claims.**
 
 **secai** is an evidence-first **agentic cybersecurity** engine with
-**271 capability scripts** — 93 registered detection skills + 175
-offline tools (120 ported from 995 skill concepts), a native Rust
+**272 capability scripts** — 93 registered detection skills + 175
+offline tools (121 ported from 995 skill concepts), a native Rust
 core, one strict findings contract, and an MCP server — so Claude
 Code, Cursor, or any shell-capable agent can drive it.
 
 *No proof, no report.*
 
 [![CI](https://github.com/maulanawirawan/secai/actions/workflows/ci.yml/badge.svg)](https://github.com/maulanawirawan/secai/actions/workflows/ci.yml)
-[![tools](https://img.shields.io/badge/tools-175-brightgreen)](#whats-inside)
+[![tools](https://img.shields.io/badge/tools-176-brightgreen)](#whats-inside)
 [![release](https://img.shields.io/badge/release-v0.1.0-blue)](https://github.com/maulanawirawan/secai/releases)
-[![skills](https://img.shields.io/badge/capabilities-271-8A2BE2)](#whats-inside)
+[![skills](https://img.shields.io/badge/capabilities-272-8A2BE2)](#whats-inside)
 [![python](https://img.shields.io/badge/python-3.12%2B-3776AB)](#quick-start)
 [![rust](https://img.shields.io/badge/rust-stable-orange)](#quick-start)
 [![license](https://img.shields.io/badge/license-PolyForm%20NC%201.0-blue)](LICENSE.md)
@@ -141,12 +141,12 @@ flowchart LR
 
 ## What's inside
 
-- **271 capability scripts** in two families: **93 registered
+- **272 capability scripts** in two families: **93 registered
   detection skills** in `skills/` (recon, posture, exposure — each a
   standalone CLI with a declared safety class, `read-only` up to
   `state-changing`, and a hard request budget that follows from it;
   the registry is an allowlist, so nothing runs unless it's listed)
-  and **175 offline tools** in `tools/` (evidence triage — 120 of
+  and **176 offline tools** in `tools/` (evidence triage — 121 of
   them ported from 995 skill concepts).
 - **A native Rust core** in `core-rs/`: `secai validate` checks the
   contract, `secai scan` runs tiered scans, and it renders the PDF
@@ -180,7 +180,7 @@ The triage family is a set of standalone offline CLI tools: evidence in
 fail-closed, zero network. Highlights by domain:
 
 <details>
-<summary><b>120 ported tools across 9 domains (175 total in tools/) — click to expand</b></summary>
+<summary><b>121 ported tools across 9 domains (176 total in tools/) — click to expand</b></summary>
 <br>
 
 | Domain | Answers the question… | Examples |
