@@ -15,7 +15,7 @@ Rust，两边遵守同一份严格的输出契约。
 [![skills](https://img.shields.io/badge/capabilities-271-8A2BE2)](#包含什么)
 [![python](https://img.shields.io/badge/python-3.12%2B-3776AB)](#快速开始)
 [![rust](https://img.shields.io/badge/rust-stable-orange)](#快速开始)
-[![license](https://img.shields.io/badge/license-PolyForm%20NC%201.0-blue)](LICENSE)
+[![license](https://img.shields.io/badge/license-PolyForm%20NC%201.0-blue)](LICENSE.md)
 
 [English](README.md) · **中文** · [Español](README.es.md)
 
@@ -324,7 +324,7 @@ secai 仅用于**已授权**的测试：你自己的系统，或明确给予许�
 
 ## 许可证
 
-[PolyForm Noncommercial 1.0.0](LICENSE)。可在**非商业**用途下自由
+[PolyForm Noncommercial 1.0.0](LICENSE.md)。可在**非商业**用途下自由
 使用、学习、修改和分享。
 
 想商用，比如集成进付费服务？也可以，先问一声，我们来商量授权。可以开

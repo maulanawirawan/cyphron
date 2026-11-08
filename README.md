@@ -8,7 +8,7 @@
 **271 capability scripts** — 93 registered detection skills + 175
 offline tools (120 ported from 995 skill concepts), a native Rust
 core, one strict findings contract, and an MCP server — so Claude
-Code, Cursor, ZCode, or any shell-capable agent can drive it.
+Code, Cursor, or any shell-capable agent can drive it.
 
 *No proof, no report.*
 
@@ -18,7 +18,7 @@ Code, Cursor, ZCode, or any shell-capable agent can drive it.
 [![skills](https://img.shields.io/badge/capabilities-271-8A2BE2)](#whats-inside)
 [![python](https://img.shields.io/badge/python-3.12%2B-3776AB)](#quick-start)
 [![rust](https://img.shields.io/badge/rust-stable-orange)](#quick-start)
-[![license](https://img.shields.io/badge/license-PolyForm%20NC%201.0-blue)](LICENSE)
+[![license](https://img.shields.io/badge/license-PolyForm%20NC%201.0-blue)](LICENSE.md)
 
 **English** · [中文](README.zh.md) · [Español](README.es.md)
 
@@ -29,7 +29,7 @@ Code, Cursor, ZCode, or any shell-capable agent can drive it.
 ## Use it from your agent
 
 secai ships as a one-command CLI with modes, a loadable agent skill,
-and an MCP server — so Claude Code, Cursor, ZCode, or any agent that
+and an MCP server — so Claude Code, Cursor, or any agent that
 runs shell commands can drive it directly.
 
 ```bash
@@ -377,7 +377,7 @@ If secai saves you some time, a ⭐ helps other people find it.
 
 ## License
 
-[PolyForm Noncommercial 1.0.0](LICENSE). Free to use, study, modify, and
+[PolyForm Noncommercial 1.0.0](LICENSE.md). Free to use, study, modify, and
 share for **noncommercial** purposes.
 
 Want to use it commercially, for example inside a paid service? That's

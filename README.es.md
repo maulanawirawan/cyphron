@@ -16,7 +16,7 @@ salida estricto que ambos respetan.
 [![skills](https://img.shields.io/badge/capabilities-271-8A2BE2)](#qué-incluye)
 [![python](https://img.shields.io/badge/python-3.12%2B-3776AB)](#inicio-rápido)
 [![rust](https://img.shields.io/badge/rust-stable-orange)](#inicio-rápido)
-[![license](https://img.shields.io/badge/license-PolyForm%20NC%201.0-blue)](LICENSE)
+[![license](https://img.shields.io/badge/license-PolyForm%20NC%201.0-blue)](LICENSE.md)
 
 [English](README.md) · [中文](README.zh.md) · **Español**
 
@@ -362,7 +362,7 @@ Si secai te ahorra tiempo, una ⭐ ayuda a que otros lo encuentren.
 
 ## Licencia
 
-[PolyForm Noncommercial 1.0.0](LICENSE). Libre para usar, estudiar,
+[PolyForm Noncommercial 1.0.0](LICENSE.md). Libre para usar, estudiar,
 modificar y compartir con fines **no comerciales**.
 
 ¿Quieres usarlo comercialmente, por ejemplo dentro de un servicio de

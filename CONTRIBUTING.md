@@ -23,7 +23,7 @@ skills, docs, even typos — all of it is welcome.
 - Authorized testing only — your own assets, or somewhere you've been
   given explicit permission. Same rule as the README, no exceptions.
 - A merged PR puts you in the contributors list, for real. 🎉
-- Contributions fall under the [LICENSE](LICENSE) (PolyForm NC): free for
+- Contributions fall under the [LICENSE](LICENSE.md) (PolyForm NC): free for
   noncommercial use. If SecAI ever gets used commercially, that gets
   sorted out in the open with everyone who contributed — standard for a
   source-available project.
@@ -54,6 +54,6 @@ deteksi baru, dokumentasi, bahkan typo — semua diterima.
   tempat yang sudah memberi izin eksplisit. Sama seperti README, tanpa
   pengecualian.
 - PR yang di-merge otomatis masuk daftar contributor repo ini. 🎉
-- Kontribusi mengikuti [LICENSE](LICENSE) (PolyForm NC): gratis untuk
+- Kontribusi mengikuti [LICENSE](LICENSE.md) (PolyForm NC): gratis untuk
   non-komersial. Kalau suatu saat SecAI dipakai komersial, itu dibahas
   terbuka bareng semua kontributor — standar proyek source-available.
