@@ -4437,3 +4437,94 @@ dilanjutkan 254-256.
       halaman (bukan mulai-dari-hostname spt takeover-cname-hygiene),
       liveness dari resolusi operator, nol jaringan
 
+## 263. Kluster kepatuhan regulasi (dari mukul975/implementing-gdpr-data-subject-access-request, -implementing-hipaa-security-rule-safeguards, -implementing-iso-27001-information-security-management, -implementing-nerc-cip-compliance-controls, -implementing-pci-dss-compliance-controls) — distilasi G6-delta-2 — cf. seksi 232/261
+- [ ] GDPR DSAR (Art. 15): verifikasi identitas → PII discovery →
+      mapping → respons dgn exemption → deadline 1 bulan + audit log;
+      sisi PII-discovery = padanan data_class_scan (B20, Macie-style);
+      workflow/deadline = proses kepatuhan, bukan alat
+- [ ] HIPAA Security Rule 45 CFR 164: risk analysis §164.308,
+      safeguards admin/fisik/teknis, BAA, notifikasi breach; required
+      vs addressable = kerangka audit kepatuhan
+- [ ] ISO 27001:2022: ISMS scope → risk assessment → Annex A → SoA →
+      sertifikasi; pola sama dgn seksi 232 (soc2)
+- [ ] NERC CIP: CIP-002 kategorisasi BES, CIP-005 ESP, CIP-007
+      system security, CIP-010 config mgmt, CIP-013 supply chain —
+      kepatuhan utilitas listrik (cf. OT 264)
+- [ ] PCI DSS 4.0.1: 12 requirement/6 tujuan, customized approach,
+      51 requirement wajib Maret 2025 — kepatuhan CDE
+- [ ] pola umum kluster: semuanya runbook/program kontrol; inti
+      teknis yang bisa dipindai (PII, secrets, konfigurasi) sudah
+      dipadankan tool secai; checklist kepatuhan tidak di-build
+      (inventaris tanpa konsumen)
+
+## 264. Kluster OT/ICS — program & produk (dari mukul975/implementing-ics-firewall-with-tofino, -implementing-iec-62443-security-zones, -implementing-network-segmentation-for-ot, -implementing-ot-incident-response-playbook, -implementing-ot-network-traffic-analysis-with-nozomi, -implementing-patch-management-for-ot-systems, -implementing-purdue-model-network-segmentation, -performing-ics-asset-discovery-with-claroty) — distilasi G6-delta-2 — cf. seksi 48/63/161/175/231/245
+- [ ] preseden konsisten: OT = di luar fokus web/app/infra secai
+      (seksi 231 "OT/energi cluster", 245 catatan B32, B21 2 OT,
+      B29 oil-gas/OT, B30 2 OT)
+- [ ] produk komersial: Tofino (DPI Modbus/S7comm/EtherNet-IP),
+      Nozomi Guardian (passive OT NDR), Claroty xDome (asset
+      discovery) — integrasi produk, bukan alat stdlib
+- [ ] arsitektur: IEC 62443-3-2 zona/konduit + SL-T, Purdue PERA L0-L5
+      + IT/OT DMZ, data diode — desain jaringan, bukan audit kode
+- [ ] program: patch mgmt OT (compatibility testing, maintenance
+      window, rollback, compensating control), IR playbook OT
+      (PICERL, koordinasi SOC/OT-engineering/plant-ops, IEC 62443/
+      NIST 800-82) — proses organisasi
+- [ ] inti yang dibawa utk pembacaan bukti OT: baseline trafik dulu,
+      baru policy (default-deny OT harus pasca-baseline — beda dgn
+      IT); patch = staged + vendor-compat; IR prioritas SAFETY >
+      process > access > recon
+
+## 265. Ops produk & program keamanan IT (dari mukul975/implementing-github-advanced-security-for-code-scanning, -implementing-identity-governance-with-sailpoint, -implementing-llm-guardrails-for-security, -implementing-patch-management-workflow, -performing-entitlement-review-with-sailpoint-iiq, -performing-gcp-security-assessment-with-forseti) — distilasi G6-delta-2 — cf. seksi 227/247/248
+- [ ] GHAS code scanning = rollout CodeQL/secret scanning/dependabot
+      (konfigurasi produk; sisi workflow-security = padanan
+      gha_workflow_audit B16); custom CodeQL query = penalaran dev
+- [ ] SailPoint IdentityNow/IIQ + entitlement review/certification
+      campaign = program IGA (lifecycle, role mining, SOD) — proses
+      organisasi; sisi audit teknis = iam_escalation_scan /
+      win_audit_coverage berbeda ranah
+- [ ] LLM guardrails (NeMo Colang, Guardrails-AI, validator PII) =
+      runtime request/response — preseden B13 #0361 (ops produk);
+      lapis regex+heuristik secai = injection_guard + prompt_leak_probe
+- [ ] patch management IT (WSUS/SCCM/Ansible) = proses ops; sisi
+      prioritas/aging = vuln_sla_aging (B11) + ssvc_triage (B34)
+- [ ] Forseti/Security Command Center = scanner produk GCP; CIS GCP
+      benchmark (seksi 246 "padanan ada, jangan bangun ulang"); sisi
+      offline secai = gcp_fw_audit + gcp_orgpolicy_audit (B21)
+
+## 266. Padanan eksplisit G6-delta-2 (dari mukul975/implementing-infrastructure-as-code-security-scanning, -implementing-jwt-signing-and-verification, -implementing-kubernetes-network-policy-with-calico, -implementing-memory-protection-with-dep-aslr, -performing-graphql-introspection-attack, -performing-jwt-none-algorithm-attack) — distilasi G6-delta-2
+- [ ] IaC scanning: Checkov/tfsec/KICS = alat eksternal (seksi 246);
+      offline secai = terraform_audit (B09) + k8s_audit_triage/
+      k8s_podsec_audit/netpol_audit/psa_ns_audit + lambda_config_audit
+- [ ] JWT signing/verification (HMAC/RSA-PSS/ES256/EdDSA, alg-
+      confusion, key-injection) = panduan implementasi developer;
+      AUDIT token = jwt_token_audit (B17): alg-none, alg-asym-surface,
+      jku-header, exp-missing/stale/long-lived, iss/aud/iat
+- [ ] JWT none-algorithm attack = serangan aktif (kontrak nol
+      jaringan); sisi audit = jwt_token_audit alg-none eksplisit
+- [ ] Calico CNI + default-deny + policy ordering = instal CNI (ops)
+      + audit policy = netpol_audit (B23, #0668) + psa_ns_audit
+- [ ] DEP/ASLR/CFG implementasi = compile-flag developer; VERIFIKASI
+      artefak = pe_mitigation_scan (B05: DllCharacteristics + Load
+      Config, 25 rujukan DEP/ASLR/CFG)
+- [ ] GraphQL introspection/batching/alias-brute/nested-DoS = probe
+      aktif (di luar kontrak offline); analisis depth/complexity
+      query offline = graphql_depth_audit (B28, #0823+#0825)
+
+## 267. Di luar domain — ofensif jaringan/identity & hardware (dari mukul975/performing-external-network-penetration-test, -performing-gcp-penetration-testing-with-gcpbucketbrute, -performing-hardware-security-module-integration, -performing-initial-access-with-evilginx3, -performing-iot-security-assessment) — distilasi G6-delta-2
+- [ ] external network pentest (PTES/OSSTMM, Nmap/Metasploit) =
+      engagement aktif — preseden #0032 di-luar-domain; metodologi
+      rekognisi→scan→eksploit→report = ranah attack_planner (42)
+- [ ] GCPBucketBrute + gcloud IAM enum = aktif + alat eksternal;
+      sisi defensif offline = gcp_fw_audit/gcp_orgpolicy_audit (B21)
+- [ ] HSM/PKCS#11 (SoftHSM2/CloudHSM/YubiHSM2, python-pkcs11) =
+      hardware + lib non-stdlib; konsepnya = key custody — kandidat
+      ekspansi, bukan gap bounty
+- [ ] EvilGinx3 AiTM phishing (bypass MFA, curi session token) =
+      framework phishing aktif — DILARANG kontrak repo (preseden
+      claude-red #0142 phishing); sisi defensif = eml_phish_triage;
+      deteksi AiTM = cek MFA-prompt anomaly di auth log (ops)
+- [ ] IoT assessment (hardware interface, firmware dump, radio) =
+      butuh akses fisik/lab — preseden #0132 offensive-iot
+
+
