@@ -2675,7 +2675,7 @@ keluarga zero-trust (#0727-#0734) distilasi jadi satu seksi (166).
       7045 service install (win_auth_triage) — eksekusi ofensifnya
       di luar fokus web/app cyphron
 
-## 173. ATT## 173. ATT&CK coverage mapping — padanan attack_coverage (dari mukul975/mapping-mitre-attack-techniques) — cf. seksi 150sCK coverage mapping — padanan attack_coverage (dari mukul975/mapping-mitre-attack-techniques)
+## 173. ATT&CK coverage mapping — padanan attack_coverage (dari mukul975/mapping-mitre-attack-techniques) — cf. seksi 150
 - [ ] padanan cyphron: attack_coverage (#0660) — rule export ->
       matriks teknik x state (covered/partial/gap) -> prioritas gap;
       skill ini menambah dua konsep utk MENYUSUN prioritas: gap
