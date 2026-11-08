@@ -4395,7 +4395,7 @@ dilanjutkan 254-256.
       dipakai tapi baru di-patch, signer berubah antar versi,
       postinstall baru di manifest
 
-## 261. Kepatuhan federal & ops produk keamanan (dari mukul975/executing-nist-rmf-authorization-to-operate, -evaluating-threat-intelligence-platforms, -implementing-github-advanced-security-for-code-scanning) — distilasi G6-delta-1 — cf. seksi 42/141/227/232
+## 261. Kepatuhan federal/privasi & ops produk keamanan (dari mukul975/executing-nist-rmf-authorization-to-operate, -evaluating-threat-intelligence-platforms, -implementing-gdpr-data-protection-controls) — distilasi G6-delta-1 — cf. seksi 42/141/227/232
 - [ ] NIST RMF 800-37 Rev.2 = 7 langkah ATO (Prepare → Categorize
       FIPS 199 low/moderate/high → Select baseline FIPS 200/800-53 →
       Implement → Assess 800-53A → Authorize (ATO/cATO) → Monitor
@@ -4404,9 +4404,12 @@ dilanjutkan 254-256.
 - [ ] evaluasi TIP (ThreatConnect/MISP/OpenCTI/Anomali) = procurement:
       kriteria feed-integration, STIX/TAXII support, workflow
       automation, analyst UX, TCO — keputusan organisasi, bukan alat
-- [ ] GitHub Advanced Security = konfigurasi produk (code scanning,
-      secret scanning, dependabot); sisi workflow-security sudah
-      dipadankan gha_workflow_audit (B16); enablement = runbook
+- [ ] GDPR controls (EU 2016/679) = kepatuhan/privasi: privacy by
+      design/default, DPIA, manajemen hak subjek data, notifikasi
+      breach 72 jam, transfer lintas batas (SCC/BCR/adequacy) —
+      runbook kepatuhan, bukan alat deterministik; preseden seksi
+      232 (privacy impact assessment); entri kembar DSAR = blok
+      berikutnya (#1031)
 
 ## 262. Padanan eksplisit kluster eksploitasi web & hunt endpoint (dari mukul975/exploiting-excessive-data-exposure-in-api, -exploiting-idor-vulnerabilities, -exploiting-mass-assignment-in-rest-apis, -exploiting-prototype-pollution-in-javascript, -exploiting-sql-injection-vulnerabilities, -exploiting-sql-injection-with-sqlmap, -hunting-for-living-off-the-land-binaries, -hunting-for-lolbins-execution-in-endpoint-logs, -hunting-for-ntlm-relay-attacks, -hunting-for-process-injection-techniques, -hunting-for-registry-run-key-persistence, -hunting-for-spearphishing-indicators) — distilasi G6-delta-1
 - [ ] excessive data exposure (API3:2023) → api_property_scan (B14,
