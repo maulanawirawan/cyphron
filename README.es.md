@@ -175,6 +175,30 @@ flowchart LR
 [AGENTS.md](AGENTS.md). Ahí explica cómo compilar, probar y añadir una
 skill.
 
+## Mapa de capacidades
+
+La familia de triaje son CLIs offline independientes: entra evidencia (logs, exportaciones, manifiestos, binarios), sale un findings.json determinístico, fail-closed, sin red. Aspectos por dominio:
+
+<details>
+<summary><b>88+ herramientas portadas en 9 dominios — clic para expandir</b></summary>
+<br>
+
+| Dominio | Responde a… | Ejemplos |
+|:---|:---|:---|
+| Triaje de eventos Windows | quién se mueve lateralmente / persiste / vuelca credenciales? | `sysmon_triage`, `win_persist_triage`, `dcsync_triage`, `ps_scriptlog_triage` |
+| Hardening Linux y host | está este host endurecido / con backdoor / escalable? | `linux_cis_audit`, `linux_persist_scan`, `linux_privesc_audit`, `aide_change_triage` |
+| Config cloud y contenedores | está expuesto este bucket / rol / pod / función? | `aws_config_audit`, `gcp_fw_audit`, `k8s_podsec_audit`, `netpol_audit`, `lambda_config_audit` |
+| Web, API y OAuth | es este spec/flujo/redirect/token explotable? | `openapi_spec_audit`, `graphql_depth_audit`, `oauth_redirect_audit`, `jwt_token_audit` |
+| Malware y binarios | qué puede hacer este binario/documento y qué lleva incrustado? | `pe_import_scan`, `rust_binary_triage`, `crypto_constant_scan`, `stego_triage`, `sqlite_forensics` |
+| Secretos y datos | qué se filtró, dónde y cuán grave es? | `paste_triage`, `secret_report_ingest`, `data_class_scan`, `browser_history_triage` |
+| Supply chain y CI/CD | se puede confiar en este pipeline/provenance? | `gha_workflow_audit`, `slsa_provenance_audit`, `pkg_typosquat_check`, `sarif_ingest` |
+| Gestión de vulnerabilidades | qué se corrige primero y por qué? | `ssvc_triage`, `owasp_risk_rating`, `attack_coverage`, `kev_gap` |
+| Validación e informes | es real este hallazgo y cómo se comunica? | `verify_gate`, `brocards_triage`, `log_chain_verify`, `report_pack` |
+
+</details>
+
+El índice completo está en [CHANGELOG.md](CHANGELOG.md); la metodología destilada de conceptos no-tool (250 secciones) en [docs/PORT-AGENT-METHODS.md](docs/PORT-AGENT-METHODS.md).
+
 ## Inicio rápido
 
 ```bash
@@ -293,6 +317,14 @@ de regresión de FP.
 cyphron es solo para pruebas **autorizadas**: tus propios sistemas o
 programas que te den permiso claro. Escanear sistemas ajenos sin permiso
 es ilegal en la mayoría de los lugares. No lo hagas.
+
+## Comunidad
+
+🐛 **¿Encontraste un bug?** → [reporte de bug](.github/ISSUE_TEMPLATE/bug_report.md)
+🙅 **¿Un detector marcó algo benigno?** → [reporte de falso positivo](.github/ISSUE_TEMPLATE/false_positive.md) — los FP son ciudadanos de primera clase aquí; cada uno endurece el suelo anti-FP
+💡 **Falta una capacidad?** → [solicitud de función](.github/ISSUE_TEMPLATE/feature_request.md)
+🔒 **¿Problema de seguridad en cyphron mismo?** → [SECURITY.md](.github/SECURITY.md) (divulgación privada, sin issue público)
+🤝 [Guía de contribución](CONTRIBUTING.md) · [Código de conducta](.github/CODE_OF_CONDUCT.md) · [Changelog](CHANGELOG.md)
 
 ## Contribuir
 

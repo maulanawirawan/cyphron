@@ -152,6 +152,30 @@ flowchart LR
 在用 AI 编程助手？让它读 [AGENTS.md](AGENTS.md)，里面写了如何构建、
 测试和添加技能。
 
+## 能力图谱
+
+triage 家族是一组独立的离线 CLI：输入证据（日志、导出、清单、二进制），输出确定性的 findings.json，fail-closed，零网络。按领域划分的亮点：
+
+<details>
+<summary><b>9 个领域共 88+ 个移植工具 — 点击展开</b></summary>
+<br>
+
+| 领域 | 回答的问题… | 示例 |
+|:---|:---|:---|
+| Windows 事件分诊 | 谁在横向移动 / 持久化 / 转储凭据？ | `sysmon_triage`, `win_persist_triage`, `dcsync_triage`, `ps_scriptlog_triage` |
+| Linux 与主机加固 | 这台主机是否已加固 / 有后门 / 可提权？ | `linux_cis_audit`, `linux_persist_scan`, `linux_privesc_audit`, `aide_change_triage` |
+| 云与容器配置 | 这个 bucket / 角色 / Pod / 函数是否暴露？ | `aws_config_audit`, `gcp_fw_audit`, `k8s_podsec_audit`, `netpol_audit`, `lambda_config_audit` |
+| Web、API 与 OAuth | 这个 spec/流程/redirect/token 是否可被滥用？ | `openapi_spec_audit`, `graphql_depth_audit`, `oauth_redirect_audit`, `jwt_token_audit` |
+| 恶意软件与二进制 | 这个二进制/文档能做什么，内嵌了什么？ | `pe_import_scan`, `rust_binary_triage`, `crypto_constant_scan`, `stego_triage`, `sqlite_forensics` |
+| 机密与数据 | 泄露了什么、在哪里、有多严重？ | `paste_triage`, `secret_report_ingest`, `data_class_scan`, `browser_history_triage` |
+| 供应链与 CI/CD | 这条流水线/provenance 可信吗？ | `gha_workflow_audit`, `slsa_provenance_audit`, `pkg_typosquat_check`, `sarif_ingest` |
+| 漏洞管理 | 先修哪个，为什么？ | `ssvc_triage`, `owasp_risk_rating`, `attack_coverage`, `kev_gap` |
+| 验证与报告 | 这个发现是真的吗，如何表述？ | `verify_gate`, `brocards_triage`, `log_chain_verify`, `report_pack` |
+
+</details>
+
+完整索引见 [CHANGELOG.md](CHANGELOG.md)；从非工具型概念提炼的方法论（250 节）见 [docs/PORT-AGENT-METHODS.md](docs/PORT-AGENT-METHODS.md)。
+
 ## 快速开始
 
 ```bash
@@ -256,6 +280,14 @@ cargo test --release --manifest-path core-rs/Cargo.toml
 
 cyphron 仅用于**已授权**的测试：你自己的系统，或明确给予许可的项目。
 未经许可扫描他人系统在大多数地方都是违法的。请不要这样做。
+
+## 社区
+
+🐛 **发现 bug？** → [bug 报告](.github/ISSUE_TEMPLATE/bug_report.md)
+🙅 **检测器误报了？** → [误报报告](.github/ISSUE_TEMPLATE/false_positive.md) — 误报报告在这里是一等公民，每一份都会收紧反误报底线
+💡 **缺少某项能力？** → [功能请求](.github/ISSUE_TEMPLATE/feature_request.md)
+🔒 **cyphron 本身的安全问题？** → [SECURITY.md](.github/SECURITY.md)（私下披露，不要开公开 issue）
+🤝 [贡献指南](CONTRIBUTING.md) · [行为准则](.github/CODE_OF_CONDUCT.md) · [更新日志](CHANGELOG.md)
 
 ## 贡献
 

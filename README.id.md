@@ -169,6 +169,30 @@ flowchart LR
 Pakai AI coding agent? Arahkan ke [AGENTS.md](AGENTS.md). Di sana ada
 cara build, test, dan menambah skill.
 
+## Peta kemampuan
+
+Keluarga triase adalah kumpulan CLI offline yang berdiri sendiri: bukti masuk (log, ekspor, manifest, biner), findings.json deterministik keluar, fail-closed, nol jaringan. Sorotan per domain:
+
+<details>
+<summary><b>88+ tool hasil port di 9 domain — klik untuk membuka</b></summary>
+<br>
+
+| Domain | Menjawab pertanyaan… | Contoh |
+|:---|:---|:---|
+| Triase event Windows | siapa lateral movement / persistensi / dump kredensial? | `sysmon_triage`, `win_persist_triage`, `dcsync_triage`, `ps_scriptlog_triage` |
+| Hardening & host Linux | apakah host ini hardened / backdoor / bisa privesc? | `linux_cis_audit`, `linux_persist_scan`, `linux_privesc_audit`, `aide_change_triage` |
+| Konfigurasi cloud & container | apakah bucket / role / pod / function ini terekspos? | `aws_config_audit`, `gcp_fw_audit`, `k8s_podsec_audit`, `netpol_audit`, `lambda_config_audit` |
+| Web, API & OAuth | apakah spec/flow/redirect/token ini bisa disalahgunakan? | `openapi_spec_audit`, `graphql_depth_audit`, `oauth_redirect_audit`, `jwt_token_audit` |
+| Malware & biner | apa yang bisa dilakukan biner/dok ini, apa yang tertanam? | `pe_import_scan`, `rust_binary_triage`, `crypto_constant_scan`, `stego_triage`, `sqlite_forensics` |
+| Secret & data | apa yang bocor, di mana, seberapa parah? | `paste_triage`, `secret_report_ingest`, `data_class_scan`, `browser_history_triage` |
+| Supply chain & CI/CD | bisakah pipeline/provenance ini dipercaya? | `gha_workflow_audit`, `slsa_provenance_audit`, `pkg_typosquat_check`, `sarif_ingest` |
+| Manajemen kerentanan | apa yang diperbaiki duluan, dan kenapa? | `ssvc_triage`, `owasp_risk_rating`, `attack_coverage`, `kev_gap` |
+| Validasi & pelaporan | apakah temuan ini nyata, dan cara menyampaikannya? | `verify_gate`, `brocards_triage`, `log_chain_verify`, `report_pack` |
+
+</details>
+
+Indeks lengkap ada di [CHANGELOG.md](CHANGELOG.md); metodologi hasil distilasi konsep non-tool (250 seksi) ada di [docs/PORT-AGENT-METHODS.md](docs/PORT-AGENT-METHODS.md).
+
 ## Mulai cepat
 
 ```bash
@@ -284,6 +308,14 @@ cyphron hanya untuk pengujian **yang berizin**: sistem milikmu sendiri,
 atau program yang jelas-jelas memberi izin. Memindai sistem orang lain
 tanpa izin itu melanggar hukum di hampir semua negara, termasuk
 Indonesia (UU ITE). Jangan.
+
+## Komunitas
+
+🐛 **Menemukan bug?** → [laporan bug](.github/ISSUE_TEMPLATE/bug_report.md)
+🙅 **Detector menandai sesuatu yang benign?** → [laporan false positive](.github/ISSUE_TEMPLATE/false_positive.md) — laporan FP adalah warga kelas satu di sini; masing-masing mempertajam lantai anti-FP
+💡 **Kurang kemampuan?** → [permintaan fitur](.github/ISSUE_TEMPLATE/feature_request.md)
+🔒 **Masalah keamanan di cyphron sendiri?** → [SECURITY.md](.github/SECURITY.md) (pendisclosure-an privat, tanpa issue publik)
+🤝 [Panduan kontribusi](CONTRIBUTING.md) · [Kode Etik](.github/CODE_OF_CONDUCT.md) · [Changelog](CHANGELOG.md)
 
 ## Kontribusi
 

@@ -169,6 +169,34 @@ flowchart LR
 Using an AI coding agent? Point it at [AGENTS.md](AGENTS.md). It covers
 how to build, test, and add a skill.
 
+## Capability map
+
+The triage family is a set of standalone offline CLI tools: evidence in
+(logs, exports, manifests, binaries), deterministic findings.json out,
+fail-closed, zero network. Highlights by domain:
+
+<details>
+<summary><b>88+ ported tools across 9 domains — click to expand</b></summary>
+<br>
+
+| Domain | Answers the question… | Examples |
+|:---|:---|:---|
+| Windows event triage | "who moved laterally / persisted / dumped creds?" | `sysmon_triage`, `win_persist_triage`, `dcsync_triage`, `ps_scriptlog_triage` |
+| Linux & host hardening | "is this host hardened / backdoored / privesc-able?" | `linux_cis_audit`, `linux_persist_scan`, `linux_privesc_audit`, `aide_change_triage` |
+| Cloud & container config | "is this bucket / role / pod / function exposed?" | `aws_config_audit`, `gcp_fw_audit`, `k8s_podsec_audit`, `netpol_audit`, `lambda_config_audit` |
+| Web, API & OAuth | "is this spec/flow/redirect/token abusable?" | `openapi_spec_audit`, `graphql_depth_audit`, `oauth_redirect_audit`, `jwt_token_audit` |
+| Malware & binary | "what can this binary/doc do, and what does it embed?" | `pe_import_scan`, `rust_binary_triage`, `crypto_constant_scan`, `stego_triage`, `sqlite_forensics` |
+| Secrets & data | "what leaked, where, and how bad?" | `paste_triage`, `secret_report_ingest`, `data_class_scan`, `browser_history_triage` |
+| Supply chain & CI/CD | "can this pipeline/provenance be trusted?" | `gha_workflow_audit`, `slsa_provenance_audit`, `pkg_typosquat_check`, `sarif_ingest` |
+| Vuln management | "what do we fix first, and why?" | `ssvc_triage`, `owasp_risk_rating`, `attack_coverage`, `kev_gap` |
+| Validation & reporting | "is this finding real, and how do we say it?" | `verify_gate`, `brocards_triage`, `log_chain_verify`, `report_pack` |
+
+</details>
+
+The full index lives in [CHANGELOG.md](CHANGELOG.md); the methodology
+distilled from non-tool-shaped concepts (250 sections) lives in
+[docs/PORT-AGENT-METHODS.md](docs/PORT-AGENT-METHODS.md).
+
 ## Quick start
 
 ```bash
@@ -282,6 +310,14 @@ hardcoded user agents, and the full FP regression battery.
 cyphron is for **authorized** testing only: your own systems, or
 programs that clearly give you permission. Scanning things you don't
 own without permission is illegal in most places. Don't.
+
+## Community
+
+- 🐛 **Found a bug?** → [bug report](.github/ISSUE_TEMPLATE/bug_report.md)
+- 🙅 **A detector flagged something benign?** → [false positive report](.github/ISSUE_TEMPLATE/false_positive.md) — FP reports are first-class here; every one tightens an anti-FP floor
+- 💡 **Missing a capability?** → [feature request](.github/ISSUE_TEMPLATE/feature_request.md)
+- 🔒 **Security issue in cyphron itself?** → [SECURITY.md](.github/SECURITY.md) (private disclosure, no public issue)
+- 🤝 [Contributing guide](CONTRIBUTING.md) · [Code of Conduct](.github/CODE_OF_CONDUCT.md) · [Changelog](CHANGELOG.md)
 
 ## Contributing
 
