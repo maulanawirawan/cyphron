@@ -2079,3 +2079,146 @@ tools/attack_coverage.py; sisanya didistilasi di bawah (135-141).
       = ranah entri #0668 blok lain — sengaja tidak dibangun utk
       anti-tabrakan; disiplin yang diambil: default-deny baseline
       dulu, verifikasi enforcement via dry-run)
+
+
+
+---
+Blok B20 (#0571-#0600, 8 Nov) — sumber mukul975 (Apache-2.0 — konsep,
+bukan teks). Gelombang "implementing-*": panduan implementasi kontrol,
+mayoritas konsol vendor. Lima entri-grup diekstrak jadi tool: #0575 ->
+tools/openapi_spec_audit.py, #0579 -> tools/applocker_policy_audit.py,
+#0583 -> tools/aws_config_audit.py, #0585 -> tools/data_class_scan.py,
+#0597+#0599 -> tools/cspm_finding_ingest.py; sisanya didistilasi di
+bawah (142-149; nomor seksi lanjutan B21/B22 yang menulis duluan).
+
+## 142. Rate limiting & deteksi abuse API (dari mukul975/implementing-api-abuse-detection-with-rate-limiting, implementing-api-rate-limiting-and-throttling)
+- [ ] dua mekanisme limiter inti: token bucket (refill = elapsed x rate,
+      cap max_tokens, retry_after = (requested-tokens)/rate) dan sliding
+      window (sorted-set, buang entri < window_start, hitung zcard)
+- [ ] limiter adaptif = skor ancaman eksplisit: auth_failures >10 -> +3,
+      >5 -> +2, >2 -> +1; error_rate >0.8 -> +3, >0.5 -> +2;
+      request_rate >50 -> +2, >20 -> +1; unique_endpoints >50 -> +2;
+      skor >=7 CRITICAL, >=5 HIGH, >=3 ELEVATED — tabel limit per level
+      (100/50/20/5 rpm) ditulis eksplisit, bukan perasaan
+- [ ] tiered limits per kelas pelanggan (free/premium/enterprise +
+      endpoint sensitif lebih ketat: auth 5/min, export 5/hour) —
+      header X-RateLimit-* + Retry-After wajib di respons
+- [ ] padanan cyphron: rate-limit-validator (ukur live di lab),
+      web_log_intrusion (ambang per window dari log), LockoutCanaryPlaybook;
+      checklist ini dipakai saat MENDESAIN ambang & MEMBACA hasilnya
+
+## 143. Gateway & threat protection — audit konfigurasi (dari mukul975/implementing-api-gateway-security-controls, implementing-api-threat-protection-with-apigee)
+- [ ] kontrol gateway yang diaudit di konfigurasi lab: throttle eksplisit
+      (contoh 50 rps/burst 100), metric filter status 401/403/429/5xx,
+      deny-list UA tool ofensif (sqlmap/nikto/nmap/masscan), mTLS
+      terverifikasi (bukan hanya port 443)
+- [ ] ambang JSON threat protection Apigee layak dipakai sebagai default
+      penilaian payload: ContainerDepth 5, ObjectEntryCount 25,
+      ArrayElementCount 100, StringValueLength 500,
+      ObjectEntryNameLength 50; XML: NodeDepth 5,
+      AttributeCountPerElement 5, ChildCount 25; SpikeArrest 30ps
+- [ ] payload bomb = bentuk yang mahal diparse, bukan hanya besar —
+      cek struktur tangkapan bisa lewat api_property_scan; regex
+      injection (SQLi/XSS/CRLF/traversal) = ranah waf_sqli_triage
+- [ ] parser YAML multi-vendor (Kong/Apigee XML) tidak stdlib — audit
+      konfigurasi gateway = checklist manual di lab, bukan tool
+
+## 144. API key lifecycle (dari mukul975/implementing-api-key-security-controls)
+- [ ] format key = prefix semantik (sk_live_/sk_test_/pk_live_) +
+      entropy 256-bit (token_urlsafe(32)) — prefix memudahkan deteksi
+      leak dan membedakan lingkungan
+- [ ] penyimpanan = SHA-256 hash, BUKAN plaintext; revocation list
+      dipakai saat validasi; rotasi dgn grace-period ganda (key lama
+      tetap sah terbatas waktu) supaya tidak outage
+- [ ] leak response deterministik: regex prefix di repo/log/HTML ->
+      ekstrak -> revoke segera — deteksinya sudah di cyphron
+      (repo_secret_scan/bundle_exposure/js_secret_scanner_v2/
+      secret_history_scan); auto-revoke = aksi berdampak, butuh manusia
+
+## 145. Skor postur API komposit (dari mukul975/implementing-api-security-posture-management)
+- [ ] rumus skor per endpoint (0-100): kontrol wajib hilang dihitung
+      severity x 5 (authentication, HTTPS, header rate-limit, CORS
+      non-`*`, security headers, input validation); multiplier
+      klasifikasi: shadow 2.0, deprecated 1.8, external 1.5,
+      partner 1.3, internal 1.0; +10 tidak terdokumentasi; +5 per
+      tipe data sensitif terdeteksi di sampel respons
+- [ ] distribusi: skor >=75 CRITICAL, >=50 HIGH, >=25 MEDIUM — laporan
+      agregat organisasi + top-20 terburuk dulu
+- [ ] di cyphron: klasifikasi shadow = shadow_api_diff; cek header
+      per-kontrol = http_security_headers/cors_checker/
+      cache_control_posture; rumus ini dipakai saat MENYUSUN skor dari
+      evidence yang sudah dikumpulkan (bukan tool baru)
+
+## 146. Container scan gate & Security Hub (dari mukul975/implementing-aqua-security-for-container-scanning, implementing-aws-security-hub, implementing-aws-security-hub-compliance)
+- [ ] gate container scan yang sehat: exit-code gagal pada
+      CRITICAL + HIGH yang punya FIX (fixable), bukan semua temuan;
+      .trivyignore dgn tanggal kedaluwarsa — ignore abadi = celah;
+      re-scan saat DB CVE terbaru (komponen tak berubah bisa jadi
+      rentan — pola sama dgn seksi 101 SBOM)
+- [ ] padanan cyphron: docker_audit (misconfig statis),
+      dependency_cve (CVE dari lockfile/SBOM), gha_workflow_audit (gate)
+- [ ] Security Hub x2 = dedup fungsional (standards CIS/FSBP/PCI/NIST,
+      delegated admin, insight = preset filter); jalur hasil vendor ->
+      ingest: SARIF = sarif_ingest, ASFF = pola ingest yang sama bila
+      kelak dibutuhkan; temuan tanpa aksi = noise
+
+## 147. IAM permission boundaries & attack path (dari mukul975/implementing-aws-iam-permission-boundaries, implementing-attack-path-analysis-with-xm-cyber)
+- [ ] boundary policy yang benar punya Deny eksplisit utk
+      iam:DeleteUserPermissionsBoundary / DeleteRolePermissionsBoundary /
+      CreatePolicyVersion pada boundary itu sendiri (jika tidak, boundary
+      bisa dilepas oleh principal yang dibatasi)
+- [ ] delegation policy wajib mensyaratkan Condition StringEquals
+      iam:PermissionsBoundary pada iam:CreateRole — role baru tanpa
+      boundary = jalur keluar dari batas
+- [ ] effective permission = irisan identity ∩ boundary (expand
+      wildcard dgn cek eksplisit); cek ini cocok ditambahkan di
+      iam_escalation_scan milik pemiliknya bila dibutuhkan
+- [ ] choke point attack path (XM Cyber): prioritas = f(paths_blocked x
+      assets_protected) — node dgn banyak jalur masuk/keluar; pada
+      temuan cyphron: jalur eskalasi IAM = versi mikro konsep itu
+      (iam_escalation_scan); platform sensor = OPS vendor
+
+## 148. OPS & kerangka — catatan bidang blok B20 (bukan "skip" polos)
+- [ ] #0577 42Crunch: platform audit OpenAPI (300+ check) + conformance
+      scan live — hasilnya SARIF -> sarif_ingest; checklist statisnya
+      menyatu dgn openapi_spec_audit (#0575)
+- [ ] #0586 Nitro Enclave: attestation doc = COSE_Sign1/CBOR (PCR0-4,
+      nonce), validasi PCR vs build + verifikasi chain ke root
+      aws.nitro-enclaves; KMS policy wajib Condition
+      kms:RecipientAttestation:ImageSha512 — parent role yang bisa
+      Decrypt TANPA attestation = FAIL; pustaka cbor2/cose non-stdlib
+      -> di luar disiplin cyphron
+- [ ] #0589/#0590 Azure PIM + Defender for Cloud: PIM = konversi
+      standing -> eligible + MFA-on-activation + access review berkala
+      + alert (>5 Global Admin, assignment stale 90 hari); Defender =
+      secure score + regulatory dashboard + JIT VM access — keduanya
+      konsol/Graph live; konsep inti: standing access = permukaan,
+      eligible+JIT = pengecilan
+- [ ] #0591/#0593/#0595 BeyondCorp + browser isolation + CISA ZTMM:
+      migrasi VPN->ZTNA berfase (inventory -> pilot -> coexist ->
+      decommission); access level = atribut device+user+context;
+      RBI = matrix mode per kategori URL + CDR strip active-content
+      (sisi OOXML padanan maldoc_triage); ZTMM = kerangka maturity
+      5 pillar x 4 stage, assessment manual per kapabilitas
+- [ ] #0594 canary tokens: prinsip = token TIDAK PERNAH diakses sah ->
+      alert-on-touch high-confidence; placement menentukan vektor
+      (.aws/credentials, config, wiki); vendor live = OPS; normalisasi
+      alert webhook (memo/src/channel/time) = pola triase eml/log
+- [ ] #0596 cloud DLP: sisi identifikasi custom = data_class_scan
+      (#0585); platform (Macie job, GCP DLP inspect/de-identify,
+      Purview labeling) = OPS; gate DLP = scan -> findings -> BLOCK/
+      ALLOW eksplisit (jangan silent-allow)
+
+## 149. Di luar domain — routing global RPKI (dari mukul975/implementing-bgp-security-with-rpki)
+- [ ] preseden #0487 (B17): infrastruktur routing global (ROA di RIR,
+      validator Routinator/FORT, route-map router) di luar fokus
+      web/app/infra cyphron
+- [ ] inti konsep yang layak diingat — Route Origin Validation RFC 6811:
+      pasangkan (origin ASN, prefix) terhadap VRP (prefix, ASN,
+      max-length): cocok penuh = VALID; ROA ada tapi ASN/prefix-length
+      mismatch = INVALID (indikasi hijack / sub-prefix route leak);
+      tanpa ROA = NOT-FOUND (bukan aman, hanya belum terlindungi)
+- [ ] monitoring milik sendiri: coverage ROA prefix publik + alarm saat
+      VALIDITY announce sendiri turun menjadi INVALID — bisa dievaluasi
+      offline dari dump `routinator vrps --format json` bila kelak
+      dibutuhkan; tanpa data VRP tidak ada yang bisa disimpulkan
