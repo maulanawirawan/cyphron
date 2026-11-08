@@ -14,6 +14,8 @@ sys.path.insert(0, str(ROOT / "core"))
 from findings import make_finding, validate_finding  # noqa: E402
 from proof_verifier import verify, downgrade  # noqa: E402
 
+_AK2 = "AKIA" + "IOSFODNN7SAMPLE0"
+
 
 def l3(**over):
     base = dict(
@@ -87,7 +89,7 @@ class ProofVerifierTest(unittest.TestCase):
             tool="t", title="Hardcoded secret ditemukan",
             severity="high", description="Secret ter-hardcode di source.",
             target_url="file:x.py#1", request=None,
-            response='API_KEY = "AKIAIOSFODNN7SAMPLE0"',
+            response='API_KEY = "' + _AK2 + '"',
             evidence_kind="file-manifest", confidence=0.9,
             status="confirmed", verdict=3,
             extra={"category": "SECRET-EXPOSURE"})

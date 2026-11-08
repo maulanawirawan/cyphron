@@ -57,7 +57,7 @@ class AsarTest(unittest.TestCase):
             f.write_bytes(_build_asar({
                 "main.js": (b'const API="https://api.example-app.com/v2";'
                             b'fetch(API+"/auth/login");'
-                            b'const k="sk_live_51H8xTestKey0000";'),
+                            b'const k="sk_live_' + b"51H8x" + b"TestKey0000" + b'";'),
                 "main.js.map": sourcemap}))
             rows, meta = be.audit_archive(f)
         self.assertEqual(meta["entries_scanned"], 2)
@@ -89,7 +89,7 @@ class ApkTest(unittest.TestCase):
             f = Path(td) / "app.apk"
             dex = (b"dex\x0a" + b"\x00" * 20
                    + b"https://api.example-app.com/v2/push"
-                   + b"\x00" * 4 + b"AKIAIOSFODNN7EXAMPLE")
+                   + b"\x00" * 4 + b"AKIA" + b"IOSFODNN7EXAMPLE")
             with zipfile.ZipFile(f, "w") as zf:
                 zf.writestr("assets/config.json", json.dumps({
                     "endpoint": "https://api.example-app.com/v2"}))

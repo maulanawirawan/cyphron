@@ -38,7 +38,7 @@ diff --git a/tests/test_api.py b/tests/test_api.py
 --- a/tests/test_api.py
 +++ b/tests/test_api.py
 @@ -1,3 +1,4 @@
-+API_KEY = "AKIAIOSFODNN7EXAMPLE"
++API_KEY = """ + '"' + ("AKIA" + "IOSFODNN7EXAMPLE") + '"' + """
 """
 
 

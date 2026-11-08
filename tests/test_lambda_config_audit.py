@@ -26,7 +26,7 @@ FUNCTIONS = {
             "Runtime": "python3.7",
             "Role": "arn:aws:iam::123456789012:role/admin-lambda-role",
             "Environment": {"Variables": {
-                "DB_PASSWORD": "AKIAIOSFODNN7EXAMPLE",
+                "DB_PASSWORD": ("AKIA" + "IOSFODNN7EXAMPLE"),
                 "STRIPE_SECRET_KEY": "sk_live_51H8xQ2eZvKYlo2Cxyzabc",
                 "REGION": "ap-southeast-1",
             }},
@@ -163,7 +163,7 @@ def test_aws_findings(tmp_path: Path) -> None:
                if f["id"] == "env-secret-value"]
     joined = " ".join(f["message"] + f["poc"] for f in secrets)
     assert "DB_PASSWORD" in joined and "STRIPE_SECRET_KEY" in joined
-    assert "AKIAIOSFODNN7EXAMPLE" not in joined          # redaksi
+    assert ("AKIA" + "IOSFODNN7EXAMPLE") not in joined          # redaksi
     assert "sk_live_51H8xQ2eZvKYlo2Cxyzabc" not in joined
     assert "aws-access-key-id" in joined                 # nama pola
     assert "REGION" not in joined                        # bersih
@@ -199,7 +199,7 @@ def test_aws_findings(tmp_path: Path) -> None:
     # schema + tidak ada nilai rahasia di seluruh output
     assert res["schema"] == lca.SCHEMA
     blob = out.read_text(encoding="utf-8")
-    assert "AKIAIOSFODNN7EXAMPLE" not in blob
+    assert ("AKIA" + "IOSFODNN7EXAMPLE") not in blob
     assert "sk_live_" not in blob
 
 

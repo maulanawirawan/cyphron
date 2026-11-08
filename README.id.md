@@ -11,8 +11,8 @@ kontrak output yang ketat.
 *Tanpa bukti, tanpa laporan.*
 
 [![CI](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml/badge.svg)](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml)
-[![tests](https://img.shields.io/badge/tools-175%20%2896%20ported%29-brightgreen)](#isinya-apa-aja)
-[![release](https://img.shields.io/github/v/release/maulanawirawan/cyphron)](https://github.com/maulanawirawan/cyphron/releases)
+[![tests](https://img.shields.io/badge/tools-175-brightgreen)](#isinya-apa-aja)
+[![release](https://img.shields.io/badge/release-v0.1.0-blue)](https://github.com/maulanawirawan/cyphron/releases)
 [![skills](https://img.shields.io/badge/detection%20skills-93-8A2BE2)](#isinya-apa-saja)
 [![python](https://img.shields.io/badge/python-3.12%2B-3776AB)](#mulai-cepat)
 [![rust](https://img.shields.io/badge/rust-stable-orange)](#mulai-cepat)
@@ -174,7 +174,7 @@ cara build, test, dan menambah skill.
 Keluarga triase adalah kumpulan CLI offline yang berdiri sendiri: bukti masuk (log, ekspor, manifest, biner), findings.json deterministik keluar, fail-closed, nol jaringan. Sorotan per domain:
 
 <details>
-<summary><b>96 tool hasil port di 9 domain (175 total di tools/) — klik untuk membuka</b></summary>
+<summary><b>120 tool hasil port di 9 domain (175 total di tools/) — klik untuk membuka</b></summary>
 <br>
 
 | Domain | Menjawab pertanyaan… | Contoh |

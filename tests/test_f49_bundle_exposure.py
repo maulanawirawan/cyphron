@@ -33,7 +33,7 @@ class BundleExposureTest(unittest.TestCase):
                        'const API = "https://api.example-app.com/v2";\n'
                        'fetch(API + "/auth/login");\n'
                        'fetch(API + "/admin/export-all");\n'
-                       'const DEBUG_SECRET = "sk_live_51H8xTestKey0000";\n'
+                       'const DEBUG_SECRET = "sk_live_' + "51H8x" + "TestKey0000" + '";\n'
                        'var adminMode = true;\n')
             rows, meta = be.audit_bundle(f)
         kinds = {r.get("kind") for r in rows}
@@ -93,7 +93,7 @@ class TreeAuditTest(unittest.TestCase):
         (dist / "app.js").write_text(
             'const API="https://api.example-app.com/v2";' + nl +
             'fetch(API+"/auth/login");' + nl +
-            'const k="sk_live_51H8xTestKey0000";' + nl, encoding="utf-8")
+            'const k="sk_live_' + "51H8x" + "TestKey0000" + '";' + nl, encoding="utf-8")
         (dist / "vendor.js").write_text(
             'fetch("https://cdn.vendor.example/v2/track");' + nl +
             'var debugMode = true;' + nl, encoding="utf-8")
@@ -194,7 +194,7 @@ class BinarySurfaceTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             data = (b"MZ" + b"\x00" * 40
                     + b"https://api.example-app.com/v2/auth"
-                    + b"\x00" * 4 + b"sk_live_51H8xTestKey0000"
+                    + b"\x00" * 4 + b"sk_live_" + b"51H8x" + b"TestKey0000"
                     + b"\x00" * 4
                     + "https://telemetry.example.com/ping".encode(
                         "utf-16-le"))

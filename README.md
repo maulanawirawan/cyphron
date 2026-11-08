@@ -11,8 +11,8 @@ agree on.
 *No proof, no report.*
 
 [![CI](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml/badge.svg)](https://github.com/maulanawirawan/cyphron/actions/workflows/ci.yml)
-[![tools](https://img.shields.io/badge/tools-175%20%2896%20ported%29-brightgreen)](#whats-inside)
-[![release](https://img.shields.io/github/v/release/maulanawirawan/cyphron)](https://github.com/maulanawirawan/cyphron/releases)
+[![tools](https://img.shields.io/badge/tools-175-brightgreen)](#whats-inside)
+[![release](https://img.shields.io/badge/release-v0.1.0-blue)](https://github.com/maulanawirawan/cyphron/releases)
 [![skills](https://img.shields.io/badge/detection%20skills-93-8A2BE2)](#whats-inside)
 [![python](https://img.shields.io/badge/python-3.12%2B-3776AB)](#quick-start)
 [![rust](https://img.shields.io/badge/rust-stable-orange)](#quick-start)
@@ -176,7 +176,7 @@ The triage family is a set of standalone offline CLI tools: evidence in
 fail-closed, zero network. Highlights by domain:
 
 <details>
-<summary><b>96 ported tools across 9 domains (175 total in tools/) — click to expand</b></summary>
+<summary><b>120 ported tools across 9 domains (175 total in tools/) — click to expand</b></summary>
 <br>
 
 | Domain | Answers the question… | Examples |

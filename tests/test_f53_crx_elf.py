@@ -73,7 +73,7 @@ class CrxTest(unittest.TestCase):
             f.write_bytes(_build_crx({
                 "background.js": (b'const API='
                                   b'"https://api.example-app.com/v2";'
-                                  b'const k="sk_live_51H8xTestKey0000";'),
+                                  b'const k="sk_live_' + b"51H8x" + b"TestKey0000" + b'";'),
                 "manifest.json": b'{"version": "1.0"}'}))
             rows, meta = be.audit_archive(f)
         self.assertEqual(meta["entries_scanned"], 2)

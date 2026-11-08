@@ -17,6 +17,11 @@ for sub in ("tools",):
 
 import data_class_scan as dcs  # noqa: E402
 
+# kredensial contoh terdokumentasi AWS - dibangun runtime agar tidak
+# menyalakan secret scanning (disiplin fixture B29)
+_AWS_AK = "AKIA" + "IOSFODNN7EXAMPLE"
+_AWS_AS = "ASIA" + "IOSFODNN7EXAMPLE"
+
 TOOL = ROOT / "tools" / "data_class_scan.py"
 
 
@@ -36,7 +41,7 @@ class TestDetectors(unittest.TestCase):
     def test_semua_kategori(self):
         text = ("employee SSN: 123-45-6789 (social security)\n"
                 "card: 4111 1111 1111 1111\n"
-                "key: AKIAIOSFODNN7EXAMPLE\n"
+                "key: " + _AWS_AK + "\n"
                 "email: jane.doe@example.com")
         hits, _ = dcs.scan_text(text, [], None, 50)
         self.assertIn("pii-aws-access-key", hits)
@@ -64,7 +69,7 @@ class TestDetectors(unittest.TestCase):
         self.assertEqual(stats["ssn_format_only"], 1)
 
     def test_aws_key_asia_juga(self):
-        hits, _ = dcs.scan_text("temp key ASIAIOSFODNN7EXAMPLE", [], None, 50)
+        hits, _ = dcs.scan_text("temp key " + _AWS_AS, [], None, 50)
         self.assertEqual(len(hits["pii-aws-access-key"]), 1)
 
 
@@ -173,7 +178,7 @@ class TestCli(unittest.TestCase):
     def test_end_to_end_dan_masking(self):
         with tempfile.TemporaryDirectory() as td:
             f1 = _mk_file(Path(td), "dump.csv",
-                          "ssn: 987-65-4321 social\nkey: AKIAIOSFODNN7EXAMPLE\n")
+                          "ssn: 987-65-4321 social\nkey: " + _AWS_AK + "\n")
             out = Path(td) / "hasil.json"
             r = subprocess.run([sys.executable, str(TOOL), "--file", str(f1),
                                 "--json", str(out)],
@@ -184,7 +189,7 @@ class TestCli(unittest.TestCase):
             self.assertIn("attribution", doc)
             text_all = json.dumps(doc)
             # nilai penuh TIDAK boleh tampil di laporan (masking)
-            self.assertNotIn("AKIAIOSFODNN7EXAMPLE", text_all)
+            self.assertNotIn(_AWS_AK, text_all)
             self.assertNotIn("987-65-4321", text_all)
             checks = {f["check"] for f in doc["findings"]}
             self.assertIn("pii-aws-access-key", checks)

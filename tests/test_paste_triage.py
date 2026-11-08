@@ -24,9 +24,10 @@ _SLACK_TOKEN = "xox" + "b-" + "123456789012-" + "abcdefghij" + "klmnop"
 
 DUMP_ORG = ("""internal dump corp.example.id project-apollo
 admin@corp.example.id:Passw0rd Dummy!
-AKIAIOSFODNN7EXAMPLE
-aws_secret_access_key = wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
-""" + _GH_TOKEN + "\n" + _SLACK_TOKEN + """
+""" + ("AKIA" + "IOSFODNN7EXAMPLE")
+    + "\naws_secret_access_key = "
+    + ("wJalr" + "XUtnFEMI/K7MDENG/bPxRfiCY" + "EXAMPLEKEY") + "\n"
+    + _GH_TOKEN + "\n" + _SLACK_TOKEN + """
 eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.dozjgNryP4J3jVmNHl0w5N
 -----BEGIN RSA PRIVATE KEY-----
 MIIBOQIBAAJBAK
@@ -106,7 +107,7 @@ def test_keyword_only_high(tmp_path):
 
 def test_creds_without_keyword_medium(tmp_path):
     p = _write(tmp_path, "dump.txt",
-               "AKIAIOSFODNN7EXAMPLE and " + _GH_TOKEN)
+               ("AKIA" + "IOSFODNN7EXAMPLE") + " and " + _GH_TOKEN)
     _, out, _ = _run("--paste", str(p))
     v = [f for f in out["findings"] if f["check"] == "paste-verdict"][0]
     assert v["severity"] == "medium"
@@ -151,7 +152,7 @@ def test_redaction_no_full_secret(tmp_path):
     p = _write(tmp_path, "dump.txt", DUMP_ORG)
     _, out, _ = _run("--paste", str(p), "--keyword", "corp.example.id")
     blob = json.dumps(out)
-    for secret in ("wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
+    for secret in (("wJalr" + "XUtnFEMI/K7MDENG/bPxRfiCY" + "EXAMPLEKEY"),
                    _GH_TOKEN,
                    _SLACK_TOKEN,
                    "Passw0rd Dummy!", "svcPass99",

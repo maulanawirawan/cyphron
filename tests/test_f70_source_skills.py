@@ -19,6 +19,8 @@ sys.path.insert(0, str(ROOT / "core"))
 import repo_secret_scan as rss  # noqa: E402
 import infra_config_audit as ica  # noqa: E402
 
+_AWS_AK = "AKIA" + "IOSFODNN7EXAMPLE"
+
 
 class RepoSecretScanTest(unittest.TestCase):
     def _scan(self, files: dict[str, str]) -> tuple[list[dict], dict]:
@@ -31,13 +33,13 @@ class RepoSecretScanTest(unittest.TestCase):
 
     def test_strong_patterns_flagged_and_masked(self):
         rows, meta = self._scan({
-            "app/config.py": 'AWS_KEY = "AKIAIOSFODNN7EXAMPLE"\n',
+            "app/config.py": 'AWS_KEY = "' + _AWS_AK + '"\n',
         })
         self.assertEqual(len(rows), 1)
         self.assertIn("aws-access-key", rows[0]["title"])
         # masking: nilai penuh TIDAK boleh muncul di finding
         blob = json.dumps(rows)
-        self.assertNotIn("AKIAIOSFODNN7EXAMPLE", blob)
+        self.assertNotIn(_AWS_AK, blob)
         self.assertEqual(rows[0]["status"], "unconfirmed")
 
     def test_placeholder_suppressed_zero_fp(self):
@@ -69,7 +71,7 @@ class RepoSecretScanTest(unittest.TestCase):
 
     def test_node_modules_skipped(self):
         rows, meta = self._scan({
-            "node_modules/pkg/index.js": 'KEY = "AKIAIOSFODNN7EXAMPLE"\n',
+            "node_modules/pkg/index.js": 'KEY = "' + _AWS_AK + '"\n',
         })
         self.assertEqual(rows, [])
         self.assertEqual(meta["files_scanned"], 0)

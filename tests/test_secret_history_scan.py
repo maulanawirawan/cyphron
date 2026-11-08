@@ -19,7 +19,7 @@ sys.path.insert(0, str(ROOT / "core"))
 import secret_history_scan as shs  # noqa: E402
 from findings import read_findings, validate_finding  # noqa: E402
 
-SECRET = "AKIAIOSFODNN7EXAMPLE"       # format kuat AWS access key
+SECRET = "AKIA" + "IOSFODNN7EXAMPLE"       # format kuat AWS access key
 PLACEHOLDER = "password = 'changeme_placeholder'"  # harus ditekan
 
 

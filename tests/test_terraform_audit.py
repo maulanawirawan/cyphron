@@ -120,8 +120,8 @@ resource "aws_db_instance" "v2" {
 
 AWS_KEY = """\
 provider "aws" {
-  access_key = "AKIAIOSFODNN7EXAMPLE"
-  secret_key = "wJalrXUtnFEMI/b7X"
+  access_key = """ + '"' + ("AKIA" + "IOSFODNN7EXAMPLE") + '"' + """
+  secret_key = """ + '"' + ("wJalr" + "XUtnFEMI/b7X") + '"' + """
 }
 """
 
