@@ -4077,3 +4077,181 @@ preseden koordinator).
       (psa_ns_audit); workload identity (IRSA/Workload Identity/
       Managed Identity) = eliminasi kredensial statis di pod — konfigur
       cloud-side = ops, prinsipnya: SA pod tanpa rahasia tertanam
+
+
+---
+Blok B31 (#0901-#0930, 8 Nov) — sumber mukul975 (Apache-2.0 — konsep,
+bukan teks). Tiga entri diekstrak jadi tool: #0902 -> tools/
+pe_import_scan.py, #0903 -> tools/stego_triage.py, #0920 -> tools/
+owasp_risk_rating.py; sisanya didistilasi di bawah. Penomoran: 238-240
+= buffer tetangga yang dijaga B32 (preseden koordinator), lanjut 249
+setelah 248 milik B32.
+
+## 238. Metodologi thick-client pentest (dari mukul975/performing-thick-client-application-penetration-test) — distilasi B31
+- [ ] statis dulu: identifikasi teknologi (.NET -> dnSpy, Java -> JD-GUI/
+      JADX, C/C++ -> Ghidra, Electron -> ekstrak asar), string ber-
+      keyword kredensial (password/secret/api_key/jdbc/connection), file
+      konfigurasi (app.config, settings.xml, %APPDATA% config.json)
+- [ ] penyimpanan lokal = permukaan utama: registry Run HKCU, SQLite
+      lokal (cek sqlite_forensics), Credential Manager, file di AppData/
+      Temp — kredensial plaintext di disk = temuan
+- [ ] DLL hijacking versi statis: Procmon NAME NOT FOUND .dll di dir
+      writable; di cyphron: linux_privesc_audit menutup sisi Linux
+      (writable-dir + PATH), sisi Windows hanya parsial (lolbin_scan/
+      pe_mitigation_scan) — catat celah, jangan klaim tercakup
+- [ ] memory dump: string password/token/bearer dari dump proses; zero-
+      memory-after-use = remediasi (cf. zeroize_scan utk sisi kode)
+- [ ] lapisan API thick-client tetap diuji seperti web: IDOR ubah id
+      antar-prinsip, mass assignment field isAdmin, lockout bypass —
+      playbook cyphron sudah ada (IdorOrders/MassAssignment/
+      LockoutCanary)
+- [ ] auth lokal (patch dnSpy/breakpoint) = kelas ofensif lab-berizin —
+      di luar kelas alat read-only cyphron
+
+## 239. Pola hunt KQL/EQL Elastic (dari mukul975/performing-threat-hunting-with-elastic-siem) — cf. seksi 17/74, distilasi B31
+- [ ] hipotesis dulu (seksi 36), sumber data disebut SEBELUM query:
+      logs-endpoint.events.process vs sysmon_operational — hunt tanpa
+      sumber = celah telemetri, bukan hasil kosong
+- [ ] pola KQL LOLBin: nama proses + daftar argumen khas (certutil
+      -urlcache/-decode; powershell -enc/iex/frombase64string) + EKSKLUSI
+      parent sah (sccm/svchost) — bentuk "proses+args+exclusion" portabel
+      (cf. lolbin_scan utk sisi offline)
+- [ ] pola EQL sequence yang dipakai ulang: parent-child anomali
+      (explorer.exe -> cmd/powershell/rundll32, maxspan), dumping
+      kredensial (procdump/rundll32 *lsass* -> file .dmp, maxspan 2m),
+      lateral (auth sukses type-3 -> psexesvc, maxspan 1m) — bentuk
+      [A] lalu [B] dalam window = pola generik lintas SIEM
+- [ ] loop wajib: hunt terkonfirmasi -> detection rule (mapping ATT&CK +
+      severity + interval) -> Navigator layer update — hunt yang tidak
+      menghasilkan rule/gap-tercatat = borongan
+
+## 240. Threat landscape per sektor (dari mukul975/performing-threat-landscape-assessment-for-sector) — distilasi B31
+- [ ] peta aktor-per-sektor dikelola TABEL eksplisit (financial: FIN7/
+      Lazarus; healthcare: Ryuk/Conti; energy: Sandworm/Dragonfly;
+      government: APT29/28/Turla) — pembaruan dari laporan ISAC/vendor,
+      bukan ingatan (cf. seksi 240-B32 profil aktor)
+- [ ] teknik umum = hitung frekuensi lintas aktor -> top-10 teknik
+      sektor = prioritas deteksi; jangan klaim "aktor X memakai Y"
+      tanpa sumber ATT&CK
+- [ ] vektor awal dipisah primary vs emerging per sektor (quishing, MFA
+      fatigue, API key theft) — emerging wajib bawa tanggal-sumber
+- [ ] output = ringkasan eksekutif + tabel + rekomendasi investasi
+      (deteksi top-10, red team berbasis aktor, keanggotaan ISAC) —
+      dokumen strategis; cf. campaign_correlate utk sisi kampanye
+- [ ] di cyphron: tidak ada sumber ATT&CK live (jaringan/API) —
+      checklist dipakai saat MENYUSUN laporan dari intel yang sudah
+      terkumpul (intel_sync + seksi 35)
+
+## 249. Triase output scanner klasik — Nessus/Nikto (dari mukul975/performing-vulnerability-scanning-with-nessus + performing-web-application-scanning-with-nikto) — distilasi B31
+- [ ] validasi scan terotentikasi SEBELUM percaya hasil: plugin 19506
+      "Credentialed checks: yes" per host — scan tanpa kredensial meleset
+      mayoritas temuan lokal (hasil incomplete, bukan "bersih")
+- [ ] FP kelas scanner: backported-patch (versi lama tapi sudah diperbaiki
+      di RHEL/CentOS — verifikasi rpm changelog), custom 404 memicu
+      generic-checks, anti-CSRF token dianggap form-vuln, respons CDN/WAF
+      salah dikenali sebagai app, health-check page load balancer
+- [ ] grouping by remediation (satu patch, 47 host) — laporan per-
+      temuan-per-host = noise
+- [ ] prioritas: CVSS mulai, naik utk exploit publik + internet-facing +
+      asset criticality, TURUN utk compensating control terdokumentasi
+      (segmentasi/WAF/EDR) — cf. cvss_score/kev_gap/vuln_sla_aging/
+      asset_criticality_score; versi scanner-alat-eksternal = seksi 246
+      (B32) + 245 (B32 di-luar-domain Nessus runbook)
+- [ ] Nikto = scanner server/config (bukan app-logic): hasilnya pasangan
+      registry cyphron (http-method-allow, server-version-disclosure,
+      file-exposure-checker, security headers); DAST temuan -> triase
+      owasp_risk_rating (#0920) + brocards_triage
+- [ ] ingest ekspor scanner eksternal -> findings.json mengikuti pola
+      sarif_ingest/cspm_finding_ingest bila kelak ada konsumen — jangan
+      bangun tool tanpa pemakai
+
+## 250. Taksonomi bypass WAF + checklist WSTG yang belum tercakup (dari mukul975/performing-web-application-firewall-bypass + performing-web-application-penetration-test) — distilasi B31
+- [ ] fingerprint dulu: header vendor (cf-ray/incap_ses/AkamaiGHost),
+      respons terhadap payload pasti-blok (403/custom page/CAPTCHA) —
+      padanan waf-fingerprint
+- [ ] taksonomi evasi: encoding berlapis (double URL-encode, unicode
+      %u0027, HTML entity, charset ibm037), variasi kasus + komentar
+      inline /*!50000UNION*/, substitusi spasi (%09/%0A), metode &
+      protokol (PUT/PATCH, chunked, HTTP/0.9), lokasi parameter
+      (X-Forwarded-For/Referer), body yang tak diinspeksi (JSON/XML/
+      multipart), HPP (id=1' UNION&id=SELECT) — padanan hpp_differential
+- [ ] XSS evasi: event handler alternatif (onpageshow/onstart),
+      svg/onload, javascript: URI, template literal, escape \u0065 —
+      pasang di xss-reflect-check + waf_sqli_triage saat WAF aktif
+- [ ] WSTG sisa belum ada cek otomatis cyphron: session fixation (token
+      TIDAK berubah pre/post login), MFA bypass akses-langsung halaman
+      pasca-auth, reset password (prediktabilitas token + enumerasi akun
+      + host-header injection), concurrent session limit, remember-me
+      predictability — catat sbg lead manual saat engagement
+- [ ] disiplin: bypass = di ATAS vuln terkonfirmasi (bukan cara menemukan
+      vuln); uji dgn cache-buster bila cache terlibat (cf. seksi 190)
+
+## 251. Deteksi post-exploit Microsoft Graph + CVSS v4.0 awareness (dari mukul975/post-exploiting-microsoft-graph-with-graphrunner + prioritizing-vulnerabilities-with-cvss-scoring) — distilasi B31
+- [ ] GraphRunner = ops merah live (butuh token Graph) — yang diport:
+      tabel telemetri sisi biru: device-code grant dari client Azure
+      CLI (04b07795) di IP/device tak lazim; audit event "Add
+      application" + "Consent to application" scope delegated luas (cf.
+      oauth_grant_audit); "Add member to group" pada grup role-assignable;
+      inbox rule forward eksternal (T1114.003, cf. seksi 49); volume
+      $search tinggi ke /messages di MicrosoftGraphActivityLogs
+- [ ] remediasi pencurian token Graph: cabut sesi/refresh token + hapus
+      OAuth app injected + hapus inbox rule — reset password saja TIDAK
+      cukup (cf. seksi 66/81)
+- [ ] CVSS v4.0 = kesadaran, bukan tool: metric group baru (AT, UI
+      pasif/aktif, VC/SC terpisah vulnerable/subsequent system, E:
+      attacked/POC/unreported); alat cyphron tetap CVSS v3.1 (cvss_score)
+      sampai konsumen v4 ada; prioritas program tetap EPSS/KEV di atas
+      skor mentah (cf. seksi 210, kev_gap)
+
+## 252. Peta artefak forensik Windows — EZ tools (dari mukul975/performing-windows-artifact-analysis-with-eric-zimmerman-tools) — cf. seksi 40/52/70/100/209, distilasi B31
+- [ ] peta artefak -> pertanyaan: $MFT (mft_scan) = riwayat file + dua
+      set timestamp; $J USN = operasi rename/delete cepat; Prefetch =
+      bukti eksekusi + run count; Amcache = hash SHA1 exe; LNK/jumplist
+      = dokumen dibuka; shellbags = direktori pernah dijelajahi; event
+      log = win_logon_triage/win_auth_triage
+- [ ] timestomping utama: bandingkan Created0x10 (SI) vs Created0x30
+      (FN) — SI < FN = indikasi (padanan timestomp_triage #0542)
+- [ ] EZ tools/KAPE = runbook ops Windows (.NET) — cyphron memparse
+      artefak STATIS yang diekspor; onboarding KAPE = ops lab, bukan
+      alat audit
+- [ ] korelasi eksekusi: Prefetch + Amcache + 4688 + MFT creation —
+      satu sumber bukan kesimpulan (cf. seksi 77 disiplin investigasi)
+
+## 253. Di luar domain + padanan — catatan bidang blok B31 (cf. seksi 42/48/63/69/75/188)
+- [ ] #0901 SSRF exploitation: padanan SsrfCallbackPlaybook/
+      SsrfChainPlaybook + taksonomi bypass seksi 190; varian enkode IP
+      (desimal/hex/oktal) masuk ranah playbook bila dibutuhkan
+- [ ] #0904 subfinder: padanan subdomain-enum-surface + ct-inventory +
+      program_discovery; subfinder/httpx/dnsx = alat pipeline live
+- [ ] #0905 supply-chain simulation: padanan pkg_typosquat_check
+      (Levenshtein), dep_confusion_check, supplychain_check,
+      dependency_cve — hash-verify + pip-audit = ops CI
+- [ ] #0907 atomic red team: eksekusi live (atomic-operator) = ops
+      purple-team; padanan konsep attack_coverage + seksi 224
+- [ ] #0909 YARA hunting: padanan yara_rule_lint (mutu rule); scanning
+      live yara-python + watchdog = ops; dedup sha256 + clean-corpus
+      FP-test sudah jadi disiplin yara_rule_lint
+- [ ] #0910 MISP: ops produk TIP (PyMISP); padanan intel_sync
+      (freshness/delta/TTL) + stix_bundle_audit + seksi 24/42; TLP +
+      distribution level = kebijakan berbagi, bukan alat
+- [ ] #0913 plaso super-timeline: padanan seksi 33 (B11) + log_chain_
+      verify; log2timeline/psort/Timesketch = runbook ops
+- [ ] #0914 UEBA: padanan insider_baseline_scan + seksi 46/76 (baseline
+      deviasi, impossible travel, peer-group, lantai anti-FP)
+- [ ] #0915 VLAN hopping: di luar domain (akses fisik switch, DTP/VTP
+      live); prinsip hardening yang dicatat: switchport nonegotiate,
+      native VLAN tak-terpakai != VLAN 1, VTP transparent, port unused
+      di-shutdown; sisi PCAP L2-wired belum ada padanan (deauth_pcap_
+      scan = radio) — catat celah
+- [ ] #0921/#0922 cache deception/poisoning: padanan CacheDeception
+      Playbook + CachePoisonPlaybook (cache-buster, unkeyed header
+      X-Forwarded-Host/Proto, delimiter discrepancy) — WCVScanner/
+      Param Miner = alat live
+- [ ] #0923 aircrack / #0925 wireless pentest / #0926 kismet: di luar
+      domain radio/HW (monitor mode adapter, deauth, evil twin, WIDS) —
+      cf. seksi 69; sisi PCAP = deauth_pcap_scan/pcap_triage
+- [ ] #0927 YARA rule development: padanan yara_rule_lint (anatomi rule,
+      filter FP, ambang) — strategi authoring (stack string, C2 URI,
+      private rules) sudah diterjemahkan di lint-nya
+- [ ] #0930 STIX/TAXII feeds: padanan stix_bundle_audit + seksi 188
+      (validasi bundle offline); taxii2-client = jaringan/live ops
