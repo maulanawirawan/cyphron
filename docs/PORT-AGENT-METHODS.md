@@ -2717,3 +2717,186 @@ keluarga zero-trust (#0727-#0734) distilasi jadi satu seksi (166).
 - [ ] skenario dampak (manipulasi parameter water treatment,
       enumerasi dari engineering workstation) = motivasi segmentasi
       + monitoring OT terpisah — bukan tool cyphron
+
+---
+Blok B26 (#0751-#0780, 8 Nov) — sumber mukul975 (Apache-2.0 — konsep,
+bukan teks). Dua entri diekstrak jadi tool: #0773 -> tools/
+asset_criticality_score.py (model kritikalitas aset -> modifier SLA),
+#0780 -> tools/elf_checksec.py (inti deterministik checksec ELF,
+analog pe_mitigation_scan); sisanya didistilasi di bawah (176-181) +
+catatan bidang (182). CATATAN PENOMORAN: seksi 162-175 milik blok B25
+(yang menulis duluan di tree bersama) — nomor B26 lanjut dari 176.
+
+## 176. LLM red team multi-turn (dari mukul975/orchestrating-llm-attacks-with-pyrit) — distilasi B26
+- [ ] primitives yang dipisah eksplisit: TARGET (yang diuji) vs
+      adversarial chat (penyerang LLM) vs scorer (penilai objektif);
+      orchestrator = strategi, converter = mutasi payload (base64/
+      ROT13), memory = bukti percakapan utuh — semuanya butuh API LLM
+      live, jadi cyphron hanya mengambil TAXONOMI-nya
+- [ ] tiga strategi multi-turn: RedTeaming (loop generik dgn scorer),
+      Crescendo (eskalasi bertahap — TIAP turn tampak jinak sendirian,
+      guardrail per-turn lolos tapi kumulatif jahat), TAP (branching +
+      pruning by skor — eksploitasi jalur yang "memanas")
+- [ ] implikasi defensif: uji guardrail PER-RESPONSE saja tidak cukup —
+      uji juga KONSISTENSI lintas turn (state percakapan = permukaan);
+      single-shot scanner dulu (murah), multi-turn hanya utk yang tahan
+- [ ] bukti kampanye = percakapan utuh tersimpan per run, tiap
+      keberhasilan ditandai orchestrator + jumlah turn + verdict scorer
+      (pola sama dgn session_ledger cyphron: aksi + jejak)
+- [ ] mapping ATLAS AML.T0051 (prompt injection) / AML.T0054
+      (jailbreak) + OWASP LLM Top 10 — cyphron: injection_guard
+      (lapis 1-2, seksi 44) + CI-gate regresi promptfoo (seksi 74);
+      checklist ini dipakai saat MENGUJI chatbot/agent lab sendiri
+
+## 177. MISP feed curation & IOC -> deteksi (dari mukul975/operationalizing-misp-threat-feeds) — distilasi B26
+- [ ] "instance jalan" != teroperasionalkan: pilih feed bereputasi
+      saja (CIRCL/abuse.ch/Feodo) — mengaktifkan semua feed publik =
+      noise; cache feed utk lookup real-time; TLP + tag scoping
+      sebelum ekspor
+- [ ] warninglist = kontrol FP di SISU TIP: RFC1918, top-sites, public
+      DNS resolver ditandai non-actionable SEBELUM nilai keluar ke
+      SIEM/IDS — query wajib to_ids + published + window + enforce_
+      warninglist = himpunan "actionable" yang eksplisit
+- [ ] ekspor IOC -> deteksi punya tiga bentuk: NIDS rule (Suricata/
+      Snort via REST), Sigma (script), lookup list (Wazuh CDB) — SEMUA
+      wajib lolos validasi load (suricata -T) sebelum deploy + pipeline
+      terjadwal dgn log (bukan manual saat ingat)
+- [ ] cyphron: TIP = ops produk (cf. seksi 42/24); intel_sync sudah
+      menutup freshness/delta KEV/nuclei; mutu rule = ids_rule_lint;
+      checklist ini dipakai saat MENYETEL feed lab
+
+## 178. Korelasi artefak Windows (dari mukul975/parsing-artifacts-with-eric-zimmerman-tools) — distilasi B26
+- [ ] EZ Tools (MFTECmd/PECmd/RECmd/SBECmd/AmcacheParser) = binary
+      eksternal (cf. seksi 100); cyphron sudah punya parser sisi-nya:
+      mft_scan (MFT/$J), timestomp_triage, sysmon_triage,
+      win_persist_triage, browser_history_triage — parser registry/
+      prefetch/shellbags tidak di-build (format proprietary + ranah
+      forensik Windows, bukan web/app)
+- [ ] nilai metodologinya = ORDE korelasi lintas artefak: eksekusi
+      (prefetch/amcache/shimcache) x pembuatan file (MFT) x akses
+      (shellbags/LNK), SEMUA dijangkarkan kolom waktu UTC yang
+      konsisten antar-parser — teori kasus dibangun dari irisan,
+      bukan satu artefak
+- [ ] jebakan klasik saat membaca hasil: shimcache = KEHADIRAN
+      program, BUKAN bukti eksekusi; prefetch = bukti eksekusi
+      berapa-kali + terakhir-jalan; amcache = instalasi/metadata —
+      campur aduk = laporan salah muat
+- [ ] akuisisi KAPE/forensic copy dulu (cf. seksi 40 chain of
+      custody); Timeline Explorer = viewer CSV, bukan bagian analisis
+
+## 179. AD kompromi — peta event IR (dari mukul975/performing-active-directory-compromise-investigation, -forest-trust-attack) — distilasi B26
+- [ ] eksfil NTDS.dit: 4662 GUID replikasi (dcsync_triage), 4742
+      perubahan akun DC$, vssadmin/ntdsutil di cmdline (lolbin_scan/
+      sysmon_triage), VSS 8222 pada DC — kombinasi = rantai, satu = lead
+- [ ] Kerberos: golden ticket = TGT lifetime > default 10 jam + 4769
+      RC4 + TGT tanpa 4768 (kerberos_log_triage); silver ticket = TGS
+      tanpa TGT + service name aneh; kerberoasting = volume 4769 per
+      SPN (seksi 79)
+- [ ] abuse GPO: event 5136 (perubahan directory object) untuk
+      deployment scheduled task / login script / software policy via
+      GPO — persistence domain-wide dari satu titik; perubahan grup
+      istimewa (Domain Admins, DnsAdmins [DLL pada DC!], Backup
+      Operators) = ranah account_manip_triage
+- [ ] trust: 4706 trust baru + SID filtering mati + SID history lintas
+      forest = jalur pivot lintas domain — audit atribut trust bisa
+      offline bila ada ekspor; ofensif impacket TIDAK di-port (cf.
+      seksi 42)
+- [ ] narasi IR AD selalu: vektor akses awal + scope akun/host +
+      persistence yang terpasang + reset KRBTGT dua kali (seksi 73) —
+      peta event di atas = urutan MEMBACA log, bukan tool baru
+
+## 180. AiTM reverse-proxy phishing (dari mukul975/performing-adversary-in-the-middle-phishing-detection) — distilasi B26
+- [ ] model serangan: reverse proxy mencerminkan halaman login ASLI,
+      korban menyelesaikan MFA di halaman proxy, attacker menangkap
+      SESSION COOKIE yang diterbitkan layanan sah — MFA tidak
+      "diloloskan", ia DILEWATI (cookie di-replay tanpa MFA)
+- [ ] kit 2025: Tycoon 2FA/EvilProxy/Evilginx/Sneaky 2FA; distribusi
+      bergeser QR -> lampiran HTML/SVG — eml_phish_triage menandai
+      lampiran HTML/SVG + body minim URL sebagai lead quishing/aitm
+- [ ] indikator deterministik saat membaca log identitas: cookie sesi
+      dipakai dari IP/device BEDA dari waktu auth (satu SessionId,
+      cf. seksi 122), impossible travel auth->pemakaian, halaman login
+      tersaji dari infra non-corp, request CDN auth-provider dari
+      domain phishing
+- [ ] remediasi = cabut sesi + refresh token (reset password SAJA
+      tidak membunuh cookie AiTM — cf. seksi 50/66); pencegahan
+      satu-satunya yang menutup kelas ini = MFA phishing-resistant
+      (FIDO2 origin-bound — tidak bisa di-proxy)
+- [ ] cyphron: eml_phish_triage (sisi email) + seksi 66 (corong
+      dampak); log Entra/Okta = API live — checklist ini dipakai saat
+      MENULIS playbook deteksi lab
+
+## 181. Fuzzing API stateful & taxonomy rate-limit bypass (dari mukul975/performing-api-fuzzing-with-restler, performing-api-rate-limiting-bypass) — distilasi B26
+- [ ] inti stateful fuzzing RESTler = producer-consumer dependency:
+      id dari respons POST menjadi parameter request BERIKUTNYA — bug
+      "hanya muncul pada urutan tertentu" tidak akan ditemukan fuzzer
+      stateless; mode bertingkat test -> fuzz-lean -> fuzz (biaya &
+      dampak data naik); payload dict kustom per path (injection/
+      boundary/overflow) dikelola eksplisit
+- [ ] sinyal temuan fuzzing: 500 = unhandled exception (selalu
+      temuan), akses yang seharusnya ditolak, resource leak (create
+      tanpa delete) — semua butuh API live staging berizin; padanan
+      statis cyphron: openapi_spec_audit + param_probe_checker;
+      playbook injeksi live = ranah playbook (seksi 41)
+- [ ] checklist bypass rate-limit (dipakai saat MENG-AUDIT desain
+      limiter & membaca hasil rate-limit-validator): ~17 header IP-
+      spoof (X-Forwarded-For/True-Client-IP/CF-Connecting-IP/
+      X-Real-IP dst.) yang dipercaya limiter di belakang proxy;
+      variasi path (case/encoding/trailing-slash/double-slash),
+      variasi metode (HEAD/OPTIONS/override), versi API lama yang
+      belum kena limit, endpoint setara yang lupa dikunci
+- [ ] limiter yang benar mengunci pada identitas + IP INTERNAL (bukan
+      header yang bisa di-craft) + tetap mengirim X-RateLimit-* +
+      Retry-After (seksi 142); bypass berhasil = temuan API4 OWASP,
+      bukan catatan kaki
+
+## 182. Di luar domain + padanan — catatan bidang blok B26
+- [ ] C2 ops (#0751 #0752): Havoc (Yaotl profile, Demon indirect
+      syscall/Ekko sleep obf) & Sliver (mTLS/HTTP/DNS/WG, beacon
+      jitter, armory BOF/.NET) = runbook ops merah live — padanan
+      distilasi seksi 30/14; sisi biru: deteksi = deviasi profil
+      (UA/URI/jitter) + JA3/JA3S, bukan signature; cleanup = revoke
+      operator + hapus artefak + verifikasi scan-ulang
+- [ ] IGA & sertifikasi akses (#0756 #0757): Saviynt EIC + access
+      review generik = administrasi identitas (cf. seksi 34 #0285,
+      seksi 141 #0643); konsep yang layak: lifecycle CONFIGURATION->
+      PREVIEW->ACTIVE->REMEDIATION, auto-revoke bila certifier tak
+      merespons, completion >95% sebelum tutup, revoke DI-VERIFIKASI
+      (re-check entitlement) — jangan "tiket dibuat" = selesai
+- [ ] AD ofensif & asesmen (#0758 #0761 #0762): BloodHound graf jalur
+      serangan, pentest AD end-to-end (NetExec/Impacket/Certipy/
+      Rubeus), PingCastle/Purple Knight = alat/kredensial live domain
+      (cf. seksi 42/116); padanan deteksi statis cyphron:
+      kerberos_log_triage, dcsync_triage, account_manip_triage; peta
+      event IR-nya di seksi 179
+- [ ] scanner vuln live (#0764 #0774 #0775): agentless SSH/WMI/SNMP/
+      snapshot-cloud, OpenVAS-GVM, authenticated scan Nessus/Qualys =
+      alat eksternal live; padanan statis: dependency_cve (CVE dari
+      lockfile/SBOM), cspm_finding_ingest; disiplin yang dipinjam:
+      akun scan khusus read-only + kredensial di vault (seksi 136),
+      authenticated scan menemukan 45-60% lebih banyak temuan ->
+      "tidak ada temuan" dari scan unauthenticated = telemetri kosong
+      (fail-closed, cf. seksi 86)
+- [ ] sandbox malware CAPE (#0776): deploy Windows guest + API = ops
+      (cf. seksi 13: pre-screen hash dulu, verdict sandbox = SATU
+      sinyal); padanan statis cyphron: maldoc_triage, pdf_triage,
+      packer_scan, rat_config_scan (ekstraksi konfigurasi RAT dari
+      artefak statis)
+- [ ] cloud audit & privesc (#0777 #0778): ScoutSuite (read-only
+      SecurityAudit) = alat eksternal; padanan: cspm_finding_ingest
+      (eksplisit mengkonsumsi keluaran ScoutSuite/Prowler) +
+      aws_config_audit (snapshot); AWS privesc Pacu/CloudFox/PMapper =
+      padanan iam_escalation_scan (#0386) + seksi 147 (permission
+      boundary); aws iam simulate-principal-policy = cara RESMI cek
+      effective permission tanpa menyentuh data
+- [ ] alat eksternal & jaringan fisik lain: Postman/Newman (#0771 —
+      metodologi multi-role OWASP API Top 10 = seksi 41); MobSF
+      (#0767 — padanan apk_firebase_scan + mobile_manifest_audit);
+      Elastic SIEM triage (#0766 — Kibana/ES|QL = ops produk SOC,
+      pola konteks = cluster by host+user + alert terkait by
+      source.ip); OSINT correlation (#0765 — Sherlock/theHarvester/
+      SpiderFoot + LLM = jaringan, cf. seksi 35/38/39); ARP spoofing
+      live (#0772 — padanan analisis arp_pcap_scan #0380); bandwidth
+      throttling tc/netem/iperf3 (#0779 — manipulasi jaringan hidup,
+      di luar bentuk tool; baseline SEBELUM degradasi + rollback
+      plan, cf. seksi 69)
