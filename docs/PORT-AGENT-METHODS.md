@@ -4329,3 +4329,108 @@ dilanjutkan 254-256.
 - [ ] penyegelan secret ke PCR policy = unseal hanya saat boot
       terpercaya — konsepnya mirip DPAPI gating (dpapi_blob_scan
       membaca artefaknya, bukan menilai boot-nya)
+
+## 257. Kluster eksploitasi AD red-team — di luar domain AD (dari mukul975/executing-active-directory-attack-simulation, -exploiting-active-directory-certificate-services-esc1, -exploiting-active-directory-with-bloodhound, -exploiting-adcs-with-certipy, -exploiting-constrained-delegation-abuse, -exploiting-kerberoasting-with-impacket, -exploiting-nopac-cve-2021-42278-42287) — distilasi G6-delta-1 — cf. seksi 253 ESC8 (B32)
+- [ ] domain red-team AD aktif (impacket/certipy/bloodhound/mimikatz);
+      preseden seksi 253 (ESC8) & B17 "di luar domain AD" — secai
+      fokus web/app/infra, bukan eksploitasi domain aktif
+- [ ] inti ESC1 yang layak diingat utk AUDIT defensif: template AD CS
+      berbahaya = msPKI-Certificate-Name-Flag mengizinkan
+      ENROLLEE_SUPPLIES_SUBJECT + EKU client-auth/any-purpose +
+      enrollee bukan pemilik template (ACL lemah) → siapa pun bisa
+      minta sertifikat ATAS NAMA principal lain; audit-nya = baca
+      flag template, bukan jalankan certipy (eksploitasi)
+- [ ] kerberoasting T1558.003: minta TGS utk SPN akun servis lalu
+      crack RC4 offline; sisi biru = password akun servis panjang/
+      gMSA + deteksi burst TGS-request (padanan kerberos_log_triage
+      B14, win_auth_triage B15)
+- [ ] constrained delegation S4U2Self/S4U2Proxy: akun dengan
+      msDS-AllowedToDelegateTo bisa impersonate ke layanan target;
+      audit = inventaris atribut delegasi + larang unconstrained
+- [ ] noPac (CVE-2021-42278 sAMAccountName spoof + CVE-2021-42287
+      KDC PAC confusion) = rantai user→Domain Admin; sisi biru =
+      patch KB5008102/KB5008380 + monitor machine-account-quota
+- [ ] bloodhound = analisis graf path ACL (ShortestPath objektif);
+      konsep graf-privilege bisa dipetakan ke audit konfigurasi,
+      bukan penyerangan
+
+## 258. Alat ofensif cloud — runbook enum & privesc (dari mukul975/enumerating-cloud-with-cloudfox, -exploiting-aws-with-pacu) — distilasi G6-delta-1
+- [ ] di luar kontrak: keduanya alat eksploitasi pasca-kredensial
+      (cloudfox = enum read-only Describe/List/Get + role-trust
+      mapping; pacu = framework privesc + modul PERSISTENCE
+      iam__backdoor_users_keys = NEVER-LIST adjacent — tidak
+      dibangun dan tidak akan dibangun)
+- [ ] sisi defensif yang bisa dipindai offline sudah ada: deteksi
+      enumerasi = cloudtrail_scan (burst GetCallerIdentity/
+      LookupEvents, denied-burst per identity), jalur privesc IAM =
+      iam_escalation_scan (passrole-combo, trust-wildcard,
+      policy-version-swap), postur = aws_config_audit
+- [ ] inti metodologi yang dibawa: pemetaan role-trust lintas akun
+      (AssumeRole graph) = permukaan lateral cloud; versi auditnya
+      (siapa bisa assume siapa) kandidat ekstensi iam_escalation_scan
+
+## 259. Serangan jaringan aktif & eksploitasi jarak jauh — di luar domain (dari mukul975/exploiting-bgp-hijacking-vulnerabilities, -exploiting-ipv6-vulnerabilities, -exploiting-ms17-010-eternalblue-vulnerability, -exploiting-smb-vulnerabilities-with-metasploit) — distilasi G6-delta-1 — cf. seksi 48/63/231, preseden RPKI B20
+- [ ] BGP hijack/RPKI: origin validation ROA + monitoring route-leak
+      = infrastruktur routing internet (preseden B20: RPKI di luar
+      domain); inti yang dibawa: ROA max-length ketat menutup
+      sub-prefix hijack
+- [ ] IPv6 (SLAAC spoofing, RA flood, tunnel): mitigasi = RA Guard/
+      DHCPv6-Shield di switch — konfigurasi jaringan, bukan alat
+      audit secai; pcap defensif tetap domain deauth_pcap_scan
+- [ ] MS17-010/EternalBlue + SMB metasploit: eksploitasi RCE aktif
+      (di luar kontrak); deteksi SMBv1 = patch level + disabled
+      binding — ops scanner; tidak ada gap vs playbook secai
+
+## 260. Metodologi hunt rantai pasok T1195 (dari mukul975/hunting-for-supply-chain-compromise) — distilasi G6-delta-1 — padanan secret_history_scan/slsa_provenance_audit/dep_confusion_check/npm_script_audit/supplychain_check
+- [ ] pola hunt hypothesis-driven: (1) hipotesis dari intel vendor/
+      dependency terkompromi; (2) scope = build pipeline + artifact
+      update channel; (3) verifikasi integritas = provenance/digest
+      (slsa_provenance_audit mengikat sha256 subjek); (4) bandingkan
+      baseline dependency vs rilis (dep_confusion_check,
+      npm_script_audit utk vektor script lifecycle)
+- [ ] yang TIDAK dibawa: query SIEM/EDR live (proses trojanized
+      updater di endpoint) = ops runtime; secai memilih artefak
+      offline (riwayat git, manifest, dokumen provenance)
+- [ ] tanda trojanized-update utk membaca bukti: update yang jarang
+      dipakai tapi baru di-patch, signer berubah antar versi,
+      postinstall baru di manifest
+
+## 261. Kepatuhan federal & ops produk keamanan (dari mukul975/executing-nist-rmf-authorization-to-operate, -evaluating-threat-intelligence-platforms, -implementing-github-advanced-security-for-code-scanning) — distilasi G6-delta-1 — cf. seksi 42/141/227/232
+- [ ] NIST RMF 800-37 Rev.2 = 7 langkah ATO (Prepare → Categorize
+      FIPS 199 low/moderate/high → Select baseline FIPS 200/800-53 →
+      Implement → Assess 800-53A → Authorize (ATO/cATO) → Monitor
+      ConMon); paket SSP/SAR/POA&M = dokumen kepatuhan federal —
+      di luar fokus bounty (preseden seksi 232)
+- [ ] evaluasi TIP (ThreatConnect/MISP/OpenCTI/Anomali) = procurement:
+      kriteria feed-integration, STIX/TAXII support, workflow
+      automation, analyst UX, TCO — keputusan organisasi, bukan alat
+- [ ] GitHub Advanced Security = konfigurasi produk (code scanning,
+      secret scanning, dependabot); sisi workflow-security sudah
+      dipadankan gha_workflow_audit (B16); enablement = runbook
+
+## 262. Padanan eksplisit kluster eksploitasi web & hunt endpoint (dari mukul975/exploiting-excessive-data-exposure-in-api, -exploiting-idor-vulnerabilities, -exploiting-mass-assignment-in-rest-apis, -exploiting-prototype-pollution-in-javascript, -exploiting-sql-injection-vulnerabilities, -exploiting-sql-injection-with-sqlmap, -hunting-for-living-off-the-land-binaries, -hunting-for-lolbins-execution-in-endpoint-logs, -hunting-for-ntlm-relay-attacks, -hunting-for-process-injection-techniques, -hunting-for-registry-run-key-persistence, -hunting-for-spearphishing-indicators) — distilasi G6-delta-1
+- [ ] excessive data exposure (API3:2023) → api_property_scan (B14,
+      BOPLA statis) + owasp_risk_rating; langkah manual skill sumber
+      (bandingkan respons API vs field yang dirender UI) tetap
+      metodologi manual utk verifier
+- [ ] IDOR → playbook idor (14 rujukan di exploit_playbooks.py);
+      mass assignment → playbook mass-assignment + arjun-style
+      param discovery = metodologi manual
+- [ ] prototype pollution → playbook proto-pollution tier-1 (unsafe
+      merge __proto__ + gadget); SQLi (manual & sqlmap) → playbook
+      sqli + waf_sqli_triage (B16) + seksi 250 (bypass WAF);
+      sqlmap = alat eksternal non-stdlib
+- [ ] LOLBins (2 skill, T1218) → lolbin_scan (B15: EID 1/11 Sysmon
+      XML offline); EID 8/10/25 sengaja ranah sysmon_triage (B16:
+      cross-process-write, granted_access, lsass-access)
+- [ ] NTLM relay hunt (T1557.001, EID 4624 logon type 3) →
+      win_auth_triage (23 rujukan NTLM/4624) + zeek_lateral_scan;
+      registry run key (T1547.001, EID 13) → win_persist_triage
+      (check run-key-write, +Policies\Explorer\Run)
+- [ ] spearphishing hunt (T1566) → eml_phish_triage (artefak .eml
+      offline); hunt lintas SIEM live = ops
+- [ ] catatan BUILD satu-satunya blok ini: broken link hijacking
+      (#1010) → tools/broken_link_scan.py — ceruk mulai-dari-isi-
+      halaman (bukan mulai-dari-hostname spt takeover-cname-hygiene),
+      liveness dari resolusi operator, nol jaringan
+
