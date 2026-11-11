@@ -5,3 +5,6 @@ core-rs/target/
 *.pdf
 findings/
 auth/
+.agents/
+baseline_test_run.txt
+tmp_demo_findings.json

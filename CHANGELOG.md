@@ -7,6 +7,29 @@ as the compatibility signal.
 
 ## [Unreleased]
 
+### Added — offensive capability expansion (13 new tools, 176 -> 189)
+
+A batch of 13 new offline tools under `tools/` (11 red-team + 2 detection-
+bridge). All stdlib-only, zero-network, deterministic, fail-closed, emitting
+the single-door `findings.json` contract, each with a false-positive control
+test. NO NEVER-LIST techniques (no DoS/persistence/worms/ransomware/mass-
+exfil), no Docker, no new skills. 101 new tests; secrets/PoCs are redacted and
+benign-marker-only.
+
+- `jwt_crypto_attack` — offline JWT HS256 crack (L3 arithmetic) + RS->HS confusion + alg:none lead; recovered secret redacted.
+- `bola_bfla_prover` — prove BOLA/BFLA from two-role captures (2xx + owner marker => L2; 403 => L0).
+- `nosql_injection_analyzer` — NoSQL operator injection; differential bypass => L2, operator present => L1.
+- `proto_pollution_scan` — static JS prototype-pollution sinks with real line numbers (L2/L1).
+- `cors_poc_gen` — CORS exploit PoC-HTML from a confirmed finding (reflection+creds => L1; wildcard+creds => L0).
+- `smuggling_desync_analyzer` — HTTP request-smuggling classifier (CL/TE ambiguity => L1; front/back divergence => L2).
+- `ssrf_metadata_map` — SSRF -> cloud IMDS mapper, capability-gated (reachable => L1, else L0).
+- `lfi_rce_playbook` — LFI->RCE ladder generator, benign markers only (lab-only L1).
+- `ssti_exploit_plan` — engine-specific SSTI ladder generator, benign markers (lab-only L1).
+- `iam_assume_chain` — AWS IAM multi-hop assume-role escalation to admin (>=2 hops => L2).
+- `ai_redteam_score` — LLM jailbreak/indirect-injection corpus + transcript scorer (canary echo => L2; refused => L0; redacted).
+- `detection_rule_gen` — generate Sigma + YARA rules from a finding (blue bridge).
+- `attack_navigator_export` — export a MITRE ATT&CK Navigator layer (blue bridge).
+
 ### Repo hygiene
 
 - Added community health files: `.github/SECURITY.md` (vulnerability

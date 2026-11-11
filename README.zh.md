@@ -10,9 +10,9 @@ Rust，两边遵守同一份严格的输出契约。
 *无证据，不报告。*
 
 [![CI](https://github.com/maulanawirawan/secai/actions/workflows/ci.yml/badge.svg)](https://github.com/maulanawirawan/secai/actions/workflows/ci.yml)
-[![tests](https://img.shields.io/badge/tools-176-brightgreen)](#包含什么)
+[![tests](https://img.shields.io/badge/tools-189-brightgreen)](#包含什么)
 [![release](https://img.shields.io/badge/release-v0.1.0-blue)](https://github.com/maulanawirawan/secai/releases)
-[![skills](https://img.shields.io/badge/capabilities-272-8A2BE2)](#包含什么)
+[![skills](https://img.shields.io/badge/capabilities-285-8A2BE2)](#包含什么)
 [![python](https://img.shields.io/badge/python-3.10%2B-3776AB)](#快速开始)
 [![rust](https://img.shields.io/badge/rust-stable-orange)](#快速开始)
 [![license](https://img.shields.io/badge/license-PolyForm%20NC%201.0-blue)](LICENSE.md)
@@ -127,10 +127,10 @@ flowchart LR
 
 ## 包含什么
 
-- **272 个能力脚本**，分两族：**93 个注册检测技能**（`skills/`，覆盖
+- **285 个能力脚本**，分两族：**93 个注册检测技能**（`skills/`，覆盖
   侦察、配置态势和暴露面 —— 每个都是独立 CLI，声明安全等级（从
   `read-only` 到 `state-changing`）并据此设定硬性请求上限；注册表是
-  白名单，未登记的技能不会运行）+ **176 个离线工具**（`tools/`，证据
+  白名单，未登记的技能不会运行）+ **189 个离线工具**（`tools/`，证据
   分诊，其中 121 个移植自 995 个技能概念）。
 - **原生 Rust 核心**（`core-rs/`）：`secai validate` 校验契约，
   `secai scan` 执行分级扫描，并生成 PDF 报告。它还负责 FAO 关联
@@ -159,7 +159,7 @@ flowchart LR
 triage 家族是一组独立的离线 CLI：输入证据（日志、导出、清单、二进制），输出确定性的 findings.json，fail-closed，零网络。按领域划分的亮点：
 
 <details>
-<summary><b>9 个领域共 121 个移植工具（tools/ 下共 176 个）— 点击展开</b></summary>
+<summary><b>121 个移植 + 13 个新攻击/蓝队桥接工具（tools/ 下共 189 个）— 点击展开</b></summary>
 <br>
 
 | 领域 | 回答的问题… | 示例 |
