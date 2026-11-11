@@ -253,6 +253,7 @@ def dispatch(argv: list[str], runner=None) -> int:
         print("  python secai.py contrib sweep --since 2026-11-06T00:00:00")
         print("  python secai.py scout https://lab.lokal")
         print("\nrambu: target berizin saja · fail-closed · no proof, no report")
+        print("\n⭐ like secai? star it: https://github.com/maulanawirawan/secai")
         return 0
     mode, rest = argv[0], argv[1:]
     if mode in ("-h", "--help", "help"):

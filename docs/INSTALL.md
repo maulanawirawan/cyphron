@@ -1,5 +1,77 @@
 # Install — secai
 
+*English first; **Bahasa Indonesia di bawah**.*
+
+> The vendored binaries under `tools/bin` are kept in the working repo but
+> are **not** shipped in the OSS release (~442 MB). The core runs fine
+> without them — grab them yourself only if you need the features that use
+> them (PDF report, nuclei, ZAP).
+
+## Core prerequisites
+
+| Component | For | Check |
+|---|---|---|
+| Python 3.10+ | every skill/tool | `python --version` |
+| Rust toolchain (stable) | the native `secai` core | `cargo build --release --manifest-path core-rs/Cargo.toml` |
+| PyMuPDF (`pip install pymupdf`) | validating the PDF report output | `import fitz` |
+
+Optional:
+- `pip install "mcp[cli]"` — MCP server (`tools/mcp_server.py`)
+- `pip install pysocks` — socks5 egress (without it socks5 fails loud; see `docs/EGRESS-SETUP.md`)
+
+## Vendored binaries (`tools/bin`) — optional
+
+Needed only for PDF reports (typst), the lab-only nuclei skill, and the
+optional ZAP proxy. Scan / validate / triage all work without them.
+
+Expected layout (Windows; other platforms use the matching folder name):
+
+```
+tools/bin/
+  typst-x86_64-pc-windows-msvc/typst.exe   # PDF report
+  nuclei/nuclei.exe                        # lab-only nuclei-templates-scan skill
+  zap/                                     # ZAP (optional proxy)
+```
+
+### typst (PDF report)
+
+1. Download the official typst release (`typst-x86_64-pc-windows-msvc.zip`).
+2. Extract so `tools/bin/typst-x86_64-pc-windows-msvc/typst.exe` exists, OR
+   put it anywhere and set env `SECAI_TYPST` to the binary path.
+3. Or just put `typst.exe` on your `PATH`. Lookup order: env `SECAI_TYPST`
+   → `tools/bin` → `PATH` (fail-closed: missing = `report_pdf` exits with a
+   clear message).
+
+### nuclei (lab-only, NOT used in tier0)
+
+1. Download the official nuclei release (projectdiscovery).
+2. Extract to `tools/bin/nuclei/nuclei.exe`.
+3. Template corpus: `python tools/intel_sync.py` (fills `assets/intel`).
+   Nuclei only runs through the `nuclei-templates-scan` skill
+   (safety_class `active-probe`) — lab mode, your own target only.
+
+### ZAP (optional)
+
+Download official ZAP only if you use the proxy/port-forward flow:
+`tools/zap-portproxy.ps1` (Windows). Without ZAP, all core features work.
+
+## Build & verify
+
+```
+cargo build --release --manifest-path core-rs/Cargo.toml
+python -m pytest tests/ -q
+cargo test --release --manifest-path core-rs/Cargo.toml
+python tools/nightrun.py --config nightrun.json --dry-run   # check the plan
+```
+
+Build output: `core-rs/target/release/secai(.exe)` — used by
+`tools/program_sweep.py`, `tools/nightrun.py`, `tools/merge_findings.py`
+(wrapper; falls back to pure Python if the binary isn't built).
+
+---
+
+# Instalasi — secai
+
 Prasyarat dan cara mendapat binary vendored (folder `tools/bin` IKUT di
 repo kerja tapi TIDAK ikut release OSS — 442 MB; unduh sendiri bila
 membangun dari export).

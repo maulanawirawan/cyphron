@@ -14,7 +14,7 @@ salida estricto que ambos respetan.
 [![tests](https://img.shields.io/badge/tools-176-brightgreen)](#qué-incluye)
 [![release](https://img.shields.io/badge/release-v0.1.0-blue)](https://github.com/maulanawirawan/secai/releases)
 [![skills](https://img.shields.io/badge/capabilities-272-8A2BE2)](#qué-incluye)
-[![python](https://img.shields.io/badge/python-3.12%2B-3776AB)](#inicio-rápido)
+[![python](https://img.shields.io/badge/python-3.10%2B-3776AB)](#inicio-rápido)
 [![rust](https://img.shields.io/badge/rust-stable-orange)](#inicio-rápido)
 [![license](https://img.shields.io/badge/license-PolyForm%20NC%201.0-blue)](LICENSE.md)
 
@@ -181,7 +181,7 @@ skill.
 La familia de triaje son CLIs offline independientes: entra evidencia (logs, exportaciones, manifiestos, binarios), sale un findings.json determinístico, fail-closed, sin red. Aspectos por dominio:
 
 <details>
-<summary><b>96 herramientas portadas en 9 dominios (175 en total en tools/) — clic para expandir</b></summary>
+<summary><b>121 herramientas portadas en 9 dominios (176 en total en tools/) — clic para expandir</b></summary>
 <br>
 
 | Dominio | Responde a… | Ejemplos |
@@ -198,7 +198,7 @@ La familia de triaje son CLIs offline independientes: entra evidencia (logs, exp
 
 </details>
 
-El índice completo está en [CHANGELOG.md](CHANGELOG.md); la metodología destilada de conceptos no-tool (250 secciones) en [docs/PORT-AGENT-METHODS.md](docs/PORT-AGENT-METHODS.md).
+El índice completo está en [CHANGELOG.md](CHANGELOG.md); la metodología destilada de conceptos no-tool (250+ secciones) en [docs/PORT-AGENT-METHODS.md](docs/PORT-AGENT-METHODS.md).
 
 ## Comandos
 
@@ -268,7 +268,7 @@ La parte aburrida, que también es la importante.
 ```
 core/findings.py   el contrato, lado Python
 core-rs/           núcleo nativo: contrato, orquestador, FAO, serve
-skills/            92 skills de detección + registry.json (lista blanca)
+skills/            93 skills de detección + registry.json (lista blanca)
 tools/             planificador, mapa de código, ejecuciones nocturnas,
                    sync de intel, informe PDF, servidor MCP,
                    nivel de prueba bloqueado, objetivo de laboratorio

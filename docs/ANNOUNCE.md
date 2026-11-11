@@ -94,7 +94,7 @@ authorized testing only. https://github.com/maulanawirawan/secai
 ## Posting checklist
 
 - [ ] Replace any rounded numbers with the current real ones (skills,
-      tests). As of now: 92 skills, 914 Python + 59 Rust tests.
+      tests). As of now: 93 registered skills, 176 tools, 3,315 Python tests.
 - [ ] Confirm the repo README demo/GIF renders before you post the link.
 - [ ] Read the target community's self-promotion rules first.
 - [ ] Reply to early comments quickly — the first hour sets the tone.

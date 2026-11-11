@@ -13,7 +13,7 @@ Rust，两边遵守同一份严格的输出契约。
 [![tests](https://img.shields.io/badge/tools-176-brightgreen)](#包含什么)
 [![release](https://img.shields.io/badge/release-v0.1.0-blue)](https://github.com/maulanawirawan/secai/releases)
 [![skills](https://img.shields.io/badge/capabilities-272-8A2BE2)](#包含什么)
-[![python](https://img.shields.io/badge/python-3.12%2B-3776AB)](#快速开始)
+[![python](https://img.shields.io/badge/python-3.10%2B-3776AB)](#快速开始)
 [![rust](https://img.shields.io/badge/rust-stable-orange)](#快速开始)
 [![license](https://img.shields.io/badge/license-PolyForm%20NC%201.0-blue)](LICENSE.md)
 
@@ -159,7 +159,7 @@ flowchart LR
 triage 家族是一组独立的离线 CLI：输入证据（日志、导出、清单、二进制），输出确定性的 findings.json，fail-closed，零网络。按领域划分的亮点：
 
 <details>
-<summary><b>9 个领域共 96 个移植工具（tools/ 下共 175 个）— 点击展开</b></summary>
+<summary><b>9 个领域共 121 个移植工具（tools/ 下共 176 个）— 点击展开</b></summary>
 <br>
 
 | 领域 | 回答的问题… | 示例 |
@@ -176,7 +176,7 @@ triage 家族是一组独立的离线 CLI：输入证据（日志、导出、清
 
 </details>
 
-完整索引见 [CHANGELOG.md](CHANGELOG.md)；从非工具型概念提炼的方法论（250 节）见 [docs/PORT-AGENT-METHODS.md](docs/PORT-AGENT-METHODS.md)。
+完整索引见 [CHANGELOG.md](CHANGELOG.md)；从非工具型概念提炼的方法论（250+ 节）见 [docs/PORT-AGENT-METHODS.md](docs/PORT-AGENT-METHODS.md)。
 
 ## 命令
 
