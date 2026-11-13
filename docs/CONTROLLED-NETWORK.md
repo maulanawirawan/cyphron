@@ -70,7 +70,27 @@ proses skill Python
    skill (sesuai safety class per skill di registry). Pemisahan per
    jenis (dns vs http) bisa jadi pengembangan, bukan syarat.
 
-### Batas jujur (didokumentasikan, tidak disembunyikan)
+### 6. Scope-check + pin-IP anti-rebinding (Fase 2-C, 2026-11-14)
+
+- `core/net_guard_scope.py` — scope file JSON
+  `{domains: [...], ips: [...], cidrs: [...]}` milik runner; env
+  `SECAI_NET_SCOPE_FILE`. Tanpa env = perilaku lama (hanya budget).
+- Default-DENY: host di luar scope ditolak **sebelum resolve** — DNS
+  untuk host itu tidak pernah dikirim (opsec).
+- **Anti-rebinding**: hostname yang lolos di-resolve SEKALI via
+  getaddrinfo, hasil IP diverifikasi ulang terhadap scope (mode
+  IP/CIDR), lalu connect dibuat KE SOCKADDR terpilih — library HTTP
+  tidak pernah me-resolve ulang di titik connect. (Kritik eksternal
+  "DNS rebinding menembus scope pre-connect" tidak pernah berlaku pada
+  net_guard — dia guard budget, bukan filter scope; fitur scope ini
+  lahir dari diskusi itu dan langsung dirancang pin-first.)
+- Fail-closed: env scope diset tapi file hilang/korup = deny-all.
+- Runner: `secai run --net-scope FILE --net-budget N ...` (env
+  pass-through). Uninstall net_guard kini identity-guard: hanya
+  memulihkan atribut yang masih patch kita (kebocoran state antar
+  patch eksternal tertangani).
+
+## Batas jujur (didokumentasikan, tidak disembunyikan)
 
 - Ini GUARD KESALAHAN proses sendiri (skill bug/loop/untracked), BUKAN
   sandbox keamanan adversarial: kode Python yang sengaja bisa

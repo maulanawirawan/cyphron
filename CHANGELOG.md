@@ -7,6 +7,22 @@ as the compatibility signal.
 
 ## [Unreleased]
 
+### Added — net-guard scope-check + pin-IP anti-rebinding (Fase 2-C)
+
+- `core/net_guard_scope.py` — scope file (domains/ips/cidrs) +
+  `resolve_pin`/`udp_pin`: resolve SEKALI, verifikasi scope, connect ke
+  sockaddr terpilih (anti-DNS-rebinding); host luar scope ditolak
+  SEBELUM resolve (DNS tak pernah dikirim).
+- `core/net_guard.py` — env `SECAI_NET_SCOPE_FILE`, default-deny saat
+  scope aktif, baris audit `scope-deny` ber-reason, fail-closed
+  deny-all bila scope file hilang/korup; `uninstall` kini
+  identity-guard (hanya memulihkan patch miliknya sendiri).
+- Runner Rust: `run_skill_guarded(..., scope_path)` + CLI
+  `secai run --net-scope FILE`; 1 e2e test scope-deny (67 total).
+- agent-shield: `core/net_guard_scope.py` masuk seal (19 file).
+- 15 test python baru (scope match/deny/pin/dns-leak/fail-closed).
+
+
 ### Added — wave-2 triage batch (4 new tools, 196 -> 200)
 
 Four offline triage tools closing the remaining wave-2 gaps mapped

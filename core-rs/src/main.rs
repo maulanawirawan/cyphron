@@ -384,11 +384,20 @@ fn cmd_run(args: &[String]) {
     // "--out" tanpa guard menelan flag skill dan mengosongkan output).
     let mut out: Option<PathBuf> = None;
     let mut net_budget: Option<usize> = None;
+    let mut net_scope: Option<PathBuf> = None;
     let mut i = 0;
     while i < args.len() {
         match args[i].as_str() {
             "--out" => {
                 out = Some(PathBuf::from(
+                    args.get(i + 1).map(String::as_str).unwrap_or_default(),
+                ));
+                i += 2;
+            }
+            "--net-scope" => {
+                // Fase 2-C: file scope JSON (domains/ips/cidrs) —
+                // default-deny + pin-IP anti-rebinding di sisi skill.
+                net_scope = Some(PathBuf::from(
                     args.get(i + 1).map(String::as_str).unwrap_or_default(),
                 ));
                 i += 2;
@@ -422,7 +431,7 @@ fn cmd_run(args: &[String]) {
     }
     let skill: Vec<String> = args[i.min(args.len())..].to_vec();
     let out = out.unwrap_or_else(|| {
-        eprintln!("usage: secai run --out <file> <skill...> (pakai @OUT@ placeholder)");
+        eprintln!("usage: secai run [--net-budget N] [--net-scope FILE] --out <file> <skill...> (pakai @OUT@ placeholder)");
         exit(2);
     });
     if skill.is_empty() {
@@ -430,7 +439,10 @@ fn cmd_run(args: &[String]) {
         exit(2);
     }
     let run_res = match net_budget {
-        Some(n) => runner::run_skill_guarded(&skill, &out, None, n),
+        Some(n) => {
+            runner::run_skill_guarded(&skill, &out, None, n,
+                                      net_scope.as_deref())
+        }
         None => runner::run_skill(&skill, &out, None),
     };
     match run_res {

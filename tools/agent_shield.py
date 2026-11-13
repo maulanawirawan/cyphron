@@ -58,6 +58,7 @@ WATCHED_FILES = (
     "tools/agent_shield.py",  # verifier ter-lock juga — modifikasi verifier = seal rusak
     # --- enforcement deterministik (lapis 1) ---
     "core/net_guard.py",            # gate budget pre-connect
+    "core/net_guard_scope.py",      # scope-check + pin-IP anti-rebinding
     "tools/exploit_engine.py",      # gerbang tier/exploit_allowed/3-kunci
     "tools/exploit_playbooks.py",   # 42 playbook + NEVER-LIST
     "tools/exploit_ci_gate.py",     # gate CI findings

@@ -12,6 +12,7 @@ Batas jujur: guard kesalahan proses sendiri, BUKAN sandbox adversarial
 """
 from __future__ import annotations
 
+import ipaddress
 import json
 import os
 import socket
@@ -23,6 +24,14 @@ from pathlib import Path
 GUARD_ENV = "SECAI_NET_GUARD"
 BUDGET_ENV = "SECAI_NET_BUDGET_FILE"
 AUDIT_ENV = "SECAI_NET_AUDIT"
+SCOPE_ENV = "SECAI_NET_SCOPE_FILE"  # Fase 2-C: scope-check + pin-IP
+
+try:
+    from net_guard_scope import (  # noqa: E402  (core/ di sys.path)
+        Scope, load_scope, resolve_pin, udp_pin)
+except ImportError:  # di-import sebagai core.net_guard (sitecustomize)
+    from core.net_guard_scope import (  # noqa: E402
+        Scope, load_scope, resolve_pin, udp_pin)
 
 _installed = False
 _uninstaller = None
@@ -72,9 +81,12 @@ def _audit(audit_file: str | Path, entry: dict) -> None:
         pass
 
 
-def install(budget_file: str | Path, audit_file: str | Path):
+def install(budget_file: str | Path, audit_file: str | Path,
+            scope: "Scope | None" = None):
     """Pasang patch socket. Kembalikan uninstall() (untuk test).
-    Idempotent — install dua kali tidak menumpuk patch."""
+    Idempotent — install dua kali tidak menumpuk patch.
+    scope (Fase 2-C): None = hanya budget (perilaku lama); Scope =
+    default-deny + pin-IP anti-rebinding (net_guard_scope)."""
     global _installed, _uninstaller
     if _installed and _uninstaller is not None:
         return _uninstaller
@@ -84,35 +96,101 @@ def install(budget_file: str | Path, audit_file: str | Path):
     orig_sendto = socket.socket.sendto
     orig_create = socket.create_connection
 
-    def _gate(kind: str, address) -> bool:
+    def _scope_check(kind: str, address) -> tuple[bool, object]:
+        """(allowed, pinned_sockaddr|None). Deny = SEBELUM resolve
+        (DNS utk host luar scope tidak pernah dikirim). Pin = hasil
+        resolve tunggal — anti-rebinding (Fase 2-C)."""
+        if scope is None or not isinstance(address, tuple):
+            return True, None
+        host = address[0] if address else ""
+        if not isinstance(host, str) or not host:
+            return True, None
+        port = address[1] if len(address) > 1 else 0
+        if _is_ip_literal(host):
+            if not scope.host_allowed(host):
+                _audit(audit_file, {"ts": round(time.time(), 3),
+                                    "pid": os.getpid(),
+                                    "kind": "scope-deny",
+                                    "address": str(address),
+                                    "allowed": False,
+                                    "budget_used": None,
+                                    "reason": "scope"})
+                return False, None
+            return True, None  # IP literal asli — tak perlu pin
+        if not scope.host_allowed(host):
+            _audit(audit_file, {"ts": round(time.time(), 3),
+                                "pid": os.getpid(),
+                                "kind": "scope-deny",
+                                "address": str(address),
+                                "allowed": False,
+                                "budget_used": None,
+                                "reason": "scope"})
+            return False, None
+        pin = (udp_pin(host, port, scope)
+               if kind == "udp-sendto"
+               else resolve_pin(host, port, scope))
+        if pin is None:
+            _audit(audit_file, {"ts": round(time.time(), 3),
+                                "pid": os.getpid(),
+                                "kind": "scope-deny",
+                                "address": str(address),
+                                "allowed": False,
+                                "budget_used": None,
+                                "reason": "resolve-out-of-scope"})
+            return False, None
+        return True, pin
+
+    def _is_ip_literal(text: str) -> bool:
+        try:
+            ipaddress.ip_address(text)
+            return True
+        except ValueError:
+            return False
+
+    def _gate(kind: str, address, pinned: object = None):
         """True = boleh lanjut; False = ditolak (budget)."""
         used = try_take(budget_file)
         allowed = used is not None
         _audit(audit_file, {
             "ts": round(time.time(), 3), "pid": os.getpid(),
-            "kind": kind, "address": str(address), "allowed": allowed,
+            "kind": kind, "address": str(pinned or address),
+            "allowed": allowed,
             "budget_used": used,
         })
         return allowed
 
     def guarded_connect(self, address):
-        if not _gate("tcp-connect", address):
+        allowed, pinned = _scope_check("tcp-connect", address)
+        if not allowed:
+            raise OSError(10061 if sys.platform == "win32" else 111,
+                          "secai net-guard: scope deny/kontrak rusak "
+                          f"(ditolak sebelum resolve) -> {address!r}")
+        if not _gate("tcp-connect", address, pinned):
             raise OSError(10061 if sys.platform == "win32" else 111,
                           "secai net-guard: budget habis/kontrak hilang "
                           f"(ditolak sebelum connect) -> {address!r}")
-        return orig_connect(self, address)
+        return orig_connect(self, pinned if pinned is not None else address)
 
     def guarded_connect_ex(self, address):
-        if not _gate("tcp-connect-ex", address):
+        allowed, pinned = _scope_check("tcp-connect-ex", address)
+        if not allowed:
             return 10061 if sys.platform == "win32" else 111
-        return orig_connect_ex(self, address)
+        if not _gate("tcp-connect-ex", address, pinned):
+            return 10061 if sys.platform == "win32" else 111
+        return orig_connect_ex(self, pinned if pinned is not None else address)
 
     def guarded_sendto(self, data, address=None, *args, **kwargs):
-        if address is not None and not _gate("udp-sendto", address):
+        allowed, pinned = _scope_check("udp-sendto", address)
+        if not allowed:
+            raise OSError(10065 if sys.platform == "win32" else 101,
+                          "secai net-guard: scope deny/kontrak rusak "
+                          f"(ditolak sebelum resolve) -> {address!r}")
+        target = pinned if pinned is not None else address
+        if address is not None and not _gate("udp-sendto", address, pinned):
             raise OSError(10065 if sys.platform == "win32" else 101,
                           "secai net-guard: budget habis/kontrak hilang "
                           f"(ditolak sebelum sendto) -> {address!r}")
-        return orig_sendto(self, data, address, *args, **kwargs)
+        return orig_sendto(self, data, target, *args, **kwargs)
 
     def guarded_create_connection(address, timeout=socket._GLOBAL_DEFAULT_TIMEOUT,
                                   source_address=None):
@@ -121,17 +199,23 @@ def install(budget_file: str | Path, audit_file: str | Path):
         # connect asli di dalamnya TIDAK ter-gate ulang (socket mentah
         # yang dibuat create_connection memakai connect yang sudah
         # di-patch — jadi token diambil 1x di sini, bukan 2x).
-        if not _gate("tcp-create-connection", address):
+        allowed, pinned = _scope_check("tcp-create-connection", address)
+        if not allowed:
+            raise OSError(10061 if sys.platform == "win32" else 111,
+                          "secai net-guard: scope deny/kontrak rusak "
+                          f"(ditolak sebelum resolve) -> {address!r}")
+        if not _gate("tcp-create-connection", address, pinned):
             raise OSError(10061 if sys.platform == "win32" else 111,
                           "secai net-guard: budget habis/kontrak hilang "
                           f"(ditolak sebelum connect) -> {address!r}")
-        # buka koneksi tanpa melewati gate connect lagi
+        # buka koneksi tanpa melewati gate connect lagi (KE PIN bila ada)
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         if timeout is not socket._GLOBAL_DEFAULT_TIMEOUT:
             sock.settimeout(timeout)
         try:
             _bypass_orig_connect = orig_connect
-            _bypass_orig_connect(sock, address)
+            _bypass_orig_connect(
+                sock, pinned if pinned is not None else address)
         except Exception:
             sock.close()
             raise
@@ -144,10 +228,19 @@ def install(budget_file: str | Path, audit_file: str | Path):
 
     def uninstall():
         global _installed, _uninstaller
-        socket.socket.connect = orig_connect
-        socket.socket.connect_ex = orig_connect_ex
-        socket.socket.sendto = orig_sendto
-        socket.create_connection = orig_create
+        # Identity-guard: pulihkan HANYA bila atribut masih patch kita.
+        # Jika pihak lain (mis. patch test) menimpa di atas patch ini,
+        # biarkan pemilik baru yang bertanggung jawab — tanpa ini,
+        # uninstall di dalam patch eksternal memulihkan fungsi yang
+        # SALAH (patch-exit lalu mengembalikan guarded yang basi).
+        if socket.socket.connect is guarded_connect:
+            socket.socket.connect = orig_connect
+        if socket.socket.connect_ex is guarded_connect_ex:
+            socket.socket.connect_ex = orig_connect_ex
+        if socket.socket.sendto is guarded_sendto:
+            socket.socket.sendto = orig_sendto
+        if socket.create_connection is guarded_create_connection:
+            socket.create_connection = orig_create
         _installed = False
         _uninstaller = None
 
@@ -165,8 +258,10 @@ def auto_install_from_env() -> bool:
         return False
     budget = os.environ.get(BUDGET_ENV, "")
     audit = os.environ.get(AUDIT_ENV, "")
+    scope_path = os.environ.get(SCOPE_ENV, "")
+    scope = load_scope(scope_path) if scope_path else None
     install(budget or "<no-budget-contract>",
-            audit or os.devnull)
+            audit or os.devnull, scope)
     # Marker bukti guard terpasang: baris pertama audit berisi
     # kind="guard-install". Runner (fase 2-B lanjutan) menganggap skill
     # berjalan TANPA guard bila baris ini absen -> hard-fail

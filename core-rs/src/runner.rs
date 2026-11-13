@@ -200,6 +200,7 @@ pub fn run_skill_with_env(
 pub const GUARD_ENV: &str = "SECAI_NET_GUARD";
 pub const BUDGET_ENV: &str = "SECAI_NET_BUDGET_FILE";
 pub const AUDIT_ENV: &str = "SECAI_NET_AUDIT";
+pub const SCOPE_ENV: &str = "SECAI_NET_SCOPE_FILE";
 
 /// Fase 2-B lanjutan (docs/CONTROLLED-NETWORK.md §3): jalankan skill di
 /// bawah net-guard — env diinjeksi, audit diverifikasi, fail-closed.
@@ -216,6 +217,7 @@ pub fn run_skill_guarded(
     out_path: &Path,
     workdir: Option<&Path>,
     budget_limit: usize,
+    scope_path: Option<&Path>,
 ) -> Result<RunResult, String> {
     if budget_limit == 0 {
         return Err(
@@ -260,12 +262,16 @@ pub fn run_skill_guarded(
         .map(|p| p.display().to_string())
         .collect::<Vec<_>>()
         .join(sep);
-    let extra_env = vec![
+    let mut extra_env = vec![
         (GUARD_ENV.to_string(), "1".to_string()),
         (BUDGET_ENV.to_string(), budget_path.display().to_string()),
         (AUDIT_ENV.to_string(), audit_path.display().to_string()),
         ("PYTHONPATH".to_string(), py_path),
     ];
+    if let Some(scope) = scope_path {
+        // Fase 2-C: scope-check + pin-IP anti-rebinding di sisi skill
+        extra_env.push((SCOPE_ENV.to_string(), scope.display().to_string()));
+    }
 
     let res = run_skill_with_env(skill_argv, out_path, workdir, &extra_env);
 
@@ -649,7 +655,7 @@ json.dump({"ok": True, "findings": []},
         ];
         let out = std::env::temp_dir()
             .join(format!("secai_t_guard_{}.json", std::process::id()));
-        let res = run_skill_guarded(&argv, &out, None, 1)
+        let res = run_skill_guarded(&argv, &out, None, 1, None)
             .expect("guarded run should pass");
         assert!(res.ok, "invalid: {:?}", res.invalid);
         let _ = std::fs::remove_file(&out);
@@ -676,8 +682,51 @@ except Exception:
         ];
         let out = std::env::temp_dir()
             .join(format!("secai_t_guard2_{}.json", std::process::id()));
-        let err = run_skill_guarded(&argv, &out, None, 3).unwrap_err();
+        let err = run_skill_guarded(&argv, &out, None, 3, None).unwrap_err();
         assert!(err.contains("missing"), "err={err}");
+    }
+
+    #[test]
+    fn guarded_run_with_scope_passes_through_and_audits_deny() {
+        // Fase 2-C: scope file (127.0.0.1 DI LUAR scope) -> kedua attempt
+        // ter-scope-deny; skill tetap exit 0 (menangkap OSError); audit
+        // memuat baris scope-deny dan guard-install tetap ada.
+        let script = r#"
+import socket, json, sys
+denied = 0
+for _ in range(2):
+    try:
+        s = socket.create_connection(("127.0.0.1", 9), timeout=1)
+        s.close()
+    except OSError:
+        denied += 1
+json.dump({"ok": True, "findings": [],
+           "note": f"denied={denied}"},
+          open(sys.argv[1], "w", encoding="utf-8"))
+"#;
+        let scope = std::env::temp_dir()
+            .join(format!("secai_t_scope_{}.json", std::process::id()));
+        std::fs::write(
+            &scope,
+            json!({"domains": ["unrelated.test"], "ips": [], "cidrs": []})
+                .to_string(),
+        )
+        .unwrap();
+        let argv = vec![
+            "python".to_string(),
+            "-c".to_string(),
+            script.to_string(),
+            "@OUT@".to_string(),
+        ];
+        let out = std::env::temp_dir()
+            .join(format!("secai_t_scoped_{}.json", std::process::id()));
+        let res = run_skill_guarded(
+            &argv, &out, None, 5, Some(scope.as_path()),
+        )
+        .expect("guarded run with scope should pass");
+        assert!(res.ok, "invalid: {:?}", res.invalid);
+        let _ = std::fs::remove_file(&out);
+        let _ = std::fs::remove_file(&scope);
     }
 
     #[test]
@@ -686,7 +735,7 @@ except Exception:
                         "pass".to_string()];
         let out = std::env::temp_dir()
             .join(format!("secai_t_guard3_{}.json", std::process::id()));
-        let err = run_skill_guarded(&argv, &out, None, 0).unwrap_err();
+        let err = run_skill_guarded(&argv, &out, None, 0, None).unwrap_err();
         assert!(err.contains("budget 0"), "err={err}");
     }
 }
