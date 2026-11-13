@@ -9,7 +9,7 @@
 [![CI](https://github.com/maulanawirawan/secai/actions/workflows/ci.yml/badge.svg)](https://github.com/maulanawirawan/secai/actions/workflows/ci.yml)
 [![release](https://img.shields.io/badge/release-v0.1.0-blue)](https://github.com/maulanawirawan/secai/releases)
 [![skills](https://img.shields.io/badge/skills-95-8A2BE2)](#whats-inside)
-[![tools](https://img.shields.io/badge/tools-196-brightgreen)](#whats-inside)
+[![tools](https://img.shields.io/badge/tools-200-brightgreen)](#whats-inside)
 [![python](https://img.shields.io/badge/python-3.10%2B-3776AB)](#quick-start-try-it-in-60-seconds)
 [![rust](https://img.shields.io/badge/rust-stable-orange)](#quick-start-try-it-in-60-seconds)
 [![license](https://img.shields.io/badge/license-PolyForm%20NC%201.0-blue)](LICENSE.md)
@@ -55,7 +55,7 @@ flowchart LR
 
 > **secai** = **sec**urity + **a**gentic **i**ntelligence. It's an
 > evidence-first cybersecurity engine: **95 detection skills** and
-> **196 offline triage tools** (294 scripts in all), a native Rust core,
+> **200 offline triage tools** (298 scripts in all), a native Rust core,
 > one strict "findings" format, and an MCP server — so Claude Code,
 > Cursor, or any shell-capable AI agent can drive it for you.
 
@@ -204,7 +204,7 @@ manual that teaches an agent to drive secai safely) and [AGENTS.md](AGENTS.md)
   declared safety class (from `read-only` up to `state-changing`) and a
   hard request budget. The registry is an *allowlist*: if a skill isn't
   listed, it doesn't run.
-- **196 offline triage tools** in `tools/` — evidence in (logs, exports,
+- **200 offline triage tools** in `tools/` — evidence in (logs, exports,
   manifests, binaries), deterministic `findings.json` out, zero network.
   121 of them were ported from 995 public skill concepts, each rebuilt
   from scratch with attribution.
@@ -228,7 +228,7 @@ manual that teaches an agent to drive secai safely) and [AGENTS.md](AGENTS.md)
   mass exfiltration) are refused no matter what flags you pass. Details in
   [docs/EXPLOIT-TIER.md](docs/EXPLOIT-TIER.md).
 
-*(294 Python scripts in total across `skills/` and `tools/`; 95 of the
+*(298 Python scripts in total across `skills/` and `tools/`; 95 of the
 skills are registered in the allowlist, the rest are shared helpers.)*
 
 ## Capability map
@@ -245,7 +245,7 @@ from scratch, stdlib-only, and documented with its source entry in the
 module docstring).
 
 <details>
-<summary><b>121 ported tools + 13 offensive/blue-bridge + 7 intel-DFIR tools (196 total in tools/) — click to expand</b></summary>
+<summary><b>121 ported tools + 13 offensive/blue-bridge + 7 intel-DFIR + 4 capture/document-bait tools (200 total in tools/) — click to expand</b></summary>
 <br>
 
 | Domain | Answers the question… | Examples |
@@ -261,6 +261,7 @@ module docstring).
 | Validation & reporting | "is this finding real, and how do we say it?" | `verify_gate`, `brocards_triage`, `log_chain_verify`, `report_pack` |
 | **Offensive proof** (new) | "can I *prove* this is exploitable, safely?" | `jwt_crypto_attack`, `bola_bfla_prover`, `nosql_injection_analyzer`, `ssrf_metadata_map`, `ssti_exploit_plan`, `iam_assume_chain` |
 | **Detection bridge** (new) | "turn a finding into a detection" | `detection_rule_gen` (Sigma+YARA), `attack_navigator_export` |
+| **Quishing & doc-bait triage** (new) | "is this QR contact / document callback / capture / event log suspicious?" | `qr_vcard_triage`, `doc_beacon_triage`, `capture_triage`, `evtx_hunt` |
 
 </details>
 

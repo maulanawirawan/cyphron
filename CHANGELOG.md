@@ -7,6 +7,33 @@ as the compatibility signal.
 
 ## [Unreleased]
 
+### Added — wave-2 triage batch (4 new tools, 196 -> 200)
+
+Four offline triage tools closing the remaining wave-2 gaps mapped
+against A-poc reference catalogs (concept references only; all code
+from scratch, stdlib-only, zero-network, fail-closed):
+
+- `qr_vcard_triage` — wave-2 quishing: score decoded QR **vCard/MECARD**
+  payloads (brand-impersonation lures, shortener/IP/punycode URLs,
+  MATMSG/SMSTO traps, oversized PHOTO blobs, instruction NOTES). Companion
+  to `qr_payload_triage` (which handles bare URLs). *(gap: SquarePhish/evilqr contact cards)*
+- `doc_beacon_triage` — grade document **callback URLs**: OOXML external
+  rel targets + RTF `\objdata` protocol tokens (ms-msdt/search-ms,
+  Follina-class) scored for IP/punycode/shortener/lure signals.
+  Complements `maldoc_triage` (which reports mere existence + remote
+  template injection, T1221) by rating the callbacks themselves;
+  RTF was previously uncovered. *(gap: maldoc beacon triage)*
+- `capture_triage` — lookyloo-style **passive HAR triage**: redirect
+  chains, cross-domain POSTs, credentials-in-URL, third-party script
+  density, tracking pixels — all from the existing capture, zero fetches.
+  *(gap: lookyloo)*
+- `evtx_hunt` — carve-level **Windows Event Log hunt** on binary
+  `.evtx`: UTF-16LE string extraction per 64 KiB chunk + indicator
+  categories (tooling/recon/persistence/lateral/defense evasion).
+  Honestly bounded: not a full EVTX parser; indicator leads only.
+  *(gap: chainsaw/evtx-hunting)*
+
+
 ### Added — F66 queue completion: 2 banner skills + MCP prompt-injection playbook + net-guard runner (2 new skills, 93 -> 95)
 
 Antrian eksplisit F66 dibereskan (3 dari 4; sisanya HOLD kebijakan):
