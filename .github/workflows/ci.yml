@@ -50,19 +50,27 @@ jobs:
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO_URL: https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
         run: |
-          if ! git clone --depth 1 --branch gh-pages \
-              "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" gh-pages 2>/dev/null; then
-            git init gh-pages
-            cd gh-pages && git checkout --orphan gh-pages && git rm -rf . 2>/dev/null || true
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git ls-remote --exit-code --heads "$REPO_URL" gh-pages >/dev/null 2>&1; then
+            git clone --depth 1 --branch gh-pages "$REPO_URL" gh-pages
+            cp coverage-badge.json gh-pages/
+            cd gh-pages
+            git add coverage-badge.json
+            git commit -m "chore: update coverage badge" || echo "no badge change"
+            git push origin gh-pages
+          else
+            mkdir gh-pages
+            cp coverage-badge.json gh-pages/
+            cd gh-pages
+            git init -b gh-pages
+            git remote add origin "$REPO_URL"
+            git add coverage-badge.json
+            git commit -m "chore: bootstrap coverage badge"
+            git push --set-upstream origin gh-pages
           fi
-          cp coverage-badge.json gh-pages/
-          cd gh-pages
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add coverage-badge.json
-          git commit -m "chore: update coverage badge" || echo "no badge change"
-          git push origin gh-pages
 
   # Issue #2 — Dockerfile di-build dan di-smoke setiap push/PR.
   docker-smoke:
@@ -72,9 +80,11 @@ jobs:
       - uses: actions/checkout@v4
       - name: Build image
         run: docker build -t secai:smoke .
-      - name: Smoke — info-mode guard (ENTRYPOINT + registry)
+      - name: Smoke — Rust core info (HEALTHCHECK command, exit 0)
+        run: docker run --rm secai:smoke info
+      - name: Smoke — Rust core validate (exit 2 di input kosong)
         run: |
-          docker run --rm secai:smoke skills
-      - name: Smoke — core binary validate (Rust)
+          docker run --rm secai:smoke validate /dev/null || test $? -eq 2
+      - name: Smoke — python registry terbaca di container
         run: |
-          docker run --rm --entrypoint /usr/local/bin/secai secai:smoke validate /dev/null || test $? -eq 2
+          docker run --rm --entrypoint python secai:smoke -c "import json; r=json.load(open('skills/registry.json')); print('registry ok:', len(r['skills']), 'skills')"

@@ -10,7 +10,7 @@
 #   docker run --rm secai:local scan --domain contoh.id --report
 # Catatan: build image belum diverifikasi ulang sejak perubahan audit ini —
 # jalankan smoke sebelum rilis:
-#   docker run --rm secai:local skills  (smoke; mode 'info' tidak ada)
+#   docker run --rm secai:local info  (Rust core info)
 #   docker run --rm secai:local scan --domain contoh.id --report
 
 FROM rust:1-slim@sha256:b8e062b1c3a80183df83d9ba187cadd2b5ab84bc78d453dbfeb2fccd5f982247 AS build
@@ -40,7 +40,7 @@ COPY assets assets
 COPY skills/registry.json skills/registry.json
 ENV PYTHONUNBUFFERED=1
 EXPOSE 8900
-HEALTHCHECK --interval=30s --timeout=5s CMD secai skills || exit 1
+HEALTHCHECK --interval=30s --timeout=5s CMD secai info || exit 1
 USER appuser
 ENTRYPOINT ["secai"]
 CMD ["info"]
