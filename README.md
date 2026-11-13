@@ -204,7 +204,7 @@ manual that teaches an agent to drive secai safely) and [AGENTS.md](AGENTS.md)
   declared safety class (from `read-only` up to `state-changing`) and a
   hard request budget. The registry is an *allowlist*: if a skill isn't
   listed, it doesn't run.
-- **189 offline triage tools** in `tools/` — evidence in (logs, exports,
+- **196 offline triage tools** in `tools/` — evidence in (logs, exports,
   manifests, binaries), deterministic `findings.json` out, zero network.
   121 of them were ported from 995 public skill concepts, each rebuilt
   from scratch with attribution.

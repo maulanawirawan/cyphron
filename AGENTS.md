@@ -24,7 +24,7 @@ that cannot be proven never ships.
   agent-safety (`injection_guard`, `agent_shield`), audit engines
   (`audit_phases` multi-phase fail-closed, `insecure_defaults` config
   scanner), verify gate (`verify_gate` — claims need fresh evidence), leak-claim triage (`leak_triage`), parallel job dispatch (`fleet_dispatch`), skill vetting gate (`skill_vet`), CVSS v3.1 calculator (`cvss_score`), DFIR, config & intel triage (28+ tools hasil program port SKILL-PORT-QUEUE: maldoc/pdf/mft/netflow/deauth/dpapi/packer/web-log/dns-log/eml/k8s/cloudtrail/IAM/sysmon/win-logon/waf/lolbin/CT-baseline/IOC-defang/SARIF-ingest/dsb. — lihat git log).
-- `tests/` — pytest suite (3254 tests + 31 subtests; 3 test POSIX skip otomatis di Windows). Run: `python -m pytest tests/ -q`
+- `tests/` — pytest suite (3430 tests + 31 subtests; 3 test POSIX skip otomatis di Windows). Run: `python -m pytest tests/ -q`
 - `docs/` — policies: exploit tier, egress, install, nightrun, legion
   method (`docs/LEGION-METHOD.md`).
 

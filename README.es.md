@@ -11,9 +11,9 @@ salida estricto que ambos respetan.
 *Sin prueba, no hay informe.*
 
 [![CI](https://github.com/maulanawirawan/secai/actions/workflows/ci.yml/badge.svg)](https://github.com/maulanawirawan/secai/actions/workflows/ci.yml)
-[![tests](https://img.shields.io/badge/tools-189-brightgreen)](#qué-incluye)
+[![tests](https://img.shields.io/badge/tools-196-brightgreen)](#qué-incluye)
 [![release](https://img.shields.io/badge/release-v0.1.0-blue)](https://github.com/maulanawirawan/secai/releases)
-[![skills](https://img.shields.io/badge/capabilities-285-8A2BE2)](#qué-incluye)
+[![skills](https://img.shields.io/badge/capabilities-292-8A2BE2)](#qué-incluye)
 [![python](https://img.shields.io/badge/python-3.10%2B-3776AB)](#inicio-rápido)
 [![rust](https://img.shields.io/badge/rust-stable-orange)](#inicio-rápido)
 [![license](https://img.shields.io/badge/license-PolyForm%20NC%201.0-blue)](LICENSE.md)
@@ -139,12 +139,12 @@ flowchart LR
 
 ## Qué incluye
 
-- **285 scripts de capacidades** en dos familias: **93 skills de
+- **292 scripts de capacidades** en dos familias: **93 skills de
   detección registradas** en `skills/` (recon, postura y exposición —
   cada una es una CLI independiente con clase de seguridad declarada,
   de `read-only` a `state-changing`, y un límite estricto de
   peticiones derivado de ella; el registro es una lista blanca: lo que
-  no está listado no se ejecuta) y **189 herramientas offline** en
+  no está listado no se ejecuta) y **196 herramientas offline** en
   `tools/` (triage de evidencia — 121 portadas de 995 conceptos).
 - **Un núcleo nativo en Rust** en `core-rs/`: `secai validate` revisa
   el contrato, `secai scan` ejecuta escaneos por niveles y genera el
@@ -181,7 +181,7 @@ skill.
 La familia de triaje son CLIs offline independientes: entra evidencia (logs, exportaciones, manifiestos, binarios), sale un findings.json determinístico, fail-closed, sin red. Aspectos por dominio:
 
 <details>
-<summary><b>121 portadas + 13 nuevas ofensivas/blue-bridge (189 en total en tools/) — clic para expandir</b></summary>
+<summary><b>121 portadas + 13 nuevas ofensivas/blue-bridge (196 en total en tools/) — clic para expandir</b></summary>
 <br>
 
 | Dominio | Responde a… | Ejemplos |
