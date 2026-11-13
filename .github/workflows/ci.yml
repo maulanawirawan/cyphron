@@ -82,9 +82,9 @@ jobs:
         run: docker build -t secai:smoke .
       - name: Smoke — Rust core info (HEALTHCHECK command, exit 0)
         run: docker run --rm secai:smoke info
-      - name: Smoke — Rust core validate (exit 2 di input kosong)
+      - name: Smoke — Rust core validate (exit 1 di input invalid)
         run: |
-          docker run --rm secai:smoke validate /dev/null || test $? -eq 2
+          docker run --rm secai:smoke validate /dev/null || test $? -eq 1
       - name: Smoke — python registry terbaca di container
         run: |
           docker run --rm --entrypoint python secai:smoke -c "import json; r=json.load(open('skills/registry.json')); print('registry ok:', len(r['skills']), 'skills')"
