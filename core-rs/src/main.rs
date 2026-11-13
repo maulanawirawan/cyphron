@@ -383,6 +383,7 @@ fn cmd_run(args: &[String]) {
     // (mis. --out @OUT@) TIDAK boleh diinterpretasi ulang (bug #1: arm
     // "--out" tanpa guard menelan flag skill dan mengosongkan output).
     let mut out: Option<PathBuf> = None;
+    let mut net_budget: Option<usize> = None;
     let mut i = 0;
     while i < args.len() {
         match args[i].as_str() {
@@ -390,6 +391,22 @@ fn cmd_run(args: &[String]) {
                 out = Some(PathBuf::from(
                     args.get(i + 1).map(String::as_str).unwrap_or_default(),
                 ));
+                i += 2;
+            }
+            "--net-budget" => {
+                // Fase 2-B lanjutan: aktifkan net-guard untuk run ini —
+                // env diinjeksi, audit diverifikasi (hard-fail tanpa
+                // bukti guard). Tanpa flag = perilaku lama (tanpa guard).
+                match args.get(i + 1).and_then(|s| s.parse::<usize>().ok())
+                {
+                    Some(n) => net_budget = Some(n),
+                    None => {
+                        eprintln!(
+                            "--net-budget needs a positive integer"
+                        );
+                        exit(2);
+                    }
+                }
                 i += 2;
             }
             "--" => {
@@ -412,7 +429,11 @@ fn cmd_run(args: &[String]) {
         eprintln!("no skill command given");
         exit(2);
     }
-    match runner::run_skill(&skill, &out, None) {
+    let run_res = match net_budget {
+        Some(n) => runner::run_skill_guarded(&skill, &out, None, n),
+        None => runner::run_skill(&skill, &out, None),
+    };
+    match run_res {
         Ok(res) if res.ok => {
             println!(
                 "OK: {} findings valid (exit {:?}) -> {}",

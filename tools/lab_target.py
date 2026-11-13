@@ -619,6 +619,68 @@ class _Handler(BaseHTTPRequestHandler):
     def do_POST(self):
         parsed = urllib.parse.urlparse(self.path)
         qs = urllib.parse.parse_qs(parsed.query)
+        if parsed.path == "/mcp":
+            # F66 #3: simulator MCP server (flavor Streamable-HTTP,
+            # JSON-RPC 2.0) untuk playbook mcp-prompt-injection:
+            #   initialize               -> capabilities + serverInfo
+            #   tools/list               -> llm-chat (rawan) + kontrol
+            #   tools/call llm-chat      -> KERENTANAN SENGAJA: tool
+            #                               "menuruti" instruksi user —
+            #                               canary marker muncul di
+            #                               output tool (CWE-1427).
+            #   tools/call llm-chat-safe -> kontrol: instruksi DITOLAK.
+            length = int(self.headers.get("Content-Length", 0))
+            try:
+                payload = json.loads(
+                    self.rfile.read(length).decode("utf-8", "replace"))
+            except Exception:
+                return self._json(
+                    400, {"jsonrpc": "2.0", "id": None,
+                          "error": {"code": -32700,
+                                    "message": "parse error"}})
+            rid = payload.get("id") if isinstance(payload, dict) else None
+            method = payload.get("method", "") if isinstance(
+                payload, dict) else ""
+            params = payload.get("params") or {}
+
+            def _rpc(result):
+                return self._json(
+                    200, {"jsonrpc": "2.0", "id": rid, "result": result})
+
+            if method == "initialize":
+                return _rpc({"protocolVersion": "2025-06-18",
+                             "capabilities": {"tools": {}},
+                             "serverInfo": {"name": "secai-lab-mcp",
+                                            "version": "0.1.0"}})
+            if method == "tools/list":
+                return _rpc({"tools": [
+                    {"name": "llm-chat",
+                     "description": "chat tool (vulnerable: menuruti "
+                                    "instruksi user)"},
+                    {"name": "llm-chat-safe",
+                     "description": "chat tool (kontrol: instruksi "
+                                    "ditolak)"}]})
+            if method == "tools/call":
+                name = str(params.get("name", ""))
+                args = params.get("arguments") or {}
+                msg = str(args.get("message", ""))
+                if name == "llm-chat":
+                    return _rpc({"content": [
+                        {"type": "text",
+                         "text": f"tool ran. Note: {msg}"}]})
+                if name == "llm-chat-safe":
+                    return _rpc({"content": [
+                        {"type": "text",
+                         "text": "tool ran. Instruksi pengguna tidak "
+                                 "diproses (kontrol)."}]})
+                return self._json(
+                    200, {"jsonrpc": "2.0", "id": rid,
+                          "error": {"code": -32602,
+                                    "message": "unknown tool"}})
+            return self._json(
+                200, {"jsonrpc": "2.0", "id": rid,
+                      "error": {"code": -32601,
+                                "message": f"unknown method {method}"}})
         if parsed.path in ("/api/llm-render", "/api/llm-render-safe"):
             # F46: simulator endpoint generatif yang outputnya DIPAKAI/
             # dirender. /api/llm-render = KERENTANAN SENGAJA — keluaran

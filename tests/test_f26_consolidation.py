@@ -91,7 +91,7 @@ class RegistryTest(unittest.TestCase):
             self.assertFalse(pb.techniques & ep.NEVER_LIST,
                              "teknik never-list tidak boleh lolos registry")
             self.assertEqual(pb.tier, 1, "batch 1 semua tier-1 (proof)")
-        self.assertEqual(len(ep.PLAYBOOKS), 41)
+        self.assertEqual(len(ep.PLAYBOOKS), 42)
 
 
 class LabEndpointTest(LabTestCase):

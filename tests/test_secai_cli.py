@@ -162,7 +162,7 @@ class SkillsModeTest(unittest.TestCase):
     def test_lists_real_registry(self):
         out, code = capture(lambda: secai.dispatch(["skills"]))
         self.assertEqual(code, 0)
-        self.assertIn("93 skill", out)
+        self.assertIn("95 skill", out)
         self.assertIn("tier0", out)
 
     def test_class_filter(self):

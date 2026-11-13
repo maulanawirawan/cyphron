@@ -16,7 +16,7 @@
    ],
    "safety_class": "read-only",
    "needs": "target",
-   "desc": "analytics-tracker-surface — defensif read-only",
+   "desc": "analytics-tracker-surface \u2014 defensif read-only",
    "requires_evidence": true
   },
   {
@@ -33,8 +33,40 @@
    ],
    "safety_class": "read-only",
    "needs": "target",
-   "desc": "api-docs-surface — read-only dari evidence (signature ketat: OpenAPI/Swagger JSON atau DOM #swagger-ui+bundle). Flag opt-in --verify --verify-url <u> = 1 GET ulang: signature sama = L3 reproduced 2x; gagal/tidak cocok = tetap L1 + catatan (fail-closed)",
+   "desc": "api-docs-surface \u2014 read-only dari evidence (signature ketat: OpenAPI/Swagger JSON atau DOM #swagger-ui+bundle). Flag opt-in --verify --verify-url <u> = 1 GET ulang: signature sama = L3 reproduced 2x; gagal/tidak cocok = tetap L1 + catatan (fail-closed)",
    "requires_evidence": true
+  },
+  {
+   "name": "banner-oracle-ebs",
+   "cmd": [
+    "python",
+    "skills/banner_oracle_ebs.py",
+    "--url",
+    "@TARGET@",
+    "--out",
+    "@OUT@"
+   ],
+   "safety_class": "bounded-requests",
+   "needs": "target",
+   "desc": "banner-oracle-ebs \u2014 banner/versi Oracle E-Business Suite (maks 2 GET: /OA_HTML/AppsLogin lalu root; token ketat; versi tak terekspos = CVE mapping tidak diklaim)",
+   "requires_evidence": false,
+   "est_requests": 2
+  },
+  {
+   "name": "banner-plex",
+   "cmd": [
+    "python",
+    "skills/banner_plex.py",
+    "--url",
+    "@TARGET@",
+    "--out",
+    "@OUT@"
+   ],
+   "safety_class": "bounded-requests",
+   "needs": "target",
+   "desc": "banner-plex \u2014 banner/versi Plex Media Server (maks 2 GET: root lalu /web/; marker header X-Plex-Protocol; versi tak terekspos = CVE mapping tidak diklaim)",
+   "requires_evidence": false,
+   "est_requests": 2
   },
   {
    "name": "banner-posture",
@@ -48,7 +80,7 @@
    ],
    "safety_class": "1-request",
    "needs": "target",
-   "desc": "Banner/header halaman utama â€” tepat satu GET (setara kunjungan browser)"
+   "desc": "Banner/header halaman utama \u00e2\u20ac\u201d tepat satu GET (setara kunjungan browser)"
   },
   {
    "name": "banner-posture-evidence",
@@ -65,7 +97,7 @@
    "safety_class": "read-only",
    "needs": "target",
    "requires_evidence": true,
-   "desc": "Banner posture dari bukti tersimpan â€” nol request (mode re-run)"
+   "desc": "Banner posture dari bukti tersimpan \u00e2\u20ac\u201d nol request (mode re-run)"
   },
   {
    "name": "cache-control-posture",
@@ -81,7 +113,7 @@
    ],
    "safety_class": "read-only",
    "needs": "target",
-   "desc": "cache-control-posture — defensif read-only",
+   "desc": "cache-control-posture \u2014 defensif read-only",
    "requires_evidence": true
   },
   {
@@ -98,7 +130,7 @@
    ],
    "safety_class": "read-only",
    "needs": "target",
-   "desc": "cdn-detector — defensif read-only",
+   "desc": "cdn-detector \u2014 defensif read-only",
    "requires_evidence": true
   },
   {
@@ -115,7 +147,7 @@
    ],
    "safety_class": "read-only",
    "needs": "target",
-   "desc": "clickjacking-protection-checker — defensif read-only",
+   "desc": "clickjacking-protection-checker \u2014 defensif read-only",
    "requires_evidence": true
   },
   {
@@ -132,7 +164,7 @@
    ],
    "safety_class": "read-only",
    "needs": "target",
-   "desc": "cookie-flags-aggregate — defensif read-only",
+   "desc": "cookie-flags-aggregate \u2014 defensif read-only",
    "requires_evidence": true
   },
   {
@@ -147,7 +179,7 @@
    ],
    "safety_class": "1-request",
    "needs": "target",
-   "desc": "cors-checker — SATU GET dengan Origin asing; refleksi+kredensial = lead CWE-942; wildcard = terbatas; flag opsional --origin-suffix (+1 request, opt-in manual) menguji trust wildcard-subdomain (refleksi+kredensial = L2)"
+   "desc": "cors-checker \u2014 SATU GET dengan Origin asing; refleksi+kredensial = lead CWE-942; wildcard = terbatas; flag opsional --origin-suffix (+1 request, opt-in manual) menguji trust wildcard-subdomain (refleksi+kredensial = L2)"
   },
   {
    "name": "csp-analyzer",
@@ -165,7 +197,7 @@
    "needs": "target",
    "requires_evidence": true,
    "lab_only": false,
-   "desc": "Analisis Content-Security-Policy dari bukti header tersimpan — 0 request (CWE-693)"
+   "desc": "Analisis Content-Security-Policy dari bukti header tersimpan \u2014 0 request (CWE-693)"
   },
   {
    "name": "ct-inventory",
@@ -196,7 +228,7 @@
    ],
    "safety_class": "read-only",
    "needs": "target",
-   "desc": "debug-page-detector — defensif read-only",
+   "desc": "debug-page-detector \u2014 defensif read-only",
    "requires_evidence": true
   },
   {
@@ -213,7 +245,7 @@
    ],
    "safety_class": "read-only",
    "needs": "target",
-   "desc": "directory-listing-detector — read-only dari evidence (signature ketat: anchor ../ + teks autoindex). Flag opt-in --verify --verify-url <u> = 1 GET ulang: signature struktural sama = L3 reproduced 2x (CWE-548); gagal/tidak cocok = tetap L1 + catatan (fail-closed)",
+   "desc": "directory-listing-detector \u2014 read-only dari evidence (signature ketat: anchor ../ + teks autoindex). Flag opt-in --verify --verify-url <u> = 1 GET ulang: signature struktural sama = L3 reproduced 2x (CWE-548); gagal/tidak cocok = tetap L1 + catatan (fail-closed)",
    "requires_evidence": true
   },
   {
@@ -228,7 +260,7 @@
    ],
    "safety_class": "1-request",
    "needs": "domain",
-   "desc": "Kanonik keluarga email: SPF/DMARC/DKIM + sub-check ketat SPF, MTA-STS (1 GET), DNSSEC, CAA — DoH murni kecuali 1 GET MTA-STS (--no-mta-sts untuk nol request)"
+   "desc": "Kanonik keluarga email: SPF/DMARC/DKIM + sub-check ketat SPF, MTA-STS (1 GET), DNSSEC, CAA \u2014 DoH murni kecuali 1 GET MTA-STS (--no-mta-sts untuk nol request)"
   },
   {
    "name": "form-csrf-checker",
@@ -244,7 +276,7 @@
    ],
    "safety_class": "read-only",
    "needs": "target",
-   "desc": "form-csrf-checker — defensif read-only",
+   "desc": "form-csrf-checker \u2014 defensif read-only",
    "requires_evidence": true
   },
   {
@@ -261,7 +293,7 @@
    ],
    "safety_class": "read-only",
    "needs": "target",
-   "desc": "graphql-surface-detector — defensif read-only",
+   "desc": "graphql-surface-detector \u2014 defensif read-only",
    "requires_evidence": true
   },
   {
@@ -278,7 +310,7 @@
    ],
    "safety_class": "read-only",
    "needs": "target",
-   "desc": "hsts-preload-checker — defensif read-only",
+   "desc": "hsts-preload-checker \u2014 defensif read-only",
    "requires_evidence": true
   },
   {
@@ -295,7 +327,7 @@
    ],
    "safety_class": "read-only",
    "needs": "target",
-   "desc": "http-method-allow-checker — defensif read-only",
+   "desc": "http-method-allow-checker \u2014 defensif read-only",
    "requires_evidence": true
   },
   {
@@ -313,7 +345,7 @@
    "safety_class": "read-only",
    "needs": "target",
    "requires_evidence": true,
-   "desc": "Kanonik keluarga header: presence 6 header keamanan (HSTS/CSP/XFO/XCTO/Referrer/Permissions) + sub-check bocor versi Server/X-Powered-By dari bukti tersimpan — 0 request"
+   "desc": "Kanonik keluarga header: presence 6 header keamanan (HSTS/CSP/XFO/XCTO/Referrer/Permissions) + sub-check bocor versi Server/X-Powered-By dari bukti tersimpan \u2014 0 request"
   },
   {
    "name": "http2-support-checker",
@@ -329,7 +361,7 @@
    ],
    "safety_class": "read-only",
    "needs": "target",
-   "desc": "http2-support-checker — defensif read-only",
+   "desc": "http2-support-checker \u2014 defensif read-only",
    "requires_evidence": true
   },
   {
@@ -363,7 +395,7 @@
    ],
    "safety_class": "read-only",
    "needs": "target",
-   "desc": "js-library-version-checker — defensif read-only",
+   "desc": "js-library-version-checker \u2014 defensif read-only",
    "requires_evidence": true
   },
   {
@@ -380,7 +412,7 @@
    ],
    "safety_class": "read-only",
    "needs": "target",
-   "desc": "js-secret-scanner-v2 — read-only dari evidence (pola api-key/secret/token + komentar HTML = lead L1 CWE-798). NILAI kredensial DI-MASK di bukti (<masked:N-char> — temuan tidak membawa kredensial mentah). Flag opt-in --verify (+1 GET refetch sumber): pola sama = L2 REPRODUCED (bukti masked); refetch tanpa pola/gagal = tetap L1 (fail-closed)",
+   "desc": "js-secret-scanner-v2 \u2014 read-only dari evidence (pola api-key/secret/token + komentar HTML = lead L1 CWE-798). NILAI kredensial DI-MASK di bukti (<masked:N-char> \u2014 temuan tidak membawa kredensial mentah). Flag opt-in --verify (+1 GET refetch sumber): pola sama = L2 REPRODUCED (bukti masked); refetch tanpa pola/gagal = tetap L1 (fail-closed)",
    "requires_evidence": true
   },
   {
@@ -397,7 +429,7 @@
    ],
    "safety_class": "read-only",
    "needs": "target",
-   "desc": "mixed-content-detector — defensif read-only",
+   "desc": "mixed-content-detector \u2014 defensif read-only",
    "requires_evidence": true
   },
   {
@@ -420,7 +452,7 @@
    "safety_class": "active-probe",
    "needs": "target",
    "lab_only": true,
-   "desc": "Scan corpus template komunitas (14k+, hasil intel-sync; filter severity critical+high) â€” active-probe, HANYA mode lab dengan target milik sendiri"
+   "desc": "Scan corpus template komunitas (14k+, hasil intel-sync; filter severity critical+high) \u00e2\u20ac\u201d active-probe, HANYA mode lab dengan target milik sendiri"
   },
   {
    "name": "open-graph-leak-checker",
@@ -436,7 +468,7 @@
    ],
    "safety_class": "read-only",
    "needs": "target",
-   "desc": "open-graph-leak-checker — defensif read-only",
+   "desc": "open-graph-leak-checker \u2014 defensif read-only",
    "requires_evidence": true
   },
   {
@@ -453,7 +485,7 @@
    ],
    "safety_class": "read-only",
    "needs": "target",
-   "desc": "open-redirect-surface — defensif read-only",
+   "desc": "open-redirect-surface \u2014 defensif read-only",
    "requires_evidence": true
   },
   {
@@ -470,7 +502,7 @@
    ],
    "safety_class": "read-only",
    "needs": "target",
-   "desc": "password-autocomplete-checker — defensif read-only",
+   "desc": "password-autocomplete-checker \u2014 defensif read-only",
    "requires_evidence": true
   },
   {
@@ -487,7 +519,7 @@
    ],
    "safety_class": "read-only",
    "needs": "target",
-   "desc": "port-banner-consistency-checker — defensif read-only",
+   "desc": "port-banner-consistency-checker \u2014 defensif read-only",
    "requires_evidence": true
   },
   {
@@ -531,7 +563,7 @@
    ],
    "safety_class": "bounded-requests",
    "needs": "target",
-   "desc": "robots-txt-surface — maks 2 GET (kelas bounded-requests): 1 GET robots.txt + 1 GET canary differensial HANYA bila 200 (path sengaja-tak-ada). Canary body identik = wildcard-200 terbukti: resource HTML tetap tidak-dapat-dinilai (bukti deterministik), resource non-HTML DITOLAK L-x (FP-eliminated). Canary 4xx = resource spesifik (lead diperkuat). 4xx resource = AMAN; 5xx/gagal = fail-closed. --no-canary = kembali 1 GET"
+   "desc": "robots-txt-surface \u2014 maks 2 GET (kelas bounded-requests): 1 GET robots.txt + 1 GET canary differensial HANYA bila 200 (path sengaja-tak-ada). Canary body identik = wildcard-200 terbukti: resource HTML tetap tidak-dapat-dinilai (bukti deterministik), resource non-HTML DITOLAK L-x (FP-eliminated). Canary 4xx = resource spesifik (lead diperkuat). 4xx resource = AMAN; 5xx/gagal = fail-closed. --no-canary = kembali 1 GET"
   },
   {
    "name": "security-txt",
@@ -545,7 +577,7 @@
    ],
    "safety_class": "1-request",
    "needs": "domain",
-   "desc": "Discovery kanal disclosure resmi (RFC 9116) â€” pintu cari program tanpa register",
+   "desc": "Discovery kanal disclosure resmi (RFC 9116) \u00e2\u20ac\u201d pintu cari program tanpa register",
    "est_requests": 2
   },
   {
@@ -562,7 +594,7 @@
    ],
    "safety_class": "read-only",
    "needs": "target",
-   "desc": "server-version-disclosure — defensif read-only",
+   "desc": "server-version-disclosure \u2014 defensif read-only",
    "requires_evidence": true
   },
   {
@@ -577,7 +609,7 @@
    ],
    "safety_class": "bounded-requests",
    "needs": "target",
-   "desc": "sitemap-disclosure-checker — maks 2 GET (kelas bounded-requests): 1 GET sitemap.xml + 1 GET canary differensial HANYA bila 200. Canary body identik = wildcard-200 terbukti: HTML tetap tidak-dapat-dinilai (bukti deterministik), non-HTML DITOLAK L-x (FP-eliminated). Canary 4xx = resource spesifik. 4xx resource = AMAN; 5xx/gagal = fail-closed. --no-canary = kembali 1 GET"
+   "desc": "sitemap-disclosure-checker \u2014 maks 2 GET (kelas bounded-requests): 1 GET sitemap.xml + 1 GET canary differensial HANYA bila 200. Canary body identik = wildcard-200 terbukti: HTML tetap tidak-dapat-dinilai (bukti deterministik), non-HTML DITOLAK L-x (FP-eliminated). Canary 4xx = resource spesifik. 4xx resource = AMAN; 5xx/gagal = fail-closed. --no-canary = kembali 1 GET"
   },
   {
    "name": "sourcemap-exposure-checker",
@@ -593,7 +625,7 @@
    ],
    "safety_class": "read-only",
    "needs": "target",
-   "desc": "sourcemap-exposure-checker — read-only dari evidence (referensi .map = lead L1). Flag opt-in --verify (+1 GET ke URL map dari evidence): map JSON valid (version+sources) = L2; sourcesContent tidak kosong = L3 CWE-540 (source asli pra-minify terbaca — isi TIDAK disimpan, zero-retention); gagal/bukan map = tetap L1 (fail-closed)",
+   "desc": "sourcemap-exposure-checker \u2014 read-only dari evidence (referensi .map = lead L1). Flag opt-in --verify (+1 GET ke URL map dari evidence): map JSON valid (version+sources) = L2; sourcesContent tidak kosong = L3 CWE-540 (source asli pra-minify terbaca \u2014 isi TIDAK disimpan, zero-retention); gagal/bukan map = tetap L1 (fail-closed)",
    "requires_evidence": true
   },
   {
@@ -610,7 +642,7 @@
    ],
    "safety_class": "read-only",
    "needs": "target",
-   "desc": "sri-checker — defensif read-only",
+   "desc": "sri-checker \u2014 defensif read-only",
    "requires_evidence": true
   },
   {
@@ -639,7 +671,7 @@
    ],
    "safety_class": "read-only",
    "needs": "domain",
-   "desc": "subdomain-enum-surface — defensif read-only"
+   "desc": "subdomain-enum-surface \u2014 defensif read-only"
   },
   {
    "name": "swagger-ui-surface",
@@ -655,7 +687,7 @@
    ],
    "safety_class": "read-only",
    "needs": "target",
-   "desc": "swagger-ui-surface — defensif read-only",
+   "desc": "swagger-ui-surface \u2014 defensif read-only",
    "requires_evidence": true
   },
   {
@@ -670,7 +702,7 @@
    ],
    "safety_class": "read-only",
    "needs": "domain",
-   "desc": "takeover-cname-hygiene — defensif read-only"
+   "desc": "takeover-cname-hygiene \u2014 defensif read-only"
   },
   {
    "name": "tech-fingerprint",
@@ -688,7 +720,7 @@
    "needs": "target",
    "requires_evidence": true,
    "lab_only": false,
-   "desc": "Fingerprint teknologi dari HTML evidence: WordPress/Joomla/Drupal/Zimbra/Nextcloud/Outlook — 0 request (SURFACE)"
+   "desc": "Fingerprint teknologi dari HTML evidence: WordPress/Joomla/Drupal/Zimbra/Nextcloud/Outlook \u2014 0 request (SURFACE)"
   },
   {
    "name": "third-party-script-risk",
@@ -704,7 +736,7 @@
    ],
    "safety_class": "read-only",
    "needs": "target",
-   "desc": "third-party-script-risk — defensif read-only",
+   "desc": "third-party-script-risk \u2014 defensif read-only",
    "requires_evidence": true
   },
   {
@@ -719,7 +751,7 @@
    ],
    "safety_class": "1-request",
    "needs": "domain",
-   "desc": "tls-cipher-suites-checker — defensif 1-request"
+   "desc": "tls-cipher-suites-checker \u2014 defensif 1-request"
   },
   {
    "name": "waf-fingerprint",
@@ -735,7 +767,7 @@
    ],
    "safety_class": "read-only",
    "needs": "target",
-   "desc": "waf-fingerprint — defensif read-only",
+   "desc": "waf-fingerprint \u2014 defensif read-only",
    "requires_evidence": true
   },
   {
@@ -750,7 +782,7 @@
    ],
    "safety_class": "1-request",
    "needs": "domain",
-   "desc": "wayback-history — defensif read-only"
+   "desc": "wayback-history \u2014 defensif read-only"
   },
   {
    "name": "well-known-exposure-checker",
@@ -764,7 +796,7 @@
    ],
    "safety_class": "bounded-requests",
    "needs": "target",
-   "desc": "well-known-exposure-checker — maks 2 GET (kelas bounded-requests): 1 GET /.well-known/security.txt + 1 GET canary differensial HANYA bila 200. Canary body identik = wildcard-200 terbukti: HTML tetap tidak-dapat-dinilai (bukti deterministik), non-HTML DITOLAK L-x (FP-eliminated). Canary 4xx = resource spesifik. 4xx resource = AMAN; 5xx/gagal = fail-closed. --no-canary = kembali 1 GET"
+   "desc": "well-known-exposure-checker \u2014 maks 2 GET (kelas bounded-requests): 1 GET /.well-known/security.txt + 1 GET canary differensial HANYA bila 200. Canary body identik = wildcard-200 terbukti: HTML tetap tidak-dapat-dinilai (bukti deterministik), non-HTML DITOLAK L-x (FP-eliminated). Canary 4xx = resource spesifik. 4xx resource = AMAN; 5xx/gagal = fail-closed. --no-canary = kembali 1 GET"
   },
   {
    "name": "wordpress-rest-surface",
@@ -780,7 +812,7 @@
    ],
    "safety_class": "read-only",
    "needs": "target",
-   "desc": "wordpress-rest-surface — read-only dari evidence (referensi wp-json/rest_route = lead L1). Flag opt-in --verify (+1 GET ke REST root dari evidence): JSON routes+namespaces berisi wp/v2 = L3 (index REST WP asli terbaca; daftar path route TIDAK disimpan — zero-retention); 401/403 = terlindungi (tetap L1); bukan shape WP = tidak direproduksi (fail-closed)",
+   "desc": "wordpress-rest-surface \u2014 read-only dari evidence (referensi wp-json/rest_route = lead L1). Flag opt-in --verify (+1 GET ke REST root dari evidence): JSON routes+namespaces berisi wp/v2 = L3 (index REST WP asli terbaca; daftar path route TIDAK disimpan \u2014 zero-retention); 401/403 = terlindungi (tetap L1); bukan shape WP = tidak direproduksi (fail-closed)",
    "requires_evidence": true
   },
   {
@@ -797,7 +829,7 @@
    ],
    "safety_class": "read-only",
    "needs": "target",
-   "desc": "xss-protection-header-checker — defensif read-only",
+   "desc": "xss-protection-header-checker \u2014 defensif read-only",
    "requires_evidence": true
   },
   {
@@ -812,7 +844,7 @@
    ],
    "safety_class": "1-request",
    "needs": "none",
-   "desc": "egress-fingerprint-check — self-check identitas jaringan (0 request; 1 bila target echo)",
+   "desc": "egress-fingerprint-check \u2014 self-check identitas jaringan (0 request; 1 bila target echo)",
    "requires_evidence": false
   },
   {
@@ -827,7 +859,7 @@
    ],
    "safety_class": "bounded-requests",
    "needs": "none",
-   "desc": "program-discovery — kandidat program bounty/VDP BARU dari sumber publik (security.txt seed / daftar GitHub raw / aggregator, maks 2 GET per domain); kandidat disimpan ke findings/discovery/ untuk dibedah manual; verdict maksimal L1 (bukan klaim kerentanan)",
+   "desc": "program-discovery \u2014 kandidat program bounty/VDP BARU dari sumber publik (security.txt seed / daftar GitHub raw / aggregator, maks 2 GET per domain); kandidat disimpan ke findings/discovery/ untuk dibedah manual; verdict maksimal L1 (bukan klaim kerentanan)",
    "requires_evidence": false
   },
   {
@@ -843,7 +875,7 @@
    "safety_class": "state-changing",
    "needs": "none",
    "lab_only": true,
-   "desc": "exploit-engine — tier eksploitasi aktif LAB-ONLY (docs/EXPLOIT-TIER.md): gate fail-closed, target wajib exploit_allowed, tangga agresi proof/mutate/destructive, never-list teknik terlarang; tidak pernah tereksekusi di tier0",
+   "desc": "exploit-engine \u2014 tier eksploitasi aktif LAB-ONLY (docs/EXPLOIT-TIER.md): gate fail-closed, target wajib exploit_allowed, tangga agresi proof/mutate/destructive, never-list teknik terlarang; tidak pernah tereksekusi di tier0",
    "requires_evidence": false
   },
   {
@@ -860,7 +892,7 @@
    ],
    "safety_class": "read-only",
    "needs": "target",
-   "desc": "cookie-scope — audit lingkup cookie dari evidence: Domain eksplisit lintas subdomain + Path=/ pada nama sensitif (CWE-1004); 0 request",
+   "desc": "cookie-scope \u2014 audit lingkup cookie dari evidence: Domain eksplisit lintas subdomain + Path=/ pada nama sensitif (CWE-1004); 0 request",
    "requires_evidence": true
   },
   {
@@ -875,7 +907,7 @@
    ],
    "safety_class": "1-request",
    "needs": "target",
-   "desc": "graphql-schema-map — SATU POST introspection: peta tipe/field GraphQL bila introspection terbuka (CWE-200); fail-closed tanpa schema",
+   "desc": "graphql-schema-map \u2014 SATU POST introspection: peta tipe/field GraphQL bila introspection terbuka (CWE-200); fail-closed tanpa schema",
    "requires_evidence": false
   },
   {
@@ -895,7 +927,7 @@
    ],
    "safety_class": "active-probe",
    "needs": "target",
-   "desc": "rate-limit-validator — mengukur (bukan menyerang): maks 15 percobaan login kredensial-dummy ke SATU endpoint; ACTIVE-PROBE lab-only (tier0 tidak pernah menjalankan); flag --lab di cmd = double fail-closed (CWE-307)",
+   "desc": "rate-limit-validator \u2014 mengukur (bukan menyerang): maks 15 percobaan login kredensial-dummy ke SATU endpoint; ACTIVE-PROBE lab-only (tier0 tidak pernah menjalankan); flag --lab di cmd = double fail-closed (CWE-307)",
    "requires_evidence": false,
    "lab_only": true
   },
@@ -911,7 +943,7 @@
    ],
    "safety_class": "bounded-requests",
    "needs": "target",
-   "desc": "file-exposure-checker — 5 GET path kandidat SCM/backup (git/config, .env, svn wc.db, .DS_Store, backup.zip); ZERO-FP via verifikasi signature isi, bukan halaman generik (CWE-538); port dir_probe legacy",
+   "desc": "file-exposure-checker \u2014 5 GET path kandidat SCM/backup (git/config, .env, svn wc.db, .DS_Store, backup.zip); ZERO-FP via verifikasi signature isi, bukan halaman generik (CWE-538); port dir_probe legacy",
    "requires_evidence": false
   },
   {
@@ -926,7 +958,7 @@
    ],
    "safety_class": "1-request",
    "needs": "target",
-   "desc": "internal-info-leak-checker — SATU GET; IP privat RFC1918 di respons NON-HTML (konteks HTML dilewati anti-FP), bukti dipotong rendah-profil (CWE-200); port deep_probe legacy",
+   "desc": "internal-info-leak-checker \u2014 SATU GET; IP privat RFC1918 di respons NON-HTML (konteks HTML dilewati anti-FP), bukti dipotong rendah-profil (CWE-200); port deep_probe legacy",
    "requires_evidence": false
   },
   {
@@ -944,7 +976,7 @@
    ],
    "safety_class": "active-probe",
    "needs": "target",
-   "desc": "xss-reflect-check — padanan dalfox versi marker benign: 1 request/param (maks 8), refleksi MENTAH di konteks HTML = L2 lead (zero-FP); ACTIVE-PROBE lab-only (tier0 tidak pernah menjalankan); --scope-ack wajib (CWE-79)",
+   "desc": "xss-reflect-check \u2014 padanan dalfox versi marker benign: 1 request/param (maks 8), refleksi MENTAH di konteks HTML = L2 lead (zero-FP); ACTIVE-PROBE lab-only (tier0 tidak pernah menjalankan); --scope-ack wajib (CWE-79)",
    "requires_evidence": false,
    "lab_only": true
   },
@@ -961,7 +993,7 @@
    "safety_class": "bounded-requests",
    "est_requests": 14,
    "needs": "target",
-   "desc": "param-probe-checker — penemuan param tersembunyi ala Arjun versi bounded: baseline + kontrol random + maks 12 kandidat = 14 request; zero-FP via kontrol ganda; refleksi = L2, perubahan perilaku = L1 (CWE-471)",
+   "desc": "param-probe-checker \u2014 penemuan param tersembunyi ala Arjun versi bounded: baseline + kontrol random + maks 12 kandidat = 14 request; zero-FP via kontrol ganda; refleksi = L2, perubahan perilaku = L1 (CWE-471)",
    "requires_evidence": false
   },
   {
@@ -976,7 +1008,7 @@
    ],
    "safety_class": "bounded-requests",
    "needs": "domain",
-   "desc": "archive-url-checker — padanan waymore/gau: CDX Wayback pasif (1 GET, limit 300) + klasifikasi pola string (api/admin/config/backup/debug) + live re-check maks 5 URL sensitif; port archive_diff legacy",
+   "desc": "archive-url-checker \u2014 padanan waymore/gau: CDX Wayback pasif (1 GET, limit 300) + klasifikasi pola string (api/admin/config/backup/debug) + live re-check maks 5 URL sensitif; port archive_diff legacy",
    "requires_evidence": false
   },
   {
@@ -991,7 +1023,7 @@
    ],
    "safety_class": "bounded-requests",
    "needs": "domain",
-   "desc": "takeover-fingerprint-checker — verifikasi fingerprint layanan tak-diklaim pada CNAME dangling (konsep Subzy, maks 2 request); L2 kandidat takeover, wajib verifikasi manual (CWE-350)",
+   "desc": "takeover-fingerprint-checker \u2014 verifikasi fingerprint layanan tak-diklaim pada CNAME dangling (konsep Subzy, maks 2 request); L2 kandidat takeover, wajib verifikasi manual (CWE-350)",
    "requires_evidence": false
   },
   {
@@ -1008,7 +1040,7 @@
    ],
    "safety_class": "read-only",
    "needs": "target",
-   "desc": "smuggling-clue-checker — clue desync PASIF dari keputusan header (CL duplikat / CL+TE / TE non-chunked, konsep smuggler); NOL payload desync dikirim (CWE-444)",
+   "desc": "smuggling-clue-checker \u2014 clue desync PASIF dari keputusan header (CL duplikat / CL+TE / TE non-chunked, konsep smuggler); NOL payload desync dikirim (CWE-444)",
    "requires_evidence": true
   },
   {
@@ -1023,7 +1055,7 @@
    ],
    "safety_class": "bounded-requests",
    "needs": "target",
-   "desc": "console-exposure-checker — 5 path konsol framework (Spring actuator, Telescope, Symfony profiler, Solr) dengan signature isi; halaman login generik tidak dihitung (postur)",
+   "desc": "console-exposure-checker \u2014 5 path konsol framework (Spring actuator, Telescope, Symfony profiler, Solr) dengan signature isi; halaman login generik tidak dihitung (postur)",
    "requires_evidence": false
   },
   {
@@ -1038,7 +1070,7 @@
    ],
    "safety_class": "1-request",
    "needs": "target",
-   "desc": "xmlrpc-surface — SATU POST system.listMethods; respons XML = antarmuka hidup (L2 lead: pingback SSRF/credential probing klasik) (CWE-200)",
+   "desc": "xmlrpc-surface \u2014 SATU POST system.listMethods; respons XML = antarmuka hidup (L2 lead: pingback SSRF/credential probing klasik) (CWE-200)",
    "requires_evidence": false
   },
   {
@@ -1053,7 +1085,7 @@
    ],
    "safety_class": "bounded-requests",
    "needs": "target",
-   "desc": "header-reflection-matrix — baseline + 4 header proxy canary (XFF/X-Forwarded-Host/X-Original-URL/X-Rewrite-URL); respons berubah + canary terlihat = L2 lead bypass ACL (CWE-348); port header_reflection legacy",
+   "desc": "header-reflection-matrix \u2014 baseline + 4 header proxy canary (XFF/X-Forwarded-Host/X-Original-URL/X-Rewrite-URL); respons berubah + canary terlihat = L2 lead bypass ACL (CWE-348); port header_reflection legacy",
    "requires_evidence": false
   },
   {
@@ -1068,7 +1100,7 @@
    ],
    "safety_class": "1-request",
    "needs": "target",
-   "desc": "error-oracle — SATU GET path canary acak; signature ketat error DB / stack trace / debug framework di error page = L2/L1 (CWE-209); 404 generik = AMAN; 403/429 = tanpa klaim",
+   "desc": "error-oracle \u2014 SATU GET path canary acak; signature ketat error DB / stack trace / debug framework di error page = L2/L1 (CWE-209); 404 generik = AMAN; 403/429 = tanpa klaim",
    "requires_evidence": false
   },
   {
@@ -1083,7 +1115,7 @@
    ],
    "safety_class": "bounded-requests",
    "needs": "domain",
-   "desc": "dns-axfr-check — zone transfer (AXFR RFC 5936) pada NS domain; transfer valid SOA..SOA = L2 lead wajib verifikasi manual (CWE-200); maks 2 koneksi TCP/53",
+   "desc": "dns-axfr-check \u2014 zone transfer (AXFR RFC 5936) pada NS domain; transfer valid SOA..SOA = L2 lead wajib verifikasi manual (CWE-200); maks 2 koneksi TCP/53",
    "requires_evidence": false
   },
   {
@@ -1098,7 +1130,7 @@
    ],
    "safety_class": "read-only",
    "needs": "domain",
-   "desc": "spf-dmarc-posture — postur anti-spoofing email via 2 query TXT pasif; SPF hilang / DMARC hilang / p=none = L1 lead faktual (postur konfigurasi)",
+   "desc": "spf-dmarc-posture \u2014 postur anti-spoofing email via 2 query TXT pasif; SPF hilang / DMARC hilang / p=none = L1 lead faktual (postur konfigurasi)",
    "requires_evidence": false,
    "est_requests": 2
   },
@@ -1114,7 +1146,7 @@
    ],
    "safety_class": "bounded-requests",
    "needs": "target",
-   "desc": "api-version-surface — inventaris versi API hidup (maks 4 GET: /api + v1..v3); versi lama hidup = lead L1 inventaris, bukan klaim kerentanan",
+   "desc": "api-version-surface \u2014 inventaris versi API hidup (maks 4 GET: /api + v1..v3); versi lama hidup = lead L1 inventaris, bukan klaim kerentanan",
    "requires_evidence": false
   },
   {
@@ -1129,7 +1161,7 @@
    ],
    "safety_class": "bounded-requests",
    "needs": "domain",
-   "desc": "cloud-bucket-exposure — bucket nama-turunan-domain yang terbuka listing publik (maks 5 GET = 4 probe + 1 re-GET verifikasi hanya bila listable): signature ListBucketResult sama = L2 REPRODUCED (bukti capture-1/2 tersimpan); L3 tidak diberikan — atribusi kepemilikan TIDAK terverifikasi dari nama (caveat selalu menempel, CWE-732); verifikasi tidak cocok = tetap L1",
+   "desc": "cloud-bucket-exposure \u2014 bucket nama-turunan-domain yang terbuka listing publik (maks 5 GET = 4 probe + 1 re-GET verifikasi hanya bila listable): signature ListBucketResult sama = L2 REPRODUCED (bukti capture-1/2 tersimpan); L3 tidak diberikan \u2014 atribusi kepemilikan TIDAK terverifikasi dari nama (caveat selalu menempel, CWE-732); verifikasi tidak cocok = tetap L1",
    "requires_evidence": false
   },
   {
@@ -1144,7 +1176,7 @@
    ],
    "safety_class": "bounded-requests",
    "needs": "domain",
-   "desc": "github-leak-check — OPT-IN ketat (env SECAI_GH_TOKEN; tanpa itu dilewati nol request): kode publik merujuk domain + indikator secret = L1 lead verifikasi manual, konten file tidak diambil (CWE-798)",
+   "desc": "github-leak-check \u2014 OPT-IN ketat (env SECAI_GH_TOKEN; tanpa itu dilewati nol request): kode publik merujuk domain + indikator secret = L1 lead verifikasi manual, konten file tidak diambil (CWE-798)",
    "requires_evidence": false
   },
   {
@@ -1159,7 +1191,7 @@
    ],
    "safety_class": "1-request",
    "needs": "target",
-   "desc": "favicon-fingerprint — SATU GET /favicon.ico; hash MurmurHash3 x86_32 atas body base64 (konvensi layanan favicon-hash eksternal, implementasi stdlib clean-room terverifikasi vektor); L1 inventaris, bukan klaim kerentanan",
+   "desc": "favicon-fingerprint \u2014 SATU GET /favicon.ico; hash MurmurHash3 x86_32 atas body base64 (konvensi layanan favicon-hash eksternal, implementasi stdlib clean-room terverifikasi vektor); L1 inventaris, bukan klaim kerentanan",
    "requires_evidence": false
   },
   {
@@ -1174,7 +1206,7 @@
    ],
    "safety_class": "bounded-requests",
    "needs": "target",
-   "desc": "antibot-posture — posisi pertahanan anti-bot dilihat seperti bot (maks 3 GET): vendor edge terdeteksi (cloudflare/datadome/akamai/imperva/kasada/aws-waf/recaptcha/turnstile/hcaptcha), header rate-limit, determinisme 2 GET identik; lead maks L1 (CWE-770/330). Flag opt-in --ntrial N (3..10) menambah N GET berurutan = throttling terukur: tanpa 429/retry-after pada semua trial = L2 reproduced (kode+timing tersimpan); 429/retry-after teramati = pertahanan terbukti (AMAN); inkonklusif = kembali L1 (fail-closed)",
+   "desc": "antibot-posture \u2014 posisi pertahanan anti-bot dilihat seperti bot (maks 3 GET): vendor edge terdeteksi (cloudflare/datadome/akamai/imperva/kasada/aws-waf/recaptcha/turnstile/hcaptcha), header rate-limit, determinisme 2 GET identik; lead maks L1 (CWE-770/330). Flag opt-in --ntrial N (3..10) menambah N GET berurutan = throttling terukur: tanpa 429/retry-after pada semua trial = L2 reproduced (kode+timing tersimpan); 429/retry-after teramati = pertahanan terbukti (AMAN); inkonklusif = kembali L1 (fail-closed)",
    "requires_evidence": false
   },
   {
@@ -1189,7 +1221,7 @@
    ],
    "safety_class": "active-probe",
    "needs": "target",
-   "desc": "tls-heartbeat-overread — deteksi dini memory-disclosure kelas Heartbleed (CVE-2014-0160, CWE-125) NON-DESTRUKTIF: 1 heartbeat probe (refined: --port utk layanan TLS legacy/IoT non-443), overread = lead L3; konten memori yang bocor TIDAK disimpan (zero data retention)",
+   "desc": "tls-heartbeat-overread \u2014 deteksi dini memory-disclosure kelas Heartbleed (CVE-2014-0160, CWE-125) NON-DESTRUKTIF: 1 heartbeat probe (refined: --port utk layanan TLS legacy/IoT non-443), overread = lead L3; konten memori yang bocor TIDAK disimpan (zero data retention)",
    "requires_evidence": false
   },
   {
@@ -1206,7 +1238,7 @@
    ],
    "safety_class": "read-only",
    "needs": "target",
-   "desc": "llm-endpoint-surface — permukaan AI/LLM dari bukti HTML/JS (NOL request): path API generasi / nama model / framework AI eksplisit = L1 inventaris; kata generik tidak dihitung (anti-FP); tanpa marker = AMAN",
+   "desc": "llm-endpoint-surface \u2014 permukaan AI/LLM dari bukti HTML/JS (NOL request): path API generasi / nama model / framework AI eksplisit = L1 inventaris; kata generik tidak dihitung (anti-FP); tanpa marker = AMAN",
    "requires_evidence": true
   },
   {
@@ -1221,7 +1253,7 @@
    ],
    "safety_class": "bounded-requests",
    "needs": "target",
-   "desc": "litellm-posture — deteksi proxy LiteLLM dari target (maks 3 GET): token eksplisit 'litellm' = L1 lead + versi eksplisit sbg fakta utk cve-matcher (KB CVE-2026-42208 + KEV BerriAI::LiteLLM); tanpa marker = AMAN",
+   "desc": "litellm-posture \u2014 deteksi proxy LiteLLM dari target (maks 3 GET): token eksplisit 'litellm' = L1 lead + versi eksplisit sbg fakta utk cve-matcher (KB CVE-2026-42208 + KEV BerriAI::LiteLLM); tanpa marker = AMAN",
    "requires_evidence": false
   },
   {
@@ -1236,7 +1268,7 @@
    ],
    "safety_class": "bounded-requests",
    "needs": "target",
-   "desc": "wp-posture — postur instalasi WordPress dari target (maks 6 GET, tanpa bruteforce): enumerasi user via REST (200+slug guest = L3 reportable), versi di meta generator (L1 + fakta cve-matcher), xmlrpc hidup (L1), wp-login (L1), wp-config backup/debug.log ter-expose (L2); bukan WP = AMAN",
+   "desc": "wp-posture \u2014 postur instalasi WordPress dari target (maks 6 GET, tanpa bruteforce): enumerasi user via REST (200+slug guest = L3 reportable), versi di meta generator (L1 + fakta cve-matcher), xmlrpc hidup (L1), wp-login (L1), wp-config backup/debug.log ter-expose (L2); bukan WP = AMAN",
    "requires_evidence": false,
    "est_requests": 6
   },
@@ -1252,7 +1284,7 @@
    ],
    "safety_class": "bounded-requests",
    "needs": "target",
-   "desc": "gitlab-posture — deteksi instance GitLab self-managed dari target (maks 3 GET /users/sign_in,/help,/explore): token eksplisit 'gitlab' = L1 lead + versi eksplisit sbg fakta utk cve-matcher (KB CVE-2026-110264 multi-branch + watchlist); tanpa marker = AMAN; gagal jaringan = tanpa klaim AMAN",
+   "desc": "gitlab-posture \u2014 deteksi instance GitLab self-managed dari target (maks 3 GET /users/sign_in,/help,/explore): token eksplisit 'gitlab' = L1 lead + versi eksplisit sbg fakta utk cve-matcher (KB CVE-2026-110264 multi-branch + watchlist); tanpa marker = AMAN; gagal jaringan = tanpa klaim AMAN",
    "requires_evidence": false
   },
   {
@@ -1267,7 +1299,7 @@
    ],
    "safety_class": "bounded-requests",
    "needs": "target",
-   "desc": "beyondtrust-posture — deteksi appliance BeyondTrust/Bomgar Remote Support/PRA dari target (maks 3 GET /login,/appliance/login,/): signature ketat token 'beyondtrust'/'bomgar' = L1 lead + fakta versi utk cve-matcher (alias KEV + watchlist CVE-2026-102764); frasa generik 'remote support' TIDAK dihitung; tanpa marker = AMAN",
+   "desc": "beyondtrust-posture \u2014 deteksi appliance BeyondTrust/Bomgar Remote Support/PRA dari target (maks 3 GET /login,/appliance/login,/): signature ketat token 'beyondtrust'/'bomgar' = L1 lead + fakta versi utk cve-matcher (alias KEV + watchlist CVE-2026-102764); frasa generik 'remote support' TIDAK dihitung; tanpa marker = AMAN",
    "requires_evidence": false
   },
   {
@@ -1282,7 +1314,7 @@
    ],
    "safety_class": "bounded-requests",
    "needs": "target",
-   "desc": "mcp-exposure — deteksi server MCP terbuka dari target (maks 3 GET /sse,/mcp,/messages; TANPA POST initialize): token 'mcp' word-boundary / frasa 'model context protocol' / shape transport (SSE endpoint-event, JSON-RPC error di /mcp, header Mcp-*) = L1 lead; tanpa marker = AMAN; latar: CSA 200rb instance + NSA CSI",
+   "desc": "mcp-exposure \u2014 deteksi server MCP terbuka dari target (maks 3 GET /sse,/mcp,/messages; TANPA POST initialize): token 'mcp' word-boundary / frasa 'model context protocol' / shape transport (SSE endpoint-event, JSON-RPC error di /mcp, header Mcp-*) = L1 lead; tanpa marker = AMAN; latar: CSA 200rb instance + NSA CSI",
    "requires_evidence": false
   },
   {
@@ -1297,7 +1329,7 @@
    ],
    "safety_class": "bounded-requests",
    "needs": "target",
-   "desc": "ollama-posture — deteksi API Ollama terbuka dari target (maks 2 GET /api/version,/api/tags): token 'ollama' ATAU shape eksklusif /api/tags (models+name+digest) = L1 lead + versi eksplisit sbg fakta utk cve-matcher (KB CVE-2024-37032 Probllama fix 0.1.34); nama model tidak dimuat (hanya jumlah); tanpa marker = AMAN",
+   "desc": "ollama-posture \u2014 deteksi API Ollama terbuka dari target (maks 2 GET /api/version,/api/tags): token 'ollama' ATAU shape eksklusif /api/tags (models+name+digest) = L1 lead + versi eksplisit sbg fakta utk cve-matcher (KB CVE-2024-37032 Probllama fix 0.1.34); nama model tidak dimuat (hanya jumlah); tanpa marker = AMAN",
    "requires_evidence": false
   },
   {
@@ -1312,7 +1344,7 @@
    ],
    "safety_class": "bounded-requests",
    "needs": "target",
-   "desc": "vllm-posture — deteksi server vLLM terbuka (maks 3 GET /metrics,/version,/v1/models): token 'vllm' (termasuk metrik 'vllm:*') = L1 lead + versi eksplisit sbg fakta utk cve-matcher; shape generik OpenAI TIDAK dihitung (anti-FP antar-gateway); /metrics terbuka = info-leak; tanpa marker = AMAN",
+   "desc": "vllm-posture \u2014 deteksi server vLLM terbuka (maks 3 GET /metrics,/version,/v1/models): token 'vllm' (termasuk metrik 'vllm:*') = L1 lead + versi eksplisit sbg fakta utk cve-matcher; shape generik OpenAI TIDAK dihitung (anti-FP antar-gateway); /metrics terbuka = info-leak; tanpa marker = AMAN",
    "requires_evidence": false
   },
   {
@@ -1327,7 +1359,7 @@
    ],
    "safety_class": "bounded-requests",
    "needs": "target",
-   "desc": "openwebui-posture — deteksi Open WebUI terbuka (maks 3 GET /api/config,/api/version,/health): token 'open-webui' = L1 lead + versi sbg fakta utk cve-matcher; shape version generik TIDAK dihitung; tanpa marker = AMAN",
+   "desc": "openwebui-posture \u2014 deteksi Open WebUI terbuka (maks 3 GET /api/config,/api/version,/health): token 'open-webui' = L1 lead + versi sbg fakta utk cve-matcher; shape version generik TIDAK dihitung; tanpa marker = AMAN",
    "requires_evidence": false
   },
   {
@@ -1342,7 +1374,7 @@
    ],
    "safety_class": "bounded-requests",
    "needs": "target",
-   "desc": "php-posture — postur runtime PHP (F66a): marker PHP dari X-Powered-By/Server/PHPSESSID/error body, easter-egg expose_php (GIF89a), phpinfo.php/info.php; versi eksplisit = fakta cve-matcher (KB php2shell 4.0.0..8.5.12); bounded 4 GET, zero-FP signature ketat"
+   "desc": "php-posture \u2014 postur runtime PHP (F66a): marker PHP dari X-Powered-By/Server/PHPSESSID/error body, easter-egg expose_php (GIF89a), phpinfo.php/info.php; versi eksplisit = fakta cve-matcher (KB php2shell 4.0.0..8.5.12); bounded 4 GET, zero-FP signature ketat"
   },
   {
    "name": "brotli-stack-surface",
@@ -1356,7 +1388,7 @@
    ],
    "safety_class": "1-request",
    "needs": "target",
-   "desc": "brotli-stack-surface — SATU GET Accept-Encoding br: Content-Encoding br = Brotli aktif (L0); marker Express/connect.sid/__NEXT_DATA__/Kestrel/ASP.NET = L1 stack Node.js (watchlist CVE-2026-111497); tanpa marker = AMAN"
+   "desc": "brotli-stack-surface \u2014 SATU GET Accept-Encoding br: Content-Encoding br = Brotli aktif (L0); marker Express/connect.sid/__NEXT_DATA__/Kestrel/ASP.NET = L1 stack Node.js (watchlist CVE-2026-111497); tanpa marker = AMAN"
   },
   {
    "name": "wp-plugin-surface",
@@ -1370,7 +1402,7 @@
    ],
    "safety_class": "bounded-requests",
    "needs": "target",
-   "desc": "wp-plugin-surface — permukaan plugin WordPress bounded 6 GET: readme.txt publik 5 plugin kandidat (bricksforge/elementor/woocommerce/contact-form-7/wordpress-seo) -> versi 'Stable tag' sbg fakta cve-matcher + watchlist CVE-2026-85097; bukan WP = AMAN",
+   "desc": "wp-plugin-surface \u2014 permukaan plugin WordPress bounded 6 GET: readme.txt publik 5 plugin kandidat (bricksforge/elementor/woocommerce/contact-form-7/wordpress-seo) -> versi 'Stable tag' sbg fakta cve-matcher + watchlist CVE-2026-85097; bukan WP = AMAN",
    "est_requests": 6
   },
   {
@@ -1385,7 +1417,7 @@
    ],
    "safety_class": "bounded-requests",
    "needs": "target",
-   "desc": "magento-surface — deteksi Adobe Commerce/Magento bounded 3 GET (/magento_version,/customer/account/login/,/downloader/): signature Magento/X.Y.Z = fakta versi + lead L1 (KEV CVE-2026-48356, verify manual); tanpa marker = AMAN"
+   "desc": "magento-surface \u2014 deteksi Adobe Commerce/Magento bounded 3 GET (/magento_version,/customer/account/login/,/downloader/): signature Magento/X.Y.Z = fakta versi + lead L1 (KEV CVE-2026-48356, verify manual); tanpa marker = AMAN"
   },
   {
    "name": "agent-instruction-exposure",
@@ -1399,7 +1431,7 @@
    ],
    "safety_class": "bounded-requests",
    "needs": "target",
-   "desc": "agent-instruction-exposure — file instruksi agen AI ter-expose bounded 5 GET (/AGENTS.md,/CLAUDE.md,/.cursorrules,/.mcp.json,/.windsurfrules): signature ketat + anti-fallback SPA; AGENTS/CLAUDE/MCP = L2 CWE-538; tanpa marker = AMAN"
+   "desc": "agent-instruction-exposure \u2014 file instruksi agen AI ter-expose bounded 5 GET (/AGENTS.md,/CLAUDE.md,/.cursorrules,/.mcp.json,/.windsurfrules): signature ketat + anti-fallback SPA; AGENTS/CLAUDE/MCP = L2 CWE-538; tanpa marker = AMAN"
   },
   {
    "name": "repo-secret-scan",
@@ -1471,7 +1503,7 @@
    ],
    "safety_class": "bounded-requests",
    "needs": "target",
-   "desc": "cached-sensitive-files — deteksi file cache statis yang membocorkan halaman aktivasi multisite WordPress (pola CVE-2026-111464), fail-closed, 2 GET",
+   "desc": "cached-sensitive-files \u2014 deteksi file cache statis yang membocorkan halaman aktivasi multisite WordPress (pola CVE-2026-111464), fail-closed, 2 GET",
    "requires_evidence": true
   }
  ]

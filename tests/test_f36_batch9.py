@@ -51,7 +51,7 @@ class RegistryTest(unittest.TestCase):
         # F44+F46: +1 skill (llm-endpoint-surface) + 3 playbook
         # (prompt-injection, llm-output, rag-poisoning) -> 75 / 38
         self.assertGreaterEqual(len(REG["skills"]), 86)
-        self.assertEqual(len(ep.PLAYBOOKS), 41)
+        self.assertEqual(len(ep.PLAYBOOKS), 42)
         by = {s["name"]: s for s in REG["skills"]}
         self.assertEqual(by["favicon-fingerprint"]["safety_class"],
                          "1-request")

@@ -98,7 +98,7 @@ class RegistryTest(unittest.TestCase):
             pb = ep.PLAYBOOKS[name]
             self.assertFalse(pb.techniques & ep.NEVER_LIST)
             self.assertEqual(pb.tier, 1, "batch 3 semua tier-1 (proof)")
-        self.assertEqual(len(ep.PLAYBOOKS), 41)
+        self.assertEqual(len(ep.PLAYBOOKS), 42)
 
 
 class LabEndpointTest(LabTestCase):

@@ -167,4 +167,12 @@ def auto_install_from_env() -> bool:
     audit = os.environ.get(AUDIT_ENV, "")
     install(budget or "<no-budget-contract>",
             audit or os.devnull)
+    # Marker bukti guard terpasang: baris pertama audit berisi
+    # kind="guard-install". Runner (fase 2-B lanjutan) menganggap skill
+    # berjalan TANPA guard bila baris ini absen -> hard-fail
+    # (fail-closed dua lapis, docs/CONTROLLED-NETWORK.md §3).
+    if audit:
+        _audit(audit, {"ts": round(time.time(), 3), "pid": os.getpid(),
+                       "kind": "guard-install", "address": "-",
+                       "allowed": True, "budget_used": None})
     return True

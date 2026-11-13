@@ -91,6 +91,8 @@ STRATEGI = {
     "tls-heartbeat-overread": ("D", "overread terukur byte-akurat (sudah L3-capable)"),
     # --- E: chain fakta versi --------------------------------------------
     "banner-posture": ("-", "absensi header = fakta postur; rantai versi E SUDAH jalan via cve-matcher (F41/F58)"),
+    "banner-oracle-ebs": ("E", "marker versi EBS -> KB/watchlist Oracle EBS via cve-matcher (F66 seed); tanpa versi = postur '-'"),
+    "banner-plex": ("E", "X-Plex-Version -> KB/watchlist Plex2Shell via cve-matcher (F66 seed); tanpa versi = postur '-'"),
     "server-version-disclosure": ("E", "versi -> KB/KEV (sudah masuk cve-matcher); tidak ada probe tambahan tanpa KB"),
     "js-library-version-checker": ("E", "versi lib -> KB; naik hanya lewat rantai cve-matcher"),
     "api-version-surface": ("E", "inventaris versi API; naik via KB bila rentang cocok"),

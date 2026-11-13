@@ -84,6 +84,7 @@ fn run_with_timeout(
     Ok((status, truncated))
 }
 
+#[derive(Debug)]
 pub struct RunResult {
     pub ok: bool,
     pub exit_code: Option<i32>,
@@ -194,6 +195,152 @@ pub fn run_skill_with_env(
         invalid,
         skill_outputs: vec![out_abs],
     })
+}
+
+pub const GUARD_ENV: &str = "SECAI_NET_GUARD";
+pub const BUDGET_ENV: &str = "SECAI_NET_BUDGET_FILE";
+pub const AUDIT_ENV: &str = "SECAI_NET_AUDIT";
+
+/// Fase 2-B lanjutan (docs/CONTROLLED-NETWORK.md §3): jalankan skill di
+/// bawah net-guard — env diinjeksi, audit diverifikasi, fail-closed.
+///
+/// - budget file `{limit, used:0}` dibuat runner (milik runner);
+/// - PYTHONPATH di-merge: repo root + `tools/net_guard` (sitecustomize
+///   memuat `core/net_guard.auto_install_from_env`);
+/// - setelah skill selesai: audit log WAJIB ada, WAJIB memuat baris
+///   `guard-install` (bukti patch socket terpasang di proses skill),
+///   semua baris JSON valid, dan `used <= limit` — pelanggaran apa pun
+///   = Err (hard-fail), bukan output kosong yang diemte.
+pub fn run_skill_guarded(
+    skill_argv: &[String],
+    out_path: &Path,
+    workdir: Option<&Path>,
+    budget_limit: usize,
+) -> Result<RunResult, String> {
+    if budget_limit == 0 {
+        return Err(
+            "net-guard: budget 0 — tolak sebelum spawn (tidak ada koneksi \
+             yang dijanjikan; kurangi kebutuhan skill atau naikkan limit)"
+                .to_string(),
+        );
+    }
+    let tmp = std::env::temp_dir();
+    let uniq = format!(
+        "secai_ng_{}_{}",
+        std::process::id(),
+        std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .map(|d| d.as_nanos())
+            .unwrap_or(0)
+    );
+    let budget_path = tmp.join(format!("{uniq}.budget.json"));
+    let audit_path = tmp.join(format!("{uniq}.audit.jsonl"));
+    std::fs::write(
+        &budget_path,
+        json!({"limit": budget_limit, "used": 0}).to_string(),
+    )
+    .map_err(|e| format!("cannot write budget file: {e}"))?;
+
+    // root repo (CARGO_MANIFEST_DIR = <root>/core-rs -> parent = <root>)
+    // supaya sitecustomize bisa `from core.net_guard import ...`.
+    let repo_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .map(|p| p.to_path_buf())
+        .unwrap_or_else(|| {
+            std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."))
+        });
+    let mut py_paths =
+        vec![repo_root.clone(), repo_root.join("tools").join("net_guard")];
+    if let Some(existing) = std::env::var_os("PYTHONPATH") {
+        py_paths.push(PathBuf::from(existing));
+    }
+    let sep = if cfg!(windows) { ";" } else { ":" };
+    let py_path = py_paths
+        .iter()
+        .map(|p| p.display().to_string())
+        .collect::<Vec<_>>()
+        .join(sep);
+    let extra_env = vec![
+        (GUARD_ENV.to_string(), "1".to_string()),
+        (BUDGET_ENV.to_string(), budget_path.display().to_string()),
+        (AUDIT_ENV.to_string(), audit_path.display().to_string()),
+        ("PYTHONPATH".to_string(), py_path),
+    ];
+
+    let res = run_skill_with_env(skill_argv, out_path, workdir, &extra_env);
+
+    // Verifikasi audit tidak boleh di-lewati meski skill sukses —
+    // skill yang berjalan tanpa guard tidak bisa dinilai (fail-closed).
+    let verify = verify_audit(&audit_path);
+    let used_final = read_budget_used(&budget_path);
+    let _ = std::fs::remove_file(&budget_path);
+
+    let res = res?;
+    let (total, allowed) = verify?;
+    if let Some(used) = used_final {
+        if used > budget_limit {
+            return Err(format!(
+                "net-guard: budget used {used} > limit {budget_limit} \
+                 (kontrak rusak)"
+            ));
+        }
+    }
+    println!(
+        "[net-guard] audit: {total} connection attempt(s), {allowed} \
+         allowed, limit {budget_limit}"
+    );
+    Ok(res)
+}
+
+/// Verifikasi audit log net-guard (JSONL): file ADA, setiap baris JSON
+/// valid dengan field kontrak, dan ada minimal satu baris
+/// `kind="guard-install"`. Kembalikan (koneksi_tercatat, allowed).
+pub fn verify_audit(path: &Path) -> Result<(usize, usize), String> {
+    let raw = std::fs::read_to_string(path)
+        .map_err(|_| format!("net-guard audit log missing: {path:?}"))?;
+    let mut total = 0usize;
+    let mut allowed = 0usize;
+    let mut installed = false;
+    for (i, line) in raw.lines().enumerate() {
+        if line.trim().is_empty() {
+            continue;
+        }
+        let v: serde_json::Value = serde_json::from_str(line)
+            .map_err(|e| format!("audit line {} invalid: {e}", i + 1))?;
+        for key in ["ts", "pid", "kind", "address", "allowed", "budget_used"] {
+            if v.get(key).is_none() {
+                return Err(format!("audit line {} missing '{key}'", i + 1));
+            }
+        }
+        if v["allowed"].as_bool().is_none() {
+            return Err(format!(
+                "audit line {}: 'allowed' bukan boolean",
+                i + 1
+            ));
+        }
+        if v["kind"].as_str() == Some("guard-install") {
+            installed = true;
+        } else {
+            total += 1;
+            if v["allowed"].as_bool() == Some(true) {
+                allowed += 1;
+            }
+        }
+    }
+    if !installed {
+        return Err(
+            "net-guard: tidak ada baris 'guard-install' — skill berjalan \
+             tanpa guard (hard-fail)"
+                .to_string(),
+        );
+    }
+    Ok((total, allowed))
+}
+
+fn read_budget_used(path: &Path) -> Option<usize> {
+    let raw = std::fs::read_to_string(path).ok()?;
+    let v: serde_json::Value = serde_json::from_str(&raw).ok()?;
+    v.get("used").and_then(|u| u.as_u64()).map(|u| u as usize)
 }
 
 /// Validasi file findings.json apa pun terhadap kontrak.
@@ -416,5 +563,130 @@ open(sys.argv[1],"w").write(json.dumps({"ok":True,"data":{},"findings":rows}))
         assert!(!res.ok, "harus gagal validasi kontrak");
         assert!(!res.invalid.is_empty());
         let _ = std::fs::remove_dir_all(&tmp);
+    }
+
+    // ---- net-guard Fase 2-B lanjutan (run_skill_guarded / verify_audit) ----
+
+    fn audit_row(kind: &str, allowed: bool) -> String {
+        serde_json::json!({"ts": 1.0, "pid": 1, "kind": kind,
+            "address": "127.0.0.1:9", "allowed": allowed,
+            "budget_used": 1})
+        .to_string()
+    }
+
+    #[test]
+    fn verify_audit_ok_counts_connections() {
+        let p = std::env::temp_dir()
+            .join(format!("secai_t_va_{}.jsonl", std::process::id()));
+        std::fs::write(
+            &p,
+            format!(
+                "{}\n{}\n{}\n",
+                audit_row("guard-install", true),
+                audit_row("tcp-connect", true),
+                audit_row("tcp-connect", false)
+            ),
+        )
+        .unwrap();
+        let r = verify_audit(&p).expect("verify should pass");
+        assert_eq!(r, (2, 1));
+        let _ = std::fs::remove_file(&p);
+    }
+
+    #[test]
+    fn verify_audit_missing_is_hard_fail() {
+        let p = std::env::temp_dir()
+            .join(format!("secai_t_vm_{}.jsonl", std::process::id()));
+        let err = verify_audit(&p).unwrap_err();
+        assert!(err.contains("missing"), "err={err}");
+    }
+
+    #[test]
+    fn verify_audit_corrupt_line_is_hard_fail() {
+        let p = std::env::temp_dir()
+            .join(format!("secai_t_vc_{}.jsonl", std::process::id()));
+        std::fs::write(
+            &p,
+            format!("{}\nbukan-json\n", audit_row("guard-install", true)),
+        )
+        .unwrap();
+        let err = verify_audit(&p).unwrap_err();
+        assert!(err.contains("invalid"), "err={err}");
+        let _ = std::fs::remove_file(&p);
+    }
+
+    #[test]
+    fn verify_audit_without_install_marker_is_hard_fail() {
+        let p = std::env::temp_dir()
+            .join(format!("secai_t_vn_{}.jsonl", std::process::id()));
+        std::fs::write(&p, format!("{}\n", audit_row("tcp-connect", true)))
+            .unwrap();
+        let err = verify_audit(&p).unwrap_err();
+        assert!(err.contains("guard-install"), "err={err}");
+        let _ = std::fs::remove_file(&p);
+    }
+
+    #[test]
+    fn guarded_run_records_connections_with_budget() {
+        // e2e: dua attempt ke 127.0.0.1:9 dengan budget 1 -> 1 allowed,
+        // 1 ditolak SEBELUM connect; marker guard-install ada.
+        let script = r#"
+import socket, json, sys
+for _ in range(2):
+    try:
+        s = socket.create_connection(("127.0.0.1", 9), timeout=1)
+        s.close()
+    except OSError:
+        pass
+json.dump({"ok": True, "findings": []},
+          open(sys.argv[1], "w", encoding="utf-8"))
+"#;
+        let argv = vec![
+            "python".to_string(),
+            "-c".to_string(),
+            script.to_string(),
+            "@OUT@".to_string(),
+        ];
+        let out = std::env::temp_dir()
+            .join(format!("secai_t_guard_{}.json", std::process::id()));
+        let res = run_skill_guarded(&argv, &out, None, 1)
+            .expect("guarded run should pass");
+        assert!(res.ok, "invalid: {:?}", res.invalid);
+        let _ = std::fs::remove_file(&out);
+    }
+
+    #[test]
+    fn guarded_run_hard_fails_when_skill_removes_audit() {
+        // Skill yang menghapus audit log = berjalan tanpa bukti guard
+        // -> runner hard-fail (fail-closed dua lapis).
+        let script = r#"
+import os, json, sys
+json.dump({"ok": True, "findings": []},
+          open(sys.argv[1], "w", encoding="utf-8"))
+try:
+    os.remove(os.environ["SECAI_NET_AUDIT"])
+except Exception:
+    pass
+"#;
+        let argv = vec![
+            "python".to_string(),
+            "-c".to_string(),
+            script.to_string(),
+            "@OUT@".to_string(),
+        ];
+        let out = std::env::temp_dir()
+            .join(format!("secai_t_guard2_{}.json", std::process::id()));
+        let err = run_skill_guarded(&argv, &out, None, 3).unwrap_err();
+        assert!(err.contains("missing"), "err={err}");
+    }
+
+    #[test]
+    fn guarded_run_rejects_zero_budget_before_spawn() {
+        let argv = vec!["python".to_string(), "-c".to_string(),
+                        "pass".to_string()];
+        let out = std::env::temp_dir()
+            .join(format!("secai_t_guard3_{}.json", std::process::id()));
+        let err = run_skill_guarded(&argv, &out, None, 0).unwrap_err();
+        assert!(err.contains("budget 0"), "err={err}");
     }
 }

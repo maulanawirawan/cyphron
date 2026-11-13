@@ -51,6 +51,7 @@ WATCHED_FILES = (
     "docs/AGENT-SAFETY.md",
     "docs/LEGION-METHOD.md",
     "skills/registry.json",
+    "tools/agent_shield.py",  # verifier ter-lock juga — modifikasi verifier = seal rusak
 )
 
 
