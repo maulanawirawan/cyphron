@@ -7,6 +7,24 @@ as the compatibility signal.
 
 ## [Unreleased]
 
+### Added — intel & DFIR reference batch (7 new tools, 189 -> 196)
+
+A batch of 7 new offline triage tools under `tools/`, each closing a gap
+mapped against popular reference catalogs (A-poc/RedTeam-Tools and
+A-poc/BlueTeam-Tools — *concept* references only; all code written from
+scratch, stdlib-only, zero-network, fail-closed, emitting the triage
+`findings.json` shape, each with a false-positive control test).
+
+- `dmarc_report_triage` — DMARC aggregate report (xml/gz/zip) triage: spoof-candidate (SPF+DKIM fail volume), forwarder-mixed, unaligned sources, soft policy (p=none/pct<100), new-source vs known-ips list. *(gap: parsedmarc)*
+- `cryptojack_log_triage` — proxy/DNS log triage for cryptojacking: known pool keys, stratum ports/scheme, JSON-RPC mining tokens, long-uniform beacons. *(gap: "Detect Cryptojacking Malware with Proxy Logs")*
+- `vbs_decode_triage` — VBE/JScript.Encode decoder (format constants embedded; verified against the documented sample -> `MsgBox "Hello"`) + static triage of the decoded text (exec/download/obfuscation/persistence indicators). No execution. *(gap: decode-vbe)*
+- `bh_ingest_triage` — BloodHound JSON/ZIP ingest (legacy list & 4.x collections): AS-REP roastable, password-not-required, password-never-expires, unconstrained delegation, GPP Groups.xml candidates, DCSync-capable non-admins, kerberoastable SPNs. *(gap: BloodHound/PingCastle passives)*
+- `misp_event_ingest` — MISP event JSON ingest: IOC catalog, in-scope matching (ips/domains/emails scope file), notable-tag escalation. Mirror of `stix_bundle_audit`. *(gap: MISP)*
+- `qr_payload_triage` — weighted scoring of decoded QR payloads (credential lure, IP literal, shorteners, embedded-redirect, userinfo trick, punycode, non-HTTP schemes). *(gap: SquarePhish/evilqr counterpoint)*
+- `canary_alert_triage` — Canarytoken alert (.eml/JSON webhook) triage: trigger + source context + memo, unparseable files reported for audit. *(gap: Canary Tokens)*
+
+
+
 ### Added — offensive capability expansion (13 new tools, 176 -> 189)
 
 A batch of 13 new offline tools under `tools/` (11 red-team + 2 detection-

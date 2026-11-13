@@ -9,7 +9,7 @@
 [![CI](https://github.com/maulanawirawan/secai/actions/workflows/ci.yml/badge.svg)](https://github.com/maulanawirawan/secai/actions/workflows/ci.yml)
 [![release](https://img.shields.io/badge/release-v0.1.0-blue)](https://github.com/maulanawirawan/secai/releases)
 [![skills](https://img.shields.io/badge/skills-93-8A2BE2)](#whats-inside)
-[![tools](https://img.shields.io/badge/tools-189-brightgreen)](#whats-inside)
+[![tools](https://img.shields.io/badge/tools-196-brightgreen)](#whats-inside)
 [![python](https://img.shields.io/badge/python-3.10%2B-3776AB)](#quick-start-try-it-in-60-seconds)
 [![rust](https://img.shields.io/badge/rust-stable-orange)](#quick-start-try-it-in-60-seconds)
 [![license](https://img.shields.io/badge/license-PolyForm%20NC%201.0-blue)](LICENSE.md)
@@ -55,7 +55,7 @@ flowchart LR
 
 > **secai** = **sec**urity + **a**gentic **i**ntelligence. It's an
 > evidence-first cybersecurity engine: **93 detection skills** and
-> **189 offline triage tools** (285 scripts in all), a native Rust core,
+> **196 offline triage tools** (292 scripts in all), a native Rust core,
 > one strict "findings" format, and an MCP server — so Claude Code,
 > Cursor, or any shell-capable AI agent can drive it for you.
 
@@ -228,7 +228,7 @@ manual that teaches an agent to drive secai safely) and [AGENTS.md](AGENTS.md)
   mass exfiltration) are refused no matter what flags you pass. Details in
   [docs/EXPLOIT-TIER.md](docs/EXPLOIT-TIER.md).
 
-*(285 Python scripts in total across `skills/` and `tools/`; 93 of the
+*(292 Python scripts in total across `skills/` and `tools/`; 93 of the
 skills are registered in the allowlist, the rest are shared helpers.)*
 
 ## Capability map
@@ -237,8 +237,15 @@ The triage family is a set of standalone offline tools: evidence in,
 deterministic `findings.json` out, fail-closed, zero network. Highlights
 by domain:
 
+**Reference library** — concept sources for recent additions include
+[A-poc/RedTeam-Tools](https://github.com/A-poc/RedTeam-Tools) and
+[A-poc/BlueTeam-Tools](https://github.com/A-poc/BlueTeam-Tools)
+(quoted as *concept* references only; every implementation here is written
+from scratch, stdlib-only, and documented with its source entry in the
+module docstring).
+
 <details>
-<summary><b>121 ported tools + 13 new offensive/blue-bridge tools (189 total in tools/) — click to expand</b></summary>
+<summary><b>121 ported tools + 13 offensive/blue-bridge + 7 intel-DFIR tools (196 total in tools/) — click to expand</b></summary>
 <br>
 
 | Domain | Answers the question… | Examples |
