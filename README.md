@@ -8,7 +8,7 @@
 
 [![CI](https://github.com/maulanawirawan/secai/actions/workflows/ci.yml/badge.svg)](https://github.com/maulanawirawan/secai/actions/workflows/ci.yml)
 [![release](https://img.shields.io/badge/release-v0.1.0-blue)](https://github.com/maulanawirawan/secai/releases)
-[![skills](https://img.shields.io/badge/skills-93-8A2BE2)](#whats-inside)
+[![skills](https://img.shields.io/badge/skills-95-8A2BE2)](#whats-inside)
 [![tools](https://img.shields.io/badge/tools-196-brightgreen)](#whats-inside)
 [![python](https://img.shields.io/badge/python-3.10%2B-3776AB)](#quick-start-try-it-in-60-seconds)
 [![rust](https://img.shields.io/badge/rust-stable-orange)](#quick-start-try-it-in-60-seconds)
@@ -54,8 +54,8 @@ flowchart LR
 ```
 
 > **secai** = **sec**urity + **a**gentic **i**ntelligence. It's an
-> evidence-first cybersecurity engine: **93 detection skills** and
-> **196 offline triage tools** (292 scripts in all), a native Rust core,
+> evidence-first cybersecurity engine: **95 detection skills** and
+> **196 offline triage tools** (294 scripts in all), a native Rust core,
 > one strict "findings" format, and an MCP server — so Claude Code,
 > Cursor, or any shell-capable AI agent can drive it for you.
 
@@ -199,7 +199,7 @@ manual that teaches an agent to drive secai safely) and [AGENTS.md](AGENTS.md)
 
 ## What's inside
 
-- **93 registered detection skills** in `skills/` — recon, posture, and
+- **95 registered detection skills** in `skills/` — recon, posture, and
   exposure checks. Each is a standalone command-line program with a
   declared safety class (from `read-only` up to `state-changing`) and a
   hard request budget. The registry is an *allowlist*: if a skill isn't
@@ -228,7 +228,7 @@ manual that teaches an agent to drive secai safely) and [AGENTS.md](AGENTS.md)
   mass exfiltration) are refused no matter what flags you pass. Details in
   [docs/EXPLOIT-TIER.md](docs/EXPLOIT-TIER.md).
 
-*(292 Python scripts in total across `skills/` and `tools/`; 93 of the
+*(294 Python scripts in total across `skills/` and `tools/`; 95 of the
 skills are registered in the allowlist, the rest are shared helpers.)*
 
 ## Capability map
@@ -275,7 +275,7 @@ distilled from non-tool-shaped concepts (250+ sections) lives in
 | `secai scan --domain example.com --max-requests 32 --report` | Full tier0 scan (public data only, strict budget) + PDF report |
 | `secai validate findings.json` | Check any `findings.json` against the contract (Rust core) |
 | `secai merge --dedup-id ...` | Merge + dedup finding sets (cross-tool correlation) |
-| `python skills/<skill>.py --url … --out f.json` | Run one of the 93 registered detection skills (allowlist-gated) |
+| `python skills/<skill>.py --url … --out f.json` | Run one of the 95 registered detection skills (allowlist-gated) |
 | `python tools/code_map.py --repo <path> --out surface.json` | Map a codebase to an attack surface — zero requests |
 | `python tools/chain_planner.py --findings f.json` | Plan A→B→C exploit chains from existing findings |
 | `python tools/submission_gate.py --finding f.json --program p.json` | 7-question pre-submission gate for a finding |

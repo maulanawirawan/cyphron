@@ -13,7 +13,7 @@ salida estricto que ambos respetan.
 [![CI](https://github.com/maulanawirawan/secai/actions/workflows/ci.yml/badge.svg)](https://github.com/maulanawirawan/secai/actions/workflows/ci.yml)
 [![tests](https://img.shields.io/badge/tools-196-brightgreen)](#qué-incluye)
 [![release](https://img.shields.io/badge/release-v0.1.0-blue)](https://github.com/maulanawirawan/secai/releases)
-[![skills](https://img.shields.io/badge/capabilities-292-8A2BE2)](#qué-incluye)
+[![skills](https://img.shields.io/badge/capabilities-294-8A2BE2)](#qué-incluye)
 [![python](https://img.shields.io/badge/python-3.10%2B-3776AB)](#inicio-rápido)
 [![rust](https://img.shields.io/badge/rust-stable-orange)](#inicio-rápido)
 [![license](https://img.shields.io/badge/license-PolyForm%20NC%201.0-blue)](LICENSE.md)
@@ -139,7 +139,7 @@ flowchart LR
 
 ## Qué incluye
 
-- **292 scripts de capacidades** en dos familias: **93 skills de
+- **294 scripts de capacidades** en dos familias: **95 skills de
   detección registradas** en `skills/` (recon, postura y exposición —
   cada una es una CLI independiente con clase de seguridad declarada,
   de `read-only` a `state-changing`, y un límite estricto de
@@ -207,7 +207,7 @@ El índice completo está en [CHANGELOG.md](CHANGELOG.md); la metodología desti
 | `secai scan --domain example.com --max-requests 32 --report` | Escaneo tier0 completo (datos públicos, presupuesto estricto) + informe PDF |
 | `secai validate findings.json` | Verifica cualquier findings.json contra el contrato (núcleo Rust) |
 | `secai merge --dedup-id ...` | Fusiona y deduplica conjuntos de hallazgos (correlación FAO) |
-| `python skills/<skill>.py --url … --out f.json` | Ejecuta una de las 93 skills de detección registradas (allowlist) |
+| `python skills/<skill>.py --url … --out f.json` | Ejecuta una de las 95 skills de detección registradas (allowlist) |
 | `python tools/code_map.py --repo <path> --out surface.json` | Mapea código fuente a superficie de ataque — cero peticiones |
 | `python tools/chain_planner.py --findings f.json` | Planifica cadenas de explotación A→B→C desde hallazgos |
 | `python tools/submission_gate.py --finding f.json --program p.json` | Compuerta de 7 preguntas antes de enviar un hallazgo |
@@ -268,7 +268,7 @@ La parte aburrida, que también es la importante.
 ```
 core/findings.py   el contrato, lado Python
 core-rs/           núcleo nativo: contrato, orquestador, FAO, serve
-skills/            93 skills de detección + registry.json (lista blanca)
+skills/            95 skills de detección + registry.json (lista blanca)
 tools/             planificador, mapa de código, ejecuciones nocturnas,
                    sync de intel, informe PDF, servidor MCP,
                    nivel de prueba bloqueado, objetivo de laboratorio

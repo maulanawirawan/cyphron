@@ -98,3 +98,10 @@ diteruskan ke agent sebagai perintah.
 3. **Lapis 1 adalah satu-satunya enforcement sungguhan.** Panduan
    (lapis 2) dan layar (lapis 3) membantu, tapi yang menahan tangan
    adalah kode.
+4. **agent-shield ter-lock termasuk verifier-nya sendiri.** Sejak
+   2026-11-14 `tools/agent_shield.py` ikut masuk
+   `agent-shield.lock.json` — memodifikasi verifikator merusak seal
+   dan terdeteksi `verify`. Batas jujur: ini tetap cek file-on-disk
+   (TOCTOU oleh proses yang sudah berjalan di luar jangkauan), dan
+   hash SHA-256 tanpa tanda tangan kriptografis — komit ke branch
+   terproteksi Git adalah mekanisme pengikatan yang sesungguhnya.

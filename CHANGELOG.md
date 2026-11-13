@@ -7,6 +7,17 @@ as the compatibility signal.
 
 ## [Unreleased]
 
+### Added — F66 queue completion: 2 banner skills + MCP prompt-injection playbook + net-guard runner (2 new skills, 93 -> 95)
+
+Antrian eksplisit F66 dibereskan (3 dari 4; sisanya HOLD kebijakan):
+
+- `banner_oracle_ebs` + `banner_plex` — dua skill deteksi banner/versi (maks 2 GET, token ketat anti-FP, versi tak terekspos = pemetaan CVE TIDAK diklaim); melengkapi seed watchlist Oracle EBS & Plex2Shell; terkurasi di verdict-audit (rantai E via cve-matcher). 16 test.
+- `McpPromptInjectionPlaybook` (`mcp-prompt-injection`, tier-1 proof) — playbook prompt-injection untuk server MCP nyata via JSON-RPC 2.0 (`initialize` wajib hidup, `tools/call` canary instruksi benign, tool kontrol `-safe` wajib menolak); ditambah simulator server MCP di `tools/lab_target.py` (`/mcp`). 3 test differential (L3 terbukti / not-proven fail-closed / kontrol imun).
+- net-guard runner Rust (Fase 2-B lanjutan, docs/CONTROLLED-NETWORK.md §3) — `core-rs/src/runner.rs::run_skill_guarded`: env guard diinjeksi + budget file milik runner + verifikasi audit log fail-closed (wajib ada, wajib baris `guard-install` dari `core/net_guard.auto_install_from_env`, semua baris JSON valid, `used <= limit`); CLI `secai run --net-budget N`. 7 test Rust.
+- agent-shield: verifikator kini ikut ter-lock (`tools/agent_shield.py` masuk WATCHED_FILES — memodifikasi verifier merusak seal); batas TOCTOU/hash-tanpa-tanda-tangan didokumentasikan jujur di docs/AGENT-SAFETY.md.
+- Docs: status antrian F66/CONTROLLED-NETWORK/CVE-MATCHER diperbarui; PORT-AGENT-METHODS diberi header "bukan antrian tugas" (55 titik ekstraksi tool sudah jadi; checklist = langkah kerja agent).
+
+
 ### Added — intel & DFIR reference batch (7 new tools, 189 -> 196)
 
 A batch of 7 new offline triage tools under `tools/`, each closing a gap

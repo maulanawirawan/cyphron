@@ -1,5 +1,14 @@
 # PORT-AGENT-METHODS — distilasi metodologi dari skill antrean yang di-skip
 
+> **Apa file ini (baca dulu — biar tidak membingungkan):** ini
+> knowledge-base metodologi, BUKAN antrian tugas. Skill referensi
+>(tob/*, mukul975/*, dll) ditambang: yang bisa jadi tool KODE sudah
+> diekstrak (55 titik "-> tools/..." di bawah — brocards_triage,
+> ioc_defang, kerberos_log_triage, gha_workflow_audit,
+> webshell_triage, elf_checksec, dsb); sisanya distilasi jadi
+> checklist metodologi. Checklist `- [ ]` di file ini = langkah
+> kerja agent saat audit, bukan backlog implementasi.
+
 Beberapa skill di SKILL-PORT-QUEUE di-SKIP sebagai tool (tanpa inti yang
 bisa dieksekusi kode), tapi inti metodologinya tetap berguna untuk
 AGENT yang bekerja di repo ini. Dokumen ini mendistilasinya dari

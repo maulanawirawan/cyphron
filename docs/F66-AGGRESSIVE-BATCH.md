@@ -62,13 +62,20 @@ versi tidak difabrikasi — KB operator hanya diisi dari advisory vendor.
 - Pin registry 83 -> 88 di 9 file test (konvensi batch).
 - Suite penuh: **726 test hijau** (1 skip terdokumentasi).
 
-## 5. Antrian berikutnya
+## 5. Antrian berikutnya (status 2026-11-14 — 3 dari 4 selesai)
 
 1. **KB Bricksforge/Magento**: HOLD sampai advisory vendor resmi memuat
-   nomor fix (no fabrication).
-2. **Skill banner Oracle EBS / Plex**: seed sudah siap; deteksi banner
-   belum dibangun (bounded 2-3 GET, token ketat).
-3. **Playbook prompt-injection MCP live** (F59 -> target MCP nyata):
-   butuh gate tier aktif + lab endpoint.
-4. **KEV watch**: php2shell/GitLab/Node/Bricksforge/Oracle EBS — watchlist
-   otomatis kalah oleh KEV saat masuk (dedup sudah diuji).
+   nomor fix (no fabrication). *(tetap HOLD)*
+2. **Skill banner Oracle EBS / Plex**: ✅ SELESAI 2026-11-14 —
+   `skills/banner_oracle_ebs.py` + `skills/banner_plex.py` (maks 2 GET,
+   token ketat, versi tak terekspos = CVE mapping TIDAK diklaim),
+   terdaftar di registry (95 skill) + terkurasi di verdict-audit;
+   16 test (anti-FP, fail-closed, fallback path).
+3. **Playbook prompt-injection MCP live**: ✅ SELESAI 2026-11-14 —
+   `McpPromptInjectionPlaybook` (`mcp-prompt-injection`, tier-1,
+   JSON-RPC 2.0 `initialize`/`tools/call`, kontrol tool `-safe` wajib
+   menolak) + simulator server MCP di `tools/lab_target.py` (`/mcp`);
+   3 test differential (L3 / not-proven / kontrol imun).
+4. **KEV watch**: ✅ BERJALAN — watchlist otomatis kalah oleh KEV saat
+   masuk (dedup diuji); backlog kontribusi operator via
+   `tools/kev_gap.py` (F69).

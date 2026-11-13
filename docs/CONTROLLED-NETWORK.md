@@ -106,5 +106,16 @@ proses skill Python
 - [x] `tests/test_net_guard.py` — budget ok/habis/hilang, TCP+UDP,
       tolak SEBELUM connect (server hanya melihat koneksi sah),
       idempotent, uninstall bersih
-- [ ] Integrasi runner Rust (env + verifikasi audit log) — fase berikutnya
-- [ ] Budget proyeksi -> limit file di runner — fase berikutnya
+- [x] Integrasi runner Rust (env + verifikasi audit log) — SELESAI
+      2026-11-14: `core-rs/src/runner.rs::run_skill_guarded` — env
+      `SECAI_NET_GUARD/SECAI_NET_BUDGET_FILE/SECAI_NET_AUDIT` +
+      PYTHONPATH merge (root + `tools/net_guard`); audit WAJIB ada,
+      WAJIB memuat baris `guard-install` (bukti patch terpasang —
+      marker dari `core/net_guard.auto_install_from_env`), semua baris
+      JSON valid, `used <= limit` — pelanggaran apa pun = hard-fail.
+      CLI: `secai run --net-budget N <skill...>`. 7 test Rust (verify
+      ok/missing/corrupt/tanpa-marker + e2e budget + e2e skill menghapus
+      audit + tolak budget 0).
+- [x] Budget proyeksi -> limit file di runner — SELESAI 2026-11-14:
+      proyeksi pemanggil jadi file atomik `{limit, used:0}` milik
+      runner; `used` akhir disanity-kan <= limit.

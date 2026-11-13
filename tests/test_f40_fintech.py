@@ -121,7 +121,7 @@ class TestRegistry(unittest.TestCase):
     """Nol jaringan — registry count + never-list."""
 
     def test_registry_41_dan_never_list_bersih(self):
-        self.assertEqual(len(ep.PLAYBOOKS), 41)
+        self.assertEqual(len(ep.PLAYBOOKS), 42)
         self.assertIn("replay-transfer", ep.PLAYBOOKS)
         self.assertIn("csv-injection", ep.PLAYBOOKS)
         self.assertIsNone(ep.check_never_list(
