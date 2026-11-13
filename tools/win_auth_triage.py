@@ -4,15 +4,6 @@ hash spray, downgrade NTLMv1, mismatch workstation-IP (relay), rantai
 RDP, service PsExec, akun service interaktif, reuse kredensial
 eksplisit.
 
-Mengisi antrean port SKILL-PORT-QUEUE #0425 #0426 #0440 #0442 (mukul975/
-Anthropic-Cybersecurity-Skills 'detecting-lateral-movement-in-network',
-'detecting-lateral-movement-with-splunk', 'detecting-ntlm-relay-with-
-event-correlation', 'detecting-pass-the-hash-attacks' — lisensi sumber
-Apache-2.0, atribusi konsep — kode dibangun from scratch TANPA menyalin
-kode sumber). Skill sumber memakai SPL/KQL/Elastic (SIEM live); secai
-memilih artefak offline: file XML ekspor Windows Security (Event Viewer
-"Export XML" atau `wevtutil /x`), parser stdlib, nol jaringan.
-
 Pembagian ranah dgn alat secai lain (anti-duplikasi):
   - Event Kerberos 4768/4769/4771  -> tools/kerberos_log_triage.py (B14)
   - Brute force 4625 / password-spray / success-after-fail

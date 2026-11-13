@@ -2,15 +2,6 @@ r"""[SAFETY: read-only] ws_handshake_audit — audit OFFLINE bukti handshake
 WebSocket utk CSWSH/absennya auth/teks-terbuka (T1559.100? — ranah OWASP
 A01/A05; kelas komunikasi real-time). TANPA jaringan.
 
-Port konsep dari antrean SKILL-PORT-QUEUE #0514 (mukul975/Anthropic-
-Cybersecurity-Skills 'exploiting-websocket-vulnerabilities'; atribusi
-konsep, lisensi sumber Apache-2.0). Dibangun FROM SCRATCH: taksonomi
-temuan handshake ditulis sendiri dari spesifikasi RFC 6455 + konsep
-pengujian publik (differential Origin, key konforman, subprotokol).
-Skill sumber = runbook live (wscat/Burp/python websockets); secai
-menganalisis BUKTI probe handshake (export Burp/DevTools/curl -I) —
-tool ini TIDAK membuka koneksi.
-
 Input -> mekanisme -> output:
   - Input : file JSON (array) atau JSONL, satu objek per baris:
       (a) handshake: {"url": "ws(s)://...", "status": 101|403|...,

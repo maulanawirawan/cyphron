@@ -1,12 +1,7 @@
-"""[SAFETY: read-only] qr_payload_triage — skor OFFLINE payload hasil decode
-QR code (dari scanner/gateway ekspor berizin) untuk indikasi quishing
-(phishing via QR: credential-harvest, redirect berantai, pelacakan).
-
-Port konsep dari entri QR-phishing di A-poc/RedTeam-Tools (SquarePhish,
-evilqr — kampanye phishing berbasis QR) — versi triase pasif: kode ini
-ditulis from scratch, stdlib-only, NOL jaringan: input = daftar payload
-TERDEKODE (file teks satu-payload-per-baris, atau JSON/CSV dari ekspor
-scanner), TIDAK melakukan fetch, resolve, maupun scan gambar.
+"""[SAFETY: read-only] qr_payload_triage — skor OFFLINE payload hasil
+decode QR code (dari scanner/gateway ekspor berizin) untuk indikasi
+quishing (phishing via QR: credential-harvest, redirect berantai,
+pelacakan).
 
 Mekanisme skor (semua lead berbasis bukti, bobot bisa diatur):
   - credential-lure   : path/kueri memuat kata jebakan login (login,

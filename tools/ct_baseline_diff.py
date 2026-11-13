@@ -1,15 +1,6 @@
 """[AUDIT: read-only] ct_baseline_diff — diff baseline Certificate
 Transparency -> alert penerbitan sertifikat mencurigakan.
 
-Mengisi antrean port dari mukul975/Anthropic-Cybersecurity-Skills
-'skills/auditing-tls-certificate-transparency-logs' (#0271) — atribusi
-ide; lisensi sumber Apache-2.0. Dibangun from scratch TANPA menyalin
-kode sumber itu. NOL jaringan: record CT (format crt.sh / certspotter:
-common_name, name_value/SANs, issuer_name, not_before/not_after,
-serial_number) dibaca dari file JSON lokal — pengambilan data live
-tetap milik skills/ct_inventory.py atau ekspor crt.sh; tool ini murni
-mesin diff baseline + aturan alert deterministik.
-
 Aturan alert (zero-FP — hanya bentuk eksplisit, bukan heuristik tebakan):
   unauthorized-ca   issuer TIDAK memuat salah satu item allowlist CA
                     (critical). Hanya aktif bila --ca-allowlist diberi;

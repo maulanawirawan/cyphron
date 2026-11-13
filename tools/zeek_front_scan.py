@@ -1,16 +1,7 @@
-r"""[SAFETY: read-only] zeek_front_scan — deteksi OFFLINE domain
-fronting (T1090.004) dari log Zeek: mismatch antara SNI (ssl.log
-server_name) dan Host header (http.log host) pada koneksi yang SAMA
-(join by uid). TANPA jaringan.
-
-Port konsep dari antrean SKILL-PORT-QUEUE #0545 (mukul975/
-Anthropic-Cybersecurity-Skills 'hunting-for-domain-fronting-c2-traffic';
-atribusi konsep, lisensi sumber Apache-2.0). Dibangun FROM SCRATCH:
-parser log + logika pencocokan domain ditulis sendiri dari konsep
-deteksi publik (fronting = SNI dan Host berbeda pada satu koneksi
-TLS). Skill sumber memakai pyOpenSSL + daftar IP CDN; secai memilih
-pasangan log Zeek offline supaya nol jaringan dan dapat dites —
-verifikasi CDN/IP tetap langkah manual (dicatat di message).
+r"""[SAFETY: read-only] zeek_front_scan — deteksi OFFLINE domain fronting
+(T1090.004) dari log Zeek: mismatch antara SNI (ssl.log server_name) dan
+Host header (http.log host) pada koneksi yang SAMA (join by uid). TANPA
+jaringan.
 
 Pembagian ranah (TIDAK diduplikasi):
   - beacon conn.log        -> zeek_beacon_scan (B13)

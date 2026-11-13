@@ -2,14 +2,6 @@ r"""[SAFETY: read-only] timestomp_triage — deteksi OFFLINE timestomping
 (T1070.006) dari perbandingan timestamp $STANDARD_INFORMATION (SI, 0x10)
 vs $FILE_NAME (FN, 0x30) pada entri MFT. TANPA jaringan.
 
-Port konsep dari antrean SKILL-PORT-QUEUE #0542 (mukul975/
-Anthropic-Cybersecurity-Skills 'hunting-for-defense-evasion-via-
-timestomping'; atribusi konsep, lisensi sumber Apache-2.0). Dibangun
-FROM SCRATCH: parser CSV/JSON + logika perbandingan ditulis sendiri
-dari konsep deteksi publik (properti atribut NTFS yang terdokumentasi:
-SI bisa diubah user-mode, FN hanya di-update driver NTFS kernel-mode).
-Skill sumber memakai pandas; secai stdlib-only (csv + datetime).
-
 Input -> mekanisme -> output:
   - Input : (a) CSV hasil MFTECmd (Eric Zimmerman) dgn kolom
             Created0x10/LastModified0x10/Created0x30/LastRecordChange0x10
@@ -19,29 +11,6 @@ Input -> mekanisme -> output:
   - Mekanisme: per baris, bandingkan urutan timestamp SI vs FN.
   - Output: temuan {check, severity, path, nilai timestamp, delta}
             + stats + notes.
-
-Cek (verdict = LEAD — korelasikan dgn USN Journal/$LogFile/ShimCache
-sebelum disimpulkan; skill sumber eksplisit: JANGAN jadikan satu
-metode tunggal):
-  si-created-before-fn        (high)   : SI Created < FN Created — SI
-                                          didorong mundur oleh alat
-                                          user-mode (Timestomp/
-                                          SetMACE/Set-ItemProperty);
-                                          normal NTFS: SI >= FN.
-  si-modified-before-fn-creat (high)   : SI Modified < FN Created —
-                                          file tak mungkin dimodifikasi
-                                          sebelum namanya diciptakan.
-  zero-precision-si           (medium) : SI timestamp ber-nanodetik
-                                          NOL padahal FN punya presisi
-                                          nanodetik normal — artefak
-                                          alat timestomping (hanya
-                                          tersedia pada input CSV
-                                          MFTECmd; JSON mft_scan
-                                          presisi detik -> cek ini
-                                          dilewati dgn catatan).
-  Anti-FP: --min-delta-seconds (default 1.0) — deviasi di bawah
-  ambang dihitung noise resolusi dan TIDAK ditandai; jumlah baris
-  yang disaring dgn alasan ini dicatat di stats.
 
 Fail-closed:
   - CSV tanpa kolom wajib / JSON bukan output mft_scan -> exit 2.

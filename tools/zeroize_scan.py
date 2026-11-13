@@ -1,14 +1,5 @@
-r"""[SAFETY: read-only] zeroize_scan — pemindai zeroization material sensitif di source.
-
-Port konsep dari antrean SKILL-PORT-QUEUE #0098 (trailofbits/skills
-plugin 'zeroize-audit' — deteksi zeroization hilang untuk key/password/
-secret; atribusi ide). Dibangun FROM SCRATCH — pola deklarasi, daftar
-approved-wipe, dan seluruh mekanisme ditulis sendiri; TIDAK menyalin
-skrip plugin. SUBSET source-level: versi lengkap skill sumber butuh
-LLVM IR/asm + compile_commands.json + cargo nightly (bukan stdlib,
-butuh toolchain) — cakupan alat ini C/C++/Rust pada level teks sumber
-saja dan setiap temuan = LEAD perlu-review, bukan klaim. Lisensi
-secai: PolyForm NC.
+r"""[SAFETY: read-only] zeroize_scan — pemindai zeroization material
+sensitif di source.
 
 Input -> mekanisme -> output:
   - Input : file .c/.cc/.cpp/.h/.hpp/.rs atau direktori (read-only,
@@ -24,7 +15,7 @@ Kategori lead:
   secret-buffer-tanpa-wipe (medium): buffer sensitif dideklarasikan,
     scope fungsi berakhir TANPA approved-wipe. memset() polos SENGAJA
     TIDAK dihitung (dead-store elimination bisa menghapusnya — itulah
-    inti konsep sumber).
+    inti ).
   secret-buffer-global    (medium): buffer sensitif di scope file
     (global/statik) — material kunci statis di binary, review kebiasaan
     wipe.
@@ -58,7 +49,7 @@ SCHEMA = "secai.zeroize-scan/1"
 
 EXT = {".c", ".cc", ".cpp", ".h", ".hpp", ".rs"}
 
-# approved-wipe: API zeroization yang (secara konsep sumber) tidak bisa
+# approved-wipe: API zeroization yang (secara ) tidak bisa
 # dihapus compiler / eksplisit aman — ditulis sendiri dari dokumentasi
 # publik masing-masing pustaka.
 WIPE_C = frozenset({

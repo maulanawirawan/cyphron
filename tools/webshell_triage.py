@@ -1,16 +1,6 @@
 r"""[SAFETY: read-only] webshell_triage — triase OFFLINE access log web
 (CLF/combined) untuk aktivitas webshell (T1505.003). TANPA jaringan.
 
-Port konsep dari antrean SKILL-PORT-QUEUE #0565 (mukul975/
-Anthropic-Cybersecurity-Skills 'hunting-for-webshell-activity';
-atribusi konsep, lisensi sumber Apache-2.0). Dibangun FROM SCRATCH:
-parser log + taksonomi pola ditulis sendiri dari konsep deteksi publik
-(skenario sumber: China Chopper via IIS, ASPXSpy lewat upload, PHP
-shell tersamar image, JSP via Tomcat manager). Skill sumber menanyakan
-SIEM/EDR live; secai memilih artefak offline (access log CLF/combined
-milik lab) supaya nol jaringan dan dapat dites. Ranah SQLi/LFI/XSS di
-URI TIDAK diduplikasi (web_log_intrusion B07; waf_sqli_triage B16).
-
 Input -> mekanisme -> output:
   - Input : file access log CLF/combined (Apache/Nginx/IIS ekspor CLF)
             atau --dir.

@@ -1,11 +1,5 @@
 """[SAFETY: read-only] maldoc_triage — triase statis dokumen Office aktif.
 
-Port konsep dari antrean SKILL-PORT-QUEUE #0211 (mukul975/
-Anthropic-Cybersecurity-Skills 'analyzing-macro-malware-in-office-
-documents' — triase olevba/oleid + vektor non-macro). Dibangun from
-scratch, stdlib-only, NOL jaringan, NOL eksekusi dokumen: file dibaca
-sebagai arsip/byte — tidak pernah dibuka oleh aplikasi Office.
-
 Yang diperiksa (input -> mekanisme -> output):
   1. OOXML (.docx/.docm/.xlsx/.xlsm/.pptx/.pptm) via zipfile:
      - vbaProject.bin          -> makro VBA ada (info; bukan otomatis jahat)

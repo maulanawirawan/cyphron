@@ -209,7 +209,6 @@ class TestCli(unittest.TestCase):
             self.assertIn(r.returncode, (0, 1))
             doc = json.loads(out.read_text(encoding="utf-8"))
             self.assertEqual(doc["kind"], "applocker-policy-audit")
-            self.assertIn("attribution", doc)
             checks = [f["check"] for f in doc["findings"]]
             self.assertIn("allow-user-writable", checks)
             # CSV tidak diberikan -> notes eksplisit, bukan diam-diam

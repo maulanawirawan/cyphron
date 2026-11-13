@@ -5,18 +5,6 @@ Winlogon helper (T1547.004), IFEO Debugger (T1546.012), AppInit_DLLs
 (T1546.010), COM InprocServer32 (T1546.015), folder Startup (T1547.001),
 scheduled task (T1053.005), service install (T1543.003). TANPA jaringan.
 
-Port konsep dari antrean SKILL-PORT-QUEUE #0551 + #0554 + #0555 +
-#0556 + #0559 + #0561 (mukul975/Anthropic-Cybersecurity-Skills
-'hunting-for-persistence-mechanisms-in-windows', 'hunting-for-registry-
-persistence-mechanisms', 'hunting-for-registry-run-key-persistence',
-'hunting-for-scheduled-task-persistence', 'hunting-for-startup-folder-
-persistence', 'hunting-for-suspicious-scheduled-tasks'; atribusi
-konsep, lisensi sumber Apache-2.0). Dibangun FROM SCRATCH: parser XML +
-taksonomi lokasi persistensi ditulis sendiri dari konsep deteksi publik
-(path autostart terdokumentasi, event ID Sysmon/Windows). Skill sumber
-menanyakan SIEM/EDR live; secai memilih artefak offline (ekspor XML
-Event Viewer/wevtutil) supaya nol jaringan dan dapat dites.
-
 Pembagian ranah (TIDAK diduplikasi):
   - WMI subscription EID 19/20/21 -> sysmon_triage (B16, #0466-#0471)
   - schtasks /create di cmdline -> lolbin_scan (B15, #0428-#0431)

@@ -4,21 +4,6 @@ Admission (PSA) pada manifest Namespace + AdmissionConfiguration
 yang TIDAK sedang dienforce / salah konfigurasi" sebelum apply / dari
 repo GitOps.
 
-Mengisi antrean port dari mukul975/Anthropic-Cybersecurity-Skills
-'skills/implementing-pod-security-admission-controller' (#0683 — label
-enforce/audit/warn, versi pinned, cluster default AdmissionConfiguration,
-exemptions; atribusi konsep, lisensi sumber Apache-2.0). Dibangun FROM
-SCRATCH TANPA kode sumber itu: aturan cek ditulis dari semantik publik
-PSA (kubernetes.io/docs/concepts/security/pod-security-admission).
-Skill sumber = runbook kubectl/cluster (label namespace, dry-run
-server, baca events); tool ini memilih sisi statis: TIDAK menjalankan
-kubectl dan TIDAK menyentuh cluster. Ranah tool tetangga ditulis
-eksplisit: spec pod vs profil PSS (Restricted/Baseline) = k8s_podsec_audit
-(B22 — B22 mencatat label PSA namespace sebagai "pemeriksaan cluster",
-padahal sisi manifest GitOps-nya statis: gap inilah yang diisi tool ini);
-RBAC manifest = k8s_rbac_audit; NetworkPolicy = netpol_audit (B23);
-log API server saat JALAN = k8s_audit_triage.
-
 Input -> mekanisme -> output:
   - Input   : --source FILE/DIR (YAML subset atau JSON, pola loader
               k8s_rbac_audit.parse_documents) + --min-enforce (level

@@ -1,12 +1,7 @@
 """[SAFETY: read-only] canary_alert_triage — triase OFFLINE alert
 Canarytoken (thinkst) dari file .eml alert atau JSON webhook, menjadi
-temuan terstruktur untuk ditindaklanjuti (siapa, di mana, kapan, via apa).
-
-Konsep setara entri "Canary Tokens" di A-poc/BlueTeam-Tools (katalog
-referensi blue team; canarytoken sebagai umpan deteksi) — versi triase
-lokal: kode ini ditulis from scratch, stdlib-only, NOL jaringan: input =
-file alert hasil ekspor mailbox/webhook milik sendiri, TIDAK menghubungi
-canarytokens.org.
+temuan terstruktur untuk ditindaklanjuti (siapa, di mana, kapan, via
+apa).
 
 Format input yang dikenali:
   - .eml alert canarytoken (multipart/plain; URL alert asli dipertahankan

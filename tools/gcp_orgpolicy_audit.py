@@ -3,17 +3,6 @@ Organization Policy GCP dari ekspor JSON gcloud: constraint keamanan
 esensial yang hilang, dry-run, lemah (enforced=false / allValues=ALLOW /
 restoreDefault), dan pengecualian listPolicy.
 
-Mengisi antrean port SKILL-PORT-QUEUE #0629 (mukul975/
-Anthropic-Cybersecurity-Skills 'implementing-gcp-organization-policy-
-constraints'; atribusi konsep, lisensi sumber Apache-2.0). Dibangun
-FROM SCRATCH: model ekspektasi constraint ditulis sendiri dari tabel
-"Recommended Baseline Policies" publik di skill sumber. Tidak menyalin
-kode sumber; gcloud/policy-intelligence tidak dipakai — inputnya ekspor
-JSON baca-saja:
-  gcloud org-policies list --organization=ORG_ID --format=json
-  gcloud resource-manager org-policies list --organization=ORG_ID \
-      --format=json
-
 Ranah: org/folder/project POLICY guardrail — berbeda dari firewall
 rules VPC (gcp_fw_audit, #0630) dan IAM escalation (iam_escalation_scan,
 B13); tidak diduplikasi.

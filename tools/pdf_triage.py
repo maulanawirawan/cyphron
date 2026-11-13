@@ -1,11 +1,5 @@
 """[SAFETY: read-only] pdf_triage — triase statis PDF berbahaya.
 
-Port konsep dari antrean SKILL-PORT-QUEUE #0212 (mukul975/
-Anthropic-Cybersecurity-Skills 'analyzing-malicious-pdf-with-peepdf'
-— pdfid/pdf-parser/peepdf). Dibangun from scratch, stdlib-only,
-NOL jaringan, NOL pembuka PDF: file hanya dibaca sebagai byte +
-dekompresi stream FlateDecode (zlib) untuk memindai isi terkompresi.
-
 Mekanisme (pola hitung keyword ala pdfid + isi stream ala pdf-parser):
   - hitung keyword aktif: /JavaScript /JS /OpenAction /AA /Launch
     /EmbeddedFile /URI /RichMedia /SubmitForm /GoToE /XFA /AcroForm

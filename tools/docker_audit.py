@@ -2,18 +2,6 @@ r"""[SAFETY: read-only] docker_audit — audit OFFLINE konfigurasi Docker
 (Dockerfile, daemon.json, docker-compose.yml) terhadap kontrol hardening
 kelas CIS Docker Benchmark. TANPA jaringan, TANPA docker daemon.
 
-Port konsep dari antrean SKILL-PORT-QUEUE #0526 + #0527 (mukul975/
-Anthropic-Cybersecurity-Skills 'hardening-docker-containers-for-
-production', 'hardening-docker-daemon-configuration'; atribusi konsep,
-lisensi sumber Apache-2.0). Dibangun FROM SCRATCH: daftar cek ditulis
-sendiri dari kontrol hardening publik (non-root, pin digest, tanpa
-secret di ENV, daemon icc/live-restore/log, compose privileged).
-Skill sumber = runbook live (docker-bench/Hadolint/Dockle + docker
-runtime); secai memilih audit statis file konfigurasi supaya nol
-jaringan dan dapat dites. Ranah: audit konfigurasi SAAT-DEPLOY; audit
-runtime image teramati (drift T1611) = ranah deteksi runtime (METHODS
-seksi 51), bukan tool ini.
-
 Input -> mekanisme -> output:
   - Input : --dockerfile, --daemon (daemon.json), --compose (yml) —
             minimal satu. Multi-stage Dockerfile dipahami (stage =

@@ -1,19 +1,8 @@
-r"""[SAFETY: read-only] jwt_token_audit — audit OFFLINE konten token
-JWT (header + claims) yang diambil dari bukti triase: vektor header
+r"""[SAFETY: read-only] jwt_token_audit — audit OFFLINE konten token JWT
+(header + claims) yang diambil dari bukti triase: vektor header
 (alg=none beserta variannya, jku/x5u eksternal, jwk inline, kid
-injection) dan higiene klaim (exp hilang, exp mati, umur panjang).
-TANPA jaringan, TANPA verifikasi signature (butuh kunci/JWKS — live
-ops).
-
-Port konsep dari antrean SKILL-PORT-QUEUE #0498 (mukul975/Anthropic-
-Cybersecurity-Skills 'exploiting-jwt-algorithm-confusion-attack' —
-alg confusion RS256->HS256, varian alg:none, injeksi kid/jku/x5u;
-atribusi konsep, lisensi sumber Apache-2.0). Dibangun FROM SCRATCH:
-dekoder base64url + aturan cek ditulis sendiri; skill sumber
-MENGEKSPLOITASI token live (PyJWT/cryptography/jwt_tool, forge token),
-secai hanya MENILAI konten token yang sudah ada di bukti (read-only,
-tanpa forge). Sisi eksekusi live dilayani JwtAlgConfusionPlaybook +
-JwtWeakSecretPlaybook di tools/exploit_playbooks.py.
+injection) dan higiene klaim (exp hilang, exp mati, umur panjang). TANPA
+jaringan, TANPA verifikasi signature (butuh kunci/JWKS — live ops).
 
 Input -> mekanisme -> output:
   - Input : --tokens FILE (satu token per baris, token = segmen

@@ -1,17 +1,7 @@
 r"""[SAFETY: read-only] pcap_triage — triase forensik OFFLINE file pcap
 klasik (Ethernet/RawIP/Linux-SLL): protokol, percakapan, top talker,
-kueri DNS, permintaan HTTP, kredensial cleartext (FTP/HTTP Basic),
-SNI TLS, kandidat beacon & port scan. TANPA jaringan.
-
-Mengisi antrean port SKILL-PORT-QUEUE #0855 + #0856 + #0857
-(mukul975/Anthropic-Cybersecurity-Skills 'performing-network-forensics-
-with-wireshark', 'performing-network-packet-capture-analysis',
-'performing-network-traffic-analysis-with-tshark'; atribusi konsep,
-lisensi sumber Apache-2.0). Skill sumber mengandalkan Wireshark/tshark/
-scapy — alat pihak ketiga; inti deterministik yang diekstrak di sini =
-parser pcap + statistik + deteksi pola dari scratch (spesifikasi publik
-libpcap/IPv4/TCP/UDP/DNS/HTTP; TIDAK menyalin kode sumber skill dan
-TIDAK memakai scapy/pyshark).
+kueri DNS, permintaan HTTP, kredensial cleartext (FTP/HTTP Basic), SNI
+TLS, kandidat beacon & port scan. TANPA jaringan.
 
 Pembagian ranah (TIDAK diduplikasi):
   - frame ARP poisoning -> arp_pcap_scan; deauth 802.11 ->

@@ -2,7 +2,7 @@
 (#0541), nol jaringan.
 
 Fixture = ekspor Windows Security XML sintetis (4662) sesuai spesifikasi
-konsep sumber: GUID replikasi DS-Replication-Get-Changes[-All] +
+spesifikasi internal: GUID replikasi DS-Replication-Get-Changes[-All] +
 AccessMask 0x100 dari akun non-DC, saringan akun mesin, allowlist
 principal replikasi sah, korelasi IP DC. Ranah 4768/4769 (Kerberos)
 sengaja TIDAK disentuh (kerberos_log_triage B14) — diuji sebagai

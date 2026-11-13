@@ -1,24 +1,8 @@
-r"""[SAFETY: read-only] oauth_grant_audit — audit OFFLINE inventaris
-OAuth grant/scope pihak ketiga (ekspor Microsoft Graph
-oauth2PermissionGrants / daftar grant generik): klasifikasi risiko scope,
-konsen admin-tenant, izin application (all-user), bandingkan dgn katalog
-approved -> temuan over-permission. TANPA jaringan.
-
-Mengisi antrean port SKILL-PORT-QUEUE #0860 (mukul975/
-Anthropic-Cybersecurity-Skills 'performing-oauth-scope-minimization-
-review'; atribusi konsep, lisensi sumber Apache-2.0). Skill sumber
-menghimpun inventaris via Graph API LIVE; inti deterministik yang
-diekstrak di sini = ANALISIS inventaris yang sudah diekspor:
-klasifikasi risiko scope, agregasi skor per aplikasi, diff vs katalog
-approved — from scratch (tabel klasifikasi konsep ditulis ulang, bukan
-salinan kode).
-
-Pembagian ranah (TIDAK diduplikasi):
-  - validasi struktur token JWT -> jwt_token_audit
-  - eskalasi role AWS/IAM -> iam_escalation_scan
-  - enum grant LIVE via Graph API = sisi jaringan skill sumber (tidak
-    diport — ekspor JSON dulu di lab, lalu audit di sini)
-  - di sini: analisis inventaris grant offline.
+r"""[SAFETY: read-only] oauth_grant_audit — audit OFFLINE inventaris OAuth
+grant/scope pihak ketiga (ekspor Microsoft Graph oauth2PermissionGrants
+/ daftar grant generik): klasifikasi risiko scope, konsen admin-tenant,
+izin application (all-user), bandingkan dgn katalog approved -> temuan
+over-permission. TANPA jaringan.
 
 Input -> mekanisme -> output:
   - Input : --grants JSON, dua bentuk dikenali per-entri:
@@ -412,7 +396,7 @@ def main(argv: "list[str] | None" = None) -> int:
 
     notes = [
         "analisis inventaris yang SUDAH diekspor — enum LIVE via Graph "
-        "API tidak diport (sisi jaringan skill sumber); ekspor dulu di "
+        "API tidak diport (sisi jaringan acuan internal); ekspor dulu di "
         "lab, audit di sini.",
         "deteksi GRANT STALE (tanpa aktivitas API 90 hari) butuh log "
         "sign-in servicePrincipal yang tidak ada di inventaris ini — "

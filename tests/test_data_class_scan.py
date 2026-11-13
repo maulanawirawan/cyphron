@@ -186,7 +186,6 @@ class TestCli(unittest.TestCase):
             self.assertEqual(r.returncode, 1)
             doc = json.loads(out.read_text(encoding="utf-8"))
             self.assertEqual(doc["kind"], "data-classification-scan")
-            self.assertIn("attribution", doc)
             text_all = json.dumps(doc)
             # nilai penuh TIDAK boleh tampil di laporan (masking)
             self.assertNotIn(_AWS_AK, text_all)

@@ -1,11 +1,4 @@
-"""[SAFETY: read-only] capture_triage — triase OFFLINE capture browser
-format HAR (HTTP Archive, ekspor DevTools/proxy berizin), gaya lookyloo:
-rekonstruksi rantai redirect + inventaris pihak ketiga, TANPA fetch
-ulang — semua penilaian dari data capture yang sudah ada.
-
-Port konsep dari lookyloo (penelusuran capture web pasif) — dibangun
-from scratch, stdlib-only, NOL jaringan: HAR dibaca sebagai JSON; TIDAK
-ada request keluar.
+"""Triase OFFLINE (stdlib-only, NOL jaringan).
 
 Sinyal per capture (semua deterministik dari data):
   - redirect-chain    : >= 3 hop redirect dari halaman pertama

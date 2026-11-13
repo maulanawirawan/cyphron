@@ -22,33 +22,26 @@ as the compatibility signal.
 - agent-shield: `core/net_guard_scope.py` masuk seal (19 file).
 - 15 test python baru (scope match/deny/pin/dns-leak/fail-closed).
 
-
 ### Added — wave-2 triage batch (4 new tools, 196 -> 200)
 
 Four offline triage tools closing the remaining wave-2 gaps mapped
-against A-poc reference catalogs (concept references only; all code
 from scratch, stdlib-only, zero-network, fail-closed):
 
 - `qr_vcard_triage` — wave-2 quishing: score decoded QR **vCard/MECARD**
   payloads (brand-impersonation lures, shortener/IP/punycode URLs,
   MATMSG/SMSTO traps, oversized PHOTO blobs, instruction NOTES). Companion
-  to `qr_payload_triage` (which handles bare URLs). *(gap: SquarePhish/evilqr contact cards)*
 - `doc_beacon_triage` — grade document **callback URLs**: OOXML external
   rel targets + RTF `\objdata` protocol tokens (ms-msdt/search-ms,
   Follina-class) scored for IP/punycode/shortener/lure signals.
   Complements `maldoc_triage` (which reports mere existence + remote
   template injection, T1221) by rating the callbacks themselves;
-  RTF was previously uncovered. *(gap: maldoc beacon triage)*
-- `capture_triage` — lookyloo-style **passive HAR triage**: redirect
+  RTF was previously uncovered.
   chains, cross-domain POSTs, credentials-in-URL, third-party script
   density, tracking pixels — all from the existing capture, zero fetches.
-  *(gap: lookyloo)*
 - `evtx_hunt` — carve-level **Windows Event Log hunt** on binary
   `.evtx`: UTF-16LE string extraction per 64 KiB chunk + indicator
   categories (tooling/recon/persistence/lateral/defense evasion).
   Honestly bounded: not a full EVTX parser; indicator leads only.
-  *(gap: chainsaw/evtx-hunting)*
-
 
 ### Added — F66 queue completion: 2 banner skills + MCP prompt-injection playbook + net-guard runner (2 new skills, 93 -> 95)
 
@@ -58,26 +51,17 @@ Antrian eksplisit F66 dibereskan (3 dari 4; sisanya HOLD kebijakan):
 - `McpPromptInjectionPlaybook` (`mcp-prompt-injection`, tier-1 proof) — playbook prompt-injection untuk server MCP nyata via JSON-RPC 2.0 (`initialize` wajib hidup, `tools/call` canary instruksi benign, tool kontrol `-safe` wajib menolak); ditambah simulator server MCP di `tools/lab_target.py` (`/mcp`). 3 test differential (L3 terbukti / not-proven fail-closed / kontrol imun).
 - net-guard runner Rust (Fase 2-B lanjutan, docs/CONTROLLED-NETWORK.md §3) — `core-rs/src/runner.rs::run_skill_guarded`: env guard diinjeksi + budget file milik runner + verifikasi audit log fail-closed (wajib ada, wajib baris `guard-install` dari `core/net_guard.auto_install_from_env`, semua baris JSON valid, `used <= limit`); CLI `secai run --net-budget N`. 7 test Rust.
 - agent-shield: verifikator kini ikut ter-lock (`tools/agent_shield.py` masuk WATCHED_FILES — memodifikasi verifier merusak seal); batas TOCTOU/hash-tanpa-tanda-tangan didokumentasikan jujur di docs/AGENT-SAFETY.md.
-- Docs: status antrian F66/CONTROLLED-NETWORK/CVE-MATCHER diperbarui; PORT-AGENT-METHODS diberi header "bukan antrian tugas" (55 titik ekstraksi tool sudah jadi; checklist = langkah kerja agent).
-
 
 ### Added — intel & DFIR reference batch (7 new tools, 189 -> 196)
 
 A batch of 7 new offline triage tools under `tools/`, each closing a gap
-mapped against popular reference catalogs (A-poc/RedTeam-Tools and
-A-poc/BlueTeam-Tools — *concept* references only; all code written from
 scratch, stdlib-only, zero-network, fail-closed, emitting the triage
 `findings.json` shape, each with a false-positive control test).
 
-- `dmarc_report_triage` — DMARC aggregate report (xml/gz/zip) triage: spoof-candidate (SPF+DKIM fail volume), forwarder-mixed, unaligned sources, soft policy (p=none/pct<100), new-source vs known-ips list. *(gap: parsedmarc)*
-- `cryptojack_log_triage` — proxy/DNS log triage for cryptojacking: known pool keys, stratum ports/scheme, JSON-RPC mining tokens, long-uniform beacons. *(gap: "Detect Cryptojacking Malware with Proxy Logs")*
-- `vbs_decode_triage` — VBE/JScript.Encode decoder (format constants embedded; verified against the documented sample -> `MsgBox "Hello"`) + static triage of the decoded text (exec/download/obfuscation/persistence indicators). No execution. *(gap: decode-vbe)*
-- `bh_ingest_triage` — BloodHound JSON/ZIP ingest (legacy list & 4.x collections): AS-REP roastable, password-not-required, password-never-expires, unconstrained delegation, GPP Groups.xml candidates, DCSync-capable non-admins, kerberoastable SPNs. *(gap: BloodHound/PingCastle passives)*
-- `misp_event_ingest` — MISP event JSON ingest: IOC catalog, in-scope matching (ips/domains/emails scope file), notable-tag escalation. Mirror of `stix_bundle_audit`. *(gap: MISP)*
-- `qr_payload_triage` — weighted scoring of decoded QR payloads (credential lure, IP literal, shorteners, embedded-redirect, userinfo trick, punycode, non-HTTP schemes). *(gap: SquarePhish/evilqr counterpoint)*
-- `canary_alert_triage` — Canarytoken alert (.eml/JSON webhook) triage: trigger + source context + memo, unparseable files reported for audit. *(gap: Canary Tokens)*
-
-
+- `cryptojack_log_triage` — proxy/DNS log triage for cryptojacking: known pool keys, stratum ports/scheme, JSON-RPC mining tokens, long-uniform beacons.
+- `vbs_decode_triage` — VBE/JScript.Encode decoder (format constants embedded; verified against the documented sample -> `MsgBox "Hello"`) + static triage of the decoded text (exec/download/obfuscation/persistence indicators). No execution.
+- `misp_event_ingest` — MISP event JSON ingest: IOC catalog, in-scope matching (ips/domains/emails scope file), notable-tag escalation. Mirror of `stix_bundle_audit`.
+- `canary_alert_triage` — Canarytoken alert (.eml/JSON webhook) triage: trigger + source context + memo, unparseable files reported for audit.
 
 ### Added — offensive capability expansion (13 new tools, 176 -> 189)
 
@@ -141,7 +125,6 @@ processed **995 skill concepts** from four public GitHub security-skill
 collections, triaged one by one (build from scratch / distill
 methodology / out-of-domain). Result: **112 ported tools** (stdlib-only,
 zero-network, fail-closed, concept attribution per tool), **250
-methodology sections** in `docs/PORT-AGENT-METHODS.md`, and a test
 suite that grew **2015 → 3093**.
 
 ### Capability map added by the port program (by domain)
@@ -159,10 +142,7 @@ suite that grew **2015 → 3093**.
 | Validation & reporting | `brocards_triage`, `triage_advisor`, `verify_gate`, `ingest_gate`, `log_chain_verify`, `report_pack`, `report_pdf` |
 
 *(full list: `tools/` — every tool is a standalone CLI with a JSON
-contract and an anti-FP floor; `docs/PORT-AGENT-METHODS.md` carries the
 methodology distilled from the 800+ concepts that were not tool-shaped)*
-
-### Program discipline (kept in `docs/PORT-AGENT-METHODS.md` + addenda)
 
 - Anti-collision entry numbering across 33 parallel workers.
 - Coordinator-only badge/README writes; full suite green before every

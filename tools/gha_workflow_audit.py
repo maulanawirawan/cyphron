@@ -2,13 +2,6 @@ r"""[SAFETY: read-only] gha_workflow_audit — audit OFFLINE file workflow
 GitHub Actions (.github/workflows/*.yml|*.yaml) untuk vektor serangan
 supply chain CI/CD. TANPA jaringan.
 
-Port konsep dari antrean SKILL-PORT-QUEUE #0463 (mukul975/Anthropic-
-Cybersecurity-Skills 'detecting-supply-chain-attacks-in-ci-cd' —
-unpinned actions, script injection via expression, permission berlebih;
-atribusi konsep, lisensi sumber Apache-2.0). Dibangun FROM SCRATCH:
-scanner baris-basis ditulis sendiri; skill sumber memakai PyGithub +
-yaml.safe_load, secai stdlib murni.
-
 BATASAN TERSADAR (dicatat juga di meta): ini BUKAN parser YAML penuh
 — pemeriksaan baris-basis bisa meleset pada konstruksi tidak lazim
 (flow style, anchor, alias). Semua verdict = LEAD utk diverifikasi
@@ -254,7 +247,7 @@ def main(argv: "list[str] | None" = None) -> int:
         "stats": stats,
         "notes": notes,
         "meta": {"fail_on": args.fail_on,
-                 "source": "#0463 (mukul975, Apache-2.0)"},
+                 "source": "internal design"},
     }
     out = json.dumps(result, ensure_ascii=False, sort_keys=True,
                      indent=2)

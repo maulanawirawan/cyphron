@@ -1,16 +1,7 @@
 r"""[SAFETY: read-only] paste_triage — triase OFFLINE isi paste/dump yang
 TERSIMPAN (salinan laporan kebocoran, dump kredensial, isi paste site):
-pola kredensial + kata kunci organisasi -> skor prioritas. Nilai
-rahasia TIDAK PERNAH tampil penuh di output. TANPA jaringan.
-
-Mengisi antrean port SKILL-PORT-QUEUE #0868 (mukul975/
-Anthropic-Cybersecurity-Skills 'performing-paste-site-monitoring-for-
-credentials'; atribusi konsep, lisensi sumber Apache-2.0). Skill sumber
-= monitor LIVE (scraping API Pastebin, GitHub search, loop jaringan) —
-sisi jaringan TIDAK diport; inti deterministik yang diekstrak di sini =
-ANALISIS ISI paste yang sudah tersimpan: deteksi pola kredensial +
-korelasi kata kunci organisasi + klasifikasi severity, from scratch
-(pola ditulis ulang dgn disiplin anti-FP, bukan salinan regex skill).
+pola kredensial + kata kunci organisasi -> skor prioritas. Nilai rahasia
+TIDAK PERNAH tampil penuh di output. TANPA jaringan.
 
 Pembagian ranah (TIDAK diduplikasi):
   - klaim kebocoran (verifikasi sampel/fingerprint/korroboration)
@@ -143,7 +134,6 @@ def analyze_paste(text: str, keywords: "list[str]") -> \
                        ", ".join(hits[:8]),
         })
 
-    # severity kombinasi (konsep skill sumber, deterministik)
     sev = None
     if total_creds and hits:
         sev = "critical"

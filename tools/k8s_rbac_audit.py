@@ -1,15 +1,6 @@
 """[AUDIT: read-only] k8s_rbac_audit — audit OFFLINE manifest RBAC
 Kubernetes: hak berlebih, jalur eskalasi, binding berbahaya.
 
-Mengisi antrean port dari mukul975/Anthropic-Cybersecurity-Skills
-'skills/auditing-kubernetes-cluster-rbac' (#0267) — dan menghitung
-juga kelas "siapa bisa eskalasi" dari 'auditing-kubernetes-rbac-
-privilege-escalation' (#0268) (atribusi ide; lisensi sumber Apache-2.0).
-Dibangun from scratch TANPA kode sumber itu. TIDAK menjalankan kubectl
-dan TIDAK menyentuh cluster: input = manifest RBAC lokal (YAML subset
-atau JSON `kubectl get ... -o json`) — audit statis sebelum apply /
-dari repo GitOps; pemeriksaan live-cluster tetap milik kubectl/who-can.
-
 Kelas temuan (deterministik, zero-FP — hanya bentuk eksplisit):
   wildcard-all      verbs ["*"] + resources ["*"] (critical)
   wildcard-verbs    verbs ["*"] saja (high)

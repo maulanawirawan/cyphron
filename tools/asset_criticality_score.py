@@ -2,15 +2,6 @@ r"""[AUDIT: read-only] asset_criticality_score — model skor kritikalitas
 aset multi-faktor (6 faktor 1-5 -> skor tertimbang -> tier 1-5 ->
 modifier SLA remediasi kerentanan) + join opsional ke daftar vuln.
 
-Mengisi antrean port dari mukul975/Anthropic-Cybersecurity-Skills
-'skills/performing-asset-criticality-scoring-for-vulns' (antrean
-SKILL-PORT-QUEUE #0773 — model 6 faktor: business function, data
-sensitivity, regulatory scope, network exposure, recoverability, user
-population; tabel tier + modifier SLA per tier; atribusi konsep,
-lisensi sumber Apache-2.0). Dibangun FROM SCRATCH TANPA kode sumber itu
-dan TANPA pandas (stdlib): inti deterministiknya adalah ARITMETIKA
-penimbangan + tabel tier + modifier SLA — bukan CMDB-nya.
-
 Ranah tool tetangga ditulis eksplisit:
   - vuln_sla_aging : aging/status temuan + eskalasi + KPI dgn kebijakan
     SLA flat per severity (modifier tunggal internet-facing + KEV);

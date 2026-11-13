@@ -1,15 +1,6 @@
-r"""[AUDIT: read-only] stix_bundle_audit — validasi OFFLINE bundle STIX
-2.1 (struktur, tata bahasa ID, properti wajib, integritas referensi,
-pola indikator) + ekstraksi tabel IOC datar untuk triase secai.
-
-Mengisi antrean port dari mukul975/Anthropic-Cybersecurity-Skills
-'skills/implementing-security-information-sharing-with-stix2' (#0703 —
-atribusi konsep; lisensi sumber Apache-2.0). Dibangun FROM SCRATCH
-TANPA library stix2 (repo stdlib-first): validasi memakai stdlib
-json/uuid/datetime; pola indikator di-parse MINIMALISTIK (grup [
-... ], object:prop = 'nilai' / MATCHES / LIKE) — bukan parser STIX
-Patterning penuh; pola yang gagal di-parse MINIMALISTIK tetap
-dicatat, tidak dibuang diam-diam.
+r"""[AUDIT: read-only] stix_bundle_audit — validasi OFFLINE bundle STIX 2.1
+(struktur, tata bahasa ID, properti wajib, integritas referensi, pola
+indikator) + ekstraksi tabel IOC datar untuk triase secai.
 
 Sisi yang TIDAK diport (eksplisit): TAXII 2.1 transport/poll/push
 (jaringan + API key) dan server Medallion/OpenTAXII (deployment) =

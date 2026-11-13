@@ -1,20 +1,6 @@
 r"""[SAFETY: read-only] data_class_scan — klasifikasi OFFLINE data sensitif
-(PII/finansial/kredensial) di file teks lokal ala custom data identifier.
-TANPA jaringan, tanpa S3, tanpa ML.
-
-Port konsep dari antrean SKILL-PORT-QUEUE #0585 (mukul975/
-Anthropic-Cybersecurity-Skills 'implementing-aws-macie-for-data-
-classification'; atribusi konsep, lisensi sumber Apache-2.0). Dibangun
-FROM SCRATCH: detektor + Luhn + ladder severity ditulis sendiri dari
-konsep Macie publik (custom data identifier: regex + keywords +
-maximum-match-distance + severity-levels per occurrencesThreshold;
-allow list utk FP). Skill sumber menjalankan Macie di S3 via boto3;
-secai memindai FILE LOKAL (log/CSV/JSON/HTML lab) — kategori sama
-(PII, finansial, kredensial), sumber berbeda. Ranah TIDAK diduplikasi:
-secret_history_scan/zeroize_scan/js_secret_scanner_v2 mengejar KREDENSIAL
-di tempat spesifik (git history, memori C/C++, evidence JS) — tool ini
-klasifikasi ISI file umum, termasuk PII yang bukan kredensial (SSN,
-kartu kredit, email).
+(PII/finansial/kredensial) di file teks lokal ala custom data
+identifier. TANPA jaringan, tanpa S3, tanpa ML.
 
 Input -> mekanisme -> output:
   - Input : file/direktori teks (utf-8; file biner dilewati dgn note);
@@ -311,9 +297,6 @@ def main(argv: "list[str] | None" = None) -> int:
 
     report = {
         "kind": "data-classification-scan",
-        "attribution": "konsep #0585 mukul975/implementing-aws-macie-for-"
-                       "data-classification (Apache-2.0) — dibangun from "
-                       "scratch; kategori PII/finansial/kredensial, tanpa ML",
         "findings": findings,
         "summary": summary,
         "notes": notes,

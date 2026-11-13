@@ -1,9 +1,5 @@
-"""[DEFEND] diff_risk_scan — pindai git diff utk perubahan berisiko keamanan.
-
-Konsep antrean SKILL-PORT-QUEUE #0026 'differential-review' dari
-trailofbits/skills (CC-BY-SA-4.0, atribusi); dibangun from scratch —
-heuristik ditulis sendiri dari kelas perubahan yang terbukti sering
-menyusupkan kerentanan. Lisensi secai: PolyForm NC.
+"""[DEFEND] diff_risk_scan — pindai git diff utk perubahan berisiko
+keamanan.
 
 Input: git diff (unified) dari file ATAU dari git repo via --git-range
 (mis. HEAD~3..HEAD). Read-only, NOL jaringan (subprocess git lokal saja

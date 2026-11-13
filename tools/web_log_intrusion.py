@@ -1,13 +1,5 @@
-"""[DEFEND: read-only] web_log_intrusion — analisis offline access log
-web untuk jejak upaya intrusi.
-
-Mengisi antrean port dari mukul975/Anthropic-Cybersecurity-Skills
-'skills/analyzing-web-server-logs-for-intrusion' (antrean SKILL-PORT-
-QUEUE #0251; atribusi ide, lisensi sumber Apache-2.0). Dibangun from
-scratch TANPA kode sumber itu: parser Combined/Common Log Format +
-aturan signature ditulis sendiri dari kelas serangan publik (SQLi/
-LFI/traversal/XSS/UA scanner/brute force). Tanpa GeoIP — atribusi
-geografis bukan bukti dan menambah dependensi; IP dicatat mentah.
+"""[DEFEND: read-only] web_log_intrusion — analisis offline access log web
+untuk jejak upaya intrusi.
 
 Read-only, NOL jaringan: baca SATU file log lokal, keluarkan temuan
 sebagai LEAD ("upaya teramati di log" — bukan klaim kompromi). Ini

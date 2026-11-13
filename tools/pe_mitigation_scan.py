@@ -1,18 +1,6 @@
 """[SAFETY: read-only] pe_mitigation_scan — verifikasi mitigasi biner
 Windows (DEP/ASLR/CFG/SEH) dari header PE.
 
-Mengisi antrean port SKILL-PORT-QUEUE #0131 (sumber SnailSploit/
-Claude-Red skill 'offensive-windows-mitigations'; atribusi ide). Skill
-sumber mengajarkan: SEBELUM uji eksploitasi, verifikasi dulu mitigasi
-per-biner (padanan dumpbin: "NX compatible", "Dynamic base", "High
-Entropy Virtual Addresses", "Guard: CF"). Tool ini menyediakan
-sisi defensifnya: memeriksa apakah biner memang dikompilasi dengan
-mitigasi yang diklaim — berguna untuk (a) memastikan target lab
-benar-benar menguji jalur bypass, (b) inventaris perangkat lunak yang
-belum di-hardening. Ditulis from scratch dari spesifikasi publik
-PE/COFF Microsoft (PE Format, winnt.h IMAGE_OPTIONAL_HEADER) — TANPA
-menyalin kode dari repo sumber. Lisensi secai: PolyForm NC.
-
 Yang dicek (bit DllCharacteristics, offset 70 optional header — sama
 untuk PE32 dan PE32+):
   - DEP   : 0x0100 IMAGE_DLLCHARACTERISTICS_NX_COMPAT

@@ -1,11 +1,6 @@
 """[SAFETY: read-only] misp_event_ingest — ingest OFFLINE event JSON MISP
 (menuju triase IOC) lalu cocokkan ke file scope milik sendiri.
 
-Konsep setara entri "MISP" di A-poc/BlueTeam-Tools (katalog referensi
-blue team; platform sharing threat intel) — versi ingest lokal: kode ini
-ditulis from scratch, stdlib-only, NOL jaringan: input = file event JSON
-MISP hasil export milik sendiri/berizin, TIDAK menghubungi instance MISP.
-
 Format input yang dikenali:
   - JSON Event MISP export ({"Event": {..., "Attribute": [...]}}) atau
     object event langsung; .json / .json.gz diterima.

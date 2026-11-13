@@ -1,4 +1,5 @@
-"""Test linux_cis_audit (#0528) — nol jaringan, fixture konfigurasi inline."""
+"""Test linux_cis_audit (#0528) — nol jaringan, fixture konfigurasi inline.
+"""
 
 import json
 import sys
@@ -11,7 +12,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 import linux_cis_audit as lca
 
 GOOD_SSHD = """\
-# sshd hardening acuan skill sumber 5.2
+# sshd hardening — acuan CIS 5.2
 PermitRootLogin no
 PasswordAuthentication no
 PermitEmptyPasswords no

@@ -1,12 +1,6 @@
 """[AUDIT: read-only] vuln_sla_aging — mesin aging + SLA remediasi
 kerentanan (severity -> tenggat, umur, status overdue, eskalasi, KPI).
 
-Mengisi antrean port dari mukul975/Anthropic-Cybersecurity-Skills
-'skills/building-vulnerability-aging-and-sla-tracking' (antrean
-SKILL-PORT-QUEUE #0307; atribusi ide, lisensi sumber Apache-2.0).
-Dibangun from scratch TANPA kode sumber itu dan TANPA pandas (stdlib):
-inti deterministiknya adalah ARITMETIKA SLA — bukan dashboard-nya.
-
 Konsep yang diekstrak (deterministik, tanpa jaringan):
   - kebijakan SLA per severity (default: critical 14, high 30,
     medium 60, low 90 hari; info = tanpa SLA);

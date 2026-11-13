@@ -5,17 +5,6 @@ Android, untuk permukaan deep link (custom scheme hijackable, App Link
 verification) dan postur penyimpanan/konfigurasi (allowBackup,
 debuggable, cleartext). TANPA jaringan.
 
-Port konsep dari antrean SKILL-PORT-QUEUE #0491 (mukul975/Anthropic-
-Cybersecurity-Skills 'exploiting-deeplink-vulnerabilities' — enumerasi
-intent-filter/deep link, App Link/Universal Link verification, intent
-hijacking) dan #0495 ('exploiting-insecure-data-storage-in-mobile' —
-sisi statis: allowBackup/debuggable/cleartext + plaintext prefs;
-atribusi konsep, lisensi sumber Apache-2.0). Dibangun FROM SCRATCH:
-parser binary AXML (format AOSP ResStringPool/ResXMLTree) ditulis
-sendiri dgn struct stdlib — skill sumber memakai apktool/drozer/Frida
-(rooted device, detonasi live = di luar kelas tool secai; sisi
-pemangsaan deep link aktif via am start TIDAK dilakukan di sini).
-
 Input -> mekanisme -> output:
   - Input : --manifest AndroidManifest.xml (plain XML hasil apktool
             ATAU binary AXML langsung dari APK); opsional --plist

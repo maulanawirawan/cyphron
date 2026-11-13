@@ -1,17 +1,8 @@
-r"""[PLANNER: read-only] chain_planner — rencanakan rantai eksploitasi
-A→B→C dari temuan findings.json secai: satu temuan rendah sering
-menjadi submittable begitu digabung — tool ini menyusun kandidat
-rantai secara deterministik dari tabel rantai terkurasi yang
-MEMETAKAN setiap langkah ke tool secai yang benar-benar ada.
-
-Port konsep dari awarexone/Agentic-Bug-Hunter 'chain-builder' agent
-(dan /chain) — atribusi konsep, lisensi sumber MIT. Dibangun FROM
-SCRATCH: tabel rantai ditulis ulang untuk ekosistem secai (langkah
-B selalu menyebut tool secai pembawa buktinya, bukan alat live
-pihak ketiga), semantik gabungan severity dinyatakan eksplisit per
-baris tabel — tidak pernah ditebak. Skill sumber = agent LLM yang
-menyusun rantai naratif; tool ini memilih sisi deterministik: tabel
-data + pencocokan pola + aturan gabungan yang bisa diaudit.
+r"""[PLANNER: read-only] chain_planner — rencanakan rantai eksploitasi A→B→C
+dari temuan findings.json secai: satu temuan rendah sering menjadi
+submittable begitu digabung — tool ini menyusun kandidat rantai secara
+deterministik dari tabel rantai terkurasi yang MEMETAKAN setiap langkah
+ke tool secai yang benar-benar ada.
 
 Ranah tetangga eksplisit: merge_findings/secai merge = dedup
 temuan; verify_gate = klaim status kerja; brocards_triage = logika

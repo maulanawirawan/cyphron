@@ -1,5 +1,6 @@
 """Nol jaringan — test ssvc_triage (tabel deployer SSVC v2.0 resmi +
-sub-tabel human impact + derivasi titik keputusan; fail-closed)."""
+sub-tabel human impact + derivasi titik keputusan; fail-closed).
+"""
 from __future__ import annotations
 
 import json
@@ -165,7 +166,7 @@ class ResolvePoints(unittest.TestCase):
         self.assertEqual(dp["exploitation"]["source"], "derived:kev")
 
     def test_epss_threshold(self) -> None:
-        # epss 0.94 > 0.5 -> poc (heuristik skill sumber)
+        # epss 0.94 > 0.5 -> poc (heuristik internal)
         row = st.resolve_points({"id": "V-3", "cve": "CVE-X",
                                  "epss": 0.94}, DEFAULTS, set(),
                                 {"CVE-X": 0.94}, 0.5)

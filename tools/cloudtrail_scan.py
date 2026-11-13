@@ -1,14 +1,6 @@
 r"""[SAFETY: read-only] cloudtrail_scan — triase OFFLINE log AWS CloudTrail
-(JSON Records / JSONL): event berisiko tinggi deterministik, tanpa jaringan.
-
-Port konsep dari antrean SKILL-PORT-QUEUE #0383 (mukul975/
-Anthropic-Cybersecurity-Skills, skill 'detecting-aws-cloudtrail-anomalies'
-— baseline aktivitas, penggunaan API sensitif (IAM/KMS/S3 policy), error
-rate; atribusi konsep, lisensi sumber Apache-2.0). Dibangun FROM SCRATCH:
-parser log + taksonomi event ditulis sendiri; TIDAK memakai boto3 —
-skill aslinya query live via lookup_events, secai memilih artefak
-offline (file log CloudTrail) supaya nol jaringan dan dapat dites.
-Live-baseline/GeoIP tidak dibangun (butuh kredensial + jaringan).
+(JSON Records / JSONL): event berisiko tinggi deterministik, tanpa
+jaringan.
 
 Input -> mekanisme -> output:
   - Input : file log CloudTrail (.json: objek dgn "Records", atau

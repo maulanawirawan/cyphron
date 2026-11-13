@@ -3,12 +3,6 @@ vCard/MECARD hasil decode QR (dari scanner/gateway ekspor berizin) untuk
 indikasi kontak-phishing (smishing via kontak: impersonasi brand, URL
 jebakan di kartu, trap TEL/SMS, blob penyamaran).
 
-Lanjutan `qr_payload_triage` (wave-1 menangani URL; wave-2 ini menangani
-kartu kontak). Port konsep dari entri QR-phishing di A-poc/RedTeam-Tools
-(SquarePhish, evilqr — kampanye phishing via QR/kontak). Dibangun from
-scratch, stdlib-only, NOL jaringan: input = payload TERDEKODE; TIDAK
-melakukan fetch, resolve, maupun scan gambar.
-
 Sinyal per payload (semua deterministik dari data):
   - brand-lure        : FN/ORG/N/NOTE memuat kata impersonasi (bank,
                         support, otp, verify, invoice, paket, kantor pos,

@@ -1,16 +1,8 @@
-r"""[GATE: read-only] submission_gate — gerbang 7-pertanyaan pra-
-submission bug bounty: satu temuan dinilai terhadap disiplin laporan
-sebelum ditulis/dikirim. Satu jawaban negatif eksplisit = KILL; jawaban
-yang datanya absen = NEEDS-MORE-INFO (fail-closed — kegelapan tidak
-pernah dianggap lolos).
-
-Port konsep dari awarexone/Agentic-Bug-Hunter 'triage-validation' skill
-(7-Question Gate + 4 pre-submission gates + never-submit list) —
-atribusi konsep, lisensi sumber MIT. Dibangun FROM SCRATCH: pertanyaan
-dioperasikan jadi cek deterministik atas (a) temuan findings.json,
-(b) profil program --program JSON, (c) keluaran opsional tool secai
-lain sebagai bukti pendukung. Skill sumber = checklist naratif utk
-manusia; tool ini versi yang bisa diaudit dan dijalankan ulang.
+r"""[GATE: read-only] submission_gate — gerbang 7-pertanyaan pra- submission
+bug bounty: satu temuan dinilai terhadap disiplin laporan sebelum
+ditulis/dikirim. Satu jawaban negatif eksplisit = KILL; jawaban yang
+datanya absen = NEEDS-MORE-INFO (fail-closed — kegelapan tidak pernah
+dianggap lolos).
 
 Ranah tetangga EKSPLISIT (tidak diduplikasi):
   - verify_gate      = klaim STATUS KERJA butuh bukti segar

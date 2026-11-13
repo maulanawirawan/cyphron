@@ -1,13 +1,5 @@
-"""[AUDIT: read-only] terraform_audit — audit statis IaC Terraform
-(.tf) untuk kesalahan konfigurasi keamanan yang eksplisit.
-
-Mengisi antrean port dari mukul975/Anthropic-Cybersecurity-Skills
-'skills/auditing-terraform-infrastructure-for-security' (antrean
-SKILL-PORT-QUEUE #0270; atribusi ide, lisensi sumber Apache-2.0).
-Dibangun from scratch TANPA kode sumber itu dan TANPA checkov/tfsec/
-terrascan (semuanya alat eksternal): parser blok resource stdlib +
-aturan deterministik dari kelas kesalahan publik. NOL jaringan, NOL
-eksekusi terraform — pindai file .tf di repo sebelum apply.
+"""[AUDIT: read-only] terraform_audit — audit statis IaC Terraform (.tf)
+untuk kesalahan konfigurasi keamanan yang eksplisit.
 
 Kelas temuan (zero-FP: hanya bentuk eksplisit di HCL):
   open-ingress-admin   ingress 0.0.0.0/0 atau ::/0 ke port 22/3389

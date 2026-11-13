@@ -8,27 +8,6 @@ NFS no_root_squash, berkas world-writable di /etc & unit systemd, target
 cron yang writable + wildcard injection, dan PATH directory writable.
 TANPA jaringan.
 
-Mengisi antrean port SKILL-PORT-QUEUE #0876 (mukul975/
-Anthropic-Cybersecurity-Skills 'performing-privilege-escalation-on-
-linux'; atribusi konsep vektor T1548.001/T1548.003/T1543.002/T1053.003,
-lisensi sumber Apache-2.0). Skill sumber = runbook enumerasi LIVE pada
-host yang sudah diakses sah (LinPEAS/LinEnum/GTFOBins); inti
-deterministik yang diekstrak di sini = AUDIT MISKONFIGURASI dari
-koleksi/file-list yang sudah diambil — from scratch, tanpa menyalin
-kode sumber maupun menjalankan enumerasi live.
-
-Pembagian ranah (TIDAK diduplikasi):
-  - konten persistensi jahat di cron/unit/profile/authkeys/preload ->
-    linux_persist_scan (sudutnya "artefak persistence", bukan
-    writability); di sini cron dibaca hanya untuk menilai TARGET yang
-    bisa ditulis akun biasa (privesc) & wildcard-args.
-  - hardening konfigurasi sshd/sysctl/pwquality/login.defs ->
-    linux_cis_audit.
-  - triase log auth -> linux_auth_triage.
-  - enumerasi live di host hidup (LinPEAS/pspy/GTFOBins lookup) = sisi
-    eksekusi skill sumber (tidak diport) — koleksi dulu di lab, audit
-    di sini.
-
 Input -> mekanisme -> output:
   - Input : --root DIR (rootfs copy: etc/sudoers, etc/sudoers.d/,
             etc/passwd, etc/shadow, etc/group, etc/exports, etc/crontab,

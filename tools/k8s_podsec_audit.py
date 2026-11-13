@@ -3,19 +3,6 @@ Kubernetes terhadap Pod Security Standards (Baseline / Restricted):
 linter manifest statis yang menjawab "workload mana yang GAGAL level X"
 sebelum apply / dari repo GitOps.
 
-Mengisi antrean port dari mukul975/Anthropic-Cybersecurity-Skills
-'skills/implementing-kubernetes-pod-security-standards' (#0653 —
-pemilihan profil PSS, pemetaan securityContext, dry-run enforcement;
-atribusi konsep, lisensi sumber Apache-2.0). Dibangun FROM SCRATCH
-TANPA kode sumber itu: aturan cek ditulis dari spesifikasi publik PSS
-(kubernetes.io/docs/concepts/security/pod-security-standards). Skill
-sumber = runbook kubectl/cluster (label namespace, dry-run PSA); tool
-ini memilih sisi statis: TIDAK menjalankan kubectl dan TIDAK menyentuh
-cluster. Ranah tool tetangga ditulis eksplisit: manifest RBAC =
-k8s_rbac_audit (B09), audit log API server (pod-exec/secret-access/
-privileged saat JALAN) = k8s_audit_triage (B07); tool ini = spesifik
-definisi pod SAAT-DEPLOY vs profil PSS.
-
 Input -> mekanisme -> output:
   - Input   : --source FILE/DIR (YAML subset atau JSON, pola loader
               k8s_rbac_audit.parse_documents) + --profile

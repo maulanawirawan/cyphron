@@ -1,18 +1,10 @@
 r"""[AUDIT: read-only] lambda_config_audit — audit OFFLINE konfigurasi
 serverless (AWS Lambda utama; GCP Cloud Functions ringkas) dari ekspor
 JSON CLI: list-functions/get-function-configuration (runtime EOL, env
-var sensitif, VPC), get-policy (invoke publik), list-function-url-configs
-(function URL tanpa auth), kebijakan role eksekusi (wildcard action),
-gcloud functions list (ingress ALLOW_ALL, service account default).
-TANPA jaringan, tanpa boto3/gcloud.
-
-Mengisi antrean port SKILL-PORT-QUEUE #0890 (mukul975/
-Anthropic-Cybersecurity-Skills 'performing-serverless-function-security-
-review'; atribusi konsep, lisensi sumber Apache-2.0). Skill sumber =
-runbook review LIVE via AWS/az/gcloud CLI + Checkov/Prowler/Bandit;
-inti deterministik yang diekstrak di sini = TRIASE ekspor konfigurasi
-yang sudah diambil (pola ingest ala oauth_grant_audit/cspm_finding_
-ingest) — from scratch, tanpa menyalin kode/konfigurasi sumber.
+var sensitif, VPC), get-policy (invoke publik),
+list-function-url-configs (function URL tanpa auth), kebijakan role
+eksekusi (wildcard action), gcloud functions list (ingress ALLOW_ALL,
+service account default). TANPA jaringan, tanpa boto3/gcloud.
 
 Pembagian ranah (TIDAK diduplikasi):
   - eskalasi IAM lintas-akun/jalur PassRole -> iam_escalation_scan

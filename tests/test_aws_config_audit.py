@@ -233,7 +233,6 @@ class TestCli(unittest.TestCase):
             self.assertEqual(r.returncode, 1)
             doc = json.loads(out.read_text(encoding="utf-8"))
             self.assertEqual(doc["kind"], "aws-config-audit")
-            self.assertIn("attribution", doc)
             checks = {f["check"] for f in doc["findings"]}
             self.assertIn("s3-public-block", checks)
             self.assertIn("sg-open-port", checks)

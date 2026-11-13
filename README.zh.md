@@ -176,8 +176,6 @@ triage 家族是一组独立的离线 CLI：输入证据（日志、导出、清
 
 </details>
 
-完整索引见 [CHANGELOG.md](CHANGELOG.md)；从非工具型概念提炼的方法论（250+ 节）见 [docs/PORT-AGENT-METHODS.md](docs/PORT-AGENT-METHODS.md)。
-
 ## 命令
 
 | 命令 | 作用 |
@@ -322,7 +320,6 @@ secai 仅用于**已授权**的测试：你自己的系统，或明确给予许�
 ## 致谢
 
 - [Agentic-Bug-Hunter](https://github.com/awarexone/Agentic-Bug-Hunter)（MIT）—— scope/chain/web3/记忆/报告 小型移植计划的概念来源（`scope_gate`、`chain_planner`、`solidity_static_audit`、`hunt_pattern_db` 等）。
-- 995 概念移植计划使用了四个公开安全 skill 集合（trailofbits/skills、SnailSploit/Claude-Red、mukul975/Anthropic-Cybersecurity-Skills、NVIDIA-SkillSpector）—— 每个工具均为从头实现，docstring 中注明概念出处。
 
 ## 许可证
 

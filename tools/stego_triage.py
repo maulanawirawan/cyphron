@@ -2,12 +2,6 @@
 media terformat: JPEG, PNG, WAV, BMP. TANPA jaringan, read-only — file
 media tidak pernah ditulis.
 
-Port INTI DETERMINISTIK dari antrean SKILL-PORT-QUEUE #0903 (mukul975/
-Anthropic-Cybersecurity-Skills 'performing-steganography-detection';
-atribusi konsep, lisensi sumber Apache-2.0). Dibangun FROM SCRATCH dari
-spesifikasi format terpublikasi (JPEG/JFIF marker, PNG chunk, RIFF/WAVE,
-BMP DIB) — bukan salinan zsteg/steghide/binwalk.
-
 Ranah EKSPLISIT:
   - carve_scan (#0817/#0818): carve blob MENTAH format-agnostic — di
     sini analisis SADAR-STRUKTUR media (marker EOF, chunk, sampel) yang

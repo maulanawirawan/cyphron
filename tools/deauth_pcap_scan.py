@@ -1,13 +1,6 @@
 """[SAFETY: read-only] deauth_pcap_scan — analisis forensik frame
-deauthentication/disassociation 802.11 dari file pcap (CWE-754/
-laporan insiden nirkabel), nol jaringan.
-
-Konsep dari antrean port skill (SKILL-PORT-QUEUE #0166,
-claude-red/offensive-deauth-disassoc — atribusi ide): serangan deauth/
-disassoc dipakai memaksa klien reconnect (handshake capture) atau DoS.
-Dibangun from scratch tanpa kode pihak lain; di sini yang dibangun
-sisi DETEKSI (defend/DFIR): mengenali pola serangan dari capture —
-bukan alat mengirim frame (itu diluar kontrak repo; NEVER-LIST DoS).
+deauthentication/disassociation 802.11 dari file pcap (CWE-754/ laporan
+insiden nirkabel), nol jaringan.
 
 Input : file pcap classic (magic a1b2c3d4 / d4c3b2a1 / nano), linktype
         127 (radiotap) atau 105 (802.11 murni).

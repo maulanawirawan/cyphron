@@ -1,17 +1,6 @@
 r"""[SAFETY: read-only] ioc_lifecycle_score — skor siklus-hidup & disposisi
-indikator IOC dari daftar tersimpan (decay eksponensial + kualitas hit/FP).
-NOL jaringan, read-only, stdlib murni.
-
-Port INTI DETERMINISTIK dari dua skill antrean SKILL-PORT-QUEUE:
-  #0830 mukul975/Anthropic-Cybersecurity-Skills
-       'performing-indicator-lifecycle-management' -> peluruhan confidence
-       dgn half-life per keluarga indikator + kebijakan pensiun/expire
-  #0833 mukul975/Anthropic-Cybersecurity-Skills
-       'performing-ioc-enrichment-automation' -> SISI OFFLINE-nya saja:
-       penggabungan sinyal hasil enrichment (suara sumber + FP/hit) jadi
-       skor disposisi. Lookup live ke VirusTotal/Shodan/AbuseIPDB = ops
-       jaringan, TIDAK diport (cf. intel_sync; alat pihak ketiga).
-(Konsep sumber Apache-2.0, atribusi di sini — konsep, bukan teks.)
+indikator IOC dari daftar tersimpan (decay eksponensial + kualitas
+hit/FP). NOL jaringan, read-only, stdlib murni.
 
 Mekanisme (deterministik, semua jam di-UTC):
   1. Umur indikator = --now - last_seen (fallback created); RFC3339 dgn

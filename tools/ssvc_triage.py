@@ -1,25 +1,7 @@
-"""[TRIAGE: score] ssvc_triage — prioritas kerentanan via SSVC (Stakeholder-
-Specific Vulnerability Categorization): tabel keputusan resmi SSVC v2.0
-deployer + sub-tabel human impact, kosakata outcome CISA Guide — OFFLINE,
-nol jaringan, fail-closed.
-
-Mengisi antrean port SKILL-PORT-QUEUE #0991 (mukul975/Anthropic-
-Cybersecurity-Skills 'triaging-vulnerabilities-with-ssvc-framework';
-atribusi konsep, lisensi sumber Apache-2.0). Skill sumber menyederhanakan
-pohon SSVC (5 titik keputusan verbal, branch EPSS/KEV live via API). Inti
-deterministik yang diport di sini dievaluasi dari TABEL KEPUTUSAN RESMI:
-'Patch Application Priority' deployer (72 baris) + sub-tabel 'Human
-Impact' (16 baris) — data terpublikasi CERT/CC SSVC (repo CERTCC/SSVC,
-data/csv/ssvc; Copyright Carnegie Mellon University, lisensi MIT
-(SEI)-style) — di-embed sebagai data referensi, bukan kode sumber skill.
-Kosakata outcome memakai pemetaan CISA SSVC Guide:
-  immediate    -> Act     (mitigasi segera)
-  out-of-cycle -> Attend  (di luar siklus patch)
-  scheduled    -> Track*  (window patch berikutnya)
-  defer        -> Track   (siklus patch normal)
-SLA default per outcome (heuristik skill sumber, dibawa keluar sebagai
-default — bukan kebijakan resmi): Act 48 jam, Attend 14 hari, Track* 60
-hari, Track 90 hari.
+"""[TRIAGE: score] ssvc_triage — prioritas kerentanan via SSVC
+(Stakeholder- Specific Vulnerability Categorization): tabel keputusan
+resmi SSVC v2.0 deployer + sub-tabel human impact, kosakata outcome CISA
+Guide — OFFLINE, nol jaringan, fail-closed.
 
 Kenapa secai butuh: keluarga triase kerentanan sudah punya cvss_score
 (skor teknis CVSS v3.1), owasp_risk_rating (konteks bisnis web),
@@ -27,33 +9,6 @@ risk_matrix_80030 (register 5x5 NIST), brocards_triage (gerbang mutu
 laporan), vuln_sla_aging (aging + SLA severity statis) — belum ada yang
 menaikkan prioritas dari STATUS EKSPLOITASI (KEV/PoC/EPSS), exposure
 sistem, automatability, dan human impact sekaligus = SSVC.
-
-Ranah EKSPLISIT: cvss_score/owasp_risk_rating/risk_matrix_80030 =
-penskoran berbasis skor/konteks; vuln_sla_aging = SLA pasca-prioritas;
-di sini = pohon keputusan SSVC v2.0 untuk DEPLOYER (patch application
-priority). Skill sumber memakai titik 'technical impact'/'mission
-prevalence'/'well-being' versi ringkas; tabel resmi v2.0 memakai System
-Exposure + Human Impact (= f(Safety x Mission Impact)) — versi resmi yang
-dinilai lengkap di sini, heuristik derivasi tetap diambil dari skill.
-
-Titik keputusan & sumbernya (nilai eksplisit SELALU menang; sumber tiap
-titik tercatat di provenance per entri):
-  exploitation: none|poc|active
-    flag/per-entri > KEV (--kev-json, katalog CISA offline; CVE di
-    katalog = active) > EPSS (per-entri/--epss-json, epss > ambang
-    --epss-poc-threshold default 0.5 = poc, heuristik skill sumber) >
-    none (HANYA bila cve ada = sudah dicek katalog, label
-    'derived:no-evidence'); tanpa cve & tanpa flag eksplisit = error
-    (fail-closed — tanpa bukti, tak boleh diasumsikan aman).
-  exposure: small|controlled|open — flag --default-exposure atau
-    per-entri WAJIB (konteks lingkungan; tidak ditebak).
-  automatable: no|yes — flag/per-entri > derivasi CVSS vektor
-    (AV:N+AC:L+UI:N = yes, else no; heuristik skill sumber) >
-    --default-automatable; tanpa semuanya = error.
-  safety: negligible|marginal|critical|catastrophic — default flag /
-    per-entri WAJIB.
-  mission: degraded|mef-support-crippled|mef-failure|mission-failure —
-    default flag / per-entri WAJIB.
 
 Fail-closed:
   - source/kev/epss JSON tidak ada/rusak/berstruktur salah -> exit 2;
@@ -106,7 +61,7 @@ CISA_LABEL = {
     "attend": "Attend — eskalasi, percepat remediasi",
     "act": "Act — terapkan mitigasi segera, awareness eksekutif",
 }
-# SLA default heuristik skill sumber (bukan kebijakan resmi)
+# SLA default heuristik acuan internal (bukan kebijakan resmi)
 CISA_SLA = {"track": "90 hari", "track*": "60 hari", "attend": "14 hari",
             "act": "48 jam"}
 
@@ -370,7 +325,7 @@ def resolve_points(entry: dict, defaults: dict,
         "formula": "human_impact=tabel(safety x mission); "
                    "outcome=tabel deployer SSVC v2.0(exploitation x "
                    "exposure x automatable x human); nama=map CISA "
-                   "Guide; SLA=default heuristik skill sumber",
+                   "Guide; SLA=default heuristik acuan internal",
     }
     if entry.get("cve"):
         row["cve"] = str(entry["cve"]).strip().upper()
@@ -494,7 +449,7 @@ def _parse_args(argv: "list[str] | None" = None) -> argparse.Namespace:
                          "({\"data\":[{\"cve\",\"epss\"}]})")
     ap.add_argument("--epss-poc-threshold", type=float, default=0.5,
                     help="ambang EPSS -> poc (default 0.5, heuristik "
-                         "skill sumber; pakai epss > ambang)")
+                         "acuan internal; pakai epss > ambang)")
     ap.add_argument("--default-exposure", choices=EXPOSURE,
                     help="exposure default utk entri tanpa nilai "
                          "(tercatat sbg 'default')")
@@ -561,7 +516,7 @@ def main(argv: "list[str] | None" = None) -> int:
         "errors": result["errors"],
         "note": "sumber tiap titik keputusan tercatat di "
                 "decision_points[*].source; SLA = default heuristik "
-                "skill sumber, bukan kebijakan resmi.",
+                "acuan internal, bukan kebijakan resmi.",
     }
     rendered = json.dumps(out, indent=2, ensure_ascii=False)
     if args.out:

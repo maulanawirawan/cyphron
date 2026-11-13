@@ -1,22 +1,6 @@
 """[SAFETY: read-only] doc_beacon_triage — nilai KUALITAS callback/URL
 beacon dokumen: OOXML external rels + RTF object/protocol tokens.
 
-Pelengkap `maldoc_triage` (yang melaporkan KEBERADAAN rel eksternal /
-attachedTemplate = remote template injection, T1221). Tool ini menilai
-ISI URL callback-nya sendiri — indikasi dokumen yang menymbul ke luar:
-  - ip-literal / punycode / shortener / http-tanpa-TLS pada Target rel
-  - lure-path   : path/kueri memuat kata jebakan (login, verify, invoice,
-                  otp, token, update)
-  - protocol-handler : Target/token `ms-msdt:`/`msdt:`/`search-ms:`
-                  (kelas Follina — eksekusi lewat handler, T1204/TA0002)
-  - rtf-objdata + rtf-protocol-token: RTF `\objdata` dengan token
-                  ms-msdt/search-ms (vektor tanpa makro, kasus Follina
-                  2022) — RTF belum dicover maldoc_triage
-  - beacon-density : >= 2 external URL non-brand di satu dokumen
-Konsep referensi: entri maldoc/beacon di A-poc/RedTeam-Tools; dibangun
-from scratch, stdlib-only, NOL jaringan, NOL eksekusi dokumen (RTF =
-bytes decode latin-1; OOXML = zipfile; tidak pernah dibuka Office).
-
 Fail-closed: file tidak ada / bukan OOXML+RTF yang bisa dibaca -> exit 2.
 Tanpa URL/object -> 0 temuan (exit 0) — dokumen web normal = aman (FP
 rendah, sesi pola maldoc_triage).

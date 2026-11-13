@@ -1,27 +1,6 @@
-"""[SAFETY: read-only, NOL jaringan] broken_link_scan — inventaris referensi
-eksternal isi halaman + penanda referensi tergantung (broken link hijacking).
-
-Port konsep dari antrean SKILL-PORT-QUEUE-G6 #1010 (mukul975/
-Anthropic-Cybersecurity-Skills, skill 'exploiting-broken-link-hijacking' —
-spider situs, ekstraksi referensi eksternal, cek DNS/status registrasi
-domain pihak ketiga yang mati; lisensi sumber Apache-2.0, atribusi konsep,
-kode dibangun from scratch TANPA menyalin kode sumber).
-
-Skill sumber melakukan spidering live + DNS live (Burp Spider/Scrapy/dig).
-secai memilih artefak OFFLINE — tool ini TIDAK PERNAH melakukan jaringan.
-Input:
-  1. artefak konten halaman (HTML/JS/CSS/SVG/teks) hasil crawl berizin;
-  2. OPSIONAL --resolutions JSON jawaban resolver untuk hostname eksternal
-     (peta {host: <nilai>}; nilai bisa: "nxdomain", angka rcode DoH
-     (3 = NXDOMAIN, 0 = OK), atau objek DoH dns.google {"Status": ..,
-     "Answer": [..]} — diproduksi operator dengan resolver apa pun).
-Ceruk vs takeover-cname-hygiene / takeover-fingerprint-checker (keduanya
-mulai dari hostname yang sudah diketahui lalu mengecek CNAME/fingerprint
-layanan): tool ini MULAI DARI ISI HALAMAN — inventaris referensi pihak
-ketiga yang dipakai halaman (script/img/link/import/fetch/XHR), lalu
-menandai referensi ke domain yang (menurut jawaban resolver milik
-operator) tidak terdaftar lagi. Siapa pun yang mendaftarkan domain mati
-itu mengendalikan konten yang dieksekusi/dirender halaman target.
+"""[SAFETY: read-only, NOL jaringan] broken_link_scan — inventaris
+referensi eksternal isi halaman + penanda referensi tergantung (broken
+link hijacking).
 
 Input -> mekanisme -> output:
   - Input : --file/--dir artefak (teks; biner/oversize di-skip TERCATAT),

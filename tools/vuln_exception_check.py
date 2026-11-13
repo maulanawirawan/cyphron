@@ -1,14 +1,6 @@
 """[AUDIT: read-only] vuln_exception_check — gerbang validasi + kedaluwarsa
 pengecualian (risk acceptance) kerentanan.
 
-Mengisi antrean port dari mukul975/Anthropic-Cybersecurity-Skills
-'skills/building-vulnerability-exception-tracking-system' (antrean
-SKILL-PORT-QUEUE #0309; atribusi ide, lisensi sumber Apache-2.0).
-Dibangun from scratch TANPA kode sumber itu dan TANPA Flask/SQLAlchemy/
-database: inti deterministiknya adalah ATURAN TATA KELOLA — bukan
-aplikasi web-nya. Tool ini memeriksa file register pengecualian
-(JSON) terhadap kebijakan kategori, bukan menjalankan server.
-
 Kebijakan yang diekstrak (deterministik):
   kategori        maks hari   butuh kontrol-kompensasi
   remediation_delay   30      ya

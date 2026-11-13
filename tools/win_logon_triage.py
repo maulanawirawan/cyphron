@@ -2,14 +2,6 @@ r"""[SAFETY: read-only] win_logon_triage — triase OFFLINE log Windows
 Security (XML) untuk pola brute force logon (RDP/NLA/network): Event
 4625 (gagal) + Event 4624 (sukses), T1110.001/T1110.003. TANPA jaringan.
 
-Port konsep dari antrean SKILL-PORT-QUEUE #0452 (mukul975/Anthropic-
-Cybersecurity-Skills 'detecting-rdp-brute-force-attacks' — parse log
-keamanan Windows utk pola tebak kredensial RDP; atribusi konsep,
-lisensi sumber Apache-2.0). Dibangun FROM SCRATCH: parser XML +
-logika window geser ditulis sendiri. Skill sumber memakai python-evtx
-(biner EVTX); secai memilih ekspor XML (Event Viewer "Export XML"
-atau `wevtutil /x`) supaya parser stdlib murni dan nol dependensi.
-
 Input -> mekanisme -> output:
   - Input : file XML ekspor Windows Security berisi Event 4625/4624,
             atau --dir berisi beberapa file.

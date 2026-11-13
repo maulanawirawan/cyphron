@@ -2,7 +2,7 @@
 golden ticket (#0418 #0419), nol jaringan.
 
 Fixture = ekspor Windows Security XML sintetis (Event 4768/4769/4771)
-dari spesifikasi konsep sumber: RC4 di lingkungan AES-only, TGS tanpa
+dari spesifikasi internal: RC4 di lingkungan AES-only, TGS tanpa
 TGT, lifetime anomali.
 """
 from __future__ import annotations

@@ -2,7 +2,7 @@
 movement / NTLM abuse (#0425 #0426 #0440 #0442), nol jaringan.
 
 Fixture = ekspor Windows Security XML sintetis (4624/4625/4648/4776/7045)
-sesuai spesifikasi konsep sumber: NTLM type-3 multi-host (pass-the-hash),
+sesuai spesifikasi internal: NTLM type-3 multi-host (pass-the-hash),
 NTLMv1 downgrade, relay mismatch (WorkstationName vs inventory), pivot
 RDP, service PsExec, akun svc- interaktif. Brute force/4625-spray sengaja
 TIDAK diduplikasi (ranah win_logon_triage #0452, B16) — diuji sebagai

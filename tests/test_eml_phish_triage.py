@@ -1,9 +1,5 @@
 """test_eml_phish_triage — triase header email phishing (#0199),
 nol jaringan.
-
-Fixture = email .eml sintetis dibangun dari format RFC5322 (header
-mentah + MIME multipart) sesuai pola kasus di skill sumber (BEC,
-spoofing, display-vs-href, lampiran eksekusi).
 """
 from __future__ import annotations
 

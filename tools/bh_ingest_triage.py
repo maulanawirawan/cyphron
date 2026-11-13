@@ -1,18 +1,4 @@
-"""[SAFETY: read-only] bh_ingest_triage — triase OFFLINE ekspor BloodHound
-(JSON / ZIP koleksi) untuk konfigurasi Active Directory berisiko tinggi.
-
-Konsep setara entri "BloodHound" + "PingCastle" di A-poc/RedTeam-Tools
-(katalog referensi red team) — versi triase pasif: kode ini ditulis from
-scratch, stdlib-only, NOL jaringan, NOL query LDAP: input = hasil ekspor
-BloodHound yang sudah kamu miliki (folder berisi *.json atau ZIP koleksi
-dari lab/berizin), TIDAK melakukan koleksi apa pun.
-
-Format input yang dikenali:
-  - folder berisi JSON BloodHound (data/*): users.json, computers.json,
-    groups.json, domains.json, gpos.json, containers.json
-  - satu file ZIP berisi JSON-JSON di atas
-  - JSON bisa versi lama (list) atau koleksi 4.x {"data":[{...}],
-    "meta":{...}} — dua-duanya diterima.
+"""Triase OFFLINE (stdlib-only, NOL jaringan).
 
 Mekanisme deteksi (semua lead berbasis bukti, ambang bisa diatur):
   - asrep-roastable   : user dengan dontreqpreauth=true (AS-REP roastable)
@@ -26,9 +12,6 @@ Mekanisme deteksi (semua lead berbasis bukti, ambang bisa diatur):
                         (GetChanges + GetChangesAll)
   - spn-kerberoastable: user dengan servicePrincipalNames non-empty
                         (opsional --spn off utk mematikan noise)
-
-Fail-closed: tidak ada JSON BloodHound valid -> exit 2. Semua temuan =
-LEAD konfigurasi, bukan klaim kompromi.
 
 Pemakaian:
   python tools/bh_ingest_triage.py --dir export/ --out triase.json

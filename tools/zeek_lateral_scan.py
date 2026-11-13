@@ -4,13 +4,6 @@ atau JSON) untuk indikasi lateral movement: akses admin share SMB
 remote service (svcctl/atsvc), NTLM spray (satu akun -> banyak host),
 dan penulisan file ke admin share.
 
-Mengisi antrean port SKILL-PORT-QUEUE #0427 (mukul975/Anthropic-
-Cybersecurity-Skills 'detecting-lateral-movement-with-zeek' — lisensi
-sumber Apache-2.0, atribusi konsep — kode dibangun from scratch TANPA
-menyalin kode sumber; skrip Zeek sumber berjalan live di sensor, secai
-memilih POST-HOC analisis file log sehingga nol jaringan dan dapat
-dites).
-
 Pembagian ranah dgn alat secai lain (anti-duplikasi):
   - Beaconing/konektivitas DNS dari log Zeek -> tools/zeek_beacon_scan
     (B13) + dns_log_triage (B07); di sini hanya lateral (SMB/DCE-RPC/

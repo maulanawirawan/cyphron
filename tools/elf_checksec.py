@@ -1,19 +1,8 @@
-r"""[AUDIT: read-only] elf_checksec — enumerasi mitigasi binary ELF
-(Linux) dari header + tabel dinamis: NX (PT_GNU_STACK), PIE (e_type/
+r"""[AUDIT: read-only] elf_checksec — enumerasi mitigasi binary ELF (Linux)
+dari header + tabel dinamis: NX (PT_GNU_STACK), PIE (e_type/
 PT_INTERP/DF_1_PIE), RELRO (PT_GNU_RELRO + BIND_NOW), stack canary
 (simbol __stack_chk_* di dynsym) — analog tools/pe_mitigation_scan.py
 utk PE.
-
-Mengisi antrean port dari mukul975/Anthropic-Cybersecurity-Skills
-'skills/performing-binary-exploitation-analysis' (antrean
-SKILL-PORT-QUEUE #0780; atribusi konsep, lisensi sumber Apache-2.0).
-Skill sumber = alur eksploitasi live (pwntools/ROPgadget/GDB — TIDAK
-di-port; target hanya lab berizin); INTI DETERMINISTIK-nya adalah
-tahap "checksec" (langkah 2 skill): fakta header yang bisa dibaca
-OFFLINE tanpa mengeksekusi binary. Dibangun FROM SCRATCH TANPA kode
-sumber itu — parser ELF ditulis dari spesifikasi publik (System V
-ABI: refspecs.linuxfoundation.org/ELF/x86_64-abi-0.99.pdf, "man 5
-elf").
 
 Ranah tool tetangga ditulis eksplisit:
   - pe_mitigation_scan : mitigasi binary WINDOWS (PE: DEP/ASLR/CFG);

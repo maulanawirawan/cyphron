@@ -1,6 +1,6 @@
 """Nol jaringan — test zeroize_scan (zeroization material sensitif).
 
-Kasus mengikuti konsep sumber: buffer kunci tanpa wipe = lead; memset
+Kasus mengikuti spesifikasi internal: buffer kunci tanpa wipe = lead; memset
 polos tidak dihitung (DSE); approved-wipe API membersihkan; komentar/
 string tidak dihitung; nama non-rahasia (public key, path) dilewati.
 """

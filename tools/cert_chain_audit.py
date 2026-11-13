@@ -1,14 +1,6 @@
 r"""[SAFETY: read-only] cert_chain_audit — auditor rantai sertifikat X.509
 offline (PEM/DER, stdlib murni, tanpa dekripsi dan tanpa jaringan).
 
-Port konsep dari antrean SKILL-PORT-QUEUE #0341 (mukul975/
-Anthropic-Cybersecurity-Skills, skill 'configuring-certificate-authority-
-with-openssl' — hierarki Root/Intermediate, basicConstraints, pathLen
-constraint, keyUsage, revokasi; atribusi konsep). Dibangun FROM SCRATCH:
-parser DER minimal, kanonisasi DN, dan seluruh cek ditulis sendiri —
-tidak memakai lib cryptography/x509 dan tidak menyalin kode sumber.
-Lisensi secai: PolyForm NC.
-
 Input -> mekanisme -> output:
   - Input : file .pem/.crt/.cer/.der (satu file = satu rantai, urutan
             leaf -> root; PEM boleh multi-cert) atau direktori.

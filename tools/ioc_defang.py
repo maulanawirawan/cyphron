@@ -1,13 +1,6 @@
 """[AUDIT: read-only] ioc_defang — ekstraksi, normalisasi, dedup, dan
 defang/refang IOC dari teks + render pola indikator STIX 2.1.
 
-Mengisi antrean port dari mukul975/Anthropic-Cybersecurity-Skills
-'skills/building-ioc-defanging-and-sharing-pipeline' (#0289) — atribusi
-ide; lisensi sumber Apache-2.0. Dibangun from scratch TANPA menyalin
-kode sumber itu. NOL jaringan: input teks/hasil feed dibaca lokal;
-panggilan reputasi (VT/URLScan/sandbox) dan pengiriman ke TAXII/MISP
-TIDAK dilakukan tool ini — outputnya bahan baku untuk pipeline itu.
-
 Kemampuan (deterministik, terurut, nol jaringan):
   refang      kembalikan bentuk ter-defang umum: hxxp(s):// -> http(s),
               [.] (.) [dot] (dot) -> '.', [:] -> ':', [@] [at] (at) ->

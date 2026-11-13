@@ -2,19 +2,6 @@ r"""[SAFETY: read-only] applocker_policy_audit — audit OFFLINE kebijakan
 AppLocker (policy XML) + hasil audit-mode (CSV event) untuk celah
 application whitelisting. TANPA jaringan.
 
-Port konsep dari antrean SKILL-PORT-QUEUE #0579 (mukul975/
-Anthropic-Cybersecurity-Skills 'implementing-application-whitelisting-with-
-applocker'; atribusi konsep, lisensi sumber Apache-2.0). Dibangun FROM
-SCRATCH: parser XML policy + agregasi CSV event ditulis sendiri dari
-konsep AppLocker publik (RuleCollection/EnforcementMode, deny LOLBin,
-gap direktori user-writable, event 8003/8004/8006/8007/8023). Skill sumber
-adalah runbook PowerShell/GPO live di endpoint Windows; secai memilih
-artefak offline (export policy XML `Get-AppLockerPolicy -Effective -Xml`
-+ CSV event `Get-WinEvent ... Export-Csv`) agar nol jaringan dan dapat
-dites. Ranah TIDAK diduplikasi: lolbin_scan (B15) mendeteksi EKSEKUSI
-LOLBin dari log Sysmon/Security — tool ini menilai KEBIJAKAN/policy
-coverage-nya, bukan eksekusi.
-
 Input -> mekanisme -> output:
   - Input : (a) policy XML AppLocker (satu/lebih <RuleCollection>) dan/
             (b) CSV hasil export event audit-mode dgn kolom (header
@@ -87,7 +74,7 @@ from pathlib import Path
 
 SEV_ORDER = {"info": 0, "medium": 1, "high": 2}
 
-# LOLBin yang lazim di-deny utk standard users (konsep sumber step 4)
+# LOLBin yang lazim di-deny utk standard users
 LOLBIN_DENY_CANDIDATES = ("mshta.exe", "wscript.exe", "cscript.exe",
                           "regsvr32.exe", "certutil.exe", "msbuild.exe",
                           "installutil.exe", "rundll32.exe")
@@ -201,7 +188,7 @@ def audit_policy(xml_text: str,
                 "subject": binary,
                 "message": f"tidak ada rule yang menyebut {binary} — "
                            "LOLBin yang sering disalahguna tanpa deny "
-                           "untuk standard user (konsep sumber step 4)",
+                           "untuk standard user",
             })
     notes.append("deny-LOLBin dicari utk: "
                  + ", ".join(LOLBIN_DENY_CANDIDATES)
@@ -360,9 +347,6 @@ def main(argv: "list[str] | None" = None) -> int:
 
     report = {
         "kind": "applocker-policy-audit",
-        "attribution": "konsep #0579 mukul975/implementing-application-"
-                       "whitelisting-with-applocker (Apache-2.0) — dibangun "
-                       "from scratch",
         "findings": findings,
         "summary": summary,
         "notes": notes,

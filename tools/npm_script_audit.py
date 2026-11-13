@@ -1,15 +1,5 @@
-"""[AUDIT: read-only] npm_script_audit — audit lifecycle-script npm lokal, NOL request.
-
-Mengisi antrean port dari trailofbits/skills plugin 'supply-chain-risk-auditor'
-(antrean SKILL-PORT-QUEUE; atribusi konsep). Kriteria yang diport:
-install-time script execution — paket npm yang menjalankan skrip saat
-preinstall/install/postinstall/prepare adalah permukaan eksekusi kode pihak
-ketiga di mesin pengembang (gelombang kompromi 2026 — Tensorlake ber-worm,
-Shai-Hulud — menular lewat jalur ini). Kriteria lain skill sumber (advisory
-sweep, publisher concentration, repo staleness) butuh jaringan/gh dan SUDAH
-diliput alat secai lain (dependency_cve: rentang CVE; supplychain_check:
-blocklist + pin/hash) — tidak diduplikasi di sini. Ditulis dari nol, stdlib
-saja, tanpa jaringan; bukan salinan kode pihak lain. Lisensi: PolyForm NC.
+"""[AUDIT: read-only] npm_script_audit — audit lifecycle-script npm lokal,
+NOL request.
 
 Mekanisme (deterministik, read-only): baca SATU file package.json (mode
 --manifest) atau SATU pohon node_modules/ (mode --root, default), ekstrak

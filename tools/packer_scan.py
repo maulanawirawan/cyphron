@@ -1,14 +1,5 @@
-r"""[SAFETY: read-only] packer_scan — deteksi packer/binary-packed pada
-file PE (Windows .exe/.dll).
-
-Port konsep dari antrean SKILL-PORT-QUEUE #0229 (mukul975/
-Anthropic-Cybersecurity-Skills 'analyzing-packed-malware-with-upx-
-unpacker' — langkah "Identify the Packer": nama section UPX, entropi
-tinggi, import minimal LoadLibrary/GetProcAddress). Dibangun from
-scratch dari spesifikasi PE/COFF Microsoft yang dipublikasikan
-terbuka, stdlib-only, NOL jaringan, read-only — TIDAK melakukan
-unpacking (upx -d / debugger di luar cakupan; alat ini hanya TRIASE
-mengapa sebuah binary dicurigai packed).
+r"""[SAFETY: read-only] packer_scan — deteksi packer/binary-packed pada file
+PE (Windows .exe/.dll).
 
 Mekanisme:
   - header DOS/PE/COFF/Optional (PE32 & PE32+), tabel section

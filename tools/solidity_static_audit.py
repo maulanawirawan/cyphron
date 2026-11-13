@@ -1,11 +1,7 @@
-"""[AUDIT: static] solidity_static_audit — pindai sumber .sol untuk 10 kelas
-bug statis: LEAD ber-eviden, maksimal L2 — TANPA compiler Solidity, TANPA
-eksekusi, TANPA jaringan (murni analisis teks/struktur sumber).
-
-Port konsep awarexone/Agentic-Bug-Hunter (MIT) — skills/web3-audit
-(10 bug class + grep arsenal) & skills/meme-coin-audit. Dibangun
-from-scratch untuk secai; TIDAK ada kode vendor yang disalin — hanya
-konsep kelas bug yang dipindah ke mesin deterministik milik sendiri.
+"""[AUDIT: static] solidity_static_audit — pindai sumber .sol untuk 10
+kelas bug statis: LEAD ber-eviden, maksimal L2 — TANPA compiler
+Solidity, TANPA eksekusi, TANPA jaringan (murni analisis teks/struktur
+sumber).
 
 Kenapa secai butuh: repo belum punya ranah .sol/web3 sama sekali
 (pembagian ranah ABH-PORT: web3/.sol/token = item W2). Kontrak "no proof,

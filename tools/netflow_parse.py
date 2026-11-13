@@ -1,13 +1,5 @@
-"""[SAFETY: read-only] netflow_parse — parser NetFlow v5 + deteksi
-anomali trafik (scan / exfil / beacon).
-
-Port konsep dari antrean SKILL-PORT-QUEUE #0222 (mukul975/
-Anthropic-Cybersecurity-Skills 'analyzing-network-flow-data-with-
-netflow' — pustaka netflow + analisis baseline). Dibangun from
-scratch dari spesifikasi NetFlow v5 Cisco yang dipublikasikan
-terbuka, stdlib-only, NOL jaringan: input = file berisi datagram
-NetFlow v5 mentah yang digabung (payload UDP export hasil capture
-lab/berizin), TIDAK menghubungi collector apapun.
+"""[SAFETY: read-only] netflow_parse — parser NetFlow v5 + deteksi anomali
+trafik (scan / exfil / beacon).
 
 Mekanisme:
   - header 24B (version=5, count, sys_uptime, unix_secs/nsecs,

@@ -1,13 +1,5 @@
-r"""[SAFETY: read-only] arp_pcap_scan — deteksi indikasi ARP poisoning
-dari capture Ethernet offline (pcap classic, stdlib murni, tanpa jaringan).
-
-Port konsep dari antrean SKILL-PORT-QUEUE #0380 (mukul975/
-Anthropic-Cybersecurity-Skills, skill 'detecting-arp-poisoning-in-network-
-traffic' — indikator MAC flip-flop, duplicate IP, gratuitous ARP flood,
-lonjakan volume ARP, perubahan MAC gateway; atribusi konsep, lisensi
-sumber Apache-2.0). Dibangun FROM SCRATCH: parser pcap + frame ARP
-ditulis sendiri dari spesifikasi publik (Ethernet II + RFC 826), TIDAK
-menyalin kode sumber skill dan tidak memakai lib pcap/scapy.
+r"""[SAFETY: read-only] arp_pcap_scan — deteksi indikasi ARP poisoning dari
+capture Ethernet offline (pcap classic, stdlib murni, tanpa jaringan).
 
 Input -> mekanisme -> output:
   - Input : file pcap classic (linktype Ethernet 0x01) hasil capture

@@ -1,18 +1,10 @@
-r"""[AUDIT: read-only] rust_binary_triage — triase OFFLINE biner terkompilasi
-Rust (malware & artefak lab): identifikasi kompilasi Rust dari penanda
-runtime-nya, ekstraksi versi rustc, inventaris crate (jalur registry .cargo
-yang tertanam + nama crate dari simbol legacy-mangled `_ZN..E`), pemetaan
-crate -> kelas kapabilitas (network/crypto/persist/recon/collection/
-obfuscation), dan string relevan-malware ber-offset (URL di-defang).
-
-Mengisi antrean port dari mukul975/Anthropic-Cybersecurity-Skills
-'reverse-engineering-rust-malware' (#0942 — atribusi konsep, lisensi
-sumber Apache-2.0). Dibangun FROM SCRATCH TANPA menyalin kode sumber itu:
-indikator runtime, tabel kapabilitas, dan dekoder segmen legacy-mangling
-ditulis sendiri dari semantik publik (dokumentasi symbol mangling Rust,
-tabel crate crates.io). Skill sumber = runbook RE LIVE (IDA/Ghidra); tool
-ini memilih sisi STATIS nol-jaringan: TIDAK mendekompilasi, TIDAK
-membongkar — hanya membaca byte yang sudah ada.
+r"""[AUDIT: read-only] rust_binary_triage — triase OFFLINE biner
+terkompilasi Rust (malware & artefak lab): identifikasi kompilasi Rust
+dari penanda runtime-nya, ekstraksi versi rustc, inventaris crate (jalur
+registry .cargo yang tertanam + nama crate dari simbol legacy-mangled
+`_ZN..E`), pemetaan crate -> kelas kapabilitas
+(network/crypto/persist/recon/collection/ obfuscation), dan string
+relevan-malware ber-offset (URL di-defang).
 
 Keterbatasan yang diakui eksplisit (fail-closed, anti-klaim):
   - simbol v0 mangling (`_R...`) TIDAK didekode penuh (tatabahasa base-62

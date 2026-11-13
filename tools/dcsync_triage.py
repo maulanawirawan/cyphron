@@ -4,18 +4,6 @@ hak replikasi directory service (DS-Replication-Get-Changes / -All /
 -In-Filtered-Set) yang dipicu akun BUKAN akun mesin/domain controller.
 TANPA jaringan.
 
-Port konsep dari antrean SKILL-PORT-QUEUE #0541 (mukul975/
-Anthropic-Cybersecurity-Skills 'hunting-for-dcsync-attacks'; atribusi
-konsep, lisensi sumber Apache-2.0). Dibangun FROM SCRATCH: parser XML
-+ taksonomi GUID replikasi ditulis sendiri dari spesifikasi deteksi
-publik (GUID extended-right AD terdaftar terbuka, access mask Windows).
-Skill sumber menanyakan SIEM live (Splunk/Sentinel); secai memilih
-artefak offline (ekspor XML Security via Event Viewer/wevtutil) supaya
-nol jaringan dan dapat dites. Metodologi pendahulunya didistilasi di
-docs/PORT-AGENT-METHODS.md seksi 55; tool ini mengekstraksi inti
-deterministiknya. Ranah 4768/4769 (Kerberos) TIDAK disentuh
-(kerberos_log_triage B14); 4624/7045 (win_auth_triage B15).
-
 Input -> mekanisme -> output:
   - Input : file XML ekspor Windows Security (Event Viewer "Export
             XML" / wevtutil /x) berisi elemen <Event>, atau --dir.

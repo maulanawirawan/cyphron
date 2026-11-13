@@ -4,20 +4,6 @@ menemukan KONFIGURASI kanal ekstraksi & kandidat IOC: SMTP, FTP,
 Telegram bot, Discord webhook, assignment kredensial, endpoint HTTP/IP.
 TANPA jaringan, TANPA dekompilasi (lapisan string, bukan RE penuh).
 
-Port konsep dari antrean SKILL-PORT-QUEUE #0517 + #0519 (mukul975/
-Anthropic-Cybersecurity-Skills 'extracting-config-from-agent-tesla-rat',
-'extracting-iocs-from-malware-samples'; atribusi konsep, lisensi sumber
-Apache-2.0). Dibangun FROM SCRATCH: taksonomi kanal + regex ditulis
-sendiri dari spesifikasi format publik (format token bot Telegram,
-format URL webhook Discord, skema SMTP/FTP). Skill sumber menyasar
-khusus satu keluarga (Agent Tesla) via dekompilasi .NET (dnSpy/ILSpy);
-secai memilih lapisan string generik (apa pun keluarga malware yang
-menyimpan konfigurasi plaintext/base64) supaya stdlib murni dan dapat
-dites deterministik. Ranah dibagi eksplisit: binary_strings_surface =
-surface URL/secret-format umum utk audit binary sah; ioc_defang =
-defang/refang teks laporan; tool ini = klasifikasi KANAL ekstraksi
-+ kandidat IOC dari sampel mentah untuk kebutuhan triase/CTI.
-
 Input -> mekanisme -> output:
   - Input : satu file sampel apa pun (--file) atau direktori (--dir,
             rekursif, abaikan file > batas).

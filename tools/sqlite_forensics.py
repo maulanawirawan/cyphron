@@ -1,20 +1,12 @@
-r"""[AUDIT: read-only] sqlite_forensics — forensik OFFLINE berkas basis
-data SQLite generik (browser, aplikasi mobile, chat, cache): parse header
+r"""[AUDIT: read-only] sqlite_forensics — forensik OFFLINE berkas basis data
+SQLite generik (browser, aplikasi mobile, chat, cache): parse header
 100-byte, inventaris freelist (halaman terhapus), carving string dari
-halaman freelist + unallocated space + freeblock chain di halaman
-B-tree hidup, best-effort parse rekord teks dari halaman freelist yang
-headernya masih utuh, parse frame WAL (page inventory, restart,
-overlap freelist), status rollback journal, dan inventaris tabel/row
-aktif via sqlite3 read-only immutable. TANPA jaringan, tanpa tulis ke
-berkas sumber, tanpa kredensial.
-
-Mengisi antrean port SKILL-PORT-QUEUE #0896 (mukul975/
-Anthropic-Cybersecurity-Skills 'performing-sqlite-database-forensics';
-atribusi konsep freelist/WAL/unallocated recovery, lisensi sumber
-Apache-2.0). Struktur berkas diimplementasi FROM SCRATCH dari spesifikasi
-publik SQLite (https://www.sqlite.org/fileformat2.html) — termasuk
-koreksi posisi field (text encoding di offset 56, bukan 52) — tanpa
-menyalin kode sumber skill.
+halaman freelist + unallocated space + freeblock chain di halaman B-tree
+hidup, best-effort parse rekord teks dari halaman freelist yang
+headernya masih utuh, parse frame WAL (page inventory, restart, overlap
+freelist), status rollback journal, dan inventaris tabel/row aktif via
+sqlite3 read-only immutable. TANPA jaringan, tanpa tulis ke berkas
+sumber, tanpa kredensial.
 
 Pembagian ranah (TIDAK diduplikasi):
   - skema browser (urls/visits/moz_places, epoch WebKit 1601) ->

@@ -5,16 +5,6 @@ ber-hak istimewa, akun baru lalu langsung dipromosikan, SID History
 burst reset password, dan modifikasi objek DS AdminSDHolder. TANPA
 jaringan.
 
-Port konsep dari antrean SKILL-PORT-QUEUE #0562 (mukul975/
-Anthropic-Cybersecurity-Skills 'hunting-for-t1098-account-manipulation';
-atribusi konsep, lisensi sumber Apache-2.0). Dibangun FROM SCRATCH:
-parser XML + taksonomi event/deteksi ditulis sendiri dari spesifikasi
-event audit Windows yang terdokumentasi publik. Skill sumber memakai
-SIEM (python-evtx/Splunk); secai memilih artefak offline (ekspor XML
-Security via Event Viewer/wevtutil) supaya nol jaringan dan dapat
-dites. Ranah logon 4624/4625 TIDAK disentuh (win_logon_triage B16/
-win_auth_triage B15); 4662 replikasi = dcsync_triage B19.
-
 Input -> mekanisme -> output:
   - Input : file XML ekspor Windows Security, atau --dir.
   - Mekanisme: dispatch per event ID -> cek deterministik + korelasi

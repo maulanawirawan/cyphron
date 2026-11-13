@@ -1,20 +1,8 @@
 r"""[SAFETY: read-only] pkg_typosquat_check — deteksi OFFLINE nama paket
 typosquat/brandjack di manifest dependensi (requirements.txt,
-package.json, pyproject.toml, atau daftar nama mentah) memakai
-mutasi standar + edit distance terhadap korpus paket populer yang
-ter-bundle. NOL jaringan.
-
-Port konsep dari antrean SKILL-PORT-QUEUE #0469 + #0470 (mukul975/
-Anthropic-Cybersecurity-Skills 'detecting-typosquatting-packages' dan
-'detecting-typosquatting-packages-in-npm-pypi' — skrining nama paket
-dgn edit-distance, keyboard-proximity, dan korpus nama populer;
-atribusi konsep, lisensi sumber Apache-2.0). Dibangun FROM SCRATCH:
-implementasi Levenshtein + primitif mutasi (typomania/typogard-style)
-ditulis sendiri. Skill sumber mengkueri API registry live (umur,
-jumlah unduhan, install script) — itu langkah LIVE OPS yang TIDAK
-dibangun di sini (nol jaringan); skor di sini = sinyal awal, bukan
-verdict. Entri #0470 (npm/PyPI registry API) dilayani batasan yang
-sama dan dicatat di meta.
+package.json, pyproject.toml, atau daftar nama mentah) memakai mutasi
+standar + edit distance terhadap korpus paket populer yang ter-bundle.
+NOL jaringan.
 
 Padanan secai yang ada dan TIDAK diduplikasi:
   - dep_confusion_check  : nama internal yang klaimable di registry
@@ -406,7 +394,7 @@ def main(argv: "list[str] | None" = None) -> int:
         ],
         "meta": {"unparsed": unparsed,
                  "fail_on": args.fail_on,
-                 "source": "#0469 #0470 (mukul975, Apache-2.0)"},
+                 "source": "internal design"},
     }
     out = json.dumps(result, ensure_ascii=False, sort_keys=True,
                      indent=2)

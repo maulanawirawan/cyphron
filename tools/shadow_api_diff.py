@@ -1,14 +1,7 @@
 r"""[SAFETY: read-only] shadow_api_diff — diff OFFLINE endpoint API yang
 TERAMATI di access log vs yang TERDOKUMENTASI di spesifikasi OpenAPI —
-shadow/zombie API (endpoint di luar dokumentasi, atau didokumentasi
-tapi tak pernah dipakai). TANPA jaringan.
-
-Port konsep dari antrean SKILL-PORT-QUEUE #0458 (mukul975/Anthropic-
-Cybersecurity-Skills 'detecting-shadow-api-endpoints' — bandingkan
-traffic live vs OpenAPI spec utk menemukan endpoint tak terdokumentasi;
-atribusi konsep, lisensi sumber Apache-2.0). Dibangun FROM SCRATCH:
-parser CLF/JSONL + pencocokan template-path ditulis sendiri; skill
-sumber memakai pandas + yaml, secai stdlib murni.
+shadow/zombie API (endpoint di luar dokumentasi, atau didokumentasi tapi
+tak pernah dipakai). TANPA jaringan.
 
 Input -> mekanisme -> output:
   - Input : --spec openapi.json (dokumen OpenAPI 2/3 versi JSON) ATAU
@@ -28,7 +21,7 @@ Cek:
                                   zombie API (inventaris, bukan
                                   temuan serangan).
 
-Skor risiko shadow (dari konsep sumber, ditulis eksplisit):
+Skor risiko shadow (dari ditulis eksplisit):
   +3 tanpa header Authorization teramati (JSON log saja; CLF tidak
      merekam header -> +1 "tidak diketahui", dicatat di meta)
   +2 volume > 1000 request; +1 volume > 100
@@ -339,7 +332,7 @@ def main(argv: "list[str] | None" = None) -> int:
         ],
         "meta": {"unparsed": unparsed, "prefix": args.prefix,
                  "fail_on": args.fail_on,
-                 "source": "#0458 (mukul975, Apache-2.0)"},
+                 "source": "internal design"},
     }
     out = json.dumps(result, ensure_ascii=False, sort_keys=True,
                      indent=2)

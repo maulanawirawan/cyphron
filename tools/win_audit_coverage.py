@@ -1,14 +1,7 @@
 r"""[SAFETY: read-only] win_audit_coverage — cek cakupan sumber log Windows
-untuk deteksi: kebijakan audit (auditpol) + konfigurasi channel event log
-(wevtutil). Offline, nol jaringan, tanpa eksekusi perintah — tool hanya
-mem-PARSE teks yang disimpan operator.
-
-Port konsep dari antrean SKILL-PORT-QUEUE #0355 (mukul975/
-Anthropic-Cybersecurity-Skills, skill 'configuring-windows-event-logging-
-for-detection' — advanced audit policy, process creation + command line,
-ukuran log, forwarding; atribusi konsep). Dibangun FROM SCRATCH: parser
-CSV auditpol dan parser blok wevtutil ditulis sendiri — tidak menyalin
-kode sumber. Lisensi secai: PolyForm NC.
+untuk deteksi: kebijakan audit (auditpol) + konfigurasi channel event
+log (wevtutil). Offline, nol jaringan, tanpa eksekusi perintah — tool
+hanya mem-PARSE teks yang disimpan operator.
 
 Input -> mekanisme -> output:
   - Input : (a) output `auditpol /get /category:* /r` (CSV) dan/atau

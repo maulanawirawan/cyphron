@@ -1,4 +1,5 @@
-"""[SAFETY: read-only] scope_aggregate — gabung ekspor kebijakan multi-program.
+"""[SAFETY: read-only] scope_aggregate — gabung ekspor kebijakan
+multi-program.
 
 Pertanyaan yang dijawab: "daftar aset ter-konsolidasi lintas program apa
 yang AMAN dikerjakan, dan aset mana yang KONFLIK sehingga wajib diklarifikasi
@@ -271,7 +272,7 @@ def main(argv: Optional[list] = None) -> int:
     parser = argparse.ArgumentParser(
         description=("Konsolidasi ekspor kebijakan scope multi-program: "
                      "dedup, deteksi konflik, ringkasan per program. "
-                     "NOL jaringan. Port konsep ABH (MIT)."))
+                     "NOL jaringan. NOL jaringan."))
     parser.add_argument("--policy", action="append", required=True,
                         metavar="FILE",
                         help="ekspor kebijakan JSON (boleh diulang)")

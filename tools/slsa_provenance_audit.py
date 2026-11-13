@@ -2,15 +2,6 @@
 provenance in-toto/SLSA: struktur statement/DSSE, ikatan digest subjek
 vs artefak nyata, dan kebijakan identitas builder/sumber. NOL jaringan.
 
-Mengisi antrean port SKILL-PORT-QUEUE #0995 (mukul975/Anthropic-
-Cybersecurity-Skills 'verifying-build-provenance-with-slsa-sigstore';
-atribusi konsep, lisensi sumber Apache-2.0). Skill sumber = runbook
-cosign/slsa-verifier (jaringan ke Rekor/Fulcio + Go CLI). Inti
-deterministik yang diport di sini = VALIDASI ISI dokumen provenance
-yang bisa dilakukan offline — bukan verifikasi kriptografi tanda
-tangannya (itu ranah cosign/slsa-verifier live; status tanda tangan
-DINYATAKAN JUJUR di output, tidak pernah diklaim terverifikasi).
-
 Cek (deterministik, semua dari spesifikasi terpublikasi):
   1. struktur: DSSE envelope (payload b64 + payloadType + signatures)
      ATAU Statement in-toto polos (_type, subject[], predicateType,

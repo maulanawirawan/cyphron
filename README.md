@@ -238,9 +238,6 @@ The triage family is a set of standalone offline tools: evidence in,
 deterministic `findings.json` out, fail-closed, zero network. Highlights
 by domain:
 
-**Reference library** — concept sources for recent additions include
-[A-poc/RedTeam-Tools](https://github.com/A-poc/RedTeam-Tools) and
-[A-poc/BlueTeam-Tools](https://github.com/A-poc/BlueTeam-Tools)
 (quoted as *concept* references only; every implementation here is written
 from scratch, stdlib-only, and documented with its source entry in the
 module docstring).
@@ -270,7 +267,6 @@ module docstring).
 
 The full index lives in [CHANGELOG.md](CHANGELOG.md); the methodology
 distilled from non-tool-shaped concepts (250+ sections) lives in
-[docs/PORT-AGENT-METHODS.md](docs/PORT-AGENT-METHODS.md).
 
 ## Commands
 
@@ -403,7 +399,6 @@ contributors list.
   `hunt_pattern_db`, and friends).
 - The 995-concept skill-port program drew on four public security-skill
   collections (trailofbits/skills, SnailSploit/Claude-Red,
-  mukul975/Anthropic-Cybersecurity-Skills, NVIDIA-SkillSpector) — every
   ported tool is built from scratch with concept attribution in its
   docstring.
 

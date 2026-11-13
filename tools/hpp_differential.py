@@ -1,13 +1,6 @@
 """[SAFETY: bounded-requests] hpp_differential — deteksi HTTP Parameter
 Pollution (CWE-436/CWE-235) versi terkendali, fail-closed.
 
-Konsep dari antrean port skill (SKILL-PORT-QUEUE #0154,
-claude-red/offensive-parameter-pollution — atribusi ide): duplikasi
-parameter dan perbedaan parsing antar layer. Dibangun from scratch tanpa
-kode sumber pihak lain; di sini dipakai sisi DIAGNOSTIK (defend):
-mengukur bagaimana server memilih nilai ketika parameter dikirim ganda,
-dengan kontrol anti-FP — bukan alat eksploitasi.
-
 Metode (maksimum 5 request GET, bounded, tanpa state-change):
   1. r1  ?<p>=A                 (single nilai A)
   2. r2  ?<p>=B                 (single nilai B)

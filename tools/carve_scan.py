@@ -2,15 +2,6 @@ r"""[SAFETY: read-only] carve_scan — pindai signature & ukur (carve) berkas
 ter-embed di blob mentah (image disk, dump unallocated, firmware, memori
 tertuang). NOL jaringan, read-only, stdlib murni.
 
-Port INTI DETERMINISTIK dari dua skill antrean SKILL-PORT-QUEUE:
-  #0817 mukul975/Anthropic-Cybersecurity-Skills
-       'performing-file-carving-with-foremost'  -> ukur header/footer
-  #0818 mukul975/Anthropic-Cybersecurity-Skills
-       'performing-firmware-extraction-with-binwalk' -> pindai magic +
-       profil entropi blok
-(Konsep sumber Apache-2.0, atribusi di sini — foremost/binwalk tetap alat
-pihak ketiga; yang diport = mekanisme signature+entropi, bukan kodenya.)
-
 Mekanisme:
   1. SCAN   — cari magic header/footer pada tabel signature bawaan
               (tepat byte, offset apa pun) + signature offset-tetap

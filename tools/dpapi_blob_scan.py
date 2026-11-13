@@ -2,15 +2,6 @@
 file/direktori untuk triase DFIR Windows (CWE-922/insiden credential
 access), nol jaringan, TANPA dekripsi.
 
-Konsep dari antrean port skill (SKILL-PORT-QUEUE #0178,
-mukul975/abusing-dpapi-for-credential-access — atribusi ide): DPAPI
-melindungi kredensial Windows (Credential Manager, browser, WiFi) dan
-blob-nya bisa didekripsi offline bila masterkey bocor. Dibangun from
-scratch dari struktur MS-DPAPI publik; yang dibangun di sini sisi
-TRIASE (defend): MENGINVENTARISKAN blob — siapa pemilik masterkey GUID,
-algoritma, konteks — bukan mendekripsi. Dekripsi butuh masterkey =
-akses kredensial; di luar kontrak repo ini.
-
 Struktur blob (MS-DPAPI, public):
   dwVersion u32 (=1) | guidProvider 16B (df9d8cd0-1501-11d1-8c7a-
   00c04fc297eb) | dwMasterKeyVersion u32 | guidMasterKey 16B |

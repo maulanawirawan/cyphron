@@ -1,7 +1,4 @@
 """Nol jaringan — test yara_rule_lint (linter kualitas aturan YARA).
-
-Kasus mengikuti prinsip skill sumber: atom 4-byte, string umum rawan FP,
-short-circuit cek murah, metadata, guard filesize untuk baca uintNN.
 """
 from __future__ import annotations
 

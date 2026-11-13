@@ -1,15 +1,6 @@
-r"""[AUDIT: read-only] gcp_fw_audit — audit OFFLINE aturan VPC firewall
-GCP dari ekspor JSON gcloud: klasifikasi risiko rule yang terlalu
-terbuka (open-to-world), tanpa target, disabled, dan postur egress/logging.
-
-Mengisi antrean port SKILL-PORT-QUEUE #0630 (mukul975/
-Anthropic-Cybersecurity-Skills 'implementing-gcp-vpc-firewall-rules';
-atribusi konsep, lisensi sumber Apache-2.0). Dibangun FROM SCRATCH:
-klasifikasi rule ditulis sendiri dari kelas kesalahan publik (rule
-world-open pada port manajemen/DB, tanpa default-deny egress, logging
-mati). Tidak menyalin kode sumber; gcloud/tfsec/SCC tidak dipakai —
-inputnya ekspor JSON baca-saja:
-  gcloud compute firewall-rules list --format=json > fw.json
+r"""[AUDIT: read-only] gcp_fw_audit — audit OFFLINE aturan VPC firewall GCP
+dari ekspor JSON gcloud: klasifikasi risiko rule yang terlalu terbuka
+(open-to-world), tanpa target, disabled, dan postur egress/logging.
 
 Pembagian ranah (TIDAK diduplikasi):
   - konfigurasi IaC Terraform  -> terraform_audit (B09, #0270)

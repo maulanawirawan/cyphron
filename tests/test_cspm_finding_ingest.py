@@ -2,7 +2,7 @@
 
 Fixture dibangun inline mengikuti format Prowler flat JSON / Prowler OCSF
 JSONL / struktur laporan ScoutSuite; perilaku normalize-dedup-sort diuji
-terhadap kernel konsep sumber (id = sha256(resource|check), FAIL saja,
+terhadap kernel spesifikasi internal (id = sha256(resource|check), FAIL saja,
 urut severity). Tidak ada request jaringan.
 """
 from __future__ import annotations

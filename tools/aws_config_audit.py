@@ -1,19 +1,6 @@
 r"""[SAFETY: read-only] aws_config_audit — audit OFFLINE ekspor AWS Config
-(configuration-item / snapshot JSON) untuk temuan kepatuhan deterministik.
-TANPA jaringan, tanpa boto3.
-
-Port konsep dari antrean SKILL-PORT-QUEUE #0583 (mukul975/
-Anthropic-Cybersecurity-Skills 'implementing-aws-config-rules-for-
-compliance'; atribusi konsep, lisensi sumber Apache-2.0). Dibangun FROM
-SCRATCH: evaluasi field configuration-item ditulis sendiri dari konsep
-rule AWS Config publik (CIS managed rules + custom rule required-tags di
-sumber). Skill sumber menjalankan AWS Config + Lambda remediation live;
-secai mengevaluasi EKSPOR offline (configuration-item JSON dari
-ConfigurationItemChangeNotification / get-resource-config-history /
-config-snapshot S3) agar nol jaringan dan dapat dites. Ranah TIDAK
-diduplikasi: terraform_audit (IaC HCL sebelum deploy), cloudtrail_scan
-(log aktivitas API), iam_escalation_scan (policy JSON eskalasi) — tool
-ini menilai KONFIGURASI sumber daya yang terekam Config.
+(configuration-item / snapshot JSON) untuk temuan kepatuhan
+deterministik. TANPA jaringan, tanpa boto3.
 
 Input -> mekanisme -> output:
   - Input : file JSON AWS Config, salah satu bentuk:
@@ -364,9 +351,6 @@ def main(argv: "list[str] | None" = None) -> int:
 
     report = {
         "kind": "aws-config-audit",
-        "attribution": "konsep #0583 mukul975/implementing-aws-config-"
-                       "rules-for-compliance (Apache-2.0) — dibangun from "
-                       "scratch; rule id AWS Config hanya label konsep",
         "findings": findings,
         "summary": summary,
         "notes": notes,

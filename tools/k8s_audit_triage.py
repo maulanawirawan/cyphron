@@ -1,14 +1,6 @@
 """[SAFETY: read-only] k8s_audit_triage — triase OFFLINE audit log
 kube-apiserver (JSONL) utk jejak penyalahgunaan API Kubernetes.
 
-Port konsep dari antrean SKILL-PORT-QUEUE #0205 (mukul975/
-Anthropic-Cybersecurity-Skills 'analyzing-kubernetes-audit-logs' —
-deteksi exec-into-pod, akses secrets, modifikasi RBAC, pod
-privileged, akses anonymous dari audit log JSONL; lisensi skill
-sumber Apache-2.0, atribusi konsep — kode ini ditulis from scratch,
-stdlib-only, NOL jaringan: input = file audit log hasil ekspor
-lab/berizin, TIDAK menghubungi cluster apapun).
-
 Mekanisme (semua temuan = LEAD teramati di log, agregat per
 pengguna, sampel disertakan):
   - pod-exec        : create pods dengan subresource exec/attach/

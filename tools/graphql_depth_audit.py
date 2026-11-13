@@ -1,16 +1,6 @@
-r"""[SAFETY: read-only] graphql_depth_audit — audit kedalaman & siklus
-skema GraphQL dari hasil INTROSPEKSI TERSEDIA (JSON). NOL jaringan,
-read-only, stdlib murni.
-
-Port INTI DETERMINISTIK dari dua skill antrean SKILL-PORT-QUEUE:
-  #0823 mukul975/Anthropic-Cybersecurity-Skills
-       'performing-graphql-depth-limit-attack'  -> deteksi siklus tipe
-       (recursive relation) yang memungkinkan query bersarang tak terbatas
-  #0825 mukul975/Anthropic-Cybersecurity-Skills
-       'performing-graphql-security-assessment' -> sisi statis: permukaan
-       mutasi/subscription + field root bertipe LIST (bahan alias
-       amplification)
-(Konsep sumber Apache-2.0, atribusi di sini — konsep, bukan teks.)
+r"""[SAFETY: read-only] graphql_depth_audit — audit kedalaman & siklus skema
+GraphQL dari hasil INTROSPEKSI TERSEDIA (JSON). NOL jaringan, read-only,
+stdlib murni.
 
 RANAH: analisis OFFLINE atas skema tersimpan. Eksekusi query bersarang
 nyata terhadap server = serangan hidup di luar bentuk tool ini (target

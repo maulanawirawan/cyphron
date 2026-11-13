@@ -1,23 +1,13 @@
 r"""[AUDIT: read-only] crypto_constant_scan — identifikasi OFFLINE algoritma
 kripto yang TERTANAM di blob biner (exe/dll/so/dump/apak pun) dari tiga
-sumber bukti byte-level: (1) konstanta byte algoritma yang dipublikasikan
-spesifikasinya (AES S-box, konstanta ChaCha20/Salsa20, init MD5/SHA-1/
-SHA-2, tabel CRC32, P-array Blowfish, alfabet Base64), (2) nama API kripto
-di tabel import PE (CryptoAPI/CNG/OpenSSL), (3) penanda kunci/serifikat
-(PEM, pola DER modulus RSA). Mode opsional --artifact menganalisis SATU
-artefak terenkripsi: entropi tail (kandidat key-material ditempel, ukuran
-umum RSA) + inventaris preservasi header asli.
-
-Mengisi antrean port dari mukul975/Anthropic-Cybersecurity-Skills
-'reverse-engineering-ransomware-encryption-routine' (#0941 — atribusi
-konsep, lisensi sumber Apache-2.0) dan konsep FindCrypt dari
-'reverse-engineering-malware-with-ghidra' (#0940). Dibangun FROM SCRATCH
-TANPA menyalin kode sumber itu: tabel konstanta ditulis dari spesifikasi
-publik algoritma (FIPS 197, RFC 8439, RFC 1321, FIPS 180-4, ISO 3309),
-parser PE ditulis dari spesifikasi PE/COFF Microsoft. Skill sumber =
-runbook RE LIVE (IDA/Ghidra/x64dbg/pycryptodome); tool ini memilih sisi
-STATIS nol-jaringan: TIDAK melakukan dekompilasi, debugging, atau
-dekripsi — hanya mencocokkan byte yang sudah ada di berkas.
+sumber bukti byte-level: (1) konstanta byte algoritma yang
+dipublikasikan spesifikasinya (AES S-box, konstanta ChaCha20/Salsa20,
+init MD5/SHA-1/ SHA-2, tabel CRC32, P-array Blowfish, alfabet Base64),
+(2) nama API kripto di tabel import PE (CryptoAPI/CNG/OpenSSL), (3)
+penanda kunci/serifikat (PEM, pola DER modulus RSA). Mode opsional
+--artifact menganalisis SATU artefak terenkripsi: entropi tail (kandidat
+key-material ditempel, ukuran umum RSA) + inventaris preservasi header
+asli.
 
 Ranah tetangga eksplisit (jangan dipindah ke sini):
   - packedness/entropi section PE = packer_scan;

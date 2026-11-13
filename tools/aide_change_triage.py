@@ -1,16 +1,6 @@
-r"""[SAFETY: read-only] aide_change_triage — triase OFFLINE laporan
-`aide --check` (file integrity monitoring Linux): klasifikasi added/
+r"""[SAFETY: read-only] aide_change_triage — triase OFFLINE laporan `aide
+--check` (file integrity monitoring Linux): klasifikasi added/
 removed/changed entries per kritisnya path dan jenis atribut berubah.
-
-Mengisi antrean port SKILL-PORT-QUEUE #0626 (mukul975/
-Anthropic-Cybersecurity-Skills 'implementing-file-integrity-monitoring-
-with-aide'; atribusi konsep, lisensi sumber Apache-2.0). Skill sumber
-menjalankan AIDE di host (aide --init/--check) dan menyebut langkah
-"Parse Change Report — extract added, removed, changed" tanpa parser:
-inti deterministik yang diekstrak di sini adalah PARSER LAPORAN +
-klasifikasi severity-nya, dari scratch (tidak menyalin kode sumber,
-tidak memanggil AIDE). AIDE sendiri = alat host eksternal; jalankan
-`aide --check` di lab Anda, triase output-nya di secai.
 
 Pembagian ranah (TIDAK diduplikasi):
   - baseline kredensial/appArmor dsb. di Windows  -> mft_scan (B08)

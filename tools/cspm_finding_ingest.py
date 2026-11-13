@@ -1,17 +1,6 @@
 """[INGEST] cspm_finding_ingest — ingest temuan CSPM eksternal (Prowler
 flat/OCSF + ScoutSuite) -> findings.json secai.
 
-Mengisi antrean port dari SKILL-PORT-QUEUE #0577 (bagian platform yang
-di-SKIP sebagai OPS) serta #0597 + #0599 (mukul975/
-Anthropic-Cybersecurity-Skills 'implementing-cloud-security-posture-
-management' + 'implementing-cloud-vulnerability-posture-management';
-atribusi konsep, lisensi sumber Apache-2.0). Kernel yang diport: normalisasi
-temuan lintas tool CSPM ke format tunggal (konsep normalize_finding sumber),
-id stabil = sha256(resource|check) (konsep sumber: ResourceId+CheckId),
-dedup by id, hanya FAIL yang masuk (PASS dihitung), urut severity
-CRITICAL>HIGH>MEDIUM>LOW>INFORMATIONAL. Ditulis dari nol dgn stdlib saja;
-bukan salinan kode pihak lain. Lisensi secai: PolyForm NC.
-
 Kenapa secai butuh ini: pemindaian postur cloud (Prowler/ScoutSuite) pada
 lab menghasilkan file JSON/JSONL yang belum punya jalur masuk findings.json
 — sarif_ingest hanya menerima SARIF 2.1.0. Tool ini satu pintu untuk keduanya

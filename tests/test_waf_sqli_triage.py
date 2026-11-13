@@ -2,7 +2,7 @@
 (#0461), nol jaringan.
 
 Fixture = audit log ModSecurity sintetis + JSONL generik dari
-spesifikasi konsep sumber (UNION SELECT, OR 1=1, SLEEP/BENCHMARK).
+spesifikasi internal (UNION SELECT, OR 1=1, SLEEP/BENCHMARK).
 """
 from __future__ import annotations
 

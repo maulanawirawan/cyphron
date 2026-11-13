@@ -3,21 +3,6 @@ NetworkPolicy (networking.k8s.io/v1, upstream/CNI-portable): linter
 statis yang menjawab "postur segmentasi east-west mana yang BERONGGA"
 sebelum apply / dari repo GitOps.
 
-Mengisi antrean port dari mukul975/Anthropic-Cybersecurity-Skills
-'skills/implementing-network-policies-for-kubernetes' (#0668 — default-
-deny baseline, allow DNS egress, pod/namespace selector rules, blokir
-akses cloud metadata; atribusi konsep, lisensi sumber Apache-2.0).
-Dibangun FROM SCRATCH TANPA kode sumber itu: aturan cek ditulis dari
-semantik publik NetworkPolicy (kubernetes.io/docs/concepts/services-
-networking/network-policies). Skill sumber = runbook menulis/apply
-manifest + kubectl test pod; tool ini memilih sisi statis: TIDAK
-menjalankan kubectl dan TIDAK menyentuh cluster. Ranah tool tetangga
-ditulis eksplisit: RBAC manifest = k8s_rbac_audit (B09), spec pod vs
-Pod Security Standards = k8s_podsec_audit (B22), audit log API server
-saat JALAN = k8s_audit_triage (B07); tool ini = NetworkPolicy upstream
-SAAT-DEPLOY. CRD vendor (Calico GlobalNetworkPolicy/Tier, Cilium
-CiliumNetworkPolicy) DI LUAR scope — hanya upstream yang di-parse.
-
 Input -> mekanisme -> output:
   - Input   : --source FILE/DIR (YAML subset atau JSON, pola loader
               k8s_rbac_audit.parse_documents) + --expect-ns (namespace
@@ -425,7 +410,7 @@ def audit_namespaces(policies: "list[dict]",
                 "keluar ke mana saja.")
 
         # DNS: namespace yang mulai membatasi egress wajib punya jalur
-        # port 53 (skill sumber Step 2; discovery pecah tanpa itu).
+        # port 53 (acuan internal Step 2; discovery pecah tanpa itu).
         egress_restricted = any(
             "Egress" in _effective_types(
                 p.get("spec", {}) if isinstance(p.get("spec"), dict)

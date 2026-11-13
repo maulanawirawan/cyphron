@@ -1,33 +1,7 @@
 """[SAFETY: read-only] evtx_hunt — HUNT cepat level-carve di file Windows
-Event Log (.evtx) BINARY: ekstrak string UTF-16LE dari tiap chunk
-(64 KiB, magic `ElfChnk\\x00`) dan cari indikator aktivitas (tooling,
-recon, persistence, lateral movement, defense evasion).
-
-Port konsep dari entri EVTX-hunting di A-poc/BlueTeam-Tools (chainsaw /
-evtxtract — hunting event log). Dibangun from scratch, stdlib-only, NOL
-jaringan, NOL eksekusi: file dibaca sebagai byte-stream.
-
-**Batas jujur (wajib dibaca):** ini BUKAN parser EVTX penuh. EVTX =
-Binary-XML + tabel substitusi — parser penuh (python-evtx/chainsaw)
-bisa merekonstruksi event utuh; carve ini HANYA menangkap string yang
-tersimpan sebagai UTF-16LE literal di chunk. Bisa MISS (nilai yang
-hanya ada di template table) dan TIDAK memetakan string -> event ID.
-Output = INDICATOR lead untuk triage lanjutan (sysmon_triage/
-win_logon_triage pada export XML), bukan kesimpulan forensik.
-
-Indikator (case-insensitive, per kategori):
-  - tooling     : mimikatz, psexec, wmiexec, cobaltstrike, bloodhound,
-                  rubeus, chisel, ngrok, seatbelt, sharphound
-  - recon       : whoami, "net group", "net user /domain", quser,
-                  tasklist, nltest
-  - persistence : "schtasks /create", "currentversion\\run", "-enc",
-                  "invoke-expression", "iex (", "frombase64string",
-                  "register-scheduledtask"
-  - lateral     : "\\ipc$", "/node:", "winrm", "wmic /node", "-c thinclient"
-  - defense     : "vssadmin delete", "bcdedit", "wevtutil cl",
-                  "clear-eventlog"
-Fail-closed: file tanpa magic `ElfFile\\x00` -> exit 2. File besar
-diproses streaming per 256 KiB (tanpa muat penuh di memori).
+Event Log (.evtx) BINARY: ekstrak string UTF-16LE dari tiap chunk (64
+KiB, magic `ElfChnk\\x00`) dan cari indikator aktivitas (tooling, recon,
+persistence, lateral movement, defense evasion).
 
 Pemakaian:
   python tools/evtx_hunt.py --file Security.evtx --out hasil.json

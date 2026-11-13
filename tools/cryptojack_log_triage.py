@@ -1,12 +1,6 @@
 """[SAFETY: read-only] cryptojack_log_triage — triase OFFLINE log proxy/DNS
 untuk indikasi cryptojacking (coin-miner) di jaringan yang dipantau.
 
-Port konsep dari entri "Detect Cryptojacking Malware with Proxy Logs" di
-A-poc/BlueTeam-Tools (katalog referensi blue team; konsep deteksi via log
-proxy — kode ini ditulis from scratch, stdlib-only, NOL jaringan: input =
-file log proxy/DNS hasil ekspor lab/berizin, TIDAK menghubungi pool, API
-reputasi, maupun resolver apa pun).
-
 Format input yang dikenali (deteksi otomatis per baris):
   - Squid access.log    : 'IP IDENT USER [ts] "METHOD URL" STATUS BYTES ...'
   - format sederhana    : 'ts<TAB>src<TAB>method<TAB>host<TAB>uri<TAB>port

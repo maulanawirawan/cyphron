@@ -3,13 +3,6 @@ r"""[SAFETY: read-only] etcd_config_audit — audit konfigurasi keamanan etcd
 manifest, dump argumen proses, EncryptionConfiguration). NOL jaringan,
 read-only, stdlib murni.
 
-Port INTI DETERMINISTIK dari skill antrean SKILL-PORT-QUEUE:
-  #0840 mukul975/Anthropic-Cybersecurity-Skills
-       'performing-kubernetes-etcd-security-assessment'
-(etcd menyimpan Secret/RBAC/ConfigMap — plaintext default = target
-nilai-tertinggi. Konsep sumber Apache-2.0, atribusi di sini — konsep,
-bukan teks; kube-bench/etcdctl tetap alat pihak ketiga.)
-
 Input (satu atau lebih; sisi lain dicatat absen eksplisit):
   --etcd-manifest      static pod etcd (kubeadm: kind Pod, container
                        command/args), ATAU teks argumen proses mentah

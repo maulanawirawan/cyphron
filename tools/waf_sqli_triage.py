@@ -1,16 +1,8 @@
 r"""[SAFETY: read-only] waf_sqli_triage — triase OFFLINE log WAF
 (ModSecurity audit log, atau JSON/JSONL event WAF generik) untuk
 kampanye SQL injection: klasifikasi keluarga payload, agregasi sumber,
-dan penanda kemungkinan bypass (request SQLi yang mendapat respons
-2xx). TANPA jaringan.
-
-Port konsep dari antrean SKILL-PORT-QUEUE #0461 (mukul975/Anthropic-
-Cybersecurity-Skills 'detecting-sql-injection-via-waf-logs' — analisis
-log ModSecurity/AWS WAF/Cloudflare utk kampanye SQLi dgn klasifikasi
-OWASP; atribusi konsep, lisensi sumber Apache-2.0). Dibangun FROM
-SCRATCH: parser audit-log + taksonomi regex ditulis sendiri; skill
-sumber memakai kelas agent dgn dependensi tambahan, secai stdlib
-murni.
+dan penanda kemungkinan bypass (request SQLi yang mendapat respons 2xx).
+TANPA jaringan.
 
 Input -> mekanisme -> output:
   - Input : satu file log — ModSecurity audit log (bagian

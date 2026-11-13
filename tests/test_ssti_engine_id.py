@@ -1,7 +1,7 @@
 """test_ssti_engine_id — identifikasi mesin template dari bukti probe
 SSTI offline (#0511), nol jaringan.
 
-Fixture = bukti probe sintetis dari spesifikasi konsep sumber (polyglot
+Fixture = bukti probe sintetis dari spesifikasi internal (polyglot
 aritmetika + pembeda mesin publik); bukan salinan kode alat sumber.
 """
 from __future__ import annotations

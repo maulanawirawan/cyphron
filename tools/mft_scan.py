@@ -1,12 +1,5 @@
-r"""[SAFETY: read-only] mft_scan — parser NTFS $MFT untuk pemulihan
-metadata file terhapus.
-
-Port konsep dari antrean SKILL-PORT-QUEUE #0220 (mukul975/
-Anthropic-Cybersecurity-Skills 'analyzing-mft-for-deleted-file-
-recovery' — MFTECmd/analyzeMFT). Dibangun from scratch dari struktur
-$MFT yang dipublikasikan terbuka (NTFS on-disk format), stdlib-only,
-NOL jaringan, read-only: file $MFT diekstrak dulu (mis. dari image
-forensik) lalu diberikan sebagai input biasa.
+r"""[SAFETY: read-only] mft_scan — parser NTFS $MFT untuk pemulihan metadata
+file terhapus.
 
 Mekanisme:
   - iterasi record 1024-byte (default; --record-size untuk lainnya)

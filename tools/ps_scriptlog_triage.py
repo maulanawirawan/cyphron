@@ -1,19 +1,7 @@
-r"""[SAFETY: read-only] ps_scriptlog_triage — triase OFFLINE ekspor XML
-log Microsoft-Windows-PowerShell/Operational (Event 4104 script block +
-4103 module logging) utk indikasi AMSI bypass, download cradle, payload
+r"""[SAFETY: read-only] ps_scriptlog_triage — triase OFFLINE ekspor XML log
+Microsoft-Windows-PowerShell/Operational (Event 4104 script block + 4103
+module logging) utk indikasi AMSI bypass, download cradle, payload
 ter-encode, dan akses kredensial via skrip (T1059.001). TANPA jaringan.
-
-Port konsep dari antrean SKILL-PORT-QUEUE #0534 (mukul975/Anthropic-
-Cybersecurity-Skills 'hunting-for-anomalous-powershell-execution';
-atribusi konsep, lisensi sumber Apache-2.0). Dibangun FROM SCRATCH:
-taksonomi token + mekanisme reassembled ScriptBlockId ditulis sendiri
-dari spesifikasi event logging PowerShell. Skill sumber membaca EVTX
-via python-evtx/lxml; secai menerima ekspor XML Event Viewer/
-wevtutil (XML stdlib) — format yang sama dengan keluarga triase
-Windows repo (sysmon_triage, win_auth_triage). Ranah dibagi eksplisit:
-ps_obf_scan = obfuskasi file .ps1 statis; lolbin_scan/sysmon_triage =
-cmdline EID 1/11; tool ini = ISI skrip yang dieksekusi (sumber
-kebenaran 4104, teks setelah deobfuskasi runtime).
 
 Input -> mekanisme -> output:
   - Input : file XML ekspor PowerShell/Operational (bisa berisi banyak

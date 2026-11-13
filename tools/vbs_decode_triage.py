@@ -2,14 +2,6 @@
 VBE / JScript.Encode lalu triase isi terdekodenya untuk indikator
 eksekusi/unduhan (keluarga malware downloader & dropper VBS).
 
-Port konsep dari entri "decode-vbe" di A-poc/BlueTeam-Tools (Didier
-Stevens suite; referensi implementasi format). Kode ini ditulis from
-scratch: algoritma dekode diimplementasikan mandiri di atas KONSTANTA
-FORMAT JScript.Encode (tabel substitusi 3-byte + kombinasi 64 — bagian
-spesifikasi format Microsoft yang publik, disimpan di tools/_vbe_tables.py).
-Stdlib-only, NOL jaringan, NOL eksekusi: skrip terdekodenya TIDAK dijalankan,
-hanya dianalisis sebagai teks.
-
 Format input yang dikenali:
   - file .vbe/.vbs/.jse/.js berisi blok '#@~^......==...==^#~@'
   - satu file boleh berisi lebih dari satu blok encode

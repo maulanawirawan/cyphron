@@ -3,14 +3,6 @@ kunci RSA (PEM PKCS#1/PKCS#8/SPKI, OpenSSH privat, kunci publik SSH)
 sesuai NIST SP 800-57: ukuran modulus, eksponen, passphrase, dan izin
 berkas. TANPA mengeksekusi/menyentuh material kripto lebih jauh.
 
-Mengisi antrean port dari mukul975/Anthropic-Cybersecurity-Skills
-'skills/implementing-rsa-key-pair-management' (#0694 — atribusi konsep;
-lisensi sumber Apache-2.0). Dibangun FROM SCRATCH TANPA menyalin kode
-sumber itu. Generator/rotasi kunci & signing PSS = runbook operasional
-(bukan alat audit); yang diekstrak = sisi VALIDASI kunci yang sudah
-ada — deterministik, stdlib base64/binascii/struct saja (TANPA lib
-kripto; parsing DER/ASN.1 ditulis sendiri, minimalis).
-
 Ranah dibagi eksplisit:
   - cert_chain_audit : sertifikat X.509 (chain, expiry, algoritme
     tanda) — sudah cek rsa-pendek PADA sertifikat. Tool ini melayani

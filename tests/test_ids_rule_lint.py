@@ -1,8 +1,4 @@
 """Nol jaringan — test ids_rule_lint (linter aturan Snort/Suricata).
-
-Kasus mengikuti praktik skill sumber (#0351 Snort 3, #0352 Suricata):
-local.rules dengan sid >= 1000000, threshold count+seconds, sticky-buffer
-per proto, content+nocase.
 """
 from __future__ import annotations
 

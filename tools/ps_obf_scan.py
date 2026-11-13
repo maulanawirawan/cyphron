@@ -1,13 +1,6 @@
 r"""[SAFETY: read-only] ps_obf_scan — pemindai penanda obfuscation skrip
 PowerShell secara STATIS (tanpa eksekusi, stdlib murni, tanpa jaringan).
 
-Port konsep dari antrean SKILL-PORT-QUEUE #0363 (mukul975/
-Anthropic-Cybersecurity-Skills, skill 'deobfuscating-powershell-obfuscated-
-malware' — identifikasi lapis obfuscation: EncodedCommand, FromBase64String,
-iex, tick-mark, char array, XOR, kompresi, Replace chain; atribusi konsep,
-lisensi sumber Apache-2.0). Dibangun FROM SCRATCH: taksonomi penanda +
-dekoder EncodedCommand ditulis sendiri. TIDAK menyalin kode sumber skill.
-
 Batas jujur:
   - Alat ini TIDAK menjalankan/mengevaluasi skrip apapun (parsing statis
     + dekode base64 in-memory saja) dan TIDAK bisa membatalkan semua

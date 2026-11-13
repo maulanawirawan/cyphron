@@ -1,11 +1,5 @@
-"""[TRIAGE: gate] brocards_triage — gerbang 7 brocards untuk triase laporan kerentanan.
-
-Port konsep dari antrean SKILL-PORT-QUEUE #0095 (trailofbits/skills plugin
-'vulnerability-triage-brocards'; 7 brocards diadaptasi ToB dari William
-Woodruff, "Brocards for vulnerability triage", vulnbrocards.com 2026).
-Dibangun FROM SCRATCH — mekanisme evaluasi field terstruktur, tangga
-kapabilitas, dan seluruh pola ditulis sendiri; tidak ada kode sumber dari
-repo tersebut. Lisensi secai: PolyForm NC.
+"""[TRIAGE: gate] brocards_triage — gerbang 7 brocards untuk triase laporan
+kerentanan.
 
 Kenapa secai butuh ini: pipeline secai menghasilkan lead temuan yang
 lalu dilaporkan; alat verifikasi (verify_gate, novelty_check,

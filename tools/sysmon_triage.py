@@ -3,17 +3,6 @@ r"""[SAFETY: read-only] sysmon_triage — triase OFFLINE log Sysmon Windows
 (T1055), abuse elevation/UAC bypass (T1548.002), dan WMI persistence
 (T1546.003). TANPA jaringan.
 
-Port konsep dari antrean SKILL-PORT-QUEUE #0466 + #0467 + #0468 +
-#0471 (mukul975/Anthropic-Cybersecurity-Skills 'detecting-t1003-
-credential-dumping-with-edr', 'detecting-t1055-process-injection-with-
-sysmon', 'detecting-t1548-abuse-elevation-control-mechanism',
-'detecting-wmi-persistence'; atribusi konsep, lisensi sumber
-Apache-2.0). Dibangun FROM SCRATCH: parser XML + taksonomi deteksi
-ditulis sendiri dari konsep deteksi publik (access mask Windows,
-event ID Sysmon, token cmdline alat dump). Skill sumber menyaring
-telemetri via SIEM live (Splunk/KQL/Sigma); secai memilih artefak
-offline (ekspor XML Sysmon) supaya nol jaringan dan dapat dites.
-
 Input -> mekanisme -> output:
   - Input : file XML ekspor Sysmon (Event Viewer "Export XML" atau
             `wevtutil /x`), satu file berisi banyak elemen <Event>,
@@ -111,7 +100,7 @@ HIGH_VALUE_PROCS = frozenset({
     "csrss.exe", "services.exe", "smss.exe", "wininit.exe",
 })
 # Proses yang WAJAR membaca lsasse/operasi lintas proses di lab
-# (sensor EDR/AV/task manager) — default filter FP dari konsep sumber.
+# (sensor EDR/AV/task manager) — default filter FP dari .
 DEFAULT_ALLOW_SOURCE = frozenset({
     "csrss.exe", "lsass.exe", "svchost.exe", "msmpeng.exe",
     "wmiprvse.exe", "taskmgr.exe", "procexp.exe", "procexp64.exe",

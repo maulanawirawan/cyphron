@@ -1,8 +1,4 @@
 """Nol jaringan — test campaign_correlate (skor korelasi kampanye berbobot).
-
-Bobot & ambang mengikuti konsep skill sumber (#0360): infra 40 / kapabilitas
-35 / temporal 15 / viktimologi 10; HIGH>=70, MEDIUM>=45; penjaga FP privat
-IP & CDN. Semua kasus deterministik, tanpa jaringan.
 """
 from __future__ import annotations
 

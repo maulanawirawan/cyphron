@@ -1,35 +1,6 @@
 r"""[SAFETY: read-only] campaign_correlate — skor korelasi kampanye berbobot
-antar-event (pivot infrastruktur/kapabilitas/temporal/viktimologi), offline.
-
-Port konsep dari antrean SKILL-PORT-QUEUE #0360 (mukul975/
-Anthropic-Cybersecurity-Skills, skill 'correlating-threat-campaigns' —
-pivot berbobot infrastruktur 40 / kapabilitas 35 / temporal 15 /
-viktimologi 10 dengan ambang HIGH/MEDIUM/LOW dan penjaga false-positive
-CDN/hosting-bersama; atribusi konsep). Dibangun FROM SCRATCH: parser event
-JSON, mesin pivot berpasangan, dan penjaga FP ditulis sendiri — tidak
-menyalin kode sumber, tidak memakai MISP/OpenCTI/Neo4j. Lisensi secai:
-PolyForm NC.
-
-Input -> mekanisme -> output:
-  - Input : satu file JSON berisi daftar event (read-only, NOL jaringan):
-            [{"id": "E1", "time": "2026-09-01T09:00:00Z",
-              "ips": ["185.220.1.5"], "domains": ["cdn.evil.example"],
-              "hashes": ["abc123..."], "ttps": ["T1566.001", "T1059"],
-              "sector": "finansial", "geography": "ID"}, ...]
-  - Mekanisme: untuk tiap pasangan event, hitung rasio overlap per pivot
-            (infrastruktur = IP+domain; kapabilitas = hash+TTP; temporal =
-            selisih waktu antar-window; viktimologi = sektor sama), kalikan
-            bobot, jumlahkan -> skor 0-100. Penjaga FP deterministik:
-            (a) IP privat/loopback/link-local (RFC1918/CGNAT/169.254/127)
-                -> pivot infra dipangkas x0.25 (infrastruktur internal
-                dibagi banyak pihak);
-            (b) IP dalam rentang CDN/hosting-bersama yang dikenal (daftar
-                bawaan konservatif: Cloudflare, Fastly; bisa ditambah via
-                --cdn-file, format CIDR per baris) -> x0.25 + alasan;
-            (c) pasangan yang HANYA beririsan temporal -> skor temporal
-                dipangkas x0.5 (infra bisa didaur ulang aktor lain).
-  - Output: JSON {pairs: [...], summary}. Verdict: >=70 HIGH, >=45 MEDIUM,
-            selainnya LOW (ambang konsep skill sumber).
+antar-event (pivot infrastruktur/kapabilitas/temporal/viktimologi),
+offline.
 
 Lead bukan keputusan: skor tinggi = sinyal untuk review manual, bukan
 atribusi. Fail-closed: JSON rusak / bukan daftar / event tanpa id = lead

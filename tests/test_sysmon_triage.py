@@ -1,7 +1,7 @@
 """test_sysmon_triage — triase OFFLINE log Sysmon XML utk T1003/T1055/
 T1548.002/T1546.003 (#0466 #0467 #0468 #0471), nol jaringan.
 
-Fixture = ekspor Sysmon XML sintetis dari spesifikasi konsep sumber
+Fixture = ekspor Sysmon XML sintetis dari spesifikasi internal
 (access mask Windows, event ID Sysmon, token cmdline alat dump).
 """
 from __future__ import annotations

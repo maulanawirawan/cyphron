@@ -1,14 +1,6 @@
 """[SAFETY: read-only] dns_log_triage — triase OFFLINE log kueri DNS utk
 indikasi eksfiltrasi (DNS tunneling), DGA, dan penyalahgunaan TXT.
 
-Port konsep dari antrean SKILL-PORT-QUEUE #0197 (mukul975/
-Anthropic-Cybersecurity-Skills 'analyzing-dns-logs-for-exfiltration'
-— heuristik panjang subdomain, entropi Shannon, volume TXT, ambang
-DGA; lisensi skill sumber Apache-2.0, atribusi konsep — kode ini
-ditulis from scratch, stdlib-only, NOL jaringan: input = file log
-kueri DNS hasil ekspor lab/berizin, TIDAK menghubungi resolver
-maupun API reputasi apa pun).
-
 Format input yang dikenali (deteksi otomatis per baris, ketat):
   - Zeek dns.log   : file berawalan direktif '#' (#separator/#fields);
                      butuh field ts, id.orig_h, query, qtype_name

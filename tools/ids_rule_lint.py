@@ -1,14 +1,6 @@
 r"""[SAFETY: read-only] ids_rule_lint — linter kualitas aturan IDS Snort 3 /
-Suricata (file .rules, parsing teks, tanpa eksekusi engine, nol jaringan).
-
-Port konsep dari antrean SKILL-PORT-QUEUE #0351 (mukul975/
-Anthropic-Cybersecurity-Skills, 'configuring-snort-ids-for-intrusion-
-detection' — penulisan/tuning rule, sid lokal, threshold) dan #0352
-('configuring-suricata-for-network-monitoring' — rule local.rules, EVE,
-disable.conf). Dibangun FROM SCRATCH: tokenizer rule, daftar keyword
-sticky-buffer, dan seluruh cek ditulis sendiri — tidak menyalin kode
-sumber (bukan pulledpork/suricata-update; hanya audit statis file).
-Lisensi secai: PolyForm NC.
+Suricata (file .rules, parsing teks, tanpa eksekusi engine, nol
+jaringan).
 
 Input -> mekanisme -> output:
   - Input : file .rules/.conf/.txt atau direktori (read-only, NOL

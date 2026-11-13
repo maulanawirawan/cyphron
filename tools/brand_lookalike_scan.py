@@ -2,16 +2,6 @@ r"""[AUDIT: read-only] brand_lookalike_scan — klasifikasi OFFLINE domain
 lookalike/impersonasi merek dari daftar domain TERAMATI vs watchlist
 merek (T1583.001 / T1593 — sisi klasifikasi nama, bukan klaim phishing).
 
-Mengisi antrean port SKILL-PORT-QUEUE #0783 (mukul975/
-Anthropic-Cybersecurity-Skills 'performing-brand-monitoring-for-
-impersonation'; atribusi konsep, lisensi sumber Apache-2.0). Skill
-sumber = program pemantauan LIVE (dnstwist --registered + Safe Browsing
-API + Twitter/Play Store scraping). Yang diekstrak ke sini = INTI
-DETERMINISTIKNYA: mesin klasifikasi teknik lookalike + faktor risiko,
-yang di skill sumber tersembunyi di dalam panggilan dnstwist/Levenshtein.
-Dibangun FROM SCRATCH (kamus confusable, Damerau-Levenshtein, dekode
-punycode — stdlib saja; bukan salinan dnstwist/typomania).
-
 Ranah eksplisit (kontras tool lain):
   - skills/typosquat_watch : pemantauan CT 1-seed + GENERATOR kandidat
     (perm untuk satu domain) — output-nya jadi input bagus tool ini.

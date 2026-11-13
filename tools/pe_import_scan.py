@@ -4,12 +4,6 @@ resource ter-embed (embedded PE / entropi tinggi), overlay (data setelah
 section terakhir), dan anomali timestamp kompilasi. TANPA jaringan,
 read-only — file sumber tidak pernah ditulis.
 
-Port INTI DETERMINISTIK dari antrean SKILL-PORT-QUEUE #0902 (mukul975/
-Anthropic-Cybersecurity-Skills 'performing-static-malware-analysis-with-
-pe-studio'; atribusi konsep, lisensi sumber Apache-2.0). Dibangun FROM
-SCRATCH dari spesifikasi PE/COFF terpublikasi (Microsoft PE Format) —
-bukan salinan kode sumber maupun pefile/PEStudio.
-
 Ranah EKSPLISIT (pembagian dengan tool triase PE lain):
   - packer_scan (#0229)  : deteksi PACKING (entropi section, nama section
     packer, import minimal ala UPX) — di sini packing TIDAK dinilai ulang;

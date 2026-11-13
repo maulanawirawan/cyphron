@@ -1,7 +1,4 @@
-"""test_bh_ingest_triage — triase pasif ekspor BloodHound, nol jaringan.
-
-Fixture = JSON sintetis format BloodHound 4.x ({"data":[...],"meta":...})
-dengan kontrol false-positive (objek AD bersih tidak boleh memicu temuan).
+"""Triase OFFLINE (stdlib-only, NOL jaringan).
 """
 from __future__ import annotations
 

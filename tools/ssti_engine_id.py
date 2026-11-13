@@ -1,17 +1,6 @@
 r"""[SAFETY: read-only] ssti_engine_id — identifikasi mesin template dari
-BUKTI probe SSTI (JSON/JSONL offline) utk T1190/T1059.007. TANPA jaringan.
-
-Port konsep dari antrean SKILL-PORT-QUEUE #0511 (mukul975/Anthropic-
-Cybersecurity-Skills 'exploiting-template-injection-vulnerabilities';
-atribusi konsep, lisensi sumber Apache-2.0). Dibangun FROM SCRATCH: pohon
-keputusan pembeda mesin (polyglot aritmetika + discriminator) ditulis
-sendiri dari konsep deteksi publik. Skill sumber = runbook live (tplmap/
-SSTImap/curl); secai menganalisis BUKTI probe offline. Ranah dibagi
-eksplisit: tools/exploit_playbooks.py SstiEvalPlaybook mengeksekusi probe
-benign live dan BERHENTI di "SSTI terkonfirmasi" — tool ini TIDAK mengirim
-request; ia membaca hasil probe (Burp Intruder export, curl, atau
-SstiEvalPlaybook) dan menjawab pertanyaan berikutnya: mesin APA yang
-mengevaluasi, dan apakah marker RCE/introspection terlihat.
+BUKTI probe SSTI (JSON/JSONL offline) utk T1190/T1059.007. TANPA
+jaringan.
 
 Input -> mekanisme -> output:
   - Input : file JSON (array) atau JSONL, satu objek per baris:

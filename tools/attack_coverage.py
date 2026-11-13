@@ -1,13 +1,7 @@
 r"""[AUDIT: read-only] attack_coverage — matriks cakupan deteksi MITRE
-ATT&CK dari ekspor rule deteksi: rule mana memetakan teknik mana,
-teknik mana yang hanya punya rule MATI/tanpa-sumber-data, dan gap
-terhadap universe teknik prioritas. Offline, nol jaringan.
-
-Mengisi antrean port dari mukul975/Anthropic-Cybersecurity-Skills
-'skills/implementing-mitre-attack-coverage-mapping' (#0660 — build
-coverage matrix, identifikasi gap, prioritas pengembangan rule, ukur
-maturity; atribusi konsep, lisensi sumber Apache-2.0). Dibangun FROM
-SCRATCH TANPA kode sumber itu; stdlib json/csv/re saja.
+ATT&CK dari ekspor rule deteksi: rule mana memetakan teknik mana, teknik
+mana yang hanya punya rule MATI/tanpa-sumber-data, dan gap terhadap
+universe teknik prioritas. Offline, nol jaringan.
 
 Premis sumber yang diekstrak (statistik CardinalOps yang dikutip skill):
 rule yang ADA bukan berarti cakupan — rule nonaktif/draft atau

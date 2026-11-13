@@ -1,16 +1,8 @@
 r"""[SAFETY: read-only] linux_auth_triage — triase OFFLINE log autentikasi
-Linux (auth.log / secure gaya syslog klasik ATAU ekspor jurnal ISO-8601):
-sesi SSH (accepted/failed), sudo, su, pam failure, perubahan akun
-(useradd/usermod/userdel), CRON — rekonstruksi sesi + deteksi brute force
-dari teks log. TANPA jaringan.
-
-Mengisi antrean port SKILL-PORT-QUEUE #0844 (mukul975/
-Anthropic-Cybersecurity-Skills 'performing-linux-log-forensics-
-investigation'; atribusi konsep, lisensi sumber Apache-2.0). Skill
-sumber mengajarkan grep/awk manual + parser contoh untuk auth.log; inti
-deterministik yang diekstrak di sini = parser log + klasifikasi event +
-deteksi pola serangan, ditulis from scratch (mengikuti SEMANTIK format
-publik syslog/sshd/pam, BUKAN menyalin kode sumber skill).
+Linux (auth.log / secure gaya syslog klasik ATAU ekspor jurnal
+ISO-8601): sesi SSH (accepted/failed), sudo, su, pam failure, perubahan
+akun (useradd/usermod/userdel), CRON — rekonstruksi sesi + deteksi brute
+force dari teks log. TANPA jaringan.
 
 Pembagian ranah (TIDAK diduplikasi):
   - triase log Windows (4624/4625/4688/Sysmon) -> win_logon_triage,

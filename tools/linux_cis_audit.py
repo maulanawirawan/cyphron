@@ -1,17 +1,6 @@
 r"""[AUDIT: read-only] linux_cis_audit — audit OFFLINE berkas konfigurasi
-Linux terkumpul (sshd_config, sysctl, pwquality.conf, login.defs) terhadap
-cek turunan CIS Benchmark (kelas sumber #0528).
-
-Mengisi antrean port dari mukul975/Anthropic-Cybersecurity-Skills
-'skills/hardening-linux-endpoint-with-cis-benchmark' (#0528 — atribusi
-konsep, lisensi sumber Apache-2.0). Dibangun FROM SCRATCH TANPA kode
-sumber itu: ambang & nilai acuan diambil dari langkah konfigurasi yang
-tertulis di skill sumber (Section 3 jaringan/sysctl, Section 5.2-5.4
-SSH/pwquality/login.defs) dan semantik publik masing-masing berkas
-(man sshd_config, man sysctl.d, man pwquality.conf, man login.defs).
-Skill sumber = runbook LIVE (menembak `sed -i`/`systemctl` di host);
-tool ini memilih sisi STATIS: mengaudit EKSPOR/BERKAS YANG DIKUMPUL
-tanpa menyentuh host — pola yang sama dengan docker_audit (#0526).
+Linux terkumpul (sshd_config, sysctl, pwquality.conf, login.defs)
+terhadap cek turunan CIS Benchmark (kelas sumber #0528).
 
 Ranah tetangga eksplisit: integritas file = aide_change_triage (#0626),
 integritas log = log_chain_verify (#0656), audit Docker = docker_audit,
@@ -34,35 +23,6 @@ Input -> mekanisme -> output:
               summary + notes; exit 1 bila temuan >= --fail-on
               (default medium), exit 2 bila file tidak terbaca atau
               tak ada kelompok file yang diberikan.
-
-Cek sshd (acuan nilai = skill sumber 5.2):
-  sshd-permitrootlogin           (high 'yes'/medium absen atau prohibit-password)
-  sshd-passwordauthentication    (high 'yes'/medium absen)
-  sshd-permitemptypasswords      (high selain 'no'/medium absen)
-  sshd-maxauthtries              (medium absen atau > 4)
-  sshd-login-gracetime           (medium absen atau > 60 detik)
-  sshd-maxstartups               (medium ambang awal > 10/low absen)
-  sshd-x11forwarding             (medium 'yes'/low absen)
-  sshd-tcpforwarding             (medium 'yes'/low absen)
-  sshd-loglevel                  (low selain VERBOSE)
-  sshd-clientaliveinterval       (low interval 0/low absen)
-
-Cek sysctl (acuan = skill sumber 3.1, host bukan router):
-  sysctl-param           (medium per parameter salah/absen; IP forward,
-                          send_redirects, accept_source_route,
-                          accept_redirects, secure_redirects, rp_filter,
-                          tcp_syncookies, log_martians, icmp echo/bogus,
-                          ipv6 accept_ra)
-
-Cek pwquality (acuan = skill sumber 5.3):
-  pwq-minlen             (medium absen atau < 14)
-  pwq-class-credit       (low per d/u/o/l credit yang absen/bukan -1)
-
-Cek login.defs (acuan = skill sumber 5.4):
-  ldefs-pass-max-days    (medium absen atau > 365)
-  ldefs-pass-min-days    (low absen atau 0)
-  ldefs-pass-warn-age    (low absen atau < 7)
-  ldefs-encrypt-method   (medium MD5/DES/low absen)
 
 Anti-FP: --allow-check NAME (boleh diulang), jumlah saringan dicatat.
 Stdlib re/argparse/json. Nol jaringan.
@@ -147,7 +107,7 @@ def _read_files(paths: "list[Path]", findings, what: str) -> "list[str]":
 _SSHD_CHECKS = [
     # (param, (nilai_benar...), severity_salah, severity_absen, pesan)
     ("PermitRootLogin", {"no"}, "high", "medium",
-     "root login via SSH harus 'no' (skill sumber 5.2); "
+     "root login via SSH harus 'no' (acuan internal: CIS 5.2); "
      "absen = default OpenSSH 'prohibit-password' — masih mengizinkan "
      "kunci root"),
     ("PasswordAuthentication", {"no"}, "high", "medium",
@@ -157,7 +117,7 @@ _SSHD_CHECKS = [
      "password kosong wajib 'no'; absen = default OpenSSH 'no' pada "
      "rilis modern, verifikasi eksplisit"),
     ("MaxAuthTries", None, "medium", "medium",
-     "MaxAuthTries sebaiknya <= 4 (skill sumber 5.2)"),
+     "MaxAuthTries sebaiknya <= 4 (acuan internal: CIS 5.2)"),
     ("LoginGraceTime", None, "medium", "medium",
      "LoginGraceTime sebaiknya <= 60 detik"),
     ("MaxStartups", None, "medium", "low",
@@ -295,7 +255,7 @@ def audit_pwquality(text: str, src: str, add) -> None:
     field = f"{src}:minlen"
     if val is None:
         add("pwq-minlen", "medium", field, "minlen",
-            "minlen tidak ditemukan — acuan >= 14 (skill sumber 5.3)")
+            "minlen tidak ditemukan — acuan >= 14 (acuan internal: CIS 5.3)")
     else:
         try:
             if int(val) < 14:

@@ -1,14 +1,5 @@
-r"""[SAFETY: read-only] zeek_beacon_scan — deteksi pola beacon C2 dari
-Zeek conn.log secara OFFLINE (TSV classic atau JSON lines, stdlib murni).
-
-Port konsep dari antrean SKILL-PORT-QUEUE #0390 (mukul975/
-Anthropic-Cybersecurity-Skills, skill 'detecting-beaconing-patterns-with-
-zeek' — grup per pasangan orig/resp, interval antar-koneksi, stdev rendah
-relatif thd mean = kandidat beacon; atribusi konsep, lisensi sumber
-Apache-2.0). Dibangun FROM SCRATCH: parser log Zeek + statistik interval
-(CV/jitter) ditulis sendiri — TIDAK memakai ZAT/pandas/numpy dan tidak
-menyalin kode sumber skill. Beda dengan tools/netflow_parse.py (NetFlow
-v5 datagram biner): alat ini membaca LOG Zeek TSV/JSON.
+r"""[SAFETY: read-only] zeek_beacon_scan — deteksi pola beacon C2 dari Zeek
+conn.log secara OFFLINE (TSV classic atau JSON lines, stdlib murni).
 
 Input -> mekanisme -> output:
   - Input : file conn.log Zeek (TSV dengan header #fields, atau JSON

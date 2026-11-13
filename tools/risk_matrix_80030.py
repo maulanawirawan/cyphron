@@ -1,13 +1,6 @@
 """[AUDIT: read-only] risk_matrix_80030 — penskoran register risiko
 kualitatif ala NIST SP 800-30 Rev 1 (likelihood x impact -> level).
 
-Mengisi antrean port dari mukul975/Anthropic-Cybersecurity-Skills
-'skills/conducting-cyber-risk-assessment-with-nist-800-30' (antrean
-SKILL-PORT-QUEUE #0320; atribusi ide, lisensi sumber Apache-2.0).
-Dibangun from scratch TANPA kode sumber itu; inti deterministiknya
-adalah MATRIKS 5x5 publik dari metodologi 800-30 (Appendix I: risiko
-adalah fungsi likelihood dan impact) — bukan proses asesmen-nya.
-
 Skala 5 level (qualitative, NIST 800-30): very_low, low, moderate,
 high, very_high. Alias diterima case-insensitive: vl/l/m/h/vh,
 medium->moderate, atau angka 1..5 (1=very_low .. 5=very_high).

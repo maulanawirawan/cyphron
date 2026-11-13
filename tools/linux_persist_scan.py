@@ -3,15 +3,6 @@ persistensi Linux dari koleksi rootfs (salinan forensik/arsip tar):
 cron, unit systemd, rc.local, authorized_keys, ld.so.preload,
 modules-load, hook PAM, skrip shell profile. TANPA jaringan.
 
-Mengisi antrean port SKILL-PORT-QUEUE #0849 (mukul975/
-Anthropic-Cybersecurity-Skills 'performing-malware-persistence-
-investigation'; atribusi konsep, lisensi sumber Apache-2.0). Skill
-sumber mengaudit Windows + Linux; sisi Windows sudah ranah
-win_persist_triage (B19) — inti deterministik yang diekstrak di sini =
-SISI LINUX-nya: pindai file konfigurasi persistensi terkumpul dan
-tandai eksekusi mencurigakan (downloader, payload ter-encode, path
-tmp, hook PAM, preload), from scratch.
-
 Pembagian ranah (TIDAK diduplikasi):
   - persistensi WINDOWS (Run key, service, task, WMI, startup, COM)
     -> win_persist_triage

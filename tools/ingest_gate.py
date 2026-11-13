@@ -1,17 +1,7 @@
-"""[GUARD] ingest_gate — gerbang pra-ingesti konten TIDAK TEPERCAYA
-sebelum dibaca agent/LLM: ekstraksi teks tersembunyi HTML, kanal kover
-Unicode, de-obfuscation, dan pemindaian pola penyelundupan instruksi
-(indirect prompt injection).
-
-Port konsep dari antrean SKILL-PORT-QUEUE #0420 (mukul975/
-Anthropic-Cybersecurity-Skills 'detecting-indirect-prompt-injection'
-— MITRE ATLAS AML.T0051.001 / OWASP LLM01; lisensi sumber Apache-2.0,
-atribusi ide — kode ini dibangun from scratch TANPA menyalin kode
-sumber). Konsep: agent memakan konten eksternal (halaman web, dokumen,
-hasil tool) yang manusia lihat "bersih", padahal lapisan yang tak
-terlihat manusia tetap masuk context window LLM. Detektor model ML
-(Prompt Guard 2 / LLM Guard) TIDAK di-port — butuh model + jaringan;
-inti deterministiknya diekstrak offline:
+"""[GUARD] ingest_gate — gerbang pra-ingesti konten TIDAK TEPERCAYA sebelum
+dibaca agent/LLM: ekstraksi teks tersembunyi HTML, kanal kover Unicode,
+de-obfuscation, dan pemindaian pola penyelundupan instruksi (indirect
+prompt injection).
 
 Lapisan yang diekstrak (tersedia bagi LLM tapi lazimnya tak terbaca
 manusia):

@@ -1,15 +1,6 @@
-r"""[SAFETY: read-only] iam_escalation_scan — analisis OFFLINE artefak
-`aws iam get-account-authorization-details` untuk jalur eskalasi privilese
+r"""[SAFETY: read-only] iam_escalation_scan — analisis OFFLINE artefak `aws
+iam get-account-authorization-details` untuk jalur eskalasi privilese
 IAM AWS (JSON, stdlib murni, tanpa jaringan, tanpa kredensial).
-
-Port konsep dari antrean SKILL-PORT-QUEUE #0386 (mukul975/
-Anthropic-Cybersecurity-Skills, skill 'detecting-aws-iam-privilege-
-escalation' — analisis gaya cloudsplaining: kombinasi izin berbahaya,
-Resource "*", PassRole + CreateFunction, AssumeRole; atribusi konsep,
-lisensi sumber Apache-2.0). Dibangun FROM SCRATCH: evaluasi policy
-document ditulis sendiri; TIDAK memakai boto3/cloudsplaining — skill
-aslinya mengunduh artefak live via API, secai menganalisis FILE yang
-sudah diunduh (nol jaringan, hasil dapat diaudit ulang).
 
 Input -> mekanisme -> output:
   - Input : file JSON hasil `aws iam get-account-authorization-details`

@@ -1,12 +1,6 @@
 """[SAFETY: read-only] dmarc_report_triage — triase OFFLINE laporan agregat
-DMARC (RUA) untuk indikasi spoofing domain, infrastruktur pengirim baru, dan
-kebijakan yang belum ditegakkan.
-
-Port konsep dari entri "parsedmarc" di A-poc/BlueTeam-Tools (katalog
-referensi blue team; konsep analisis laporan agregat — kode ini ditulis
-from scratch, stdlib-only, NOL jaringan: input = file laporan XML DMARC
-hasil ekspor mailbox/gateway berizin atau unduhan manual dari RUA, TIDAK
-menghubungi kolektor maupun API apa pun).
+DMARC (RUA) untuk indikasi spoofing domain, infrastruktur pengirim baru,
+dan kebijakan yang belum ditegakkan.
 
 Format input yang dikenali:
   - XML laporan agregat DMARC (feedback -> report_metadata / policy_published

@@ -1,18 +1,6 @@
 r"""[SAFETY: read-only] openapi_spec_audit — audit OFFLINE keamanan dokumen
-OpenAPI 3.x (JSON) untuk anti-pola skema request/response. TANPA jaringan.
-
-Port konsep dari antrean SKILL-PORT-QUEUE #0575 (mukul975/
-Anthropic-Cybersecurity-Skills 'implementing-api-schema-validation-security';
-atribusi konsep, lisensi sumber Apache-2.0) + cek no-auth-defined dari
-checklist audit #0577 ('implementing-api-security-testing-with-42crunch').
-Dibangun FROM SCRATCH: linter statis dokumen spec ditulis sendiri dari tabel
-anti-pola publik sumber (additionalProperties, maxLength, pattern, enum
-fixed-vocabulary, password tanpa TLS, error response tanpa schema, readOnly
-di request). Skill sumber menjalankan spectral/dredd di CI + platform vendor
-42Crunch; secai memilih linter JSON stdlib agar nol jaringan dan dapat
-dites. Ranah TIDAK diduplikasi: api_property_scan (tangkapan respons live),
-shadow_api_diff (trafik vs dokumentasi), api_docs_surface (keberadaan dokumen)
-— tool ini menilai ISI spec itu sendiri, bukan kecocokannya dengan trafik.
+OpenAPI 3.x (JSON) untuk anti-pola skema request/response. TANPA
+jaringan.
 
 Input -> mekanisme -> output:
   - Input : dokumen OpenAPI 3.x JSON (bukan YAML — preseden shadow_api_diff;
@@ -460,9 +448,6 @@ def main(argv: "list[str] | None" = None) -> int:
     report = {
         "source": str(src),
         "kind": "openapi-spec-audit",
-        "attribution": "konsep #0575 mukul975/implementing-api-schema-"
-                       "validation-security + #0577 42crunch checklist "
-                       "(Apache-2.0) — dibangun from scratch",
         "findings": findings,
         "summary": summary,
         "notes": notes,

@@ -3,16 +3,6 @@ ransomware dari daftar berkas yang DIKUMPUL + isi ransom note: petunjuk
 varian dari ekstensi, nama berkas ransom-note, IOC dalam note, window
 waktu enkripsi, dan konsentrasi mass-encryption per direktori.
 
-Mengisi antrean port dari mukul975/Anthropic-Cybersecurity-Skills
-'skills/investigating-ransomware-attack-artifacts' (#0740 — atribusi
-ide, lisensi sumber Apache-2.0). Dibangun FROM SCRATCH TANPA kode
-sumber itu: tabel ekstensi, pola nama note, regex IOC, dan semua cek
-ditulis sendiri dari semantik publik (No More Ransom, nama ekstensi
-keluarga ransomware yang dipublikasikan vendor). Skill sumber = runbook
-IR LIVE (Volatility, ID Ransomware online, PyEvtxParser); tool ini
-memilih sisi STATIS yang bisa dieksekusi nol-jaringan: menganalisis
-MANIFEST daftar berkas + berkas note yang sudah dikumpulkan.
-
 Ranah tetangga eksplisit (jangan dipindah ke sini):
   - cmdline vssadmin/bcdedit/wbadmin (T1490) = sysmon_triage /
     lolbin_scan / win_persist_triage — tool ini TIDAK mem-parse log
@@ -431,7 +421,7 @@ def main(argv: "list[str] | None" = None) -> int:
         "ekstensi generik (.enc/.crypt dst.) sengaja tidak masuk tabel "
         "varian (anti-FP) — dievaluasi lewat konsentrasi massal saja",
         "runbook live (Volatility, ID Ransomware online, pembersihan) "
-        "= di luar tool — skill sumber memegangnya",
+        "= di luar tool — acuan internal memegangnya",
     ])
 
     report = {

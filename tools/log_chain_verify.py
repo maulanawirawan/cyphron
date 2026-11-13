@@ -1,15 +1,9 @@
 r"""[SAFETY: read-only + local-write] log_chain_verify — rantai integritas
 log tamper-evident: bangun ledger hash-chain SHA-256 atas baris log,
 verifikasi rantai, dan lokalisasi entry yang dirusak. "Blockchain" di
-sini = hash chaining append-only (setiap chain_hash mengikat
-prev_hash + content_hash), BUKAN jaringan P2P — checkpoint ke
-timestamp service eksternal = live ops, di luar tool.
-
-Mengisi antrean port dari mukul975/Anthropic-Cybersecurity-Skills
-'skills/implementing-log-integrity-with-blockchain' (#0656 — SHA-256
-hash chaining, verifikasi, pinpoint tamper, checkpoint anchoring;
-atribusi konsep, lisensi sumber Apache-2.0). Dibangun FROM SCRATCH
-TANPA kode sumber itu; stdlib hashlib/json saja, NOL jaringan.
+sini = hash chaining append-only (setiap chain_hash mengikat prev_hash +
+content_hash), BUKAN jaringan P2P — checkpoint ke timestamp service
+eksternal = live ops, di luar tool.
 
 Deviasi dari sumber yang DOKUMENTASIKAN: chain_hash sumber memasukkan
 timestamp ingestion ke dalam hash; di sini chain_hash = SHA-256(

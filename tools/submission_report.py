@@ -1,14 +1,8 @@
 """[ABH-W3: report platform] submission_report — draf laporan submission
-per-platform (HackerOne / Bugcrowd / Intigriti) dari findings.json + satu
-temuan terpilih. MAKSIMAL DRAF L1/L2 — keluaran teks yang direview
-manusia, BUKAN submission-ready, dan TIDAK ada pengiriman apa pun
-(nol jaringan).
-
-Port konsep dari awarexone/Agentic-Bug-Hunter (MIT) — skills/report-
-writing/SKILL.md + commands/report.md (rumus judul, impact-first, empat
-seksi inti, disiplin "prove it or don't claim it"). Atribusi konsep,
-lisensi sumber MIT. Dibangun FROM SCRATCH untuk kontrak secai: stdlib,
-argparse + type hints, fail-closed, nol jaringan.
+per-platform (HackerOne / Bugcrowd / Intigriti) dari findings.json +
+satu temuan terpilih. MAKSIMAL DRAF L1/L2 — keluaran teks yang direview
+manusia, BUKAN submission-ready, dan TIDAK ada pengiriman apa pun (nol
+jaringan).
 
 RANAH EKSPLISIT (mini-program ABH-PORT — anti-tabrakan):
   - report_pack.py / report_pdf.py = pengemasan bukti + render laporan
@@ -17,13 +11,6 @@ RANAH EKSPLISIT (mini-program ABH-PORT — anti-tabrakan):
     disentuh; jalankan gate DULU, tool ini menyusun draf temuan yang
     sudah lolos disiplin.
   - tool ini (W3) = draf per-platform utk temuan terpilih.
-
-Rumus judul (dari skill sumber, dioperasikan deterministik):
-  "[KELAS] dampak via endpoint"
-  KELAS    = field 'check' (fallback 'vuln_class') temuan, huruf besar
-  dampak   = field 'impact' temuan bila ada, fallback 'title' — bila
-             keduanya kosong: placeholder [ISI MANUAL] + draf turun L1
-  endpoint = 'endpoint' | 'target_url' | 'file_path' temuan
 
 Fail-closed jujur (inti port ini):
   - Setiap klaim dampak WAJIB membawa evidence_ref dari temuan (field

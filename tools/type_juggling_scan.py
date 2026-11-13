@@ -2,17 +2,6 @@ r"""[AUDIT: read-only] type_juggling_scan — pindai OFFLINE kode PHP untuk
 permukaan type juggling (loose comparison `==`/`!=`, magic hash, bypass
 strcmp/in_array) + verifikasi OFFLINE magic hash.
 
-Mengisi antrean port dari mukul975/Anthropic-Cybersecurity-Skills
-'skills/exploiting-type-juggling-vulnerabilities' (#0512 — atribusi
-konsep, lisensi sumber Apache-2.0). Dibangun FROM SCRATCH TANPA kode
-sumber itu: aturan deteksi ditulis dari semantik publik perbandingan
-PHP (php.net/language.operators.comparison) dan latar magic hash yang
-terdokumentasi luas. Skill sumber = buku resep EKSPLOITASI live (curl
-payload `{"password": true}`, magic hash injection); tool ini memilih
-sisi STATIS: menganalisis kode PHP untuk menemukan pola perbandingan
-yang bisa dibypass SEBELUM dieksploitasi, plus mode --verify-hash utk
-membuktikan magic hash secara offline (hashlib, tanpa jaringan).
-
 Ranah tetangga eksplisit: playbook live-probe web = ExploitEngine/
 exploit_playbooks (eksekusi request berizin); lint dependensi =
 pkg_typosquat_check; secret di kode = secret scanners; SARIF =
@@ -46,12 +35,6 @@ Input -> mekanisme -> output:
               summary + notes; exit 1 bila temuan >= --fail-on, exit 2
               bila input tidak terbaca / tidak ada file .php
               (fail-closed — TIDAK menyatakan bersih).
-
-Mode --verify-hash: nilai yang cocok ^0e[0-9]+$ dianggap "magic" (PHP
-loose comparison mengevaluasinya sbg 0); tabel preimage bawaan
-(mukul975 #0512 + PayloadsAllTheThings klasik) dihitung ulang dengan
-hashlib dan diverifikasi benar-benar magic — bukti offline bahwa tabel
-bukan mitos. Exit selalu 0 pada mode ini (informatif).
 
 Anti-FP: --allow-check NAME (boleh diulang) menyembunyikan check
 tertentu; jumlah saringan dicatat di notes.

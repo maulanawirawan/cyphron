@@ -1,24 +1,8 @@
 """[SAFETY: bounded-requests + scope-ack] prompt_leak_probe — probe
 EKSTRAKSI system-prompt ke endpoint generasi LLM milik sendiri/lab
-berizin (OWASP LLM07:2025 System Prompt Leakage; MITRE ATLAS
-AML.T0057), dengan canary marker yang ditanam OPERATOR di system
-prompt target. Fail-closed di setiap gerbang.
-
-Mengisi antrean port SKILL-PORT-QUEUE #0976 (mukul975/
-Anthropic-Cybersecurity-Skills 'testing-for-system-prompt-leakage' —
-lisensi sumber Apache-2.0, atribusi konsep; kode dibangun FROM SCRATCH
-TANPA menyalin kode sumber). Skill sumber = manual payload + garak/
-Promptfoo; inti deterministiknya diekstrak di sini: matriks probe
-ekstraksi 4 keluarga (direct, override/maintenance, delimiter/
-completion, encoding/format-shift) + verifikasi berbasis canary marker
-+ klasifikasi isi bocoran.
-
-Prinsip (dari skill sumber, distilasi): system prompt TIDAK boleh
-diperlakukan sebagai secret atau kontrol keamanan — temuan SEBENARNYA
-adalah rahasia/logika yang TERSEMBUNYI DI DALAM prompt. Karena itu
-bukti bocor SELALU direduksi: nilai kredensial tak pernah menulis
-keluar (marker hash deterministik gaya tools/redact.py), yang
-dilaporkan adalah KELAS bocoran.
+berizin (OWASP LLM07:2025 System Prompt Leakage; MITRE ATLAS AML.T0057),
+dengan canary marker yang ditanam OPERATOR di system prompt target.
+Fail-closed di setiap gerbang.
 
 Input -> mekanisme -> output:
   - INPUT: --url endpoint chat (POST JSON), --field nama field pesan,

@@ -1,17 +1,6 @@
 """[SAFETY: read-only] dep_confusion_check — deteksi risiko dependency
 confusion / namespace attack dari manifest & konfigurasi registry.
 
-Mengisi antrean port SKILL-PORT-QUEUE #0144 (sumber SnailSploit/
-Claude-Red skill 'offensive-dependency-confusion'; atribusi ide). Skill
-sumber merangkum riset publik Alex Birsan (2021): package manager yang
-menyelesaikan nama dari MULTI sumber bisa memilih paket publik yang
-diperebutkan penyerang daripada paket privat internal. Tool ini menyediakan
-sisi defensifnya — memeriksa manifest + konfigurasi registry sebuah
-proyek dan menandai konfigurasi yang membuat nama internal bisa jatuh
-ke registry publik. Aturan ditulis sendiri dari mekanisme resolusi yang
-didokumentasikan publik (npm, pip, NuGet) — TANPA menyalin kode sumber.
-Lisensi secai: PolyForm NC.
-
 Pemeriksaan (offline, NOL jaringan secara default):
   npm   — package.json: dependency @scope tanpa pemetaan
           '@scope:registry=' di .npmrc  -> HIGH (fallback ke publik);

@@ -1,13 +1,5 @@
 """[GATE] Verify gate — klaim butuh bukti FRESH sebelum boleh diucapkan.
 
-Konsep "verification-before-completion" (Iron Law: NO COMPLETION CLAIMS
-WITHOUT FRESH VERIFICATION EVIDENCE) dipopulerkan repo obra/superpowers
-(313k+ stars, MIT). SecAI sudah punya kontrak "No proof, no report"
-untuk temuan; tool ini menutup sisanya — klaim STATUS pekerjaan ("suite
-hijau", "CI lulus", "regresi ditutup") juga wajib bukti. Dibangun
-from scratch (tidak ada kode dari repo tersebut); atribusi konsep di
-docstring ini. Lisensi secai: PolyForm NC.
-
 Fail-closed tegas:
   - gate tanpa definisi cek            -> BLOCKED (bukan VERIFIED)
   - satu cek saja gagal                -> BLOCKED

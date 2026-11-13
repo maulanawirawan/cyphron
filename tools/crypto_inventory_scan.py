@@ -1,18 +1,8 @@
 r"""[AUDIT: read-only] crypto_inventory_scan — inventaris kripto OFFLINE
 (CBOM-lite) dari pohon berkas teks: token algoritma di kode/konfigurasi/
 IaC dikelasifikasi quantum-vulnerable (Shor), weak-legacy, dan
-post-quantum; prioritas migrasi dihitung dgn ketaksamaan Mosca
-(data lifetime + waktu migrasi vs estimasi CRQC).
-
-Mengisi antrean port dari mukul975/Anthropic-Cybersecurity-Skills
-'skills/migrating-to-post-quantum-cryptography' (#0746 — atribusi ide,
-lisensi sumber Apache-2.0). Dibangun FROM SCRATCH TANPA kode sumber itu.
-Skill sumber = runbook migrasi LIVE (OpenSSL 3.5, oqs-provider, s_server
-dgn group X25519MLKEM768, penerbitan sertifikat ML-DSA); tool ini
-memilih sisi STATIS yang bisa dieksekusi nol-jaringan: LANGKAH 1-3 dari
-playbook sumber — inventaris (CBOM), klasifikasi, dan prioritas HNDL.
-Langkah live (generate kunci, hybrid TLS, verifikasi tanda tangan) = di
-luar tool, tetap milik runbook sumber.
+post-quantum; prioritas migrasi dihitung dgn ketaksamaan Mosca (data
+lifetime + waktu migrasi vs estimasi CRQC).
 
 Dasar klasifikasi (FIPS 203/204/205 + NIST SP 1800-38):
   - asym-shor    : RSA/DSA/DH/ECDH/ECDSA/EdDSA & kurva klasik — habis
@@ -399,7 +389,7 @@ def main(argv: "list[str] | None" = None) -> int:
         "AES/SHA kuat hanya diperlemah Grover (kuadratik) — dicatat di "
         "inventory, bukan temuan migrasi",
         "langkah live (OpenSSL ML-KEM/ML-DSA, hybrid TLS) = runbook "
-        "skill sumber, di luar tool",
+        "acuan internal, di luar tool",
     ])
 
     threshold = SEVERITY_ORDER[args.fail_on]

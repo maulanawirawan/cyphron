@@ -1,22 +1,6 @@
 """[SAFETY: read-only] kerberos_log_triage — triase OFFLINE log keamanan
 Windows (XML) untuk indikasi Golden Ticket / anomali Kerberos.
 
-Mengisi antrean port SKILL-PORT-QUEUE #0418 + #0419 (mukul975/
-Anthropic-Cybersecurity-Skills 'detecting-golden-ticket-attacks-in-
-kerberos-logs' dan 'detecting-golden-ticket-forgery' — MITRE ATT&CK
-T1558.001; lisensi sumber Apache-2.0, atribusi ide — kode dibangun from
-scratch TANPA menyalin kode sumber). Konsep sumber (deteksi dari DC
-Windows Security log, TGT yang dipalsukan memakai hash krbtgt):
-  - Golden Ticket BYPASS AS-REQ/AS-REP, jadi TGS (Event 4769) tanpa
-    TGT (Event 4768) sebelumnya dari user+IP yang sama = indikator.
-  - Golden Ticket lazim dipalsukan dengan RC4 (0x17) padahal domain
-    moderen menegakkan AES (0x11/0x12) — RC4 di lingkungan AES-only =
-    downgrade mencurigakan.
-  - Lifetime TGT/TGS yang melampaui kebijakan domain (default 10 jam)
-    = indikator forgery (butuh field waktu tiket yang kadang disertakan
-    ekspor/EDR; kalau tidak ada, deteksi ini dilewati dan CATATAN
-    telemetri ditulis — tidak pernah pura-pura memeriksa).
-
 Input: file XML ekspor Windows Security (Event Viewer "Export XML"
 atau `wevtutil /x`), satu file berisi banyak elemen <Event>. Parser
 stdlib xml.etree; namespace MS di-strip. TANPA jaringan.

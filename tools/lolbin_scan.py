@@ -1,14 +1,6 @@
-"""[SAFETY: read-only] lolbin_scan — triase OFFLINE log Sysmon (XML)
-Event ID 1 (Process Create) + 11 (File Create) untuk indikasi LOLBin
-abuse, persistence scheduled task, dan anomali parent-child.
-
-Mengisi antrean port SKILL-PORT-QUEUE #0428 #0429 #0431 (mukul975/
-Anthropic-Cybersecurity-Skills 'detecting-living-off-the-land-attacks',
-'detecting-living-off-the-land-with-lolbas', 'detecting-malicious-
-scheduled-tasks-with-sysmon' — lisensi sumber Apache-2.0, atribusi
-konsep — kode dibangun from scratch TANPA menyalin kode sumber). Skill
-sumber memakai SIEM/EDR live + Sigma; secai memilih artefak offline:
-file XML ekspor Sysmon, parser stdlib, nol jaringan.
+"""[SAFETY: read-only] lolbin_scan — triase OFFLINE log Sysmon (XML) Event
+ID 1 (Process Create) + 11 (File Create) untuk indikasi LOLBin abuse,
+persistence scheduled task, dan anomali parent-child.
 
 Pembagian ranah dgn alat secai lain (anti-duplikasi):
   - EID 8/10/25 (injection/lsass/tampering), EID 7, dump-cmdline

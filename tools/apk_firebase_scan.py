@@ -1,8 +1,5 @@
-"""[DEFEND] apk_firebase_scan — triase statis APK utk eksposur Firebase/config.
-
-Konsep antrean SKILL-PORT-QUEUE #0030 'firebase-apk-scanner' dari
-trailofbits/skills (CC-BY-SA-4.0, atribusi); dibangun from scratch pakai
-stdlib saja (APK = ZIP — no apktool/jadx). Lisensi secai: PolyForm NC.
+"""[DEFEND] apk_firebase_scan — triase statis APK utk eksposur
+Firebase/config.
 
 Yang diperiksa (read-only, NOL jaringan):
   - assets/resources/google-services.json + strings.xml di dalvik path

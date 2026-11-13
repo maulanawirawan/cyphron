@@ -1,15 +1,7 @@
 r"""[AUDIT: read-only] browser_history_triage — triase OFFLINE basis data
-history peramban (Chrome/Edge Chromium "History", Firefox "places.sqlite")
-yang sudah DISALIN dari image/disk — forensik waktu aktivitas web.
-
-Mengisi antrean port dari mukul975/Anthropic-Cybersecurity-Skills
-'skills/extracting-browser-history-artifacts' (#0516 — atribusi konsep,
-lisensi sumber Apache-2.0). Dibangun FROM SCRATCH TANPA kode sumber itu:
-parser ditulis dari skema basis data publik Chromium (urls/visits/
-downloads/keyword_search_terms, epoch WebKit 1601) dan Mozilla
-(moz_places/moz_historyvisits, PRTime 1970). Skill sumber = alur IR
-dengan sqlite3 CLI/Hindsight/BrowsingHistoryView; tool ini versi
-reproducible: satu perintah -> JSON temuan + ringkasan, TANPA jaringan.
+history peramban (Chrome/Edge Chromium "History", Firefox
+"places.sqlite") yang sudah DISALIN dari image/disk — forensik waktu
+aktivitas web.
 
 Ranah tetangga eksplisit: history DI LOG jaringan = zeek_beacon_scan/
 dns_log_triage; aktivitas file lokal = mft_scan/timestomp_triage;
@@ -353,7 +345,7 @@ def main(argv: "list[str] | None" = None) -> int:
         "tidak disentuh; salin History + -wal + -shm bersamaan",
         "query string url DIMASKING default (privacy) — --show-query utk "
         "tampilkan penuh",
-        "cookies/cache/bookmarks/session di luar tool — skill sumber "
+        "cookies/cache/bookmarks/session di luar tool — acuan internal "
         "mencakup artefak itu; sini fokus history + unduhan",
         "tidak ada history = tidak berarti tidak ada aktivitas (clear "
         "history manual / private mode tidak terlihat dari db saja)",

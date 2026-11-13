@@ -1,11 +1,7 @@
-r"""[AUDIT: read-only] killswitch_triage — triase OFFLINE telemetri terkumpul
-vs database indikator kill-switch ransomware (mutex/named-pipe, domain
-kill-switch), plus render manifest "vaksinasi" mutex & kandidat sinkhole.
-
-Mengisi antrean port dari mukul975/Anthropic-Cybersecurity-Skills
-'skills/implementing-ransomware-kill-switch-detection' (#0691 — atribusi
-konsep; lisensi sumber Apache-2.0). Dibangun FROM SCRATCH TANPA menyalin
-kode sumber itu; stdlib json/re/xml saja, NOL jaringan, NOL eksekusi.
+r"""[AUDIT: read-only] killswitch_triage — triase OFFLINE telemetri
+terkumpul vs database indikator kill-switch ransomware
+(mutex/named-pipe, domain kill-switch), plus render manifest "vaksinasi"
+mutex & kandidat sinkhole.
 
 Premis sumber yang diekstrak: sebagian keluarga ransomware MEMERIKSA
 kondisi luar sebelum mengenkripsi (kill switch) — mutex bernama sudah
@@ -56,12 +52,6 @@ Fail-closed: file tidak ada / XML & log tak ter-parse sama sekali ->
 exit 2; blok event rusak dihitun di meta, tidak dibuang diam-diam;
 tanpa --events dan --dns -> exit 2 (tidak ada telemetri = tidak ada
 kesimpulan).
-
-Benih DB bawaan = konstanta IOC publik keluarga terkenal (WannaCry/
-Conti/Ryuk/Maze — dari referensi publik yang dikutip skill sumber,
-termasuk repo malware-mutex albertzsigovits) dan MINIMAL: update via
---db wajib untuk keluarga baru; famili entry --db menimpa benih dengan
-nama keluarga sama (replace, bukan campur).
 
 Pemakaian:
   python tools/killswitch_triage.py --events sysmon.xml --out f.json

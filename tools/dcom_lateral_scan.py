@@ -1,18 +1,8 @@
-r"""[SAFETY: read-only] dcom_lateral_scan — triase OFFLINE log Sysmon
-(XML, EID 1 ProcessCreate + EID 3 NetworkConnect) utk indikasi lateral
+r"""[SAFETY: read-only] dcom_lateral_scan — triase OFFLINE log Sysmon (XML,
+EID 1 ProcessCreate + EID 3 NetworkConnect) utk indikasi lateral
 movement via DCOM (T1021.003): instansiasi remote MMC20.Application /
 ShellBrowserWindow / ShellWindows yang mengeksekusi proses tanpa
 menjatuhkan file. TANPA jaringan.
-
-Port konsep dari antrean SKILL-PORT-QUEUE #0540 (mukul975/Anthropic-
-Cybersecurity-Skills 'hunting-for-dcom-lateral-movement'; atribusi
-konsep, lisensi sumber Apache-2.0). Dibangun FROM SCRATCH: rantai
-parent-child + korelasi jaringan ditulis sendiri dari pola artefak
-DCOM publik (CLSID MMC20/ShellBrowserWindow/ShellWindows, port 135 +
-RPC dinamis). Ranah dibagi eksplisit: sysmon_triage = EID 8/10/25/7 +
-dump-cmdline + WMI/UAC; lolbin_scan = EID 1 pola LOLBin/persistence;
-tool ini = rantai DCOM EID 1/3 (parent COM-server + child shell +
-koneksi RPC).
 
 Input -> mekanisme -> output:
   - Input : file XML ekspor Sysmon (Event Viewer "Export XML" atau

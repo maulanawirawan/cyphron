@@ -3,12 +3,6 @@
 pola honeypot, sinyal fake-renounce, kontrol LP — plus CATATAN jujur utk
 klaim LP/lock yang tidak bisa diverifikasi offline.
 
-Port konsep awarexone/Agentic-Bug-Hunter (MIT) — skills/meme-coin-audit
-(8 kelas rug token + token_scanner) & web3/10-meme-coin-bugs. Dibangun
-from-scratch untuk secai; TIDAK ada kode vendor yang disalin — kelas
-vektor & disiplin "the retained authority IS the rug vector" yang dipindah
-menjadi mesin deterministik milik sendiri.
-
 Ranah (ANTI-TABRAKAN ABH-PORT): semua .sol/token = W2. Tool ini TIDAK
 mengklaim harga, kedalaman likuiditas, distribusi holder, riwayat
 deployer, atau state authority on-chain — semuanya butuh data live

@@ -198,8 +198,6 @@ La familia de triaje son CLIs offline independientes: entra evidencia (logs, exp
 
 </details>
 
-El índice completo está en [CHANGELOG.md](CHANGELOG.md); la metodología destilada de conceptos no-tool (250+ secciones) en [docs/PORT-AGENT-METHODS.md](docs/PORT-AGENT-METHODS.md).
-
 ## Comandos
 
 | Comando | Qué hace |
@@ -359,7 +357,6 @@ Si secai te ahorra tiempo, una ⭐ ayuda a que otros lo encuentren.
 ## Créditos
 
 - [Agentic-Bug-Hunter](https://github.com/awarexone/Agentic-Bug-Hunter) (MIT) — fuente de conceptos del mini-programa scope/chain/web3/memoria/informe (`scope_gate`, `chain_planner`, `solidity_static_audit`, `hunt_pattern_db`, etc.).
-- El programa de 995 conceptos usó cuatro colecciones públicas de skills de seguridad (trailofbits/skills, SnailSploit/Claude-Red, mukul975/Anthropic-Cybersecurity-Skills, NVIDIA-SkillSpector) — cada herramienta se construyó from-scratch con atribución de concepto en su docstring.
 
 ## Licencia
 

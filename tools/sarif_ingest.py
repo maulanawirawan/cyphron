@@ -1,13 +1,5 @@
-"""[INGEST] sarif_ingest — ingest hasil scanner eksternal SARIF 2.1.0 -> findings.json.
-
-Mengisi antrean port dari trailofbits/skills plugin 'static-analysis' skill
-'sarif-parsing' (antrean SKILL-PORT-QUEUE; atribusi konsep). Konsep yang
-diport: resolusi severity per SARIF 2.1.0 §3.27.10 (result.level itu OPSIONAL —
-CodeQL menaruh severity di rule, bukan di result, sehingga pembacaan
-`result.level` saja membuat run penuh error terbaca bersih), normalisasi path
-lintas tool, fingerprint stabil untuk dedup, agregasi multi-file. Ditulis dari
-nol dengan stdlib saja (tanpa jaringan); bukan salinan kode pihak lain.
-Lisensi secai: PolyForm NC.
+"""[INGEST] sarif_ingest — ingest hasil scanner eksternal SARIF 2.1.0 ->
+findings.json.
 
 Kenapa secai butuh ini: exploit_ci_gate.py bisa MENG-EXPORT SARIF, tetapi
 temuan scanner eksternal (CodeQL/Semgrep/semacamnya) tidak punya jalur masuk —

@@ -1,15 +1,6 @@
 """[SAFETY: read-only] mcp_tool_vet — vetting server MCP & tool-nya
 SEBELUM/jangan-sampai dipasang ke agen.
 
-Mengisi antrean port dari mukul975/Anthropic-Cybersecurity-Skills
-'skills/auditing-mcp-servers-for-tool-poisoning' (antrean SKILL-PORT-
-QUEUE #0269; atribusi ide, lisensi sumber Apache-2.0; kelas serangan
-dipublikasikan Invariant Labs "tool poisoning" — OWASP MCP03:2025,
-MITRE ATLAS AML.T0010). Dibangun from scratch TANPA kode sumber itu
-dan TANPA mcp-scan: statis, NOL jaringan, tanpa handshake MCP —
-deskripsi tool diperiksa dari DUMP lokal (hasil tools/list yang
-disimpan operator), config dari file JSON MCP standar.
-
 Tiga permukaan yang diperiksa:
   1. CONFIG (mcpServers di .mcp.json / claude_desktop_config.json /
      mcp.json): perintah server berbahaya (curl|sh, base64|sh,

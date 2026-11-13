@@ -1,15 +1,7 @@
 r"""[SAFETY: read-only] kubebench_ingest — ingest & triase output kube-bench
 (CIS Kubernetes Benchmark) dari file hasil: format TEKS ([PASS]/[FAIL]/
-[WARN]/[INFO] + summary) maupun JSON (daftar Controls dgn tests/results).
-NOL jaringan, read-only, stdlib murni.
-
-Port INTI DETERMINISTIK dari skill antrean SKILL-PORT-QUEUE:
-  #0839 mukul975/Anthropic-Cybersecurity-Skills
-       'performing-kubernetes-cis-benchmark-with-kube-bench'
-(Kube-bench sendiri tetap alat pihak ketiga Aqua Security — yang diport =
-lapisan ingest+triase hasilnya, pola sama dgn sarif_ingest /
-cspm_finding_ingest / secret_report_ingest. Konsep sumber Apache-2.0,
-atribusi di sini — konsep, bukan teks.)
+[WARN]/[INFO] + summary) maupun JSON (daftar Controls dgn
+tests/results). NOL jaringan, read-only, stdlib murni.
 
 Mekanisme:
   1. Deteksi format per file: JSON (list Controls / objek tunggal /

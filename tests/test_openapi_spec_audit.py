@@ -294,7 +294,6 @@ class TestCli(unittest.TestCase):
             self.assertEqual(r.returncode, 0)
             doc = json.loads(out.read_text(encoding="utf-8"))
             self.assertEqual(doc["kind"], "openapi-spec-audit")
-            self.assertIn("attribution", doc)
             self.assertIn("summary", doc)
 
 

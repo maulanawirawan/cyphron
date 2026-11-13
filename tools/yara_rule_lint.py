@@ -1,14 +1,5 @@
 r"""[SAFETY: read-only] yara_rule_lint — linter kualitas aturan YARA/YARA-X.
 
-Port konsep dari antrean SKILL-PORT-QUEUE #0097 (trailofbits/skills
-plugin 'yara-authoring', skill 'yara-rule-authoring' — prinsip: string
-harus menghasilkan atom 4-byte, sasar keluarga spesifik bukan kategori,
-uji lawan goodware, short-circuit cek murah dulu, metadata = dokumentasi;
-atribusi ide). Dibangun FROM SCRATCH: tokenizer aturan, daftar string
-rawan-FP, dan seluruh aturan lint ditulis sendiri — tidak menyalin
-yara_lint.py/atom_analyzer.py milik plugin tersebut. Lisensi secai:
-PolyForm NC.
-
 Input -> mekanisme -> output:
   - Input : file .yar/.yara atau direktori (read-only, NOL jaringan,
             tidak mengeksekusi aturan — hanya parsing teks).

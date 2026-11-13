@@ -1,15 +1,6 @@
-r"""[INGEST] secret_report_ingest — ingest laporan pemindai secret
-eksternal (gitleaks JSON / trufflehog JSON-JSONL) -> findings.json
-secai + DIFF BASELINE: hanya temuan BARU (tidak ada di baseline)
-yang dihitung gate.
-
-Mengisi antrean port dari mukul975/Anthropic-Cybersecurity-Skills
-'skills/implementing-secret-scanning-with-gitleaks' (#0699) +
-'skills/implementing-secrets-scanning-in-ci-cd' (#0701) — atribusi
-konsep; lisensi sumber Apache-2.0. Dibangun FROM SCRATCH TANPA
-menyalin kode sumber/tool sumber (gitleaks/trufflehog sendiri adalah
-alat pihak ketiga — di sini laporan HASILNYA yang diingest, scanner
-eksternal tetap dijalankan CI terpisah).
+r"""[INGEST] secret_report_ingest — ingest laporan pemindai secret eksternal
+(gitleaks JSON / trufflehog JSON-JSONL) -> findings.json secai + DIFF
+BASELINE: hanya temuan BARU (tidak ada di baseline) yang dihitung gate.
 
 Premis sumber yang diekstrak (manajemen baseline): repo legacy sudah
 memuat ribuan temuan lama — memblokir SEMUA temuan menumpukan

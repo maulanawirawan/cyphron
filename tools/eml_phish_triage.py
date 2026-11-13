@@ -1,17 +1,6 @@
-"""[SAFETY: read-only] eml_phish_triage — triase OFFLINE header email
-untuk investigasi phishing (rantai Received, hasil SPF/DKIM/DMARC,
-indikasi spoofing, lampiran berbahaya).
-
-Port konsep dari antrean SKILL-PORT-QUEUE #0199 (mukul975/
-Anthropic-Cybersecurity-Skills 'analyzing-email-headers-for-phishing-
-investigation' — analisis header .eml, validasi SPF/DKIM/DMARC,
-From/Reply-To mismatch, URL display-vs-href, hash lampiran; lisensi
-skill sumber Apache-2.0, atribusi konsep — kode ini ditulis from
-scratch, stdlib-only, NOL jaringan: input = file .eml / raw header
-hasil ekspor lab/berizin. BAGIAN SKILL YANG BERJARINGAN (dig/whois/
-reputasi VT/AbuseIPDB, SPF aktif via pyspf) SENGAJA TIDAK di-port —
-verdict yang dilaporkan HANYA hasil autentikasi yang TERTULIS di
-header oleh server penerima, bukan verifikasi aktif.
+"""[SAFETY: read-only] eml_phish_triage — triase OFFLINE header email untuk
+investigasi phishing (rantai Received, hasil SPF/DKIM/DMARC, indikasi
+spoofing, lampiran berbahaya).
 
 Mekanisme (semua temuan = LEAD berbasis bukti, bukan klaim final):
   - replyto-mismatch   : Reply-To != From (indikasi klasik BEC)

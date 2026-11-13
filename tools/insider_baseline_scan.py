@@ -1,17 +1,7 @@
 """[SAFETY: read-only] insider_baseline_scan — deteksi eksfiltrasi data
 oleh insider dari log aktivitas file CSV: baseline volume per user,
-anomali 3x baseline, z-score, aktivitas di luar jam kerja, bulk download,
-deviasi peer group. NOL jaringan.
-
-Mengisi antrean port SKILL-PORT-QUEUE #0421 + #0423 (mukul975/
-Anthropic-Cybersecurity-Skills 'detecting-insider-data-exfiltration-via-
-dlp' dan 'detecting-insider-threat-with-ueba' — baseline perilaku,
-z-score, peer group; lisensi sumber Apache-2.0, atribusi konsep — kode
-dibangun from scratch TANPA menyalin kode sumber). Skill sumber memakai
-pandas + Elasticsearch (live cluster); secai memilih artefak offline:
-SATU CSV aktivitas file/upload yang diekspor dari DLP/file server/EDR,
-dianalisis stdlib csv+statistics supaya dapat dites nol jaringan.
-Deteksi live (streaming watchdog, korelasi ES) tidak di-port.
+anomali 3x baseline, z-score, aktivitas di luar jam kerja, bulk
+download, deviasi peer group. NOL jaringan.
 
 Input -> mekanisme -> output:
   - Input : CSV dgn kolom wajib `timestamp`, `user`, `bytes_transferred`

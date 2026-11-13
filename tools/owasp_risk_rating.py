@@ -2,30 +2,6 @@
 memakai OWASP Risk Rating Methodology (likelihood x impact -> level),
 ditambah pemetaan kelas OWASP Top 10 2021 dari CWE.
 
-Mengisi antrean port dari SKILL-PORT-QUEUE #0920 (mukul975/
-Anthropic-Cybersecurity-Skills 'performing-web-application-vulnerability-
-triage'; atribusi konsep, lisensi sumber Apache-2.0). Dibangun FROM
-SCRATCH dari metodologi terpublikasi (owasp.org/www-community/
-OWASP_Risk_Rating_Methodology) — bukan salinan kode sumber.
-
-Inti deterministik yang diport (bukan proses triase-nya):
-  - 16 faktor 0-9: likelihood = rerata 8 faktor (4 threat-agent:
-    skill_level, motive, opportunity, size + 4 vulnerability:
-    ease_of_discovery, ease_of_exploit, awareness, intrusion_detection);
-    impact = rerata 8 faktor (4 technical: confidentiality, integrity,
-    availability, accountability + 4 business: financial, reputation,
-    non_compliance, privacy);
-  - band: <=3 low, 3-6 medium, >6 high (L dan I sama);
-  - matriks band OWASP (L baris, I kolom):
-                  I=low    I=medium  I=high
-      L=high      medium   high      critical
-      L=medium    low      medium    high
-      L=low       note     low       medium
-  - skor L x I (0..81) dibawa keluar untuk keterlacakan — LEVEL resmi
-    dari MATRIKS, bukan dari ambang skor;
-  - pemetaan CWE -> OWASP Top 10 2021 (faktual, 11 CWE yang dipublikasi
-    skill sumber; CWE lain = None, TIDAK ditebak — anti-FP).
-
 Derivasi default faktor dari flag/konteks (eksplisit di output sebagai
 "derived", selalu bisa ditimpa dgn faktor eksplisit per temuan):
   skill_level=6 utk CWE injeksi-kelas (78/79/89) else 4; motive=7;
@@ -103,7 +79,6 @@ RISK_MATRIX: tuple[tuple[str, ...], ...] = (
     ("note", "low", "medium"),
 )
 
-# pemetaan faktual CWE -> OWASP Top 10 2021 (dipublikasi skill sumber)
 CWE_TO_OWASP = {
     79: "A03", 89: "A03", 78: "A03", 352: "A01", 22: "A01",
     200: "A02", 327: "A02", 287: "A07", 918: "A10", 502: "A08",

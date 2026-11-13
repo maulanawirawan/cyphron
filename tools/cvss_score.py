@@ -1,10 +1,5 @@
 """[SCORE] cvss_score — kalkulator CVSS v3.1 base score, fail-closed.
 
-Mengisi antrean port dari trailofbits/skills plugin 'cvss-scoring'
-(antrean SKILL-PORT-QUEUE; atribusi ide). Algoritma = implementasi
-langsung spesifikasi publik CVSS v3.1 (FIRST/CVE.org) — ditulis dari
-spesifikasi, bukan dari kode pihak lain. Lisensi secai: PolyForm NC.
-
 Kenapa secai butuh ini: findings.json punya severity (high/medium/...)
 dan template nuclei punya cvss-score — tapi tidak ada alat yang
 MENGHITUNG skor dari vektor (laporan harus reproducible: skor

@@ -1,9 +1,5 @@
-"""[AUDIT] audit_phases — orkestrator audit multi-fase, bukti di atas klaim.
-
-Konsep pipeline audit multi-fase dengan findings machine-readable +
-jalur needs-validation terinspirasi cloudflare/security-audit-skill
-(65k+ stars, MIT) — dibangun from scratch TANPA kode dari repo itu;
-atribusi konsep di docstring ini. Lisensi secai: PolyForm NC.
+"""[AUDIT] audit_phases — orkestrator audit multi-fase, bukti di atas
+klaim.
 
 Yang diambil konsepnya dan diadaptasi kontrak secai:
   - fase audit berurutan yang bisa diaudit ulang;

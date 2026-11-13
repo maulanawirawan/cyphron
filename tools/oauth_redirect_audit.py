@@ -3,17 +3,6 @@ redirect_uri & postur flow OAuth 2.0 dari BUKTI tangkapan probe (nol
 jaringan — bukti dibuat operator di lab berizin, tool ini hanya
 mengklasifikasi).
 
-Mengisi antrean port SKILL-PORT-QUEUE #0983 (mukul975/
-Anthropic-Cybersecurity-Skills 'testing-oauth2-implementation-flaws' —
-lisensi sumber Apache-2.0, atribusi konsep; kode dibangun FROM SCRATCH
-TANPA menyalin kode sumber). Skill sumber = live probing via Burp/
-EsPReSSO; inti deterministiknya diekstrak di sini: (1) generator
-matriks varian bypass redirect_uri dari URI kanonik (path-traversal,
-authority-confusion @, subdomain-suffix, case, trailing-slash, downgrade
-http, param/fragment injection, javascript-scheme, dsb.) yang dicetak
-sebagai rencana probe, (2) pengklasifikasi keputusan server dari bukti
-{redirect_uri, status, location} per varian.
-
 Input -> mekanisme -> output:
   - INPUT  --matrix + --canonical : cetak matriks probe (rencana,
     tanpa jaringan). INPUT --evidence : JSON tangkapan operator:
@@ -180,7 +169,7 @@ def _decision(probe: dict) -> str:
 def build_redirect_matrix(canonical: str) -> "list[dict]":
     """Matriks varian bypass redirect_uri dari URI kanonik (determinis,
     nol jaringan). Varian mengikuti kelas manipulasi RFC 3986 yang
-    dipakai skill sumber (path/authority/case/scheme/param/fragment)."""
+    dipakai acuan internal (path/authority/case/scheme/param/fragment)."""
     o = _origin(canonical)
     if o is None or not canonical or o[0] not in _DEFAULT_PORTS:
         raise ValueError(

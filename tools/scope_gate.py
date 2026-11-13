@@ -1,4 +1,5 @@
-"""[SAFETY: read-only] scope_gate — gerbang cek scope aset SEBELUM ada request.
+"""[SAFETY: read-only] scope_gate — gerbang cek scope aset SEBELUM ada
+request.
 
 Pertanyaan yang dijawab: "bolehkah aset ini diuji menurut kebijakan program?"
 Aset yang keliru diuji = laporan ditutup / bisa kena ban program. Cek scope
@@ -612,7 +613,7 @@ def main(argv: Optional[list] = None) -> int:
     parser = argparse.ArgumentParser(
         description=("Gerbang scope deterministik: cek aset terhadap "
                      "ekspor kebijakan JSON sebelum ada request. "
-                     "Port konsep ABH (MIT)."))
+                     "NOL jaringan."))
     parser.add_argument("--policy", required=True,
                         help="path ekspor kebijakan JSON (in_scope/out_of_scope)")
     parser.add_argument("--check", nargs="+", metavar="ASET",
