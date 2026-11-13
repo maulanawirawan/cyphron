@@ -207,7 +207,7 @@ El índice completo está en [CHANGELOG.md](CHANGELOG.md); la metodología desti
 | `secai scan --domain example.com --max-requests 32 --report` | Escaneo tier0 completo (datos públicos, presupuesto estricto) + informe PDF |
 | `secai validate findings.json` | Verifica cualquier findings.json contra el contrato (núcleo Rust) |
 | `secai merge --dedup-id ...` | Fusiona y deduplica conjuntos de hallazgos (correlación FAO) |
-| `python skills/<skill>.py --url … --out f.json` | Ejecuta una de las 95 skills de detección registradas (allowlist) |
+| `secai run --net-budget 8 --net-scope scope.json --out f.json <skill…>` | Ejecuta un skill bajo net-guard: presupuesto de peticiones + scope default-deny + conexión con IP fijada |
 | `python tools/code_map.py --repo <path> --out surface.json` | Mapea código fuente a superficie de ataque — cero peticiones |
 | `python tools/chain_planner.py --findings f.json` | Planifica cadenas de explotación A→B→C desde hallazgos |
 | `python tools/submission_gate.py --finding f.json --program p.json` | Compuerta de 7 preguntas antes de enviar un hallazgo |

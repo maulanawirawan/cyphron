@@ -16,3 +16,65 @@ jobs:
           python-version: "3.12"
       - run: python -m pip install --quiet pytest
       - run: python -m pytest tests/ -q
+
+  # Issue #1 — coverage diukur & di-badge (angka jujur, dari job summary
+  # + badge endpoint di branch gh-pages; hanya di-push saat main).
+  coverage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --quiet pytest pytest-cov
+      - name: Run suite with coverage
+        run: python -m pytest tests/ -q --cov=core --cov=skills --cov=tools --cov-report=term-missing:skip-covered --cov-report=json:coverage-report.json
+      - name: Compute percent + badge JSON
+        run: |
+          python -c "
+          import json, os
+          d = json.load(open('coverage-report.json'))
+          pct = round(d['totals']['percent_covered'], 1)
+          color = 'brightgreen' if pct >= 70 else ('yellow' if pct >= 50 else 'orange')
+          json.dump({'schemaVersion': 1, 'label': 'coverage',
+                     'message': f'{pct}%', 'color': color},
+                    open('coverage-badge.json', 'w'))
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as s:
+              s.write(f'## Coverage\n\n**{pct}%** (core + skills + tools)\n')
+          print(f'coverage: {pct}%')
+          "
+      - name: Publish badge to gh-pages
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if ! git clone --depth 1 --branch gh-pages \
+              "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" gh-pages 2>/dev/null; then
+            git init gh-pages
+            cd gh-pages && git checkout --orphan gh-pages && git rm -rf . 2>/dev/null || true
+          fi
+          cp coverage-badge.json gh-pages/
+          cd gh-pages
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add coverage-badge.json
+          git commit -m "chore: update coverage badge" || echo "no badge change"
+          git push origin gh-pages
+
+  # Issue #2 — Dockerfile di-build dan di-smoke setiap push/PR.
+  docker-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image
+        run: docker build -t secai:smoke .
+      - name: Smoke — info-mode guard (ENTRYPOINT + registry)
+        run: |
+          docker run --rm secai:smoke skills
+      - name: Smoke — core binary validate (Rust)
+        run: |
+          docker run --rm --entrypoint /usr/local/bin/secai secai:smoke validate /dev/null || test $? -eq 2

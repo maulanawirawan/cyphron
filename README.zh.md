@@ -185,7 +185,7 @@ triage 家族是一组独立的离线 CLI：输入证据（日志、导出、清
 | `secai scan --domain example.com --max-requests 32 --report` | 完整 tier0 扫描（仅公开数据，严格预算）+ PDF 报告 |
 | `secai validate findings.json` | 用 Rust 核心校验任何 findings.json 是否符合契约 |
 | `secai merge --dedup-id ...` | 合并并去重发现集（FAO 关联） |
-| `python skills/<skill>.py --url … --out f.json` | 运行 95 个注册检测技能之一（注册表白名单管理） |
+| `secai run --net-budget 8 --net-scope scope.json --out f.json <skill…>` | 在 net-guard 下运行技能：请求预算 + scope 默认拒绝 + IP 固定连接 |
 | `python tools/code_map.py --repo <path> --out surface.json` | 把代码库映射为攻击面 —— 零请求 |
 | `python tools/chain_planner.py --findings f.json` | 从已有发现规划 A→B→C 利用链 |
 | `python tools/submission_gate.py --finding f.json --program p.json` | 对单个发现执行提交前七问门禁 |
