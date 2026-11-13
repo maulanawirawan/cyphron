@@ -44,14 +44,30 @@ LOCK_PATH = ROOT / "agent-shield.lock.json"
 
 # File yang membentuk "pikiran tertulis" agent di repo ini — semuanya
 # wajib di-pin. Tambah file di sini + jalankan pin.
+# File panduan + KODE PENEGAK ATURAN. Perubahan pada salah satu file ini
+# wajib melewati `pin` sadar — diff seal = diff keamanan.
 WATCHED_FILES = (
+    # --- panduan (lapis 2) ---
     "SKILL.md",
     "AGENTS.md",
     ".claude/skills/secai/SKILL.md",
     "docs/AGENT-SAFETY.md",
     "docs/LEGION-METHOD.md",
     "skills/registry.json",
+    # --- verifier (lapis seal) ---
     "tools/agent_shield.py",  # verifier ter-lock juga — modifikasi verifier = seal rusak
+    # --- enforcement deterministik (lapis 1) ---
+    "core/net_guard.py",            # gate budget pre-connect
+    "tools/exploit_engine.py",      # gerbang tier/exploit_allowed/3-kunci
+    "tools/exploit_playbooks.py",   # 42 playbook + NEVER-LIST
+    "tools/exploit_ci_gate.py",     # gate CI findings
+    "core-rs/src/runner.rs",        # runner: env guard + verifikasi audit
+    "core-rs/src/main.rs",
+    "core-rs/src/orchestrator.rs",
+    "core-rs/src/contract.rs",
+    "core-rs/src/serve.rs",
+    "core-rs/src/fao.rs",
+    "core-rs/src/worker.rs",
 )
 
 

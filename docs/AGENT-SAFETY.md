@@ -98,10 +98,21 @@ diteruskan ke agent sebagai perintah.
 3. **Lapis 1 adalah satu-satunya enforcement sungguhan.** Panduan
    (lapis 2) dan layar (lapis 3) membantu, tapi yang menahan tangan
    adalah kode.
-4. **agent-shield ter-lock termasuk verifier-nya sendiri.** Sejak
-   2026-11-14 `tools/agent_shield.py` ikut masuk
-   `agent-shield.lock.json` — memodifikasi verifikator merusak seal
-   dan terdeteksi `verify`. Batas jujur: ini tetap cek file-on-disk
-   (TOCTOU oleh proses yang sudah berjalan di luar jangkauan), dan
-   hash SHA-256 tanpa tanda tangan kriptografis — komit ke branch
-   terproteksi Git adalah mekanisme pengikatan yang sesungguhnya.
+4. **agent-shield ter-lock: verifier + kode penegak aturan.** Sejak
+   2026-11-14 yang dipantau = 18 file: panduan (5) + registry +
+   **verifier** (`tools/agent_shield.py`) + **lapis 1**:
+   `core/net_guard.py`, `tools/exploit_engine.py`,
+   `tools/exploit_playbooks.py`, `tools/exploit_ci_gate.py`, dan
+   **source Rust** (`core-rs/src/*.rs`). Melonggarkan gerbang
+   fail-closed (mis. mengecilkan cek pre-connect atau lemahkan 3-kunci)
+   tanpa `pin` sadar = seal rusak, tertangkap `verify`/CI. Konsekuensi
+   disiplin: setiap perubahan file ini wajib re-pin — diff seal =
+   diff keamanan. Batas jujur: tetap cek file-on-disk (TOCTOU oleh
+   proses yang sudah berjalan di luar jangkauan), hash SHA-256 tanpa
+   tanda tangan kriptografis — komit ke branch terproteksi Git adalah
+   mekanisme pengikatan yang sesungguhnya; dan net_guard adalah guard
+   budget/kesalahan proses sendiri, BUKAN filter scope jaringan
+   (enforcement scope memang tidak ada di lapis itu — jadi klaim
+   "DNS rebinding menembus scope pre-connect" salah sasaran; bila
+   kelak ada scope-check domain, pin IP hasil resolve ke socket yang
+   sama adalah desain yang wajib).

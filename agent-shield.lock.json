@@ -1,15 +1,26 @@
 {
   "version": 1,
-  "pinned_at": "2026-11-13T20:45:04Z",
+  "pinned_at": "2026-11-13T20:57:15Z",
   "algorithm": "sha256",
   "files": {
     "SKILL.md": "30b414be6bd119481d6615fdd125a14e5712a449ef06ee65cd65156154de867f",
     "AGENTS.md": "d925ea245978527ac51a264b6d5797fa57805b148109e6a6f4cc1f85a9526cc6",
     ".claude/skills/secai/SKILL.md": "cd9cd8742a57a58f4044bb694023e6091e368935ebdc1ddcc927b49e28f53144",
-    "docs/AGENT-SAFETY.md": "bf13b98807d3beedd70271b17ec6a395912e32923b4b2f183048cac7ec12a284",
+    "docs/AGENT-SAFETY.md": "5097d0aff2aa805013d283862f2e5eb3991ff763ff23fb949c6a90656d2df12b",
     "docs/LEGION-METHOD.md": "221229bc22cf9e1aa8505344067903ceb1bb615a36b4c41498d35a530965dd76",
     "skills/registry.json": "b7bf03b2e8021d860da32f1d18b2df70095baff5483b43cc9bf362be7882b839",
-    "tools/agent_shield.py": "86858381f5530965c7c2a96f9d739eb4c40a805512113863662a0a29e13c0049"
+    "tools/agent_shield.py": "9157c3238a59b44e9cc6d5b1258f131657c23878f9b26c7dbfeb45951cc9df98",
+    "core/net_guard.py": "ef42bcdd4a24b7bfdd845f836a7685ff417524ca02f0e0e2ac8b6da60c7d1c2b",
+    "tools/exploit_engine.py": "213959f92601fc32cb136960ff40c65a80e3b6645b9c237764b62bd1505f75f3",
+    "tools/exploit_playbooks.py": "8b626e5e7ff98ffcb3900a26fd783a85a5c9b559e1ac6db21d29eff6827a6044",
+    "tools/exploit_ci_gate.py": "1888b5dd622ed87864678f4bbd310f3decedc10ffc844c99f48764fc863e1825",
+    "core-rs/src/runner.rs": "7baaf6d0efd65b184dce573fb09d3c2907b0d75c7ca11bec424150aded79633b",
+    "core-rs/src/main.rs": "c57e07c04983d18c5c33cbef848775879d99e1bfa3e3dff72f0cdfd42c08d7b4",
+    "core-rs/src/orchestrator.rs": "16c9e0e90a6736c0fece69cd4d2a27ab39688b7ae7d54083d47c36c58d572890",
+    "core-rs/src/contract.rs": "7ed6b64368885924d8b2e4b976644389d1d4bec628671804c87ebade95109db5",
+    "core-rs/src/serve.rs": "8b2a39ca929f059b6e1e20fbf3ffa66f7eab3856f5bd49a0c649998fe44537bc",
+    "core-rs/src/fao.rs": "2e7298d437d13591c3ba6c8c13acc2213fe89b0c170a311cf02aaa4fecb3d1a9",
+    "core-rs/src/worker.rs": "c04838b54dd9bcf46f3d1a6f19a77d6a5c9c9665bca99c9ca768f83f838f0d0d"
   },
   "note": "tamper-evidence untuk file panduan agent \u2014 regenerate dengan: python tools/agent_shield.py pin"
 }
