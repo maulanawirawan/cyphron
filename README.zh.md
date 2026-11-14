@@ -13,6 +13,7 @@ Rust，两边遵守同一份严格的输出契约。
 [![tests](https://img.shields.io/badge/tools-200-brightgreen)](#包含什么)
 [![release](https://img.shields.io/badge/release-v0.1.0-blue)](https://github.com/maulanawirawan/secai/releases)
 [![skills](https://img.shields.io/badge/capabilities-298-8A2BE2)](#包含什么)
+[![coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/maulanawirawan/secai/gh-pages/coverage-badge.json)](https://github.com/maulanawirawan/secai/actions/workflows/ci.yml)
 [![python](https://img.shields.io/badge/python-3.10%2B-3776AB)](#快速开始)
 [![rust](https://img.shields.io/badge/rust-stable-orange)](#快速开始)
 [![license](https://img.shields.io/badge/license-PolyForm%20NC%201.0-blue)](LICENSE.md)
@@ -150,6 +151,9 @@ flowchart LR
   `exploit_allowed` 时才会启用，面向实验室和预发布环境。部分技术
   （DoS、持久化、蠕虫、勒索模拟、大规模数据外泄）无论什么参数都会被
   拒绝。详见 [docs/EXPLOIT-TIER.md](docs/EXPLOIT-TIER.md)。
+
+
+**看一个真实输出：** [assets/sample-findings/banner_posture.json](assets/sample-findings/banner_posture.json) — 用内置 lab target（`secai lab`）运行 `banner_posture` 生成，主机已脱敏。一次请求、四条 L1 线索（缺失安全头）——正是 `secai validate` 按契约校验的内容。
 
 在用 AI 编程助手？让它读 [AGENTS.md](AGENTS.md)，里面写了如何构建、
 测试和添加技能。

@@ -14,6 +14,7 @@ salida estricto que ambos respetan.
 [![tests](https://img.shields.io/badge/tools-200-brightgreen)](#qué-incluye)
 [![release](https://img.shields.io/badge/release-v0.1.0-blue)](https://github.com/maulanawirawan/secai/releases)
 [![skills](https://img.shields.io/badge/capabilities-298-8A2BE2)](#qué-incluye)
+[![coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/maulanawirawan/secai/gh-pages/coverage-badge.json)](https://github.com/maulanawirawan/secai/actions/workflows/ci.yml)
 [![python](https://img.shields.io/badge/python-3.10%2B-3776AB)](#inicio-rápido)
 [![rust](https://img.shields.io/badge/rust-stable-orange)](#inicio-rápido)
 [![license](https://img.shields.io/badge/license-PolyForm%20NC%201.0-blue)](LICENSE.md)
@@ -171,6 +172,9 @@ flowchart LR
   persistencia, gusanos, simulación de ransomware, exfiltración masiva)
   se rechazan sin importar los flags. Detalles en
   [docs/EXPLOIT-TIER.md](docs/EXPLOIT-TIER.md).
+
+
+**Mira una salida real:** [assets/sample-findings/banner_posture.json](assets/sample-findings/banner_posture.json) — generada ejecutando `banner_posture` contra el lab target incorporado (`secai lab`), host redactado. Una petición, cuatro leads L1 (cabeceras de seguridad ausentes) — justo lo que `secai validate` verifica contra el contrato.
 
 ¿Usas un agente de IA para programar? Apúntalo a
 [AGENTS.md](AGENTS.md). Ahí explica cómo compilar, probar y añadir una
