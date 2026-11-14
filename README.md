@@ -9,7 +9,7 @@
 [![CI](https://github.com/maulanawirawan/secai/actions/workflows/ci.yml/badge.svg)](https://github.com/maulanawirawan/secai/actions/workflows/ci.yml)
 [![release](https://img.shields.io/badge/release-v0.1.0-blue)](https://github.com/maulanawirawan/secai/releases)
 [![skills](https://img.shields.io/badge/skills-95-8A2BE2)](#whats-inside)
-[![tools](https://img.shields.io/badge/tools-200-brightgreen)](#whats-inside)
+[![tools](https://img.shields.io/badge/tools-203-brightgreen)](#whats-inside)
 [![coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/maulanawirawan/secai/gh-pages/coverage-badge.json)](https://github.com/maulanawirawan/secai/actions/workflows/ci.yml)
 [![python](https://img.shields.io/badge/python-3.10%2B-3776AB)](#quick-start-try-it-in-60-seconds)
 [![rust](https://img.shields.io/badge/rust-stable-orange)](#quick-start-try-it-in-60-seconds)
@@ -56,7 +56,7 @@ flowchart LR
 
 > **secai** = **sec**urity + **a**gentic **i**ntelligence. It's an
 > evidence-first cybersecurity engine: **95 detection skills** and
-> **200 offline triage tools** (298 scripts in all), a native Rust core,
+> **203 offline triage tools** (301 scripts in all), a native Rust core,
 > one strict "findings" format, and an MCP server — so Claude Code,
 > Cursor, or any shell-capable AI agent can drive it for you.
 
@@ -229,7 +229,7 @@ manual that teaches an agent to drive secai safely) and [AGENTS.md](AGENTS.md)
   mass exfiltration) are refused no matter what flags you pass. Details in
   [docs/EXPLOIT-TIER.md](docs/EXPLOIT-TIER.md).
 
-*(298 Python scripts in total across `skills/` and `tools/`; 95 of the
+*(301 Python scripts in total across `skills/` and `tools/`; 95 of the
 skills are registered in the allowlist, the rest are shared helpers.)*
 
 ## Capability map
@@ -260,6 +260,7 @@ module docstring).
 | **Offensive proof** (new) | "can I *prove* this is exploitable, safely?" | `jwt_crypto_attack`, `bola_bfla_prover`, `nosql_injection_analyzer`, `ssrf_metadata_map`, `ssti_exploit_plan`, `iam_assume_chain` |
 | **Detection bridge** (new) | "turn a finding into a detection" | `detection_rule_gen` (Sigma+YARA), `attack_navigator_export` |
 | **Quishing & doc-bait triage** (new) | "is this QR contact / document callback / capture / event log suspicious?" | `qr_vcard_triage`, `doc_beacon_triage`, `capture_triage`, `evtx_hunt` |
+| **Smuggling & env-evasion triage** (new) | "does this page smuggle a download? does this sample check for my sandbox?" | `html_smuggling_triage`, `vm_artifact_triage`, `unquoted_service_path_triage` |
 
 </details>
 

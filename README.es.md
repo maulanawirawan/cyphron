@@ -11,9 +11,9 @@ salida estricto que ambos respetan.
 *Sin prueba, no hay informe.*
 
 [![CI](https://github.com/maulanawirawan/secai/actions/workflows/ci.yml/badge.svg)](https://github.com/maulanawirawan/secai/actions/workflows/ci.yml)
-[![tests](https://img.shields.io/badge/tools-200-brightgreen)](#qué-incluye)
+[![tests](https://img.shields.io/badge/tools-203-brightgreen)](#qué-incluye)
 [![release](https://img.shields.io/badge/release-v0.1.0-blue)](https://github.com/maulanawirawan/secai/releases)
-[![skills](https://img.shields.io/badge/capabilities-298-8A2BE2)](#qué-incluye)
+[![skills](https://img.shields.io/badge/capabilities-301-8A2BE2)](#qué-incluye)
 [![coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/maulanawirawan/secai/gh-pages/coverage-badge.json)](https://github.com/maulanawirawan/secai/actions/workflows/ci.yml)
 [![python](https://img.shields.io/badge/python-3.10%2B-3776AB)](#inicio-rápido)
 [![rust](https://img.shields.io/badge/rust-stable-orange)](#inicio-rápido)
@@ -140,7 +140,7 @@ flowchart LR
 
 ## Qué incluye
 
-- **298 scripts de capacidades** en dos familias: **95 skills de
+- **301 scripts de capacidades** en dos familias: **95 skills de
   detección registradas** en `skills/` (recon, postura y exposición —
   cada una es una CLI independiente con clase de seguridad declarada,
   de `read-only` a `state-changing`, y un límite estricto de

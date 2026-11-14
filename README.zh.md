@@ -10,9 +10,9 @@ Rust，两边遵守同一份严格的输出契约。
 *无证据，不报告。*
 
 [![CI](https://github.com/maulanawirawan/secai/actions/workflows/ci.yml/badge.svg)](https://github.com/maulanawirawan/secai/actions/workflows/ci.yml)
-[![tests](https://img.shields.io/badge/tools-200-brightgreen)](#包含什么)
+[![tests](https://img.shields.io/badge/tools-203-brightgreen)](#包含什么)
 [![release](https://img.shields.io/badge/release-v0.1.0-blue)](https://github.com/maulanawirawan/secai/releases)
-[![skills](https://img.shields.io/badge/capabilities-298-8A2BE2)](#包含什么)
+[![skills](https://img.shields.io/badge/capabilities-301-8A2BE2)](#包含什么)
 [![coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/maulanawirawan/secai/gh-pages/coverage-badge.json)](https://github.com/maulanawirawan/secai/actions/workflows/ci.yml)
 [![python](https://img.shields.io/badge/python-3.10%2B-3776AB)](#快速开始)
 [![rust](https://img.shields.io/badge/rust-stable-orange)](#快速开始)
@@ -128,7 +128,7 @@ flowchart LR
 
 ## 包含什么
 
-- **298 个能力脚本**，分两族：**95 个注册检测技能**（`skills/`，覆盖
+- **301 个能力脚本**，分两族：**95 个注册检测技能**（`skills/`，覆盖
   侦察、配置态势和暴露面 —— 每个都是独立 CLI，声明安全等级（从
   `read-only` 到 `state-changing`）并据此设定硬性请求上限；注册表是
   白名单，未登记的技能不会运行）+ **200 个离线工具**（`tools/`，证据

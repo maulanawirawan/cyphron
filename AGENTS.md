@@ -18,13 +18,13 @@ that cannot be proven never ships.
   (`--url` / `--target` ... `--out result.json`). This is what users run.
 - `core-rs/` — native Rust core (`secai validate | scan ...`).
   Build: `cargo build --release --manifest-path core-rs/Cargo.toml`
-- `tools/` — helpers (200 offline triage tools, incl. quishing/doc-bait wave-2: `qr_vcard_triage`, `doc_beacon_triage`, `capture_triage`, `evtx_hunt`): lab target (`tools/lab_target.py`), planner,
+- `tools/` — helpers (203 offline triage tools, incl. quishing/doc-bait wave-2: `qr_vcard_triage`, `doc_beacon_triage`, `capture_triage`, `evtx_hunt`; wave-3: `html_smuggling_triage`, `unquoted_service_path_triage`, `vm_artifact_triage`): lab target (`tools/lab_target.py`), planner,
   benchmarks, self-update, MCP server (`tools/mcp_server.py`), scout,
   session ledger, contribution pipeline (`cve_sweep`, `antidup_check`),
   agent-safety (`injection_guard`, `agent_shield`), audit engines
   (`audit_phases` multi-phase fail-closed, `insecure_defaults` config
   scanner), verify gate (`verify_gate` — claims need fresh evidence), leak-claim triage (`leak_triage`), parallel job dispatch (`fleet_dispatch`), skill vetting gate (`skill_vet`), CVSS v3.1 calculator (`cvss_score`), DFIR, config & intel triage (28+ tools triage: maldoc/pdf/mft/netflow/deauth/dpapi/packer/web-log/dns-log/eml/k8s/cloudtrail/IAM/sysmon/win-logon/waf/lolbin/CT-baseline/IOC-defang/SARIF-ingest/dsb. — lihat git log).
-- `tests/` — pytest suite (3498 tests + 31 subtests; 3 test POSIX skip otomatis di Windows). Run: `python -m pytest tests/ -q`
+- `tests/` — pytest suite (3518 tests + 31 subtests; 3 test POSIX skip otomatis di Windows). Run: `python -m pytest tests/ -q`
 - `docs/` — policies: exploit tier, egress, install, nightrun, legion
   method (`docs/LEGION-METHOD.md`).
 

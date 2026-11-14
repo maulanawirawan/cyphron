@@ -7,6 +7,27 @@ as the compatibility signal.
 
 ## [Unreleased]
 
+### Added — wave-3 triage batch (3 new tools, 200 -> 203)
+
+Three offline triage tools closing gaps mined from the reference
+library (A-poc RedTeam/BlueTeam entries), built from scratch,
+stdlib-only, zero-network, fail-closed:
+
+- `html_smuggling_triage` — score an HTML page/document for
+  smuggling patterns (msSaveOrOpenBlob, createObjectURL +
+  data:/blob: anchor, JS-built download anchors, interaction-armed
+  delivery, hidden iframe bootstrap, embedded base64 payloads).
+- `unquoted_service_path_triage` — detect unquoted service paths
+  with spaces (T1574.009) from JSON/NDJSON/sc-qc dumps; computes
+  the deterministic candidate-exe chain; args-only spaces
+  (svchost.exe -k ...) are NOT findings (zero-FP rule).
+- `vm_artifact_triage` — score a text dump for VM/sandbox/analysis
+  artifacts (guest processes, guest drivers, registry keys,
+  hypervisor CPUID brands, VM MAC prefixes, analysis tools,
+  sandbox paths) — pafish-style signature taxonomy.
+- 20 new tests (zero-FP controls + fail-closed per tool): 3518
+  total.
+
 ### Added — net-guard wired into the orchestrator scan path (tier0)
 
 - `run_scan` tier0 now runs EVERY skill under the net-guard
