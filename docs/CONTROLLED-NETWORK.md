@@ -139,3 +139,17 @@ proses skill Python
 - [x] Budget proyeksi -> limit file di runner — SELESAI 2026-11-14:
       proyeksi pemanggil jadi file atomik `{limit, used:0}` milik
       runner; `used` akhir disanity-kan <= limit.
+- [x] Wire net-guard ke scan path orchestrator — SELESAI 2026-11-14:
+      `run_scan` mode tier0 menjalankan SETIAP skill di bawah
+      net-guard (`run_skill_guarded`) — limit jaringan = sisa budget
+      akuntansi run (`max_requests - requests`; floor 1 agar skill
+      est=0 lokal tetap jalan saat budget tepat habis). Scope opsional
+      via `secai scan --net-scope FILE` (fail-closed awal: file wajib
+      ada). Env skill (UA low-profile, proxy rotasi) dibawa sebagai
+      `caller_env` — env guard ditulis TERAKHIR sehingga tidak bisa
+      ditimpa/dimatikan pemanggil. Lab mode tetap tanpa guard (kelas
+      lab estimasinya tak terbatas). Bukti: `budget.net_guard=true`
+      di merged findings + test Rust e2e guarded + test budget-habis.
+      Sebelumnya: scan hanya menghitung request pasca-jalan (akuntansi)
+      — penegakan lapisan jaringan disebut "roadmap" di komentar kode;
+      kini terpasang.

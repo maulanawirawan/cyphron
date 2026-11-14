@@ -219,6 +219,7 @@ fn cmd_queue(args: &[String]) {
         ua: None,
         proxy: None,
         proxies_file: None,
+        net_scope: None,
     };
     let mut i = 0;
     while i < args.len() {
@@ -441,7 +442,7 @@ fn cmd_run(args: &[String]) {
     let run_res = match net_budget {
         Some(n) => {
             runner::run_skill_guarded(&skill, &out, None, n,
-                                      net_scope.as_deref())
+                                      net_scope.as_deref(), &[])
         }
         None => runner::run_skill(&skill, &out, None),
     };

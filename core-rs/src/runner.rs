@@ -207,7 +207,11 @@ pub const SCOPE_ENV: &str = "SECAI_NET_SCOPE_FILE";
 ///
 /// - budget file `{limit, used:0}` dibuat runner (milik runner);
 /// - PYTHONPATH di-merge: repo root + `tools/net_guard` (sitecustomize
-///   memuat `core/net_guard.auto_install_from_env`);
+///   memuat `core.net_guard.auto_install_from_env`);
+/// - `caller_env`: env tambahan milik pemanggil (UA low-profile, proxy
+///   rotasi, dll). Env guard SELALU ditulis SETELAH env pemanggil —
+///   pemanggil tidak bisa menimpa/mematikan guard lewat extra_env
+///   (SECAI_NET_GUARD=0 dari lupa ter-override -> tetap "1").
 /// - setelah skill selesai: audit log WAJIB ada, WAJIB memuat baris
 ///   `guard-install` (bukti patch socket terpasang di proses skill),
 ///   semua baris JSON valid, dan `used <= limit` — pelanggaran apa pun
@@ -218,6 +222,7 @@ pub fn run_skill_guarded(
     workdir: Option<&Path>,
     budget_limit: usize,
     scope_path: Option<&Path>,
+    caller_env: &[(String, String)],
 ) -> Result<RunResult, String> {
     if budget_limit == 0 {
         return Err(
@@ -262,12 +267,13 @@ pub fn run_skill_guarded(
         .map(|p| p.display().to_string())
         .collect::<Vec<_>>()
         .join(sep);
-    let mut extra_env = vec![
+    let mut extra_env: Vec<(String, String)> = caller_env.to_vec();
+    extra_env.extend([
         (GUARD_ENV.to_string(), "1".to_string()),
         (BUDGET_ENV.to_string(), budget_path.display().to_string()),
         (AUDIT_ENV.to_string(), audit_path.display().to_string()),
         ("PYTHONPATH".to_string(), py_path),
-    ];
+    ]);
     if let Some(scope) = scope_path {
         // Fase 2-C: scope-check + pin-IP anti-rebinding di sisi skill
         extra_env.push((SCOPE_ENV.to_string(), scope.display().to_string()));
@@ -655,7 +661,7 @@ json.dump({"ok": True, "findings": []},
         ];
         let out = std::env::temp_dir()
             .join(format!("secai_t_guard_{}.json", std::process::id()));
-        let res = run_skill_guarded(&argv, &out, None, 1, None)
+        let res = run_skill_guarded(&argv, &out, None, 1, None, &[])
             .expect("guarded run should pass");
         assert!(res.ok, "invalid: {:?}", res.invalid);
         let _ = std::fs::remove_file(&out);
@@ -682,7 +688,7 @@ except Exception:
         ];
         let out = std::env::temp_dir()
             .join(format!("secai_t_guard2_{}.json", std::process::id()));
-        let err = run_skill_guarded(&argv, &out, None, 3, None).unwrap_err();
+        let err = run_skill_guarded(&argv, &out, None, 3, None, &[]).unwrap_err();
         assert!(err.contains("missing"), "err={err}");
     }
 
@@ -721,7 +727,7 @@ json.dump({"ok": True, "findings": [],
         let out = std::env::temp_dir()
             .join(format!("secai_t_scoped_{}.json", std::process::id()));
         let res = run_skill_guarded(
-            &argv, &out, None, 5, Some(scope.as_path()),
+            &argv, &out, None, 5, Some(scope.as_path()), &[],
         )
         .expect("guarded run with scope should pass");
         assert!(res.ok, "invalid: {:?}", res.invalid);
@@ -735,7 +741,7 @@ json.dump({"ok": True, "findings": [],
                         "pass".to_string()];
         let out = std::env::temp_dir()
             .join(format!("secai_t_guard3_{}.json", std::process::id()));
-        let err = run_skill_guarded(&argv, &out, None, 0, None).unwrap_err();
+        let err = run_skill_guarded(&argv, &out, None, 0, None, &[]).unwrap_err();
         assert!(err.contains("budget 0"), "err={err}");
     }
 }

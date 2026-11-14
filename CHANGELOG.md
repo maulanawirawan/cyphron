@@ -7,6 +7,23 @@ as the compatibility signal.
 
 ## [Unreleased]
 
+### Added — net-guard wired into the orchestrator scan path (tier0)
+
+- `run_scan` tier0 now runs EVERY skill under the net-guard
+  (`run_skill_guarded`) — network-layer enforcement of the request
+  budget, closing the gap where a lying skill could overshoot
+  `--max-requests` and only get caught by post-hoc accounting.
+  Per-skill limit = remaining run budget (floor 1 so est=0 local
+  skills still run at an exactly-exhausted budget); lab mode unchanged.
+- `run_skill_guarded(..., caller_env)`: skill env (low-profile UA,
+  proxy rotation) passes through; guard env is written LAST so a
+  caller can never override/disable it.
+- `secai scan --net-scope FILE` — scope enforcement (Fase 2-C) for the
+  whole run; path validated early (fail-closed).
+- Merged findings record `budget.net_guard=true` (audit trail).
+- 1 new Rust e2e test (guarded tier0 + budget-exhausted edge): 68
+  total.
+
 ### Added — net-guard scope-check + pin-IP anti-rebinding (Fase 2-C)
 
 - `core/net_guard_scope.py` — scope file (domains/ips/cidrs) +

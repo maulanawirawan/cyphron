@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "pinned_at": "2026-11-13T23:22:44Z",
+  "pinned_at": "2026-11-14T00:28:07Z",
   "algorithm": "sha256",
   "files": {
     "SKILL.md": "30b414be6bd119481d6615fdd125a14e5712a449ef06ee65cd65156154de867f",
@@ -15,9 +15,9 @@
     "tools/exploit_engine.py": "213959f92601fc32cb136960ff40c65a80e3b6645b9c237764b62bd1505f75f3",
     "tools/exploit_playbooks.py": "8b626e5e7ff98ffcb3900a26fd783a85a5c9b559e1ac6db21d29eff6827a6044",
     "tools/exploit_ci_gate.py": "1888b5dd622ed87864678f4bbd310f3decedc10ffc844c99f48764fc863e1825",
-    "core-rs/src/runner.rs": "dab85a91ccbb62efb11e1c80fe2d5f1bc10482ac7bfccb8ac89b20f6299957ff",
-    "core-rs/src/main.rs": "ae1556a5b7657e909830e7e9eb1e625dadb4f8b2df0249b704d601c855e10cbc",
-    "core-rs/src/orchestrator.rs": "16c9e0e90a6736c0fece69cd4d2a27ab39688b7ae7d54083d47c36c58d572890",
+    "core-rs/src/runner.rs": "df1bd6f9abf8125363fba035581d235e3ebbff7aae96cf2623ce8e039207c8b9",
+    "core-rs/src/main.rs": "b3096eae008d01991fe41fb5d10888bd90b55a94a0364b909275437c13159efc",
+    "core-rs/src/orchestrator.rs": "61c1d5c1c3ff957edcc274f420954c1ba030da8e621445c3654b962abd64bcbc",
     "core-rs/src/contract.rs": "7ed6b64368885924d8b2e4b976644389d1d4bec628671804c87ebade95109db5",
     "core-rs/src/serve.rs": "8b2a39ca929f059b6e1e20fbf3ffa66f7eab3856f5bd49a0c649998fe44537bc",
     "core-rs/src/fao.rs": "2e7298d437d13591c3ba6c8c13acc2213fe89b0c170a311cf02aaa4fecb3d1a9",

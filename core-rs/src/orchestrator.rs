@@ -15,7 +15,7 @@
 
 use crate::contract::Finding;
 use crate::fao;
-use crate::runner::{run_skill_with_env, write_merged};
+use crate::runner::{run_skill_guarded, run_skill_with_env, write_merged};
 use serde::Deserialize;
 use std::collections::HashSet;
 use std::path::{Path, PathBuf};
@@ -216,6 +216,10 @@ pub struct ScanParams {
     /// round-robin deterministik per skill. Tidak boleh digabung
     /// dengan --proxy. Semua penugasan tercatat di data.sources.
     pub proxies_file: Option<String>,
+    /// Fase 2-C (CONTROLLED-NETWORK) — file scope JSON (domains/ips/
+    /// cidrs) untuk run tier0: default-deny + pin-IP anti-rebinding di
+    /// sisi skill. None = hanya budget (perilaku run --net-budget lama).
+    pub net_scope: Option<String>,
 }
 
 /// Muat pool proxy dari file — satu URL per baris, kosong/# di-skip.
@@ -458,6 +462,9 @@ pub fn run_scan(p: &ScanParams) -> Result<ScanResult, String> {
     let t0 = Instant::now();
 
     for (skill_idx, s) in selected.iter().enumerate() {
+        // Sisa budget akuntansi run — dipakai dua lapis: proyeksi skip
+        // (tier0, sebelum spawn) dan limit net-guard (lapisan jaringan).
+        let remaining = p.max_requests.saturating_sub(requests);
         // --- Budget-request per run (hard cap): proyeksi dari safety
         // class SEBELUM skill dijalankan; skill yang melebihi sisa budget
         // di-skip dengan baris audit (bukan diam-diam).
@@ -466,7 +473,6 @@ pub fn run_scan(p: &ScanParams) -> Result<ScanResult, String> {
         // metadata + baris audit (actual tetap dihitung).
         if p.mode == "tier0" {
             let est = estimate_skill_requests(s);
-            let remaining = p.max_requests.saturating_sub(requests);
             if est > remaining {
                 eprintln!(
                     "skip {}: budget-request habis (est {} > sisa {}) (audit)",
@@ -497,12 +503,32 @@ pub fn run_scan(p: &ScanParams) -> Result<ScanResult, String> {
                     .replace("@OUT@", &out_path.to_string_lossy().to_string())
             })
             .collect();
-        let res = run_skill_with_env(
-            &argv,
-            &out_path,
-            None,
-            &skill_env(p, skill_proxy.map(|x| x.as_str())),
-        )?;
+        let res = if p.mode == "tier0" {
+            // CONTROLLED-NETWORK §3 — tier0 dijalankan DI BAWAH net-guard:
+            // limit jaringan = sisa budget akuntansi run. Skill jujur
+            // (est <= sisa) tidak merasakan perubahan; skill yang bohong
+            // tentang jumlah request-nya dipotong di socket, bukan cuma
+            // dicatat. Floor 1: skill est=0 (analisis lokal murni) tetap
+            // boleh jalan saat budget tepat habis — koneksi pertamanya
+            // tetap lewat gerbang + audit.
+            run_skill_guarded(
+                &argv,
+                &out_path,
+                None,
+                remaining.max(1),
+                p.net_scope.as_deref().map(std::path::Path::new),
+                &skill_env(p, skill_proxy.map(|x| x.as_str())),
+            )?
+        } else {
+            // Lab: sudah lewat gerbang otorisasi (lab-only), net-guard
+            // tidak menegakkan budget lab (estimasi kelas = tak terbatas).
+            run_skill_with_env(
+                &argv,
+                &out_path,
+                None,
+                &skill_env(p, skill_proxy.map(|x| x.as_str())),
+            )?
+        };
         if !res.ok {
             return Err(format!(
                 "skill '{}' melanggar kontrak ({}) — scan dihentikan (fail-closed)",
@@ -606,6 +632,10 @@ pub fn run_scan(p: &ScanParams) -> Result<ScanResult, String> {
                 "budget": {
                     "max_requests": p.max_requests,
                     "skipped": skipped_budget,
+                    // true = setiap skill tier0 dijalankan di bawah
+                    // net-guard (audit diverifikasi per skill —
+                    // run_skill_guarded hard-fail tanpa bukti guard).
+                    "net_guard": p.mode == "tier0",
                 },
                 "low_profile": {
                     "ua": p.ua.clone().unwrap_or_else(|| "default".into()),
@@ -690,6 +720,7 @@ pub fn cmd_scan(args: &[String]) -> i32 {
         report: false,
         dry_run: false,
         max_requests: DEFAULT_MAX_REQUESTS, ua: None, proxy: None, proxies_file: None,
+        net_scope: None,
     };
     let mut i = 0;
     while i < args.len() {
@@ -700,6 +731,20 @@ pub fn cmd_scan(args: &[String]) -> i32 {
             "--evidence" => { p.evidence = args.get(i+1).cloned(); i += 2; }
             // F70 — review sumber lokal (needs=source); tanpa target
             "--source" => { p.source = args.get(i+1).cloned(); i += 2; }
+            "--net-scope" => {
+                // Fase 2-C: file scope JSON (domains/ips/cidrs) untuk
+                // tier0 — default-deny + pin-IP anti-rebinding di sisi
+                // skill. Validasi keberadaan di sini (fail-closed awal):
+                // scope yang salah path = semua koneksi skill ditolak
+                // diam-diam di sisi guard.
+                let v = args.get(i+1).cloned().unwrap_or_default();
+                if v.trim().is_empty() || !std::path::Path::new(&v).is_file() {
+                    eprintln!("--net-scope butuh path file scope JSON yang ada — fail-closed");
+                    return 2;
+                }
+                p.net_scope = Some(v);
+                i += 2;
+            }
             "--out" => { p.out_dir = PathBuf::from(args.get(i+1).map(String::as_str).unwrap_or("findings/scan")); i += 2; }
             "--registry" => { p.registry = PathBuf::from(args.get(i+1).map(String::as_str).unwrap_or("skills/registry.json")); i += 2; }
             "--report" => { p.report = true; i += 1; }
@@ -866,12 +911,12 @@ mod tests {
                 SkillSpec { est_requests: None, name: "creds".into(), cmd: vec!["python".into()], safety_class: "credential-bearing".into(), needs: "none".into(), requires_evidence: false, lab_only: false },
             ],
         };
-        let p = ScanParams { mode: "tier0".into(), target: None, domain: None, evidence: None, source: None, out_dir: PathBuf::from("x"), registry: PathBuf::from("x"), report: false, dry_run: false, max_requests: DEFAULT_MAX_REQUESTS, ua: None, proxy: None, proxies_file: None };
+        let p = ScanParams { mode: "tier0".into(), target: None, domain: None, evidence: None, source: None, out_dir: PathBuf::from("x"), registry: PathBuf::from("x"), report: false, dry_run: false, max_requests: DEFAULT_MAX_REQUESTS, ua: None, proxy: None, proxies_file: None, net_scope: None };
         let allowed = allowed_safety_classes(&p.mode).unwrap();
         let sel = select_skills(&reg, &p, &allowed);
         assert_eq!(sel.len(), 1);
         assert_eq!(sel[0].name, "safe");
-        let p_lab = ScanParams { mode: "lab".into(), target: None, domain: None, evidence: None, source: None, out_dir: PathBuf::from("x"), registry: PathBuf::from("x"), report: false, dry_run: false, max_requests: DEFAULT_MAX_REQUESTS, ua: None, proxy: None, proxies_file: None };
+        let p_lab = ScanParams { mode: "lab".into(), target: None, domain: None, evidence: None, source: None, out_dir: PathBuf::from("x"), registry: PathBuf::from("x"), report: false, dry_run: false, max_requests: DEFAULT_MAX_REQUESTS, ua: None, proxy: None, proxies_file: None, net_scope: None };
         let allowed_lab = allowed_safety_classes(&p_lab.mode).unwrap();
         let sel_lab = select_skills(&reg, &p_lab, &allowed_lab);
         assert_eq!(sel_lab.len(), 3);
@@ -919,6 +964,7 @@ open(sys.argv[1],"w").write(json.dumps({"ok":True,"data":{},"findings":rows}))
             report: false,
             dry_run: false,
             max_requests: DEFAULT_MAX_REQUESTS, ua: None, proxy: None, proxies_file: None,
+            net_scope: None,
         };
         let r = run_scan(&p).expect("scan harus sukses");
         assert_eq!(r.skills_run.len(), 2);
@@ -941,6 +987,50 @@ open(sys.argv[1],"w").write(json.dumps({"ok":True,"data":{},"findings":rows}))
         assert_eq!(sources.len(), 2);
         assert!(sources[0].get("requests").is_some());
         assert!(sources[0].get("skill").is_some());
+        // tier0 = setiap skill dijalankan di bawah net-guard (audit
+        // diverifikasi per skill — tanpa itu run_scan sudah Err).
+        assert_eq!(
+            doc["data"]["budget"]["net_guard"],
+            serde_json::json!(true),
+            "tier0 scan wajib tercatat net_guard=true"
+        );
+        let _ = std::fs::remove_dir_all(&tmp);
+    }
+
+    #[test]
+    fn scan_tier0_est0_skill_still_runs_when_budget_exhausted() {
+        // Floor 1 net-guard: skill est=0 (analisis lokal, 0 koneksi)
+        // tetap boleh jalan saat budget akuntansi tepat habis — tanpa
+        // floor, run_skill_guarded menolak budget 0 dan scan mati untuk
+        // skill yang bahkan tidak menyentuh jaringan.
+        let tmp = std::env::temp_dir().join(format!("secai_scan_ng_{}", std::process::id()));
+        std::fs::create_dir_all(&tmp).unwrap();
+        let reg_path = tmp.join("registry.json");
+        let script_one = r#"import json,sys
+open(sys.argv[1],"w").write(json.dumps({"ok":True,"requests":1,"data":{},"findings":[]}))
+"#;
+        let script_local = r#"import json,sys
+open(sys.argv[1],"w").write(json.dumps({"ok":True,"requests":0,"data":{},"findings":[]}))
+"#;
+        let skills = serde_json::json!({
+            "version": 1,
+            "skills": [
+                {"name": "one", "cmd": ["python", "-c", script_one, "@OUT@"],
+                 "safety_class": "1-request", "needs": "none"},
+                {"name": "local", "cmd": ["python", "-c", script_local, "@OUT@"],
+                 "safety_class": "read-only", "needs": "none"},
+            ]
+        });
+        std::fs::write(&reg_path, skills.to_string()).unwrap();
+        let p = ScanParams {
+            mode: "tier0".into(), target: None, domain: None, evidence: None,
+            source: None, out_dir: tmp.join("out"), registry: reg_path,
+            report: false, dry_run: false, max_requests: 1,
+            ua: None, proxy: None, proxies_file: None, net_scope: None,
+        };
+        let r = run_scan(&p).expect("skill est=0 harus tetap jalan di budget habis");
+        assert_eq!(r.skills_run.len(), 2);
+        assert_eq!(r.requests, 1);
         let _ = std::fs::remove_dir_all(&tmp);
     }
 
@@ -960,6 +1050,7 @@ open(sys.argv[1],"w").write(json.dumps({"ok":True,"data":{},"findings":rows}))
             out_dir: PathBuf::from("x"), registry: PathBuf::from("x"),
             report: false, dry_run: false, max_requests: DEFAULT_MAX_REQUESTS,
             ua: None, proxy: None, proxies_file: None,
+            net_scope: None,
         };
         let allowed = allowed_safety_classes("tier0").unwrap();
         assert!(select_skills(&reg, &base(None), &allowed).is_empty(),
@@ -1005,6 +1096,7 @@ json.dump({"ok":True,"data":{},"requests":50,
             mode: "tier0".into(), target: None, domain: None, evidence: None, source: None,
             out_dir: tmp.join("out"), registry: reg_path, report: false,
             dry_run: false, max_requests: 10, ua: None, proxy: None, proxies_file: None,
+            net_scope: None,
         };
         let err = run_scan(&p).expect_err("overflow harus menggagalkan run");
         assert!(err.contains("budget-request terlampaui"), "got: {err}");
@@ -1037,6 +1129,7 @@ json.dump({"ok":True,"data":{"requests_untracked":True},"requests":0,
             mode: "tier0".into(), target: None, domain: None, evidence: None, source: None,
             out_dir: tmp.join("out"), registry: reg_path, report: false,
             dry_run: false, max_requests: DEFAULT_MAX_REQUESTS, ua: None, proxy: None, proxies_file: None,
+            net_scope: None,
         };
         let err = run_scan(&p).expect_err("untracked requests harus ditolak di tier0");
         assert!(err.contains("requests_untracked"), "got: {err}");
@@ -1064,6 +1157,7 @@ json.dump({"ok":True,"data":{},"findings":[{"tool":"t","title":"x",
             mode: "tier0".into(),
             target: None, domain: None, evidence: None, source: None,
             out_dir: tmp.join("out"), registry: reg_path, report: false, dry_run: false, max_requests: DEFAULT_MAX_REQUESTS, ua: None, proxy: None, proxies_file: None,
+            net_scope: None,
         };
         assert!(run_scan(&p).is_err(), "kontrak rusak harus menghentikan scan");
         let _ = std::fs::remove_dir_all(&tmp);
@@ -1098,6 +1192,7 @@ json.dump({"ok":True,"data":{},"findings":[{"tool":"t","title":"ok",
             target: None, domain: None, evidence: None, source: None,
             out_dir: tmp.join(format!("out-{mode}")),
             registry: reg_path.clone(), report: false, dry_run: false, max_requests: DEFAULT_MAX_REQUESTS, ua: None, proxy: None, proxies_file: None,
+            net_scope: None,
         };
         let t0 = run_scan(&base("tier0")).expect("tier0 harus jalan");
         assert_eq!(t0.skills_run, vec!["safe".to_string()],
@@ -1123,6 +1218,7 @@ json.dump({"ok":True,"data":{},"findings":[{"tool":"t","title":"ok",
         let p = ScanParams {
             mode: "tier0".into(), target: None, domain: None, evidence: None, source: None,
             out_dir: tmp.join("out"), registry: reg_path, report: false, dry_run: true, max_requests: DEFAULT_MAX_REQUESTS, ua: None, proxy: None, proxies_file: None,
+            net_scope: None,
         };
         let r = run_scan(&p).expect("dry-run harus sukses tanpa eksekusi");
         assert_eq!(r.skills_run.len(), 1);
@@ -1168,6 +1264,7 @@ json.dump({"ok":True,"data":{"requests":2},"findings":[{"tool":"t","title":"ok",
         let p = ScanParams {
             mode: "tier0".into(), target: None, domain: None, evidence: None, source: None,
             out_dir: tmp.join("out"), registry: reg_path, report: false, dry_run: false, max_requests: DEFAULT_MAX_REQUESTS, ua: None, proxy: None, proxies_file: None,
+            net_scope: None,
         };
         let r = run_scan(&p).expect("scan harus sukses");
         assert_eq!(r.requests, 5, "s1 top=3 (bukan 3+3) + s2 fallback data=2");
@@ -1238,6 +1335,7 @@ json.dump({"ok":True,"data":{"ua":os.environ.get("SECAI_UA","(none)"),
             ua: Some("browser".into()),
             proxy: Some("http://127.0.0.1:18080".into()),
             proxies_file: None,
+            net_scope: None,
         };
         let r = run_scan(&p).expect("scan harus sukses");
         // env yang dilihat SKILL tercatat di file output per-skill;
@@ -1297,6 +1395,7 @@ http://10.0.0.2:9002
             dry_run: false, max_requests: DEFAULT_MAX_REQUESTS,
             ua: None, proxy: None,
             proxies_file: Some(px_file.to_string_lossy().to_string()),
+            net_scope: None,
         };
         let r = run_scan(&p).expect("scan harus sukses");
         let out = tmp.join("out");
@@ -1343,6 +1442,7 @@ garbage-tanpa-skema
             report: false, dry_run: false, max_requests: DEFAULT_MAX_REQUESTS,
             ua: None, proxy: Some("http://a:1".into()),
             proxies_file: Some("x.txt".into()),
+            net_scope: None,
         };
         let err = run_scan(&p).unwrap_err();
         assert!(err.contains("fail-closed"), "got: {err}");
@@ -1355,6 +1455,7 @@ garbage-tanpa-skema
             mode: "tier0".into(), target: None, domain: None, evidence: None, source: None,
             out_dir: PathBuf::from("x"), registry: PathBuf::from("x"),
             report: false, dry_run: false, max_requests: 0, ua: None, proxy: None, proxies_file: None,
+            net_scope: None,
         };
         let err = run_scan(&p).unwrap_err();
         assert!(err.contains("fail-closed"), "got: {err}");
@@ -1387,6 +1488,7 @@ json.dump({"ok":True,"data":{"requests":1},"requests":1,"findings":[{"tool":"t",
             mode: "tier0".into(), target: None, domain: None, evidence: None, source: None,
             out_dir: tmp.join("out"), registry: reg_path, report: false,
             dry_run: false, max_requests: 1, ua: None, proxy: None, proxies_file: None,
+            net_scope: None,
         };
         let r = run_scan(&p).expect("scan harus tetap sukses (satu skill jalan)");
         assert_eq!(r.skills_run, vec!["satu".to_string()]);
@@ -1417,6 +1519,7 @@ json.dump({"ok":True,"data":{"requests":1},"requests":1,"findings":[{"tool":"t",
             mode: "tier0".into(), target: None, domain: None, evidence: None, source: None,
             out_dir: tmp.join("out"), registry: reg_path, report: false,
             dry_run: false, max_requests: 1, ua: None, proxy: None, proxies_file: None,
+            net_scope: None,
         };
         let err = run_scan(&p).unwrap_err();
         assert!(err.contains("fail-closed"), "got: {err}");
